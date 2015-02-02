@@ -1,0 +1,29 @@
+{
+  "name": "character",
+  "version": "0.1.0",
+  "description": "a better 5e mobile character sheet",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev" : "browserify -t reactify index.js -o bundle.js && beefy"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:theoperatore/character.git"
+  },
+  "author": "Alex Petersen <theoperatore@gmail.com> (http://anpetersen.me)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/theoperatore/character/issues"
+  },
+  "homepage": "https://github.com/theoperatore/character",
+  "devDependencies": {
+    "beefy": "^2.1.2",
+    "browserify": "^8.1.3",
+    "reactify": "^1.0.0"
+  },
+  "dependencies": {
+    "react": "^0.12.2",
+    "react-bootstrap": "^0.13.3"
+  }
+}
