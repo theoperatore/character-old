@@ -61,6 +61,17 @@ var Info = React.createClass({
           </Grid>
         </Panel>
         
+        <Panel header={<h3>{"Traits"}</h3>}>
+          <h4>{"Personality Traits"}</h4>
+          <p>{this.props.character['charTraits']['personalityTraits']}</p>  
+          <h4>{"Ideals"}</h4>
+          <p>{this.props.character['charTraits']['ideals']}</p>
+          <h4>{"Bonds"}</h4>
+          <p>{this.props.character['charTraits']['bonds']}</p>
+          <h4>{"Flaws"}</h4>
+          <p>{this.props.character['charTraits']['flaws']}</p>
+        </Panel>
+
         <h3>{"Traits"}</h3>
         <Panel header="Personality Traits">
           <p>{this.props.character['charTraits']['personalityTraits']}</p>  

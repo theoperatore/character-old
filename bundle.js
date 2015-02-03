@@ -239,6 +239,17 @@ var Info = React.createClass({
           )
         ), 
         
+        React.createElement(Panel, {header: React.createElement("h3", null, "Traits")}, 
+          React.createElement("h4", null, "Personality Traits"), 
+          React.createElement("p", null, this.props.character['charTraits']['personalityTraits']), 
+          React.createElement("h4", null, "Ideals"), 
+          React.createElement("p", null, this.props.character['charTraits']['ideals']), 
+          React.createElement("h4", null, "Bonds"), 
+          React.createElement("p", null, this.props.character['charTraits']['bonds']), 
+          React.createElement("h4", null, "Flaws"), 
+          React.createElement("p", null, this.props.character['charTraits']['flaws'])
+        ), 
+
         React.createElement("h3", null, "Traits"), 
         React.createElement(Panel, {header: "Personality Traits"}, 
           React.createElement("p", null, this.props.character['charTraits']['personalityTraits'])
