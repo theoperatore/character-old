@@ -31,6 +31,7 @@ html {
 }
 .circle>h4 {
   background-color: #f7f7f7;
+  color: #777;
   border-radius: 50%;
   width: 45px;
   height: 45px;
@@ -48,7 +49,7 @@ html {
   border-top-left-radius: 0 !important;
   border-top-right-radius: 0 !important;
   background-color: #337ab7 !important;
-  color: #337ab7 !important;
+  color: #31708f !important;
 }
 
 .card-description {
@@ -68,6 +69,7 @@ html {
   border-radius: 50%;
   line-height: 60px;
   margin: auto;
+  color: #777;
   background-color: #f7f7f7;
 
   transition: all 300ms;
