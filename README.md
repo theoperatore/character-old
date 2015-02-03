@@ -11,7 +11,7 @@ including, but not limited to:
 - built-in way of handling attack/damage mods for melee, ranged, spells
 - use of Markdown to format descriptions
 - custom macro language for adding numbers together?
-	- in a description: "Adds [<DEX> + 3] to AC"
+	- in a description: "Adds [{DEX} + 3] to AC"
 	- would resolve, if Dex mod was 3, to: "Adds 6 to AC"
 
 
