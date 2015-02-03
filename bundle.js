@@ -719,7 +719,7 @@ module.exports = {
     {
       "name" : "Ki",
       "desc" : "Do cool stuff with your inner power!",
-      "charges" : 5
+      "charges" : 15
     },
     {
       "name" : "Sorcery",
