@@ -120,6 +120,9 @@ var Glyphicon = require('react-bootstrap/Glyphicon');
 var Accordion = require('react-bootstrap/Accordion');
 var Panel = require('react-bootstrap/Panel');
 var Input = require('react-bootstrap/Input');
+var Grid = require('react-bootstrap/Grid');
+var Row = require('react-bootstrap/Row');
+var Col = require('react-bootstrap/Col');
 
 var Attack = React.createClass({
   displayName : "Attack",
@@ -136,7 +139,7 @@ var Attack = React.createClass({
     this.setState({ abil : e.target.value });
   },
   handleSelectSpell : function(e) {
-    
+
   },
   render : function() {
 
@@ -174,8 +177,19 @@ var Attack = React.createClass({
           )
         ), 
         React.createElement(Panel, null, 
-          React.createElement("p", {className: "text-center"}, "Attack Damage Bonus"), 
-          React.createElement("h3", {className: "BOOM text-center"}, bonus)
+          React.createElement(Grid, {fluid: true}, 
+            React.createElement(Row, null, 
+              React.createElement(Col, {xs: 6}, 
+                React.createElement("p", {className: "text-center"}, "Attack Bonus"), 
+                React.createElement("h3", {className: "BOOM text-center"}, bonus)
+              ), 
+              React.createElement(Col, {xs: 6}, 
+                React.createElement("p", {className: "text-center"}, "Spell DC"), 
+                React.createElement("h3", {className: "BOOM text-center"}, 0)
+              )
+            )
+          )
+          
         ), 
         React.createElement(Accordion, {defaultActiveKey: ""}, 
           React.createElement(Panel, {header: "Punching", eventKey: "1"}, 
@@ -192,7 +206,7 @@ var Attack = React.createClass({
 
 module.exports = Attack;
 
-},{"react":179,"react-bootstrap/Accordion":9,"react-bootstrap/Glyphicon":14,"react-bootstrap/Input":16,"react-bootstrap/Panel":20}],3:[function(require,module,exports){
+},{"react":179,"react-bootstrap/Accordion":9,"react-bootstrap/Col":12,"react-bootstrap/Glyphicon":14,"react-bootstrap/Grid":15,"react-bootstrap/Input":16,"react-bootstrap/Panel":20,"react-bootstrap/Row":22}],3:[function(require,module,exports){
 var React = require('react');
 
 var Grid = require('react-bootstrap/Grid');

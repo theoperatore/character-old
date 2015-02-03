@@ -3,6 +3,9 @@ var Glyphicon = require('react-bootstrap/Glyphicon');
 var Accordion = require('react-bootstrap/Accordion');
 var Panel = require('react-bootstrap/Panel');
 var Input = require('react-bootstrap/Input');
+var Grid = require('react-bootstrap/Grid');
+var Row = require('react-bootstrap/Row');
+var Col = require('react-bootstrap/Col');
 
 var Attack = React.createClass({
   displayName : "Attack",
@@ -19,7 +22,7 @@ var Attack = React.createClass({
     this.setState({ abil : e.target.value });
   },
   handleSelectSpell : function(e) {
-    
+
   },
   render : function() {
 
@@ -57,8 +60,19 @@ var Attack = React.createClass({
           </Panel>
         </Accordion>
         <Panel>
-          <p className="text-center">{"Attack Damage Bonus"}</p>
-          <h3 className="BOOM text-center">{bonus}</h3>
+          <Grid fluid>
+            <Row>
+              <Col xs={6}>
+                <p className="text-center">{"Attack Bonus"}</p>
+                <h3 className="BOOM text-center">{bonus}</h3>
+              </Col>
+              <Col xs={6}>
+                <p className="text-center">{"Spell DC"}</p>
+                <h3 className="BOOM text-center">{0}</h3>
+              </Col>
+            </Row>
+          </Grid>
+          
         </Panel>
         <Accordion defaultActiveKey="">
           <Panel header="Punching" eventKey='1'>
