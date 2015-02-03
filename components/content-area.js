@@ -1,4 +1,6 @@
 var React = require('react');
+var ContentInfo = require('./content-info');
+
 var PageHeader = require('react-bootstrap/PageHeader');
 var TabbedArea = require('react-bootstrap/TabbedArea');
 var TabPane = require('react-bootstrap/TabPane');
@@ -13,157 +15,54 @@ var ContentArea = React.createClass({
   displayName : "ContentArea",
   render : function() {
     return (
-      <TabbedArea defaultActiveKey={1}>
-        <TabPane eventKey={1} tab={<Glyphicon glyph="exclamation-sign" />}>
+      <TabbedArea defaultActiveKey={3}>
+        <TabPane eventKey={1} tab={<Glyphicon glyph="info-sign" />}>
+          <ContentInfo character={this.props.character} />          
+        </TabPane>
+        <TabPane eventKey={2} tab={<Glyphicon glyph="flash" />}>
           <div className="container-fluid">
-            <h3>{"Info"}</h3>
-            <p>{"All of your character info will prolly go here...class, race, level, etc."}</p>
-            <p>{"Perhaps ability scores as well? How should those be displayed? Maybe 3 columns in 2 rows?"}</p>
-            <Panel>
-              <Grid fluid className="text-center">  
-                <Row>
-                  <Col xs={4}>
-                    <Grid fluid>
-                      <Row>
-                        <Col><p><small>{"STR"}</small></p></Col>
-                      </Row>
-                      <Row>
-                        <Col>{this.props.character['charAbilities']['str']['mod']}</Col>
-                      </Row>
-                      <Row>
-                        <Col><small>{this.props.character['charAbilities']['str']['score']}</small></Col>
-                      </Row>
-                    </Grid>
-                  </Col>
-                  <Col xs={4}>
-                    <Grid fluid>
-                      <Row>
-                        <Col><p><small>{"DEX"}</small></p></Col>
-                      </Row>
-                      <Row>
-                        <Col>{this.props.character['charAbilities']['dex']['mod']}</Col>
-                      </Row>
-                      <Row>
-                        <Col><small>{this.props.character['charAbilities']['dex']['score']}</small></Col>
-                      </Row>
-                    </Grid>
-                  </Col>
-                  <Col xs={4}>
-                    <Grid fluid>
-                      <Row>
-                        <Col><p><small>{"CON"}</small></p></Col>
-                      </Row>
-                      <Row>
-                        <Col>{this.props.character['charAbilities']['con']['mod']}</Col>
-                      </Row>
-                      <Row>
-                        <Col><small>{this.props.character['charAbilities']['con']['score']}</small></Col>
-                      </Row>
-                    </Grid>
-                  </Col>
-                </Row>
-                <Row>
-                  <Col xs={4}>
-                    <Grid fluid>
-                      <Row>
-                        <Col><p><small>{"INT"}</small></p></Col>
-                      </Row>
-                      <Row>
-                        <Col>{this.props.character['charAbilities']['int']['mod']}</Col>
-                      </Row>
-                      <Row>
-                        <Col><small>{this.props.character['charAbilities']['int']['score']}</small></Col>
-                      </Row>
-                    </Grid>
-                  </Col>
-                  <Col xs={4}>
-                    <Grid fluid>
-                      <Row>
-                        <Col><p><small>{"WIS"}</small></p></Col>
-                      </Row>
-                      <Row>
-                        <Col>{this.props.character['charAbilities']['wis']['mod']}</Col>
-                      </Row>
-                      <Row>
-                        <Col><small>{this.props.character['charAbilities']['wis']['score']}</small></Col>
-                      </Row>
-                    </Grid>
-                  </Col>
-                  <Col xs={4}>
-                    <Grid fluid>
-                      <Row>
-                        <Col><p><small>{"CHA"}</small></p></Col>
-                      </Row>
-                      <Row>
-                        <Col>{this.props.character['charAbilities']['cha']['mod']}</Col>
-                      </Row>
-                      <Row>
-                        <Col><small>{this.props.character['charAbilities']['cha']['score']}</small></Col>
-                      </Row>
-                    </Grid>
-                  </Col>
-                </Row>
-              </Grid>
-            </Panel>
-
-            <p>{"Meh, maybe something else..."}</p>
-            <p>{"Could do accordion"}</p>
-
-            <Accordion defaultActiveKey="">
-              <Panel header="Strength" eventKey='1'>
-                <p>{"Might not feel right with just numbers..."}</p>
-              </Panel>
-              <Panel header="Dexterity" eventKey='2'>
-                <p>{"mod:   " + this.props.character['charAbilities']['dex']['mod']}</p>
-                <p>{"score: " + this.props.character['charAbilities']['dex']['score']}</p>
-                <p>{"I feel like if we put them in rows? or something? that might be better?"}</p>
-              </Panel>
-            </Accordion>
-
-            <p>{"What about in two columns, 3 rows, each a 'card'"}</p>
-            
+            <h3>{"Ability Scores"}</h3>
+            <p>{"I'd like to come up with something better than just having a grid of them..."}</p>
             <Grid fluid className="text-center">
               <Row>
-                <Col xs={6}>
+                <Col xs={4}>
                   <div className="card">
                     <p>STR</p>
                     <h3>{this.props.character['charAbilities']['str']['mod']}</h3>
                     <p>{this.props.character['charAbilities']['str']['score']}</p>
                   </div>
                 </Col>
-                <Col xs={6}>
+                <Col xs={4}>
                   <div className="card">
                     <p>DEX</p>
                     <h3>{this.props.character['charAbilities']['dex']['mod']}</h3>
                     <p>{this.props.character['charAbilities']['dex']['score']}</p>
                   </div>
                 </Col>
-              </Row>
-              <Row>
-                <Col xs={6}>
+                <Col xs={4}>
                   <div className="card">
                     <p>CON</p>
                     <h3>{this.props.character['charAbilities']['con']['mod']}</h3>
                     <p>{this.props.character['charAbilities']['con']['score']}</p>
                   </div>
                 </Col>
-                <Col xs={6}>
+              </Row>
+              <Row>
+                <Col xs={4}>
                   <div className="card">
                     <p>INT</p>
                     <h3>{this.props.character['charAbilities']['int']['mod']}</h3>
                     <p>{this.props.character['charAbilities']['int']['score']}</p>
                   </div>
                 </Col>
-              </Row>
-              <Row>
-                <Col xs={6}>
+                <Col xs={4}>
                   <div className="card">
                     <p>WIS</p>
                     <h3>{this.props.character['charAbilities']['wis']['mod']}</h3>
                     <p>{this.props.character['charAbilities']['wis']['score']}</p>
                   </div>
                 </Col>
-                <Col xs={6}>
+                <Col xs={4}>
                   <div className="card">
                     <p>CHA</p>
                     <h3>{this.props.character['charAbilities']['cha']['mod']}</h3>
@@ -172,11 +71,9 @@ var ContentArea = React.createClass({
                 </Col>
               </Row>
             </Grid>
-
-            <p>{"Will probably use whichever layout is best for skills too..."}</p>
           </div>
         </TabPane>
-        <TabPane eventKey={2} tab={<Glyphicon glyph="cog" />}>
+        <TabPane eventKey={3} tab={<Glyphicon glyph="fire" />}>
           <div className="container-fluid">
             <h3>{"Attacks"}</h3>
             <p>Here will prolly be a list of your attacks? Maybe a nice vertical accordion style list?</p>
@@ -188,9 +85,16 @@ var ContentArea = React.createClass({
                 <p>{"Fly your foot into the dude's face. +2 damage to insult and +4 damage to injury."}</p>
               </Panel>
             </Accordion>
+            <p>Spell slots and character ability slots would also go here. So would anything else that a character needs to attack with minus equipment.</p>
           </div>
         </TabPane>
-        <TabPane eventKey={3} tab={<Glyphicon glyph="compressed" />}>
+        <TabPane eventKey={4} tab={<Glyphicon glyph="tower" />}>
+          <div className="container-fluid">
+            <h3>{"Defenses"}</h3>
+            <p>{"Armor class, hp, stuff like that would go here"}</p>
+          </div>
+        </TabPane>
+        <TabPane eventKey={5} tab={<Glyphicon glyph="shopping-cart" />}>
           <div className="container-fluid">
             <h3>{"Equipment"}</h3>
 
