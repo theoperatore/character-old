@@ -41,12 +41,14 @@ html {
 
 .bg-success {
   background-color: #dff0d8 !important;
+  color: #3c763d !important;
 }
 
 .shield {
   border-top-left-radius: 0 !important;
   border-top-right-radius: 0 !important;
   background-color: #337ab7 !important;
+  color: #337ab7 !important;
 }
 
 .card-description {
