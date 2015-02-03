@@ -720,6 +720,11 @@ module.exports = {
       "name" : "Ki",
       "desc" : "Do cool stuff with your inner power!",
       "charges" : 5
+    },
+    {
+      "name" : "Sorcery",
+      "desc" : "RAGE and do lots of damage",
+      "charges" : 3
     }
   ],
   "charSpellSlots" : [],
