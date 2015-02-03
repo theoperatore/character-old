@@ -16,11 +16,17 @@ var ContentArea = React.createClass({
   displayName : "ContentArea",
   render : function() {
     return (
-      <TabbedArea defaultActiveKey={3}>
+      <TabbedArea defaultActiveKey={4}>
         <TabPane eventKey={1} tab={<Glyphicon glyph="info-sign" />}>
           <ContentInfo character={this.props.character} />          
         </TabPane>
-        <TabPane eventKey={2} tab={<Glyphicon glyph="bookmark" />}>
+        <TabPane eventKey={2} tab={<Glyphicon glyph="flash" />}>
+          <div className="container-fluid">
+            <h3>{"Features"}</h3>
+            <p>{"Things like 'Extra Attack' and 'Wild Surge' go here, as well as Feats you may take, if your DM allows them."}</p>
+          </div>
+        </TabPane>
+        <TabPane eventKey={3} tab={<Glyphicon glyph="bookmark" />}>
           <div className="container-fluid">
             <h3>{"Ability Scores"}</h3>
             <p>{"I'd like to come up with something better than just having a grid of them..."}</p>
@@ -74,16 +80,16 @@ var ContentArea = React.createClass({
             </Grid>
           </div>
         </TabPane>
-        <TabPane eventKey={3} tab={<Glyphicon glyph="fire" />}>
+        <TabPane eventKey={4} tab={<Glyphicon glyph="fire" />}>
           <ContentAttack character={this.props.character} />
         </TabPane>
-        <TabPane eventKey={4} tab={<Glyphicon glyph="tower" />}>
+        <TabPane eventKey={5} tab={<Glyphicon glyph="tower" />}>
           <div className="container-fluid">
             <h3>{"Defenses"}</h3>
             <p>{"Armor class, hp, stuff like that would go here"}</p>
           </div>
         </TabPane>
-        <TabPane eventKey={5} tab={<Glyphicon glyph="briefcase" />}>
+        <TabPane eventKey={6} tab={<Glyphicon glyph="shopping-cart" />}>
           <div className="container-fluid">
             <h3>{"Equipment"}</h3>
 

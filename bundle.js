@@ -17,11 +17,17 @@ var ContentArea = React.createClass({
   displayName : "ContentArea",
   render : function() {
     return (
-      React.createElement(TabbedArea, {defaultActiveKey: 3}, 
+      React.createElement(TabbedArea, {defaultActiveKey: 4}, 
         React.createElement(TabPane, {eventKey: 1, tab: React.createElement(Glyphicon, {glyph: "info-sign"})}, 
           React.createElement(ContentInfo, {character: this.props.character})
         ), 
-        React.createElement(TabPane, {eventKey: 2, tab: React.createElement(Glyphicon, {glyph: "bookmark"})}, 
+        React.createElement(TabPane, {eventKey: 2, tab: React.createElement(Glyphicon, {glyph: "flash"})}, 
+          React.createElement("div", {className: "container-fluid"}, 
+            React.createElement("h3", null, "Features"), 
+            React.createElement("p", null, "Things like 'Extra Attack' and 'Wild Surge' go here, as well as Feats you may take, if your DM allows them.")
+          )
+        ), 
+        React.createElement(TabPane, {eventKey: 3, tab: React.createElement(Glyphicon, {glyph: "bookmark"})}, 
           React.createElement("div", {className: "container-fluid"}, 
             React.createElement("h3", null, "Ability Scores"), 
             React.createElement("p", null, "I'd like to come up with something better than just having a grid of them..."), 
@@ -75,16 +81,16 @@ var ContentArea = React.createClass({
             )
           )
         ), 
-        React.createElement(TabPane, {eventKey: 3, tab: React.createElement(Glyphicon, {glyph: "fire"})}, 
+        React.createElement(TabPane, {eventKey: 4, tab: React.createElement(Glyphicon, {glyph: "fire"})}, 
           React.createElement(ContentAttack, {character: this.props.character})
         ), 
-        React.createElement(TabPane, {eventKey: 4, tab: React.createElement(Glyphicon, {glyph: "tower"})}, 
+        React.createElement(TabPane, {eventKey: 5, tab: React.createElement(Glyphicon, {glyph: "tower"})}, 
           React.createElement("div", {className: "container-fluid"}, 
             React.createElement("h3", null, "Defenses"), 
             React.createElement("p", null, "Armor class, hp, stuff like that would go here")
           )
         ), 
-        React.createElement(TabPane, {eventKey: 5, tab: React.createElement(Glyphicon, {glyph: "briefcase"})}, 
+        React.createElement(TabPane, {eventKey: 6, tab: React.createElement(Glyphicon, {glyph: "shopping-cart"})}, 
           React.createElement("div", {className: "container-fluid"}, 
             React.createElement("h3", null, "Equipment"), 
 
