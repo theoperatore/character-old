@@ -47,7 +47,7 @@ var Attack = React.createClass({
                 <p className="text-center">{"Attack Bonus"}</p>
                 <OverlayTrigger trigger="click" placement="bottom" overlay={
                   <Popover title="Attack Bonus Config">
-                    <Panel>
+                    <div>
                       <Input type="select" label='Ability Mod' defaultValue="str" onChange={this.handleSelectAttack}>
                         <option value="str">str</option>
                         <option value="dex">dex</option>
@@ -57,7 +57,7 @@ var Attack = React.createClass({
                         <option value="cha">cha</option>
                       </Input>
                       <Input type="checkbox" label="Proficient" onChange={this.handleProficient} />
-                    </Panel>
+                    </div>
                   </Popover>
                 }>
                   <h3 className="BOOM text-center">{bonus}</h3>
@@ -67,7 +67,7 @@ var Attack = React.createClass({
                 <p className="text-center">{"Spell DC"}</p>
                 <OverlayTrigger trigger="click" placement="bottom" overlay={
                   <Popover title="Spell Save DC Config">
-                    <Panel>
+                    <div>
                       <Input type="select" label='Ability Mod' defaultValue="str" onChange={this.handleSelectSpell}>
                         <option value="str">str</option>
                         <option value="dex">dex</option>
@@ -76,7 +76,7 @@ var Attack = React.createClass({
                         <option value="wis">wis</option>
                         <option value="cha">cha</option>
                       </Input>
-                    </Panel>
+                    </div>
                   </Popover>
                 }>
                   <h3 className="BOOM text-center">{8 + spell}</h3>  

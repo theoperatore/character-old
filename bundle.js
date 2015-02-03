@@ -164,7 +164,7 @@ var Attack = React.createClass({
                 React.createElement("p", {className: "text-center"}, "Attack Bonus"), 
                 React.createElement(OverlayTrigger, {trigger: "click", placement: "bottom", overlay: 
                   React.createElement(Popover, {title: "Attack Bonus Config"}, 
-                    React.createElement(Panel, null, 
+                    React.createElement("div", null, 
                       React.createElement(Input, {type: "select", label: "Ability Mod", defaultValue: "str", onChange: this.handleSelectAttack}, 
                         React.createElement("option", {value: "str"}, "str"), 
                         React.createElement("option", {value: "dex"}, "dex"), 
@@ -184,7 +184,7 @@ var Attack = React.createClass({
                 React.createElement("p", {className: "text-center"}, "Spell DC"), 
                 React.createElement(OverlayTrigger, {trigger: "click", placement: "bottom", overlay: 
                   React.createElement(Popover, {title: "Spell Save DC Config"}, 
-                    React.createElement(Panel, null, 
+                    React.createElement("div", null, 
                       React.createElement(Input, {type: "select", label: "Ability Mod", defaultValue: "str", onChange: this.handleSelectSpell}, 
                         React.createElement("option", {value: "str"}, "str"), 
                         React.createElement("option", {value: "dex"}, "dex"), 
