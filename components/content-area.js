@@ -94,7 +94,7 @@ var ContentArea = React.createClass({
             <p>{"Armor class, hp, stuff like that would go here"}</p>
           </div>
         </TabPane>
-        <TabPane eventKey={5} tab={<Glyphicon glyph="shopping-cart" />}>
+        <TabPane eventKey={5} tab={<Glyphicon glyph="briefcase" />}>
           <div className="container-fluid">
             <h3>{"Equipment"}</h3>
 

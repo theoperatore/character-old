@@ -95,7 +95,7 @@ var ContentArea = React.createClass({
             React.createElement("p", null, "Armor class, hp, stuff like that would go here")
           )
         ), 
-        React.createElement(TabPane, {eventKey: 5, tab: React.createElement(Glyphicon, {glyph: "shopping-cart"})}, 
+        React.createElement(TabPane, {eventKey: 5, tab: React.createElement(Glyphicon, {glyph: "briefcase"})}, 
           React.createElement("div", {className: "container-fluid"}, 
             React.createElement("h3", null, "Equipment"), 
 
@@ -131,6 +131,7 @@ var React = require('react');
 var Grid = require('react-bootstrap/Grid');
 var Row = require('react-bootstrap/Row');
 var Col = require('react-bootstrap/Col');
+var Panel = require('react-bootstrap/Panel');
 
 
 var Info = React.createClass({
@@ -139,69 +140,71 @@ var Info = React.createClass({
     return (
       React.createElement("div", {className: "container-fluid"}, 
         React.createElement("h3", null, "Info"), 
-        React.createElement("p", null, "Maybe...but it's still not quite right..."), 
-        React.createElement(Grid, {fluid: true, className: "text-center"}, 
-          React.createElement(Row, null, 
-            React.createElement(Col, {xs: 4, xsOffset: 4}, 
-              React.createElement("div", null, 
-                React.createElement("p", null, "CLASS"), 
-                React.createElement("h4", null, this.props.character['charInfo']['class'])
-              )
-            )
-          ), 
-          React.createElement(Row, null, 
-            React.createElement(Col, {xs: 4}, 
-              React.createElement("div", null, 
-                React.createElement("p", null, "XP"), 
-                React.createElement("h4", null, this.props.character['charInfo']['xp'])
-              )
-            ), 
-            React.createElement(Col, {xs: 4}, React.createElement("div", null)), 
-            React.createElement(Col, {xs: 4}, 
-              React.createElement("div", null, 
-                React.createElement("p", null, "LEVEL"), 
-                React.createElement("h3", null, this.props.character['charInfo']['level'])
-              )
-            )
-          ), 
-          React.createElement(Row, null, 
-            React.createElement(Col, {xs: 4}, 
-              React.createElement("div", null, 
-                React.createElement("p", null, "BACKGROUND"), 
-                React.createElement("h4", null, this.props.character['charInfo']['background'])
-              )
-            ), 
-            React.createElement(Col, {xs: 4}, React.createElement("div", null)), 
-            React.createElement(Col, {xs: 4}, 
-              React.createElement("div", null, 
-                React.createElement("p", null, "RACE"), 
-                React.createElement("h4", null, this.props.character['charInfo']['race'])
-              )
-            )
-          ), 
-          React.createElement(Row, null, 
-            React.createElement(Col, {xs: 4, xsOffset: 4}, 
-              React.createElement("div", null, 
-                React.createElement("p", null, "ALIGNMENT"), 
-                React.createElement("h4", null, this.props.character['charInfo']['alignment'])
+        React.createElement(Panel, null, 
+          React.createElement(Grid, {fluid: true}, 
+            React.createElement(Row, null, 
+              React.createElement(Col, {xs: 4}, 
+                React.createElement("div", null, 
+                  React.createElement("p", null, "CLASS"), 
+                  React.createElement("h4", null, this.props.character['charInfo']['class'])
+                )
+              ), 
+              React.createElement(Col, {xs: 4}, 
+                React.createElement("div", null, 
+                  React.createElement("p", null, "LEVEL"), 
+                  React.createElement("h4", null, this.props.character['charInfo']['level'])
+                )
+              ), 
+              React.createElement(Col, {xs: 4}, 
+                React.createElement("div", null, 
+                  React.createElement("p", null, "XP"), 
+                  React.createElement("h4", null, this.props.character['charInfo']['xp'])
+                )
               )
             )
           )
         ), 
-
+        React.createElement(Panel, null, 
+          React.createElement(Grid, {fluid: true}, 
+            React.createElement(Row, null, 
+              React.createElement(Col, {xs: 4}, 
+                React.createElement("div", null, 
+                  React.createElement("p", null, "BACKGROUND"), 
+                  React.createElement("h4", null, this.props.character['charInfo']['background'])
+                )
+              ), 
+              React.createElement(Col, {xs: 4}, 
+                React.createElement("div", null, 
+                  React.createElement("p", null, "RACE"), 
+                  React.createElement("h4", null, this.props.character['charInfo']['race'])
+                )
+              ), 
+              React.createElement(Col, {xs: 4}, 
+                React.createElement("div", null, 
+                  React.createElement("p", null, "ALIGNMENT"), 
+                  React.createElement("h4", null, this.props.character['charInfo']['alignment'])
+                )
+              )
+            )
+          )
+        ), 
         
         React.createElement("h3", null, "Traits"), 
-        React.createElement("h4", {className: "text-center"}, "Personality Traits"), 
-        React.createElement("p", {className: "text-center"}, this.props.character['charTraits']['personalityTraits']), 
+        React.createElement(Panel, {header: "Personality Traits"}, 
+          React.createElement("p", null, this.props.character['charTraits']['personalityTraits'])
+        ), 
+        
+        React.createElement(Panel, {header: "Ideals"}, 
+          React.createElement("p", null, this.props.character['charTraits']['ideals'])
+        ), 
 
-        React.createElement("h4", {className: "text-center"}, "Ideals"), 
-        React.createElement("p", {className: "text-center"}, this.props.character['charTraits']['ideals']), 
-
-        React.createElement("h4", {className: "text-center"}, "Bonds"), 
-        React.createElement("p", {className: "text-center"}, this.props.character['charTraits']['bonds']), 
-
-        React.createElement("h4", {className: "text-center"}, "Flaws"), 
-        React.createElement("p", {className: "text-center"}, this.props.character['charTraits']['flaws'])
+        React.createElement(Panel, {header: "Bonds"}, 
+          React.createElement("p", null, this.props.character['charTraits']['bonds'])
+        ), 
+        
+        React.createElement(Panel, {header: "Flaws"}, 
+          React.createElement("p", null, this.props.character['charTraits']['flaws'])
+        )
       )
     )
   }
@@ -209,7 +212,7 @@ var Info = React.createClass({
 
 module.exports = Info;
 
-},{"react":176,"react-bootstrap/Col":10,"react-bootstrap/Grid":13,"react-bootstrap/Row":19}],3:[function(require,module,exports){
+},{"react":176,"react-bootstrap/Col":10,"react-bootstrap/Grid":13,"react-bootstrap/Panel":17,"react-bootstrap/Row":19}],3:[function(require,module,exports){
 var React = require('react');
 var PageHeader = require('react-bootstrap/PageHeader');
 
