@@ -12,6 +12,10 @@ var Grid = require('react-bootstrap/Grid');
 var Row = require('react-bootstrap/Row');
 var Col = require('react-bootstrap/Col');
 
+var OverlayTrigger = require('react-bootstrap/OverlayTrigger');
+var Popover = require('react-bootstrap/Popover');
+var Input = require('react-bootstrap/Input');
+
 var ContentArea = React.createClass({
   displayName : "ContentArea",
   render : function() {
@@ -83,13 +87,36 @@ var ContentArea = React.createClass({
         <TabPane eventKey={4} tab={<Glyphicon glyph="fire" />}>
           <ContentAttack character={this.props.character} />
         </TabPane>
-        <TabPane eventKey={5} tab={<Glyphicon glyph="tower" />}>
+        <TabPane eventKey={5} tab={<Glyphicon glyph="book" />}>
+          <div className="container-fluid">
+            <h3>{"Spells"}</h3>
+            <p className="text-center">{"Spell DC"}</p>
+              <OverlayTrigger trigger="click" placement="bottom" overlay={
+                <Popover title="Spell Save DC Config">
+                  <div>
+                    <Input type="select" label='Ability Mod' defaultValue="str">
+                      <option value="str">str</option>
+                      <option value="dex">dex</option>
+                      <option value="con">con</option>
+                      <option value="int">int</option>
+                      <option value="wis">wis</option>
+                      <option value="cha">cha</option>
+                    </Input>
+                  </div>
+                </Popover>
+              }>
+                <h3 className="BOOM text-center">{8}</h3>  
+              </OverlayTrigger>
+            <p>{"This is where your spells will reside along with your spell slots and spell save DC"}</p>
+          </div>
+        </TabPane>
+        <TabPane eventKey={6} tab={<Glyphicon glyph="tower" />}>
           <div className="container-fluid">
             <h3>{"Defenses"}</h3>
             <p>{"Armor class, hp, stuff like that would go here"}</p>
           </div>
         </TabPane>
-        <TabPane eventKey={6} tab={<Glyphicon glyph="shopping-cart" />}>
+        <TabPane eventKey={7} tab={<Glyphicon glyph="shopping-cart" />}>
           <div className="container-fluid">
             <h3>{"Equipment"}</h3>
 

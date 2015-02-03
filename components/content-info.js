@@ -77,6 +77,14 @@ var Info = React.createClass({
         <Panel header="Flaws">
           <p>{this.props.character['charTraits']['flaws']}</p>
         </Panel>
+
+        <h3>{"Languages"}</h3>
+        <Panel header={this.props.character['charOtherProficiencies']['languages'][0].name}>
+          <p>{this.props.character['charOtherProficiencies']['languages'][0].desc}</p>  
+        </Panel>
+        <Panel header={this.props.character['charOtherProficiencies']['languages'][1].name}>
+          <p>{this.props.character['charOtherProficiencies']['languages'][1].desc}</p>  
+        </Panel>
       </div>
     )
   }

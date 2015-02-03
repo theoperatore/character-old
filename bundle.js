@@ -13,6 +13,10 @@ var Grid = require('react-bootstrap/Grid');
 var Row = require('react-bootstrap/Row');
 var Col = require('react-bootstrap/Col');
 
+var OverlayTrigger = require('react-bootstrap/OverlayTrigger');
+var Popover = require('react-bootstrap/Popover');
+var Input = require('react-bootstrap/Input');
+
 var ContentArea = React.createClass({
   displayName : "ContentArea",
   render : function() {
@@ -84,13 +88,36 @@ var ContentArea = React.createClass({
         React.createElement(TabPane, {eventKey: 4, tab: React.createElement(Glyphicon, {glyph: "fire"})}, 
           React.createElement(ContentAttack, {character: this.props.character})
         ), 
-        React.createElement(TabPane, {eventKey: 5, tab: React.createElement(Glyphicon, {glyph: "tower"})}, 
+        React.createElement(TabPane, {eventKey: 5, tab: React.createElement(Glyphicon, {glyph: "book"})}, 
+          React.createElement("div", {className: "container-fluid"}, 
+            React.createElement("h3", null, "Spells"), 
+            React.createElement("p", {className: "text-center"}, "Spell DC"), 
+              React.createElement(OverlayTrigger, {trigger: "click", placement: "bottom", overlay: 
+                React.createElement(Popover, {title: "Spell Save DC Config"}, 
+                  React.createElement("div", null, 
+                    React.createElement(Input, {type: "select", label: "Ability Mod", defaultValue: "str"}, 
+                      React.createElement("option", {value: "str"}, "str"), 
+                      React.createElement("option", {value: "dex"}, "dex"), 
+                      React.createElement("option", {value: "con"}, "con"), 
+                      React.createElement("option", {value: "int"}, "int"), 
+                      React.createElement("option", {value: "wis"}, "wis"), 
+                      React.createElement("option", {value: "cha"}, "cha")
+                    )
+                  )
+                )
+              }, 
+                React.createElement("h3", {className: "BOOM text-center"}, 8)
+              ), 
+            React.createElement("p", null, "This is where your spells will reside along with your spell slots and spell save DC")
+          )
+        ), 
+        React.createElement(TabPane, {eventKey: 6, tab: React.createElement(Glyphicon, {glyph: "tower"})}, 
           React.createElement("div", {className: "container-fluid"}, 
             React.createElement("h3", null, "Defenses"), 
             React.createElement("p", null, "Armor class, hp, stuff like that would go here")
           )
         ), 
-        React.createElement(TabPane, {eventKey: 6, tab: React.createElement(Glyphicon, {glyph: "shopping-cart"})}, 
+        React.createElement(TabPane, {eventKey: 7, tab: React.createElement(Glyphicon, {glyph: "shopping-cart"})}, 
           React.createElement("div", {className: "container-fluid"}, 
             React.createElement("h3", null, "Equipment"), 
 
@@ -120,7 +147,7 @@ var ContentArea = React.createClass({
 
 module.exports = ContentArea;
 
-},{"./content-attack":2,"./content-info":3,"react":186,"react-bootstrap/Accordion":9,"react-bootstrap/Col":12,"react-bootstrap/Glyphicon":15,"react-bootstrap/Grid":16,"react-bootstrap/PageHeader":23,"react-bootstrap/Panel":24,"react-bootstrap/Row":27,"react-bootstrap/TabPane":28,"react-bootstrap/TabbedArea":29}],2:[function(require,module,exports){
+},{"./content-attack":2,"./content-info":3,"react":186,"react-bootstrap/Accordion":9,"react-bootstrap/Col":12,"react-bootstrap/Glyphicon":15,"react-bootstrap/Grid":16,"react-bootstrap/Input":17,"react-bootstrap/OverlayTrigger":22,"react-bootstrap/PageHeader":23,"react-bootstrap/Panel":24,"react-bootstrap/Popover":26,"react-bootstrap/Row":27,"react-bootstrap/TabPane":28,"react-bootstrap/TabbedArea":29}],2:[function(require,module,exports){
 var React = require('react');
 var Glyphicon = require('react-bootstrap/Glyphicon');
 var Accordion = require('react-bootstrap/Accordion');
@@ -207,52 +234,25 @@ var Attack = React.createClass({
     return (
       React.createElement("div", {className: "container-fluid"}, 
         React.createElement("h3", null, "Attacks", " ", React.createElement(Button, {className: "no-border", onClick: this.handleAttackClose}, React.createElement(Glyphicon, {glyph: "plus-sign"}))), 
-        
         React.createElement(Panel, null, 
-          React.createElement(Grid, {fluid: true}, 
-            React.createElement(Row, null, 
-              React.createElement(Col, {xs: 6}, 
-                React.createElement("p", {className: "text-center"}, "Attack Bonus"), 
-                React.createElement(OverlayTrigger, {trigger: "click", placement: "bottom", overlay: 
-                  React.createElement(Popover, {title: "Attack Bonus Config"}, 
-                    React.createElement("div", null, 
-                      React.createElement(Input, {type: "select", label: "Ability Mod", defaultValue: "str", onChange: this.handleSelectAttack}, 
-                        React.createElement("option", {value: "str"}, "str"), 
-                        React.createElement("option", {value: "dex"}, "dex"), 
-                        React.createElement("option", {value: "con"}, "con"), 
-                        React.createElement("option", {value: "int"}, "int"), 
-                        React.createElement("option", {value: "wis"}, "wis"), 
-                        React.createElement("option", {value: "cha"}, "cha")
-                      ), 
-                      React.createElement(Input, {type: "checkbox", label: "Proficient", onChange: this.handleProficient})
-                    )
-                  )
-                }, 
-                  React.createElement("h3", {className: "BOOM text-center"}, bonus)
-                )
-              ), 
-              React.createElement(Col, {xs: 6}, 
-                React.createElement("p", {className: "text-center"}, "Spell DC"), 
-                React.createElement(OverlayTrigger, {trigger: "click", placement: "bottom", overlay: 
-                  React.createElement(Popover, {title: "Spell Save DC Config"}, 
-                    React.createElement("div", null, 
-                      React.createElement(Input, {type: "select", label: "Ability Mod", defaultValue: "str", onChange: this.handleSelectSpell}, 
-                        React.createElement("option", {value: "str"}, "str"), 
-                        React.createElement("option", {value: "dex"}, "dex"), 
-                        React.createElement("option", {value: "con"}, "con"), 
-                        React.createElement("option", {value: "int"}, "int"), 
-                        React.createElement("option", {value: "wis"}, "wis"), 
-                        React.createElement("option", {value: "cha"}, "cha")
-                      )
-                    )
-                  )
-                }, 
-                  React.createElement("h3", {className: "BOOM text-center"}, 8 + spell)
-                )
+          React.createElement("p", {className: "text-center"}, "Attack Bonus"), 
+          React.createElement(OverlayTrigger, {trigger: "click", placement: "bottom", overlay: 
+            React.createElement(Popover, {title: "Attack Bonus Config"}, 
+              React.createElement("div", null, 
+                React.createElement(Input, {type: "select", label: "Ability Mod", defaultValue: "str", onChange: this.handleSelectAttack}, 
+                  React.createElement("option", {value: "str"}, "str"), 
+                  React.createElement("option", {value: "dex"}, "dex"), 
+                  React.createElement("option", {value: "con"}, "con"), 
+                  React.createElement("option", {value: "int"}, "int"), 
+                  React.createElement("option", {value: "wis"}, "wis"), 
+                  React.createElement("option", {value: "cha"}, "cha")
+                ), 
+                React.createElement(Input, {type: "checkbox", label: "Proficient", onChange: this.handleProficient})
               )
             )
+          }, 
+            React.createElement("h3", {className: "BOOM text-center"}, bonus)
           )
-          
         ), 
         React.createElement(Accordion, {defaultActiveKey: ""}, 
           attacks
@@ -343,6 +343,14 @@ var Info = React.createClass({
         
         React.createElement(Panel, {header: "Flaws"}, 
           React.createElement("p", null, this.props.character['charTraits']['flaws'])
+        ), 
+
+        React.createElement("h3", null, "Languages"), 
+        React.createElement(Panel, {header: this.props.character['charOtherProficiencies']['languages'][0].name}, 
+          React.createElement("p", null, this.props.character['charOtherProficiencies']['languages'][0].desc)
+        ), 
+        React.createElement(Panel, {header: this.props.character['charOtherProficiencies']['languages'][1].name}, 
+          React.createElement("p", null, this.props.character['charOtherProficiencies']['languages'][1].desc)
         )
       )
     )
