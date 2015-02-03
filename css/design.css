@@ -18,3 +18,12 @@ html {
   line-height: 60px;
   margin:auto;
 }
+
+.BOOM {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  line-height: 60px;
+  margin: auto;
+  background-color: #d9edf7;
+}

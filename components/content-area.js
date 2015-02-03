@@ -1,5 +1,6 @@
 var React = require('react');
 var ContentInfo = require('./content-info');
+var ContentAttack = require('./content-attack');
 
 var PageHeader = require('react-bootstrap/PageHeader');
 var TabbedArea = require('react-bootstrap/TabbedArea');
@@ -74,19 +75,7 @@ var ContentArea = React.createClass({
           </div>
         </TabPane>
         <TabPane eventKey={3} tab={<Glyphicon glyph="fire" />}>
-          <div className="container-fluid">
-            <h3>{"Attacks"}</h3>
-            <p>Here will prolly be a list of your attacks? Maybe a nice vertical accordion style list?</p>
-            <Accordion defaultActiveKey="">
-              <Panel header="Punching" eventKey='1'>
-                <p>{"Punch a dude. Right in the mouth! Kapow!"}</p>
-              </Panel>
-              <Panel header="Kick-a-Pow" eventKey='2'>
-                <p>{"Fly your foot into the dude's face. +2 damage to insult and +4 damage to injury."}</p>
-              </Panel>
-            </Accordion>
-            <p>Spell slots and character ability slots would also go here. So would anything else that a character needs to attack with minus equipment.</p>
-          </div>
+          <ContentAttack character={this.props.character} />
         </TabPane>
         <TabPane eventKey={4} tab={<Glyphicon glyph="tower" />}>
           <div className="container-fluid">
