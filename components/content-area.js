@@ -21,16 +21,16 @@ var ContentArea = React.createClass({
   render : function() {
     return (
       <TabbedArea defaultActiveKey={4}>
-        <TabPane eventKey={1} tab={<Glyphicon glyph="info-sign" />}>
+        <TabPane eventKey={1} tab={<small><Glyphicon glyph="info-sign" /></small>}>
           <ContentInfo character={this.props.character} />          
         </TabPane>
-        <TabPane eventKey={2} tab={<Glyphicon glyph="flash" />}>
+        <TabPane eventKey={2} tab={<small><Glyphicon glyph="flash" /></small>}>
           <div className="container-fluid">
             <h3>{"Features"}</h3>
             <p>{"Things like 'Extra Attack' and 'Wild Surge' go here, as well as Feats you may take, if your DM allows them."}</p>
           </div>
         </TabPane>
-        <TabPane eventKey={3} tab={<Glyphicon glyph="bookmark" />}>
+        <TabPane eventKey={3} tab={<small><Glyphicon glyph="bookmark" /></small>}>
           <div className="container-fluid">
             <h3>{"Ability Scores"}</h3>
             <p>{"I'd like to come up with something better than just having a grid of them..."}</p>
@@ -84,13 +84,14 @@ var ContentArea = React.createClass({
             </Grid>
           </div>
         </TabPane>
-        <TabPane eventKey={4} tab={<Glyphicon glyph="fire" />}>
+        <TabPane eventKey={4} tab={<small><Glyphicon glyph="fire" /></small>}>
           <ContentAttack character={this.props.character} />
         </TabPane>
-        <TabPane eventKey={5} tab={<Glyphicon glyph="book" />}>
+        <TabPane eventKey={5} tab={<small><Glyphicon glyph="book" /></small>}>
           <div className="container-fluid">
             <h3>{"Spells"}</h3>
-            <p className="text-center">{"Spell DC"}</p>
+            <Panel>
+              <p className="text-center">{"Spell DC"}</p>
               <OverlayTrigger trigger="click" placement="bottom" overlay={
                 <Popover title="Spell Save DC Config">
                   <div>
@@ -107,16 +108,17 @@ var ContentArea = React.createClass({
               }>
                 <h3 className="BOOM text-center">{8}</h3>  
               </OverlayTrigger>
+            </Panel>
             <p>{"This is where your spells will reside along with your spell slots and spell save DC"}</p>
           </div>
         </TabPane>
-        <TabPane eventKey={6} tab={<Glyphicon glyph="tower" />}>
+        <TabPane eventKey={6} tab={<small><Glyphicon glyph="tower" /></small>}>
           <div className="container-fluid">
             <h3>{"Defenses"}</h3>
             <p>{"Armor class, hp, stuff like that would go here"}</p>
           </div>
         </TabPane>
-        <TabPane eventKey={7} tab={<Glyphicon glyph="shopping-cart" />}>
+        <TabPane eventKey={7} tab={<small><Glyphicon glyph="shopping-cart" /></small>}>
           <div className="container-fluid">
             <h3>{"Equipment"}</h3>
 
