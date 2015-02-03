@@ -22,12 +22,12 @@ var Ability = React.createClass({
       skills.push(
         React.createElement(Row, {key: i}, 
           React.createElement(Col, {xs: 4}, 
-            React.createElement("div", {className: "card text-center"}, 
-              React.createElement("h3", {className: ((skill.trained === true) ? " trained" : "")}, skill.score)
+            React.createElement("div", {className: "circle text-center"}, 
+              React.createElement("h4", {className: ((skill.trained === true) ? " trained" : "")}, skill.score)
             )
           ), 
           React.createElement(Col, {xs: 8}, 
-            React.createElement("h4", {className: "card-description"}, skillName)
+            React.createElement("p", {className: "card-description"}, skillName)
           )
         )
       );
@@ -83,6 +83,25 @@ var Ability = React.createClass({
                   React.createElement("p", null, "CHA"), 
                   React.createElement("h3", {className: "bg-success"}, this.props.character['charAbilities']['cha']['mod']), 
                   React.createElement("p", null, this.props.character['charAbilities']['cha']['score'])
+                )
+              )
+            )
+          )
+        ), 
+
+        React.createElement(Panel, null, 
+          React.createElement(Grid, {fluid: true, className: "text-center"}, 
+            React.createElement(Row, null, 
+              React.createElement(Col, {xs: 6}, 
+                React.createElement("div", {className: "card"}, 
+                  React.createElement("p", null, "Proficiency Bonus"), 
+                  React.createElement("h3", {className: "trained"}, this.props.character['charProficiencyBonus']['score'])
+                )
+              ), 
+              React.createElement(Col, {xs: 6}, 
+                React.createElement("div", {className: "card"}, 
+                  React.createElement("p", null, "Passive Perception"), 
+                  React.createElement("h3", null, this.props.character['charPassivePerception']['score'])
                 )
               )
             )
@@ -277,6 +296,32 @@ var Attack = React.createClass({
     var spell = this.props.character['charAbilities'][this.state.spell]['mod'];
     if (this.state.prof) bonus += prof;
 
+    // render class charges
+    var charges = [];
+    this.props.character['charClassCharges'].forEach(function(resource, i) {
+      var slots = [];
+
+      for (var j = 0; j < resource['charges']; j++) {
+        slots.push(
+          React.createElement(Col, {key: j, xs: 1}, React.createElement("input", {type: "checkbox"}))
+        );
+      }
+
+      charges.push(
+        React.createElement(Panel, {key: i}, 
+          React.createElement("div", {className: "slots"}, 
+            React.createElement("p", null, resource.name), 
+            React.createElement(Grid, {fluid: true}, 
+              React.createElement(Row, null, 
+                slots
+              )
+            )
+          )
+        )
+      );
+    });
+
+
     return (
       React.createElement("div", {className: "container-fluid"}, 
         React.createElement("h3", null, "Attacks", " ", React.createElement(Button, {className: "no-border", onClick: this.handleAttackClose}, React.createElement(Glyphicon, {glyph: "plus-sign"}))), 
@@ -297,10 +342,13 @@ var Attack = React.createClass({
               )
             )
           }, 
-            React.createElement("h3", {className: "BOOM text-center"}, bonus)
+            React.createElement("h3", {className: "bonus text-center" + ((this.state.prof === true) ? " trained" : "")}, bonus)
           ), 
           React.createElement("p", null, this.state.abil.toUpperCase() + ((this.state.prof === true) ? " + PROF" : ""))
         ), 
+
+        charges, 
+
         React.createElement(Accordion, {defaultActiveKey: ""}, 
           attacks
         )
@@ -542,6 +590,15 @@ var Info = React.createClass({
       )
     });
 
+    var proficiencies = [];
+    this.props.character["charOtherProficiencies"]["proficiencies"].forEach(function(prof, i) {
+      proficiencies.push(
+        React.createElement(Panel, {key: i, header: prof.name}, 
+          React.createElement("p", null, prof.desc)
+        )
+      )
+    });
+
     return (
       React.createElement("div", {className: "container-fluid"}, 
         React.createElement("h3", null, "Info"), 
@@ -611,6 +668,9 @@ var Info = React.createClass({
           React.createElement("p", null, this.props.character['charTraits']['flaws'])
         ), 
 
+        React.createElement("h3", null, "Proficiencies"), 
+        proficiencies, 
+
         React.createElement("h3", null, "Languages"), 
         languages
       )
@@ -628,7 +688,9 @@ var Title = React.createClass({
   displayName : "TitleBar",
   render : function() {
     return (
-      React.createElement("h1", null, this.props.character['charName'])
+      React.createElement("div", {className: "container-fluid"}, 
+        React.createElement("h1", null, this.props.character['charName'])
+      )
     );
   }
 })

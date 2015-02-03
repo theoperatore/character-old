@@ -81,6 +81,32 @@ var Attack = React.createClass({
     var spell = this.props.character['charAbilities'][this.state.spell]['mod'];
     if (this.state.prof) bonus += prof;
 
+    // render class charges
+    var charges = [];
+    this.props.character['charClassCharges'].forEach(function(resource, i) {
+      var slots = [];
+
+      for (var j = 0; j < resource['charges']; j++) {
+        slots.push(
+          <Col key={j} xs={1}><input type="checkbox" /></Col>
+        );
+      }
+
+      charges.push(
+        <Panel key={i}>
+          <div className="slots">
+            <p>{resource.name}</p>
+            <Grid fluid>
+              <Row>
+                {slots}
+              </Row>
+            </Grid>
+          </div>
+        </Panel>
+      );
+    });
+
+
     return (
       <div className="container-fluid">
         <h3>{"Attacks"} <Button className="no-border" onClick={this.handleAttackClose}><Glyphicon glyph="plus-sign"/></Button></h3>    
@@ -101,10 +127,13 @@ var Attack = React.createClass({
               </div>
             </Popover>
           }>
-            <h3 className="BOOM text-center">{bonus}</h3>
+            <h3 className={"bonus text-center" + ((this.state.prof === true) ? " trained" : "")}>{bonus}</h3>
           </OverlayTrigger>
           <p>{this.state.abil.toUpperCase() + ((this.state.prof === true) ? " + PROF" : "")}</p>
         </Panel>
+
+        {charges}
+
         <Accordion defaultActiveKey="">
           {attacks}
         </Accordion>

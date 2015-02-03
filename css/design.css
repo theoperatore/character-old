@@ -19,6 +19,26 @@ html {
   margin:auto;
 }
 
+.slots>p {
+  text-align: center;
+}
+.slots input[type="checkbox"] {
+  display:inline-block;
+}
+
+.circle {
+  padding:10px;
+}
+.circle>h4 {
+  background-color: #f7f7f7;
+  border-radius: 50%;
+  width: 45px;
+  height: 45px;
+  line-height: 45px;
+  margin:auto; 
+  margin-right: 0;
+}
+
 .bg-success {
   background-color: #dff0d8 !important;
 }
@@ -32,14 +52,14 @@ html {
 .card-description {
   line-height: 60px;
   height: 60px;
-  text-align: right;
+  text-align: left;
 }
 
 .trained {
   background-color: #d9edf7 !important;
 }
 
-.BOOM {
+.bonus {
   width: 60px;
   height: 60px;
   border-radius: 50%;

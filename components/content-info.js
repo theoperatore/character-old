@@ -19,6 +19,15 @@ var Info = React.createClass({
       )
     });
 
+    var proficiencies = [];
+    this.props.character["charOtherProficiencies"]["proficiencies"].forEach(function(prof, i) {
+      proficiencies.push(
+        <Panel key={i} header={prof.name}>
+          <p>{prof.desc}</p>  
+        </Panel>
+      )
+    });
+
     return (
       <div className="container-fluid">
         <h3>{"Info"}</h3>
@@ -87,6 +96,9 @@ var Info = React.createClass({
         <Panel header="Flaws">
           <p>{this.props.character['charTraits']['flaws']}</p>
         </Panel>
+
+        <h3>{"Proficiencies"}</h3>
+        {proficiencies}
 
         <h3>{"Languages"}</h3>
         {languages}

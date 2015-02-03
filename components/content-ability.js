@@ -21,12 +21,12 @@ var Ability = React.createClass({
       skills.push(
         <Row key={i}>
           <Col xs={4}>
-            <div className="card text-center">
-              <h3 className={((skill.trained === true) ? " trained" : "")}>{skill.score}</h3>
+            <div className="circle text-center">
+              <h4 className={((skill.trained === true) ? " trained" : "")}>{skill.score}</h4>
             </div>
           </Col>
           <Col xs={8}>
-            <h4 className="card-description">{skillName}</h4>
+            <p className="card-description">{skillName}</p>
           </Col>
         </Row>
       );
@@ -82,6 +82,25 @@ var Ability = React.createClass({
                   <p>CHA</p>
                   <h3 className="bg-success">{this.props.character['charAbilities']['cha']['mod']}</h3>
                   <p>{this.props.character['charAbilities']['cha']['score']}</p>
+                </div>
+              </Col>
+            </Row>
+          </Grid>
+        </Panel>
+
+        <Panel>
+          <Grid fluid className="text-center">
+            <Row> 
+              <Col xs={6}>
+                <div className="card">
+                  <p>Proficiency Bonus</p>
+                  <h3 className="trained">{this.props.character['charProficiencyBonus']['score']}</h3>
+                </div>
+              </Col>
+              <Col xs={6}>
+                <div className="card">
+                  <p>Passive Perception</p>
+                  <h3>{this.props.character['charPassivePerception']['score']}</h3>
                 </div>
               </Col>
             </Row>
