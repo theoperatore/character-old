@@ -19,6 +19,10 @@ html {
   margin:auto;
 }
 
+.trained {
+  background-color: #d9edf7 !important;
+}
+
 .BOOM {
   width: 60px;
   height: 60px;

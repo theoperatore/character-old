@@ -9,6 +9,16 @@ var Panel = require('react-bootstrap/Panel');
 var Info = React.createClass({
   displayName : "CharInfo",
   render : function() {
+
+    var languages = [];
+    this.props.character["charOtherProficiencies"]["languages"].forEach(function(lan, i) {
+      languages.push(
+        <Panel key={i} header={lan.name}>
+          <p>{lan.desc}</p>  
+        </Panel>
+      )
+    });
+
     return (
       <div className="container-fluid">
         <h3>{"Info"}</h3>
@@ -17,19 +27,19 @@ var Info = React.createClass({
             <Row>
               <Col xs={4}>
                 <div>
-                  <p>CLASS</p>
+                  <p>Class</p>
                   <h4>{this.props.character['charInfo']['class']}</h4>
                 </div>
               </Col>
               <Col xs={4}>
                 <div>
-                  <p>LVL</p>
+                  <p>Lvl</p>
                   <h4>{this.props.character['charInfo']['level']}</h4>
                 </div>
               </Col>
               <Col xs={4}>
                 <div>
-                  <p>XP</p>
+                  <p>Xp</p>
                   <h4>{this.props.character['charInfo']['xp']}</h4>
                 </div>
               </Col>
@@ -41,19 +51,19 @@ var Info = React.createClass({
             <Row>
               <Col xs={4}>
                 <div>
-                  <p>BG</p>
+                  <p>Bg</p>
                   <h4>{this.props.character['charInfo']['background']}</h4>
                 </div>
               </Col>
               <Col xs={4}>
                 <div>
-                  <p>RACE</p>
+                  <p>Race</p>
                   <h4>{this.props.character['charInfo']['race']}</h4>
                 </div>
               </Col>
               <Col xs={4}>
                 <div>
-                  <p>ALIGN</p>
+                  <p>Align</p>
                   <h4>{this.props.character['charInfo']['alignment']}</h4>
                 </div>
               </Col>
@@ -79,12 +89,7 @@ var Info = React.createClass({
         </Panel>
 
         <h3>{"Languages"}</h3>
-        <Panel header={this.props.character['charOtherProficiencies']['languages'][0].name}>
-          <p>{this.props.character['charOtherProficiencies']['languages'][0].desc}</p>  
-        </Panel>
-        <Panel header={this.props.character['charOtherProficiencies']['languages'][1].name}>
-          <p>{this.props.character['charOtherProficiencies']['languages'][1].desc}</p>  
-        </Panel>
+        {languages}
       </div>
     )
   }

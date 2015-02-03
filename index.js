@@ -3,7 +3,7 @@ require('fastclick')(document.body);
 
 // main requires
 var React = require('react');
-var ralf = require('./data/ralf');
+var wan = require('./data/wan');
 
 // component requires
 var TitleBar = require('./components/title-bar');
@@ -15,8 +15,8 @@ var Character = React.createClass({
   render : function() {
     return (
       <div>
-        <TitleBar character={ralf} />
-        <ContentArea character={ralf} />
+        <TitleBar character={wan} />
+        <ContentArea character={wan} />
       </div>
     );
   }

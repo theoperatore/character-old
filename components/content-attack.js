@@ -13,12 +13,12 @@ var Modal = require('react-bootstrap/Modal');
 var Button = require('react-bootstrap/Button');
 
 var Attack = React.createClass({
-  displayName : "Attack",
+  displayName : "CharAttack",
   mixins : [OverlayMixin],
   getInitialState : function() {
     return ({
-      prof : false,
-      abil : "str",
+      prof : true,
+      abil : "dex",
       spell: "wis",
       needsAttack : false,
       name : "",
@@ -84,8 +84,8 @@ var Attack = React.createClass({
     return (
       <div className="container-fluid">
         <h3>{"Attacks"} <Button className="no-border" onClick={this.handleAttackClose}><Glyphicon glyph="plus-sign"/></Button></h3>    
-        <Panel>
-          <p className="text-center">{"Attack Bonus"}</p>
+        <Panel className="text-center">
+          <p>{"Attack Bonus"}</p>
           <OverlayTrigger trigger="click" placement="bottom" overlay={
             <Popover title="Attack Bonus Config">
               <div>
@@ -103,6 +103,7 @@ var Attack = React.createClass({
           }>
             <h3 className="BOOM text-center">{bonus}</h3>
           </OverlayTrigger>
+          <p>{this.state.abil.toUpperCase() + ((this.state.prof === true) ? " + PROF" : "")}</p>
         </Panel>
         <Accordion defaultActiveKey="">
           {attacks}
