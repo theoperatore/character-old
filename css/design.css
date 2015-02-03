@@ -19,6 +19,22 @@ html {
   margin:auto;
 }
 
+.bg-success {
+  background-color: #dff0d8 !important;
+}
+
+.shield {
+  border-top-left-radius: 0 !important;
+  border-top-right-radius: 0 !important;
+  background-color: #337ab7 !important;
+}
+
+.card-description {
+  line-height: 60px;
+  height: 60px;
+  text-align: right;
+}
+
 .trained {
   background-color: #d9edf7 !important;
 }

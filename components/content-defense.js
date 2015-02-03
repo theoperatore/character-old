@@ -35,7 +35,7 @@ var Defense = React.createClass({
               <Col xs={12}>
                 <div className="card">
                   <p>Armor Class</p>
-                  <h3>{this.props.character['charArmorClass']['score']}</h3>
+                  <h3 className="shield">{this.props.character['charArmorClass']['score']}</h3>
                 </div>
               </Col>
             </Row>

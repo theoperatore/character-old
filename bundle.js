@@ -14,6 +14,26 @@ var Button = require('react-bootstrap/Button');
 var Ability = React.createClass({
   displayName : "CharAbility",
   render : function() {
+
+    var skills = [];
+    var skillNames = Object.keys(this.props.character['charSkills']);
+    skillNames.forEach(function(skillName, i) {
+      var skill = this.props.character['charSkills'][skillName];
+      skills.push(
+        React.createElement(Row, {key: i}, 
+          React.createElement(Col, {xs: 4}, 
+            React.createElement("div", {className: "card text-center"}, 
+              React.createElement("h3", {className: ((skill.trained === true) ? " trained" : "")}, skill.score)
+            )
+          ), 
+          React.createElement(Col, {xs: 8}, 
+            React.createElement("h4", {className: "card-description"}, skillName)
+          )
+        )
+      );
+
+    }.bind(this));
+
     return (
       React.createElement("div", {className: "container-fluid"}, 
         React.createElement("h3", null, "Ability Scores"), 
@@ -24,21 +44,21 @@ var Ability = React.createClass({
               React.createElement(Col, {xs: 4}, 
                 React.createElement("div", {className: "card"}, 
                   React.createElement("p", null, "STR"), 
-                  React.createElement("h3", null, this.props.character['charAbilities']['str']['mod']), 
+                  React.createElement("h3", {className: "bg-success"}, this.props.character['charAbilities']['str']['mod']), 
                   React.createElement("p", null, this.props.character['charAbilities']['str']['score'])
                 )
               ), 
               React.createElement(Col, {xs: 4}, 
                 React.createElement("div", {className: "card"}, 
                   React.createElement("p", null, "DEX"), 
-                  React.createElement("h3", null, this.props.character['charAbilities']['dex']['mod']), 
+                  React.createElement("h3", {className: "bg-success"}, this.props.character['charAbilities']['dex']['mod']), 
                   React.createElement("p", null, this.props.character['charAbilities']['dex']['score'])
                 )
               ), 
               React.createElement(Col, {xs: 4}, 
                 React.createElement("div", {className: "card"}, 
                   React.createElement("p", null, "CON"), 
-                  React.createElement("h3", null, this.props.character['charAbilities']['con']['mod']), 
+                  React.createElement("h3", {className: "bg-success"}, this.props.character['charAbilities']['con']['mod']), 
                   React.createElement("p", null, this.props.character['charAbilities']['con']['score'])
                 )
               )
@@ -47,21 +67,21 @@ var Ability = React.createClass({
               React.createElement(Col, {xs: 4}, 
                 React.createElement("div", {className: "card"}, 
                   React.createElement("p", null, "INT"), 
-                  React.createElement("h3", null, this.props.character['charAbilities']['int']['mod']), 
+                  React.createElement("h3", {className: "bg-success"}, this.props.character['charAbilities']['int']['mod']), 
                   React.createElement("p", null, this.props.character['charAbilities']['int']['score'])
                 )
               ), 
               React.createElement(Col, {xs: 4}, 
                 React.createElement("div", {className: "card"}, 
                   React.createElement("p", null, "WIS"), 
-                  React.createElement("h3", null, this.props.character['charAbilities']['wis']['mod']), 
+                  React.createElement("h3", {className: "bg-success"}, this.props.character['charAbilities']['wis']['mod']), 
                   React.createElement("p", null, this.props.character['charAbilities']['wis']['score'])
                 )
               ), 
               React.createElement(Col, {xs: 4}, 
                 React.createElement("div", {className: "card"}, 
                   React.createElement("p", null, "CHA"), 
-                  React.createElement("h3", null, this.props.character['charAbilities']['cha']['mod']), 
+                  React.createElement("h3", {className: "bg-success"}, this.props.character['charAbilities']['cha']['mod']), 
                   React.createElement("p", null, this.props.character['charAbilities']['cha']['score'])
                 )
               )
@@ -71,127 +91,8 @@ var Ability = React.createClass({
 
         React.createElement("h3", null, "Skills"), 
         React.createElement(Panel, null, 
-          React.createElement(Grid, {fluid: true, className: "text-center"}, 
-            React.createElement(Row, null, 
-              React.createElement(Col, {xs: 4}, 
-                React.createElement("div", {className: "card"}, 
-                  React.createElement("p", null, "Acrobatics"), 
-                  React.createElement("h3", {className: (this.props.character['charSkills']['Acrobatics']["trained"] === true) ? "trained" : ""}, this.props.character['charSkills']['Acrobatics']['score'])
-                )
-              ), 
-              React.createElement(Col, {xs: 4}, 
-                React.createElement("div", {className: "card"}, 
-                  React.createElement("p", null, "Animal Handling"), 
-                  React.createElement("h3", {className: (this.props.character['charSkills']['Animal Handling']["trained"] === true) ? "trained" : ""}, this.props.character['charSkills']['Animal Handling']['score'])
-                )
-              ), 
-              React.createElement(Col, {xs: 4}, 
-                React.createElement("div", {className: "card"}, 
-                  React.createElement("p", null, "Arcana"), 
-                  React.createElement("h3", {className: (this.props.character['charSkills']['Arcana']["trained"] === true) ? "trained" : ""}, this.props.character['charSkills']['Arcana']['score'])
-                )
-              )
-            ), 
-            React.createElement(Row, null, 
-              React.createElement(Col, {xs: 4}, 
-                React.createElement("div", {className: "card"}, 
-                  React.createElement("p", null, "Athletics"), 
-                  React.createElement("h3", {className: (this.props.character['charSkills']['Athletics']["trained"] === true) ? "trained" : ""}, this.props.character['charSkills']['Athletics']['score'])
-                )
-              ), 
-              React.createElement(Col, {xs: 4}, 
-                React.createElement("div", {className: "card"}, 
-                  React.createElement("p", null, "Deception"), 
-                  React.createElement("h3", {className: (this.props.character['charSkills']['Deception']["trained"] === true) ? "trained" : ""}, this.props.character['charSkills']['Deception']['score'])
-                )
-              ), 
-              React.createElement(Col, {xs: 4}, 
-                React.createElement("div", {className: "card"}, 
-                  React.createElement("p", null, "History"), 
-                  React.createElement("h3", {className: (this.props.character['charSkills']['History']["trained"] === true) ? "trained" : ""}, this.props.character['charSkills']['History']['score'])
-                )
-              )
-            ), 
-            React.createElement(Row, null, 
-              React.createElement(Col, {xs: 4}, 
-                React.createElement("div", {className: "card"}, 
-                  React.createElement("p", null, "Insight"), 
-                  React.createElement("h3", {className: (this.props.character['charSkills']['Insight']["trained"] === true) ? "trained" : ""}, this.props.character['charSkills']['Insight']['score'])
-                )
-              ), 
-              React.createElement(Col, {xs: 4}, 
-                React.createElement("div", {className: "card"}, 
-                  React.createElement("p", null, "Intimidation"), 
-                  React.createElement("h3", {className: (this.props.character['charSkills']['Intimidation']["trained"] === true) ? "trained" : ""}, this.props.character['charSkills']['Intimidation']['score'])
-                )
-              ), 
-              React.createElement(Col, {xs: 4}, 
-                React.createElement("div", {className: "card"}, 
-                  React.createElement("p", null, "Investigation"), 
-                  React.createElement("h3", {className: (this.props.character['charSkills']['Investigation']["trained"] === true) ? "trained" : ""}, this.props.character['charSkills']['Investigation']['score'])
-                )
-              )
-            ), 
-            React.createElement(Row, null, 
-              React.createElement(Col, {xs: 4}, 
-                React.createElement("div", {className: "card"}, 
-                  React.createElement("p", null, "Medicine"), 
-                  React.createElement("h3", {className: (this.props.character['charSkills']['Medicine']["trained"] === true) ? "trained" : ""}, this.props.character['charSkills']['Medicine']['score'])
-                )
-              ), 
-              React.createElement(Col, {xs: 4}, 
-                React.createElement("div", {className: "card"}, 
-                  React.createElement("p", null, "Nature"), 
-                  React.createElement("h3", {className: (this.props.character['charSkills']['Nature']["trained"] === true) ? "trained" : ""}, this.props.character['charSkills']['Nature']['score'])
-                )
-              ), 
-              React.createElement(Col, {xs: 4}, 
-                React.createElement("div", {className: "card"}, 
-                  React.createElement("p", null, "Perception"), 
-                  React.createElement("h3", {className: (this.props.character['charSkills']['Perception']["trained"] === true) ? "trained" : ""}, this.props.character['charSkills']['Perception']['score'])
-                )
-              )
-            ), 
-            React.createElement(Row, null, 
-              React.createElement(Col, {xs: 4}, 
-                React.createElement("div", {className: "card"}, 
-                  React.createElement("p", null, "Performance"), 
-                  React.createElement("h3", {className: (this.props.character['charSkills']['Performance']["trained"] === true) ? "trained" : ""}, this.props.character['charSkills']['Performance']['score'])
-                )
-              ), 
-              React.createElement(Col, {xs: 4}, 
-                React.createElement("div", {className: "card"}, 
-                  React.createElement("p", null, "Persuasion"), 
-                  React.createElement("h3", {className: (this.props.character['charSkills']['Persuasion']["trained"] === true) ? "trained" : ""}, this.props.character['charSkills']['Persuasion']['score'])
-                )
-              ), 
-              React.createElement(Col, {xs: 4}, 
-                React.createElement("div", {className: "card"}, 
-                  React.createElement("p", null, "Religion"), 
-                  React.createElement("h3", {className: (this.props.character['charSkills']['Religion']["trained"] === true) ? "trained" : ""}, this.props.character['charSkills']['Religion']['score'])
-                )
-              )
-            ), 
-            React.createElement(Row, null, 
-              React.createElement(Col, {xs: 4}, 
-                React.createElement("div", {className: "card"}, 
-                  React.createElement("p", null, "Sleight of Hand"), 
-                  React.createElement("h3", {className: (this.props.character['charSkills']['Sleight of Hand']["trained"] === true) ? "trained" : ""}, this.props.character['charSkills']['Sleight of Hand']['score'])
-                )
-              ), 
-              React.createElement(Col, {xs: 4}, 
-                React.createElement("div", {className: "card"}, 
-                  React.createElement("p", null, "Stealth"), 
-                  React.createElement("h3", {className: (this.props.character['charSkills']['Stealth']["trained"] === true) ? "trained" : ""}, this.props.character['charSkills']['Stealth']['score'])
-                )
-              ), 
-              React.createElement(Col, {xs: 4}, 
-                React.createElement("div", {className: "card"}, 
-                  React.createElement("p", null, "Survival"), 
-                  React.createElement("h3", {className: (this.props.character['charSkills']['Survival']["trained"] === true) ? "trained" : ""}, this.props.character['charSkills']['Survival']['score'])
-                )
-              )
-            )
+          React.createElement(Grid, {fluid: true}, 
+            skills
           )
         )
       )
@@ -448,7 +349,7 @@ var Defense = React.createClass({
               React.createElement(Col, {xs: 12}, 
                 React.createElement("div", {className: "card"}, 
                   React.createElement("p", null, "Armor Class"), 
-                  React.createElement("h3", null, this.props.character['charArmorClass']['score'])
+                  React.createElement("h3", {className: "shield"}, this.props.character['charArmorClass']['score'])
                 )
               )
             ), 
