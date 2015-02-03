@@ -12,6 +12,7 @@ html {
 .card>h3 {
   /*background-color: #d9edf7;*/
   background-color: #f7f7f7;
+  color: #777;
   border-radius: 50%;
   width: 60px;
   height: 60px;
@@ -49,7 +50,6 @@ html {
   border-top-left-radius: 0 !important;
   border-top-right-radius: 0 !important;
   background-color: #337ab7 !important;
-  color: #31708f !important;
 }
 
 .card-description {
