@@ -65,7 +65,7 @@ html {
   border-radius: 50%;
   line-height: 60px;
   margin: auto;
-  background-color: #d9edf7;
+  background-color: #f7f7f7;
 }
 
 /* For some reason, React-Bootstrap doesn't do the modal backdrop? */
