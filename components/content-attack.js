@@ -15,8 +15,11 @@ var Attack = React.createClass({
   handleProficient : function(e) {
     this.setState({ prof : e.target.checked });
   },
-  handleSelect : function(e) {
+  handleSelectAttack : function(e) {
     this.setState({ abil : e.target.value });
+  },
+  handleSelectSpell : function(e) {
+    
   },
   render : function() {
 
@@ -30,16 +33,30 @@ var Attack = React.createClass({
     return (
       <div className="container-fluid">
         <h3>{"Attacks"}</h3>
+        <Accordion defaultActiveKey="">
+          <Panel header="AttackBonus" eventKey="1">
+            <Input type="select" label='Ability Mod' defaultValue="str" onChange={this.handleSelectAttack}>
+              <option value="str">str</option>
+              <option value="dex">dex</option>
+              <option value="con">con</option>
+              <option value="int">int</option>
+              <option value="wis">wis</option>
+              <option value="cha">cha</option>
+            </Input>
+            <Input type="checkbox" label="Proficient" onChange={this.handleProficient} />
+          </Panel>
+          <Panel header="SpellDC" eventKey="2">
+            <Input type="select" label='Ability Mod' defaultValue="str" onChange={this.handleSelectSpell}>
+              <option value="str">str</option>
+              <option value="dex">dex</option>
+              <option value="con">con</option>
+              <option value="int">int</option>
+              <option value="wis">wis</option>
+              <option value="cha">cha</option>
+            </Input>
+          </Panel>
+        </Accordion>
         <Panel>
-          <Input type="select" label='Ability Mod' defaultValue="str" onChange={this.handleSelect}>
-            <option value="str">str</option>
-            <option value="dex">dex</option>
-            <option value="con">con</option>
-            <option value="int">int</option>
-            <option value="wis">wis</option>
-            <option value="cha">cha</option>
-          </Input>
-          <Input type="checkbox" label="Proficient" onChange={this.handleProficient} />
           <p className="text-center">{"Attack Damage Bonus"}</p>
           <h3 className="BOOM text-center">{bonus}</h3>
         </Panel>

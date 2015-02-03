@@ -132,8 +132,11 @@ var Attack = React.createClass({
   handleProficient : function(e) {
     this.setState({ prof : e.target.checked });
   },
-  handleSelect : function(e) {
+  handleSelectAttack : function(e) {
     this.setState({ abil : e.target.value });
+  },
+  handleSelectSpell : function(e) {
+    
   },
   render : function() {
 
@@ -147,16 +150,30 @@ var Attack = React.createClass({
     return (
       React.createElement("div", {className: "container-fluid"}, 
         React.createElement("h3", null, "Attacks"), 
-        React.createElement(Panel, null, 
-          React.createElement(Input, {type: "select", label: "Ability Mod", defaultValue: "str", onChange: this.handleSelect}, 
-            React.createElement("option", {value: "str"}, "str"), 
-            React.createElement("option", {value: "dex"}, "dex"), 
-            React.createElement("option", {value: "con"}, "con"), 
-            React.createElement("option", {value: "int"}, "int"), 
-            React.createElement("option", {value: "wis"}, "wis"), 
-            React.createElement("option", {value: "cha"}, "cha")
+        React.createElement(Accordion, {defaultActiveKey: ""}, 
+          React.createElement(Panel, {header: "AttackBonus", eventKey: "1"}, 
+            React.createElement(Input, {type: "select", label: "Ability Mod", defaultValue: "str", onChange: this.handleSelectAttack}, 
+              React.createElement("option", {value: "str"}, "str"), 
+              React.createElement("option", {value: "dex"}, "dex"), 
+              React.createElement("option", {value: "con"}, "con"), 
+              React.createElement("option", {value: "int"}, "int"), 
+              React.createElement("option", {value: "wis"}, "wis"), 
+              React.createElement("option", {value: "cha"}, "cha")
+            ), 
+            React.createElement(Input, {type: "checkbox", label: "Proficient", onChange: this.handleProficient})
           ), 
-          React.createElement(Input, {type: "checkbox", label: "Proficient", onChange: this.handleProficient}), 
+          React.createElement(Panel, {header: "SpellDC", eventKey: "2"}, 
+            React.createElement(Input, {type: "select", label: "Ability Mod", defaultValue: "str", onChange: this.handleSelectSpell}, 
+              React.createElement("option", {value: "str"}, "str"), 
+              React.createElement("option", {value: "dex"}, "dex"), 
+              React.createElement("option", {value: "con"}, "con"), 
+              React.createElement("option", {value: "int"}, "int"), 
+              React.createElement("option", {value: "wis"}, "wis"), 
+              React.createElement("option", {value: "cha"}, "cha")
+            )
+          )
+        ), 
+        React.createElement(Panel, null, 
           React.createElement("p", {className: "text-center"}, "Attack Damage Bonus"), 
           React.createElement("h3", {className: "BOOM text-center"}, bonus)
         ), 
