@@ -23,7 +23,7 @@ var Info = React.createClass({
               </Col>
               <Col xs={4}>
                 <div>
-                  <p>LEVEL</p>
+                  <p>LVL</p>
                   <h4>{this.props.character['charInfo']['level']}</h4>
                 </div>
               </Col>
@@ -41,7 +41,7 @@ var Info = React.createClass({
             <Row>
               <Col xs={4}>
                 <div>
-                  <p>BACKGROUND</p>
+                  <p>BG</p>
                   <h4>{this.props.character['charInfo']['background']}</h4>
                 </div>
               </Col>
@@ -53,7 +53,7 @@ var Info = React.createClass({
               </Col>
               <Col xs={4}>
                 <div>
-                  <p>ALIGNMENT</p>
+                  <p>ALIGN</p>
                   <h4>{this.props.character['charInfo']['alignment']}</h4>
                 </div>
               </Col>

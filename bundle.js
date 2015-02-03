@@ -201,7 +201,7 @@ var Info = React.createClass({
               ), 
               React.createElement(Col, {xs: 4}, 
                 React.createElement("div", null, 
-                  React.createElement("p", null, "LEVEL"), 
+                  React.createElement("p", null, "LVL"), 
                   React.createElement("h4", null, this.props.character['charInfo']['level'])
                 )
               ), 
@@ -219,7 +219,7 @@ var Info = React.createClass({
             React.createElement(Row, null, 
               React.createElement(Col, {xs: 4}, 
                 React.createElement("div", null, 
-                  React.createElement("p", null, "BACKGROUND"), 
+                  React.createElement("p", null, "BG"), 
                   React.createElement("h4", null, this.props.character['charInfo']['background'])
                 )
               ), 
@@ -231,7 +231,7 @@ var Info = React.createClass({
               ), 
               React.createElement(Col, {xs: 4}, 
                 React.createElement("div", null, 
-                  React.createElement("p", null, "ALIGNMENT"), 
+                  React.createElement("p", null, "ALIGN"), 
                   React.createElement("h4", null, this.props.character['charInfo']['alignment'])
                 )
               )
@@ -290,7 +290,7 @@ module.exports = {
     "xp" : 12480
   },
   "charTraits" : {
-    "personalityTraits" : "Party always. No Exceptions.",
+    "personalityTraits" : "Party always. No Exceptions. Touching Touching Touching Touching Touching Touching Touching Touching Touching Touching Touching Touching Touching Touching Touching Touching Touching Touching Touching",
     "ideals" : "Why can't we all just be friends? And Drink!",
     "bonds" : "My luscious, wavy, wiry, prehensile, tree of a beard. ",
     "flaws" : "None? Maybe just being too awesome, or not enough beard."

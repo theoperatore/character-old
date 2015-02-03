@@ -9,7 +9,7 @@ module.exports = {
     "xp" : 12480
   },
   "charTraits" : {
-    "personalityTraits" : "Party always. No Exceptions.",
+    "personalityTraits" : "Party always. No Exceptions. Touching Touching Touching Touching Touching Touching Touching Touching Touching Touching Touching Touching Touching Touching Touching Touching Touching Touching Touching",
     "ideals" : "Why can't we all just be friends? And Drink!",
     "bonds" : "My luscious, wavy, wiry, prehensile, tree of a beard. ",
     "flaws" : "None? Maybe just being too awesome, or not enough beard."
