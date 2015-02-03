@@ -6,6 +6,8 @@ var Input = require('react-bootstrap/Input');
 var Grid = require('react-bootstrap/Grid');
 var Row = require('react-bootstrap/Row');
 var Col = require('react-bootstrap/Col');
+var OverlayTrigger = require('react-bootstrap/OverlayTrigger');
+var Popover = require('react-bootstrap/Popover');
 
 var Attack = React.createClass({
   displayName : "Attack",
@@ -36,39 +38,48 @@ var Attack = React.createClass({
     return (
       <div className="container-fluid">
         <h3>{"Attacks"}</h3>
-        <Accordion defaultActiveKey="">
-          <Panel header="AttackBonus" eventKey="1">
-            <Input type="select" label='Ability Mod' defaultValue="str" onChange={this.handleSelectAttack}>
-              <option value="str">str</option>
-              <option value="dex">dex</option>
-              <option value="con">con</option>
-              <option value="int">int</option>
-              <option value="wis">wis</option>
-              <option value="cha">cha</option>
-            </Input>
-            <Input type="checkbox" label="Proficient" onChange={this.handleProficient} />
-          </Panel>
-          <Panel header="SpellDC" eventKey="2">
-            <Input type="select" label='Ability Mod' defaultValue="str" onChange={this.handleSelectSpell}>
-              <option value="str">str</option>
-              <option value="dex">dex</option>
-              <option value="con">con</option>
-              <option value="int">int</option>
-              <option value="wis">wis</option>
-              <option value="cha">cha</option>
-            </Input>
-          </Panel>
-        </Accordion>
         <Panel>
           <Grid fluid>
             <Row>
               <Col xs={6}>
                 <p className="text-center">{"Attack Bonus"}</p>
-                <h3 className="BOOM text-center">{bonus}</h3>
+                <OverlayTrigger trigger="click" placement="bottom" overlay={
+                  <Popover title="Attack Bonus Config">
+                    <Panel>
+                      <Input type="select" label='Ability Mod' defaultValue="str" onChange={this.handleSelectAttack}>
+                        <option value="str">str</option>
+                        <option value="dex">dex</option>
+                        <option value="con">con</option>
+                        <option value="int">int</option>
+                        <option value="wis">wis</option>
+                        <option value="cha">cha</option>
+                      </Input>
+                      <Input type="checkbox" label="Proficient" onChange={this.handleProficient} />
+                    </Panel>
+                  </Popover>
+                }>
+                  <h3 className="BOOM text-center">{bonus}</h3>
+                </OverlayTrigger>
               </Col>
               <Col xs={6}>
                 <p className="text-center">{"Spell DC"}</p>
-                <h3 className="BOOM text-center">{0}</h3>
+                <OverlayTrigger trigger="click" placement="bottom" overlay={
+                  <Popover title="Spell Save DC Config">
+                    <Panel>
+                      <Input type="select" label='Ability Mod' defaultValue="str" onChange={this.handleSelectAttack}>
+                        <option value="str">str</option>
+                        <option value="dex">dex</option>
+                        <option value="con">con</option>
+                        <option value="int">int</option>
+                        <option value="wis">wis</option>
+                        <option value="cha">cha</option>
+                      </Input>
+                      <Input type="checkbox" label="Proficient" onChange={this.handleProficient} />
+                    </Panel>
+                  </Popover>
+                }>
+                  <h3 className="BOOM text-center">{0}</h3>  
+                </OverlayTrigger>
               </Col>
             </Row>
           </Grid>
