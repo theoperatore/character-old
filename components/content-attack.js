@@ -7,15 +7,22 @@ var Grid = require('react-bootstrap/Grid');
 var Row = require('react-bootstrap/Row');
 var Col = require('react-bootstrap/Col');
 var OverlayTrigger = require('react-bootstrap/OverlayTrigger');
+var OverlayMixin = require('react-bootstrap/OverlayMixin');
 var Popover = require('react-bootstrap/Popover');
+var Modal = require('react-bootstrap/Modal');
+var Button = require('react-bootstrap/Button');
 
 var Attack = React.createClass({
   displayName : "Attack",
+  mixins : [OverlayMixin],
   getInitialState : function() {
     return ({
       prof : false,
       abil : "str",
-      spell: "wis"
+      spell: "wis",
+      needsAttack : false,
+      name : "",
+      desc : ""
     });
   },
   handleProficient : function(e) {
@@ -27,19 +34,57 @@ var Attack = React.createClass({
   handleSelectSpell : function(e) {
     this.setState({ spell : e.target.value });
   },
+  handleAttackClose : function() {
+    this.setState({ needsAttack : !this.state.needsAttack });
+  },
+  handleAttackAdd : function() {
+    this.handleAttackClose();
+  },
+  handleAttackName : function(e) {
+    this.setState({ name : e.target.value });
+  },
+  handleAttackDesc : function(e) {
+    this.setState({ desc : e.target.value });
+  },
+  renderOverlay : function() {
+    if (!this.state.needsAttack) return <span/>;
+
+    return (
+      <Modal title="Add New Attack!" onRequestHide={this.handleAttackClose}>
+        <div className="modal-body">
+          <Input value={this.state.name} type="text" label="Attack Name" onChange={this.handleAttackName}/>
+          <Input value={this.state.desc} type="text" label="Attack Desc" onChange={this.handleAttackDesc}/>
+        </div>
+        <div className="modal-footer">
+          <Button bsStyle="danger"  onClick={this.handleAttackClose}>Close</Button>
+          <Button bsStyle="success" onClick={this.handleAttackAdd}>Ok</Button>
+        </div>
+      </Modal>
+    );
+
+  },
   render : function() {
+
+    var charAttacks = this.props.character['charAttacks'];
+    var attacks = [];
+
+    charAttacks.forEach(function(attack, i) {
+      attacks.push(
+        <Panel key={i} header={attack.name} eventKey={i}>
+            <p>{attack.desc}</p>
+        </Panel>
+      );
+    }.bind(this));
 
     var bonus = this.props.character['charAbilities'][this.state.abil]['mod'];
     var prof = this.props.character['charProficiencyBonus']['score'];
     var spell = this.props.character['charAbilities'][this.state.spell]['mod'];
-
-    if (this.state.prof) {
-      bonus += prof;
-    }
+    if (this.state.prof) bonus += prof;
 
     return (
       <div className="container-fluid">
-        <h3>{"Attacks"}</h3>
+        <h3>{"Attacks"} <Button className="no-border" onClick={this.handleAttackClose}><Glyphicon glyph="plus-sign"/></Button></h3>
+        
         <Panel>
           <Grid fluid>
             <Row>
@@ -87,12 +132,7 @@ var Attack = React.createClass({
           
         </Panel>
         <Accordion defaultActiveKey="">
-          <Panel header="Punching" eventKey='1'>
-            <p>{"Punch a dude. Right in the mouth! Kapow!"}</p>
-          </Panel>
-          <Panel header="Kick-a-Pow" eventKey='2'>
-            <p>{"Fly your foot into the dude's face. +2 damage to insult and +4 damage to injury."}</p>
-          </Panel>
+          {attacks}
         </Accordion>
       </div>
     )
