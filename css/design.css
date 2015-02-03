@@ -1,0 +1,15 @@
+.card {
+  border: 1px solid rgba(220, 220, 220, 1);
+  border-radius: 5pt;
+  margin-bottom: 10px;
+  padding: 10px;
+}
+
+.card>h3 {
+  background-color: #eee;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  line-height: 60px;
+  margin:auto;
+}

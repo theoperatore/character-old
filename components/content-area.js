@@ -120,33 +120,60 @@ var ContentArea = React.createClass({
               </Panel>
             </Accordion>
 
-            <p>{"Let's try just displaying them in rows, straight up"}</p>
-  
-            <h3>Strength</h3>
-            <h4>mod: {this.props.character['charAbilities']['str']['mod']}</h4>
-            <h4>score: {this.props.character['charAbilities']['str']['score']}</h4>
+            <p>{"What about in two columns, 3 rows, each a 'card'"}</p>
+            
+            <Grid fluid className="text-center">
+              <Row>
+                <Col xs={6}>
+                  <div className="card">
+                    <p>STR</p>
+                    <h3>{this.props.character['charAbilities']['str']['mod']}</h3>
+                    <p>{this.props.character['charAbilities']['str']['score']}</p>
+                  </div>
+                </Col>
+                <Col xs={6}>
+                  <div className="card">
+                    <p>DEX</p>
+                    <h3>{this.props.character['charAbilities']['dex']['mod']}</h3>
+                    <p>{this.props.character['charAbilities']['dex']['score']}</p>
+                  </div>
+                </Col>
+              </Row>
+              <Row>
+                <Col xs={6}>
+                  <div className="card">
+                    <p>CON</p>
+                    <h3>{this.props.character['charAbilities']['con']['mod']}</h3>
+                    <p>{this.props.character['charAbilities']['con']['score']}</p>
+                  </div>
+                </Col>
+                <Col xs={6}>
+                  <div className="card">
+                    <p>INT</p>
+                    <h3>{this.props.character['charAbilities']['int']['mod']}</h3>
+                    <p>{this.props.character['charAbilities']['int']['score']}</p>
+                  </div>
+                </Col>
+              </Row>
+              <Row>
+                <Col xs={6}>
+                  <div className="card">
+                    <p>WIS</p>
+                    <h3>{this.props.character['charAbilities']['wis']['mod']}</h3>
+                    <p>{this.props.character['charAbilities']['wis']['score']}</p>
+                  </div>
+                </Col>
+                <Col xs={6}>
+                  <div className="card">
+                    <p>CHA</p>
+                    <h3>{this.props.character['charAbilities']['cha']['mod']}</h3>
+                    <p>{this.props.character['charAbilities']['cha']['score']}</p>
+                  </div>
+                </Col>
+              </Row>
+            </Grid>
 
-            <h3>Dexterity</h3>
-            <h4>mod: {this.props.character['charAbilities']['dex']['mod']}</h4>
-            <h4>score: {this.props.character['charAbilities']['dex']['score']}</h4>
-
-            <h3>Constitution</h3>
-            <h4>mod: {this.props.character['charAbilities']['con']['mod']}</h4>
-            <h4>score: {this.props.character['charAbilities']['con']['score']}</h4>
-
-            <h3>Intelligence</h3>
-            <h4>mod: {this.props.character['charAbilities']['int']['mod']}</h4>
-            <h4>score: {this.props.character['charAbilities']['int']['score']}</h4>
-
-            <h3>Wisdom</h3>
-            <h4>mod: {this.props.character['charAbilities']['wis']['mod']}</h4>
-            <h4>score: {this.props.character['charAbilities']['wis']['score']}</h4>
-
-            <h3>Charisma</h3>
-            <h4>mod: {this.props.character['charAbilities']['cha']['mod']}</h4>
-            <h4>score: {this.props.character['charAbilities']['cha']['score']}</h4>
-
-            <p>{"Still not good enough. Have to think of a better way. Will probably use the same layout for skills too."}</p>
+            <p>{"Will probably use whichever layout is best for skills too..."}</p>
           </div>
         </TabPane>
         <TabPane eventKey={2} tab={<Glyphicon glyph="cog" />}>

@@ -121,33 +121,60 @@ var ContentArea = React.createClass({
               )
             ), 
 
-            React.createElement("p", null, "Let's try just displaying them in rows, straight up"), 
-  
-            React.createElement("h3", null, "Strength"), 
-            React.createElement("h4", null, "mod: ", this.props.character['charAbilities']['str']['mod']), 
-            React.createElement("h4", null, "score: ", this.props.character['charAbilities']['str']['score']), 
+            React.createElement("p", null, "What about in two columns, 3 rows, each a 'card'"), 
+            
+            React.createElement(Grid, {fluid: true, className: "text-center"}, 
+              React.createElement(Row, null, 
+                React.createElement(Col, {xs: 6}, 
+                  React.createElement("div", {className: "card"}, 
+                    React.createElement("p", null, "STR"), 
+                    React.createElement("h3", null, this.props.character['charAbilities']['str']['mod']), 
+                    React.createElement("p", null, this.props.character['charAbilities']['str']['score'])
+                  )
+                ), 
+                React.createElement(Col, {xs: 6}, 
+                  React.createElement("div", {className: "card"}, 
+                    React.createElement("p", null, "DEX"), 
+                    React.createElement("h3", null, this.props.character['charAbilities']['dex']['mod']), 
+                    React.createElement("p", null, this.props.character['charAbilities']['dex']['score'])
+                  )
+                )
+              ), 
+              React.createElement(Row, null, 
+                React.createElement(Col, {xs: 6}, 
+                  React.createElement("div", {className: "card"}, 
+                    React.createElement("p", null, "CON"), 
+                    React.createElement("h3", null, this.props.character['charAbilities']['con']['mod']), 
+                    React.createElement("p", null, this.props.character['charAbilities']['con']['score'])
+                  )
+                ), 
+                React.createElement(Col, {xs: 6}, 
+                  React.createElement("div", {className: "card"}, 
+                    React.createElement("p", null, "INT"), 
+                    React.createElement("h3", null, this.props.character['charAbilities']['int']['mod']), 
+                    React.createElement("p", null, this.props.character['charAbilities']['int']['score'])
+                  )
+                )
+              ), 
+              React.createElement(Row, null, 
+                React.createElement(Col, {xs: 6}, 
+                  React.createElement("div", {className: "card"}, 
+                    React.createElement("p", null, "WIS"), 
+                    React.createElement("h3", null, this.props.character['charAbilities']['wis']['mod']), 
+                    React.createElement("p", null, this.props.character['charAbilities']['wis']['score'])
+                  )
+                ), 
+                React.createElement(Col, {xs: 6}, 
+                  React.createElement("div", {className: "card"}, 
+                    React.createElement("p", null, "CHA"), 
+                    React.createElement("h3", null, this.props.character['charAbilities']['cha']['mod']), 
+                    React.createElement("p", null, this.props.character['charAbilities']['cha']['score'])
+                  )
+                )
+              )
+            ), 
 
-            React.createElement("h3", null, "Dexterity"), 
-            React.createElement("h4", null, "mod: ", this.props.character['charAbilities']['dex']['mod']), 
-            React.createElement("h4", null, "score: ", this.props.character['charAbilities']['dex']['score']), 
-
-            React.createElement("h3", null, "Constitution"), 
-            React.createElement("h4", null, "mod: ", this.props.character['charAbilities']['con']['mod']), 
-            React.createElement("h4", null, "score: ", this.props.character['charAbilities']['con']['score']), 
-
-            React.createElement("h3", null, "Intelligence"), 
-            React.createElement("h4", null, "mod: ", this.props.character['charAbilities']['int']['mod']), 
-            React.createElement("h4", null, "score: ", this.props.character['charAbilities']['int']['score']), 
-
-            React.createElement("h3", null, "Wisdom"), 
-            React.createElement("h4", null, "mod: ", this.props.character['charAbilities']['wis']['mod']), 
-            React.createElement("h4", null, "score: ", this.props.character['charAbilities']['wis']['score']), 
-
-            React.createElement("h3", null, "Charisma"), 
-            React.createElement("h4", null, "mod: ", this.props.character['charAbilities']['cha']['mod']), 
-            React.createElement("h4", null, "score: ", this.props.character['charAbilities']['cha']['score']), 
-
-            React.createElement("p", null, "Still not good enough. Have to think of a better way. Will probably use the same layout for skills too.")
+            React.createElement("p", null, "Will probably use whichever layout is best for skills too...")
           )
         ), 
         React.createElement(TabPane, {eventKey: 2, tab: React.createElement(Glyphicon, {glyph: "cog"})}, 
