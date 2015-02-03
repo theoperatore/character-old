@@ -14,7 +14,8 @@ var Attack = React.createClass({
   getInitialState : function() {
     return ({
       prof : false,
-      abil : "str"
+      abil : "str",
+      spell: "wis"
     });
   },
   handleProficient : function(e) {
@@ -24,12 +25,13 @@ var Attack = React.createClass({
     this.setState({ abil : e.target.value });
   },
   handleSelectSpell : function(e) {
-
+    this.setState({ spell : e.target.value });
   },
   render : function() {
 
     var bonus = this.props.character['charAbilities'][this.state.abil]['mod'];
     var prof = this.props.character['charProficiencyBonus']['score'];
+    var spell = this.props.character['charAbilities'][this.state.spell]['mod'];
 
     if (this.state.prof) {
       bonus += prof;
@@ -66,7 +68,7 @@ var Attack = React.createClass({
                 <OverlayTrigger trigger="click" placement="bottom" overlay={
                   <Popover title="Spell Save DC Config">
                     <Panel>
-                      <Input type="select" label='Ability Mod' defaultValue="str" onChange={this.handleSelectAttack}>
+                      <Input type="select" label='Ability Mod' defaultValue="str" onChange={this.handleSelectSpell}>
                         <option value="str">str</option>
                         <option value="dex">dex</option>
                         <option value="con">con</option>
@@ -74,11 +76,10 @@ var Attack = React.createClass({
                         <option value="wis">wis</option>
                         <option value="cha">cha</option>
                       </Input>
-                      <Input type="checkbox" label="Proficient" onChange={this.handleProficient} />
                     </Panel>
                   </Popover>
                 }>
-                  <h3 className="BOOM text-center">{0}</h3>  
+                  <h3 className="BOOM text-center">{8 + spell}</h3>  
                 </OverlayTrigger>
               </Col>
             </Row>

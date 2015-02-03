@@ -131,7 +131,8 @@ var Attack = React.createClass({
   getInitialState : function() {
     return ({
       prof : false,
-      abil : "str"
+      abil : "str",
+      spell: "wis"
     });
   },
   handleProficient : function(e) {
@@ -141,12 +142,13 @@ var Attack = React.createClass({
     this.setState({ abil : e.target.value });
   },
   handleSelectSpell : function(e) {
-
+    this.setState({ spell : e.target.value });
   },
   render : function() {
 
     var bonus = this.props.character['charAbilities'][this.state.abil]['mod'];
     var prof = this.props.character['charProficiencyBonus']['score'];
+    var spell = this.props.character['charAbilities'][this.state.spell]['mod'];
 
     if (this.state.prof) {
       bonus += prof;
@@ -183,19 +185,18 @@ var Attack = React.createClass({
                 React.createElement(OverlayTrigger, {trigger: "click", placement: "bottom", overlay: 
                   React.createElement(Popover, {title: "Spell Save DC Config"}, 
                     React.createElement(Panel, null, 
-                      React.createElement(Input, {type: "select", label: "Ability Mod", defaultValue: "str", onChange: this.handleSelectAttack}, 
+                      React.createElement(Input, {type: "select", label: "Ability Mod", defaultValue: "str", onChange: this.handleSelectSpell}, 
                         React.createElement("option", {value: "str"}, "str"), 
                         React.createElement("option", {value: "dex"}, "dex"), 
                         React.createElement("option", {value: "con"}, "con"), 
                         React.createElement("option", {value: "int"}, "int"), 
                         React.createElement("option", {value: "wis"}, "wis"), 
                         React.createElement("option", {value: "cha"}, "cha")
-                      ), 
-                      React.createElement(Input, {type: "checkbox", label: "Proficient", onChange: this.handleProficient})
+                      )
                     )
                   )
                 }, 
-                  React.createElement("h3", {className: "BOOM text-center"}, 0)
+                  React.createElement("h3", {className: "BOOM text-center"}, 8 + spell)
                 )
               )
             )
