@@ -1,8 +1,9 @@
+// config?
+require('fastclick')(document.body);
+
 // main requires
 var React = require('react');
-//var blank = require('./data/blankchar');
 var ralf = require('./data/ralf');
-
 
 // component requires
 var TitleBar = require('./components/title-bar');

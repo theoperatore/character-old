@@ -1,3 +1,9 @@
+html {
+  /* remove microsoft phone 300ms click delay */
+  -ms-touch-action: manipulation;
+  touch-action: manipulation;
+}
+
 .card {
   margin-bottom: 10px;
   padding: 10px;

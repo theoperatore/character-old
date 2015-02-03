@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev" : "browserify -t reactify index.js -o bundle.js && beefy"
+    "dev": "browserify -t reactify index.js -o bundle.js && beefy"
   },
   "repository": {
     "type": "git",
@@ -23,6 +23,7 @@
     "reactify": "^1.0.0"
   },
   "dependencies": {
+    "fastclick": "^1.0.6",
     "react": "^0.12.2",
     "react-bootstrap": "^0.13.3"
   }

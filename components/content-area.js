@@ -19,7 +19,7 @@ var ContentArea = React.createClass({
         <TabPane eventKey={1} tab={<Glyphicon glyph="info-sign" />}>
           <ContentInfo character={this.props.character} />          
         </TabPane>
-        <TabPane eventKey={2} tab={<Glyphicon glyph="flash" />}>
+        <TabPane eventKey={2} tab={<Glyphicon glyph="bookmark" />}>
           <div className="container-fluid">
             <h3>{"Ability Scores"}</h3>
             <p>{"I'd like to come up with something better than just having a grid of them..."}</p>
