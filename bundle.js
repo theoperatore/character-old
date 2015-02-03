@@ -238,17 +238,6 @@ var Info = React.createClass({
             )
           )
         ), 
-        
-        React.createElement(Panel, {header: React.createElement("h3", null, "Traits")}, 
-          React.createElement("h4", null, "Personality Traits"), 
-          React.createElement("p", null, this.props.character['charTraits']['personalityTraits']), 
-          React.createElement("h4", null, "Ideals"), 
-          React.createElement("p", null, this.props.character['charTraits']['ideals']), 
-          React.createElement("h4", null, "Bonds"), 
-          React.createElement("p", null, this.props.character['charTraits']['bonds']), 
-          React.createElement("h4", null, "Flaws"), 
-          React.createElement("p", null, this.props.character['charTraits']['flaws'])
-        ), 
 
         React.createElement("h3", null, "Traits"), 
         React.createElement(Panel, {header: "Personality Traits"}, 
@@ -301,7 +290,7 @@ module.exports = {
     "xp" : 12480
   },
   "charTraits" : {
-    "personalityTraits" : "Party always. No Exceptions. Touching Touching Touching Touching Touching Touching Touching Touching Touching Touching Touching Touching Touching Touching Touching Touching Touching Touching Touching",
+    "personalityTraits" : "Party always. No Exceptions.",
     "ideals" : "Why can't we all just be friends? And Drink!",
     "bonds" : "My luscious, wavy, wiry, prehensile, tree of a beard. ",
     "flaws" : "None? Maybe just being too awesome, or not enough beard."
