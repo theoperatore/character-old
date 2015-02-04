@@ -227,6 +227,21 @@ var Attack = React.createClass({
   handleSelectAbil : function(e) {
     this.setState({ abil : e.target.value });
   },
+  handleModalModeChange : function(mode) {
+    this.setState({ mode : mode });
+  },
+  handleAttackName : function(e) {
+    this.setState({ name : e.target.value });
+  },
+  handleAttackDesc : function(e) {
+    this.setState({ desc : e.target.value });
+  },
+  handleEditName : function(e) {
+    this.setState({ changeName : e.target.value });
+  },
+  handleEditDesc : function(e) {
+    this.setState({ changeDesc : e.target.value });
+  },
   handleAttackClose : function() {
     var state = {};
 
@@ -239,6 +254,32 @@ var Attack = React.createClass({
     state.toggle = !this.state.toggle;
 
     this.setState(state);
+  },
+  handleAttackEditSelect : function(e) {
+    var idx = parseInt(e.target.value, 10);
+    var attack = this.props.character['charAttacks'][idx];
+    var name = (idx === -1) ? "" : attack.name;
+    var desc = (idx === -1) ? "" : attack.desc;
+    var state = {};
+
+    state.edit = idx;
+    state.changeName = name;
+    state.changeDesc = desc;
+    
+    this.setState(state);
+  },
+  handleDelete : function() {
+    var tmp = this.props.character;
+    var path = "charAttacks.delete.";
+    var atk;
+
+    // delete attack
+    atk = tmp['charAttacks'].splice(this.state.edit, 1);
+    path += atk.name;
+
+    // push changes upstream
+    this.props.edit({ path : path, character : tmp });
+    this.handleAttackClose();
   },
   handleAttackAdd : function() {
     var tmp = this.props.character;
@@ -280,43 +321,6 @@ var Attack = React.createClass({
     // close modal and reset state
     this.handleAttackClose();
   },
-  handleAttackName : function(e) {
-    this.setState({ name : e.target.value });
-  },
-  handleAttackDesc : function(e) {
-    this.setState({ desc : e.target.value });
-  },
-  handleAttackEditSelect : function(e) {
-    var idx = parseInt(e.target.value, 10);
-    var attack = this.props.character['charAttacks'][idx];
-    var name = (idx === -1) ? "" : attack.name;
-    var desc = (idx === -1) ? "" : attack.desc;
-    var state = {};
-
-    state.edit = idx;
-    state.changeName = name;
-    state.changeDesc = desc;
-    
-    this.setState(state);
-  },
-  handleEditName : function(e) {
-    this.setState({ changeName : e.target.value });
-  },
-  handleEditDesc : function(e) {
-    this.setState({ changeDesc : e.target.value });
-  },
-  handleDelete : function() {
-    var tmp = this.props.character;
-    var path = "charAttacks.delete.";
-
-    tmp['charAttacks'].splice(this.state.edit, 1);
-
-    this.props.edit({ path : path, character : tmp });
-    this.handleAttackClose();
-  },
-  handleModalModeChange : function(mode) {
-    this.setState({ mode : mode });
-  },
   renderOverlay : function() {
     if (!this.state.toggle) return React.createElement("span", null);
 
@@ -336,7 +340,7 @@ var Attack = React.createClass({
               React.createElement("div", {className: "container-fluid"}, 
                 React.createElement("h3", null, "Add new attack"), 
                 React.createElement(Input, {placeholder: "name", value: this.state.name, type: "text", label: "Attack Name", onChange: this.handleAttackName}), 
-                React.createElement(Input, {placeholder: "short description", value: this.state.desc, type: "text", label: "Attack Desc", onChange: this.handleAttackDesc})
+                React.createElement(Input, {placeholder: "short description", value: this.state.desc, type: "textarea", label: "Attack Desc", onChange: this.handleAttackDesc})
               )
             ), 
             React.createElement(TabPane, {eventKey: 1, tab: "edit"}, 
@@ -348,7 +352,7 @@ var Attack = React.createClass({
                   attacks
                 ), 
                 React.createElement(Input, {disabled: (this.state.edit === -1) ? true : false, type: "text", onChange: this.handleEditName, placeholder: "attack name", value: this.state.changeName, label: "New Attack Name"}), 
-                React.createElement(Input, {disabled: (this.state.edit === -1) ? true : false, type: "text", onChange: this.handleEditDesc, placeholder: "attack desc", value: this.state.changeDesc, label: "New Attack Desc"}), 
+                React.createElement(Input, {disabled: (this.state.edit === -1) ? true : false, type: "textarea", onChange: this.handleEditDesc, placeholder: "attack desc", value: this.state.changeDesc, label: "New Attack Desc"}), 
                 React.createElement(Button, {disabled: (this.state.edit === -1) ? true : false, bsStyle: "danger", bsSize: "large", onClick: this.handleDelete}, "Delete")
               )
             )

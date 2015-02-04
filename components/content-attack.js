@@ -150,7 +150,7 @@ var Attack = React.createClass({
               <div className="container-fluid">
                 <h3>{"Add new attack"}</h3>
                 <Input placeholder="name" value={this.state.name} type="text" label="Attack Name" onChange={this.handleAttackName}/>
-                <Input placeholder="short description" value={this.state.desc} type="text" label="Attack Desc" onChange={this.handleAttackDesc}/>
+                <Input placeholder="short description" value={this.state.desc} type="textarea" label="Attack Desc" onChange={this.handleAttackDesc}/>
               </div>
             </TabPane>
             <TabPane eventKey={1} tab="edit">
@@ -162,7 +162,7 @@ var Attack = React.createClass({
                   {attacks}
                 </Input>
                 <Input disabled={(this.state.edit === -1) ? true : false} type="text" onChange={this.handleEditName} placeholder={"attack name"} value={this.state.changeName} label={"New Attack Name"}/>
-                <Input disabled={(this.state.edit === -1) ? true : false} type="text" onChange={this.handleEditDesc} placeholder={"attack desc"} value={this.state.changeDesc} label={"New Attack Desc"}/>
+                <Input disabled={(this.state.edit === -1) ? true : false} type="textarea" onChange={this.handleEditDesc} placeholder={"attack desc"} value={this.state.changeDesc} label={"New Attack Desc"}/>
                 <Button disabled={(this.state.edit === -1) ? true : false} bsStyle="danger" bsSize="large" onClick={this.handleDelete}>Delete</Button>
               </div>
             </TabPane>
