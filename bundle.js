@@ -716,7 +716,7 @@ var Spells = React.createClass({
 
         // put it all together
         spells.push(
-          React.createElement(Panel, {bsStyle: "warning", className: "no-padding", key: i, eventKey: i, header: level['name'] + " Level"}, 
+          React.createElement(Panel, {bsStyle: "warning", className: "no-padding", key: i, eventKey: i, header: level['name'] + ((i !== 0) ?  " Level" : "")}, 
             slotsArea, 
             React.createElement(Accordion, {defaultActiveKey: ""}, 
               sps
