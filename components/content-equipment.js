@@ -15,7 +15,7 @@ var Equipment = React.createClass({
     var equips = [];
     this.props.character['charEquipment']['otherEquipment'].forEach(function(equip, i) {
       equips.push(
-        <Panel key={i} header={equip.name}>
+        <Panel eventKey={i} key={i} header={equip.name}>
             <p>{equip.desc}</p>
         </Panel>
       );
@@ -23,8 +23,8 @@ var Equipment = React.createClass({
 
     return (
       <div className="container-fluid">
-        <h3>{"Equipment"}</h3>
-        <Panel header="Money">
+        <h3>{"Equipment"} <Button className="no-border"><Glyphicon glyph="cog"/></Button></h3>
+        <Panel bsStyle="warning" header="Money">
           <Grid fluid className="text-center">
             <Row>
               <Col xs={2}><p>cp</p></Col>
@@ -42,7 +42,9 @@ var Equipment = React.createClass({
             </Row>
           </Grid>
         </Panel>
-        {equips}
+        <Accordion defaultActiveKey="">
+          {equips}
+        </Accordion>
 
       </div>
     );

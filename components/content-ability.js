@@ -35,7 +35,7 @@ var Ability = React.createClass({
 
     return (
       <div className="container-fluid">
-        <h3>{"Ability Scores"}</h3>
+        <h3>{"Ability Scores"} <Button className="no-border"><Glyphicon glyph="cog"/></Button></h3>
 
         <Panel>
           <Grid fluid className="text-center">
@@ -107,7 +107,7 @@ var Ability = React.createClass({
           </Grid>
         </Panel>
 
-        <h3>{"Skills"}</h3>
+        <h3>{"Skills"} <Button className="no-border"><Glyphicon glyph="cog"/></Button></h3>
         <Panel>
           <Grid fluid>
             {skills}

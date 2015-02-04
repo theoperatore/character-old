@@ -1,4 +1,6 @@
 var React = require('react');
+
+// components
 var ContentInfo = require('./content-info');
 var ContentAttack = require('./content-attack');
 var ContentAbility = require('./content-ability');
@@ -7,10 +9,13 @@ var ContentFeature = require('./content-feature');
 var ContentEquipment = require('./content-equipment');
 var ContentSpell = require('./content-spell');
 
+// react-bootstrap stuff
 var TabbedArea = require('react-bootstrap/TabbedArea');
 var TabPane = require('react-bootstrap/TabPane');
 var Glyphicon = require('react-bootstrap/Glyphicon');
 
+
+// the thing!
 var ContentArea = React.createClass({
   displayName : "ContentArea",
   render : function() {

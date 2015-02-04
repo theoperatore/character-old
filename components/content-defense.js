@@ -26,7 +26,7 @@ var Defense = React.createClass({
 
     return (
       <div className="container-fluid">
-        <h3>{"Defenses"}</h3>
+        <h3>{"Defenses"} <Button className="no-border"><Glyphicon glyph="cog"/></Button> <Button className="no-border"><Glyphicon glyph="question-sign"/></Button></h3>
         <ProgressBar bsStyle={hpStyle} label={curr + " / " + max} now={hpPercent} />
 
         <Panel className="text-center">
@@ -66,7 +66,7 @@ var Defense = React.createClass({
         </Panel>
 
 
-        <h3>{"Saving Throws"}</h3>
+        <h3>{"Saving Throws"} <Button className="no-border"><Glyphicon glyph="cog"/></Button></h3>
         <Panel className="text-center">
           <Grid fluid>
             <Row>

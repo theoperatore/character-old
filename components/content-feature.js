@@ -20,7 +20,7 @@ var Features = React.createClass({
 
     return (
       <div className="container-fluid">
-        <h3>{"Features"}</h3>
+        <h3>{"Features"} <Button className="no-border"><Glyphicon glyph="cog"/></Button></h3>
         <Accordion defaultActiveKey="">
           {feats}
         </Accordion>

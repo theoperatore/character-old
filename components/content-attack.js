@@ -8,6 +8,7 @@ var Row = require('react-bootstrap/Row');
 var Col = require('react-bootstrap/Col');
 var OverlayTrigger = require('react-bootstrap/OverlayTrigger');
 var OverlayMixin = require('react-bootstrap/OverlayMixin');
+var Tooltip = require('react-bootstrap/Tooltip');
 var Popover = require('react-bootstrap/Popover');
 var Modal = require('react-bootstrap/Modal');
 var Button = require('react-bootstrap/Button');
@@ -109,7 +110,20 @@ var Attack = React.createClass({
 
     return (
       <div className="container-fluid">
-        <h3>{"Attacks"} <Button className="no-border" onClick={this.handleAttackClose}><Glyphicon glyph="plus-sign"/></Button></h3>    
+        <h3>
+          {"Attacks"} 
+          <Button className="no-border" onClick={this.handleAttackClose}><Glyphicon glyph="cog"/></Button>
+          <OverlayTrigger placement="bottom" trigger="click" overlay={
+            <Tooltip>
+              <p>{"Class points like 'Ki', 'Rage', or 'Sorcery' can be modified in 'Features' ("} <Glyphicon glyph="flash" /> {")"}</p>
+              <p>{"Tap 'Attack Bonus' to configure the ability score it uses and if you have proficiency"}</p>
+            </Tooltip>
+          }>
+            <Button className="no-border">
+              <Glyphicon glyph="question-sign"/>
+            </Button>
+          </OverlayTrigger>
+        </h3>    
         <Panel className="text-center">
           <p>{"Attack Bonus"}</p>
           <OverlayTrigger trigger="click" placement="bottom" overlay={

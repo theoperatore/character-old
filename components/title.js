@@ -2,7 +2,7 @@ var React = require('react');
 var PageHeader = require('react-bootstrap/PageHeader');
 
 var Title = React.createClass({
-  displayName : "TitleBar",
+  displayName : "Title",
   render : function() {
     return (
       <div className="container-fluid">

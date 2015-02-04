@@ -76,7 +76,7 @@ var Spells = React.createClass({
 
     return (
       <div className="container-fluid">
-        <h3>{"Spells"}</h3>
+        <h3>{"Spells"} <Button className="no-border"><Glyphicon glyph="cog"/></Button> <Button className="no-border"><Glyphicon glyph="question-sign"/></Button></h3>
         <Panel>
           <p className="text-center">{"Spell DC"}</p>
           <OverlayTrigger trigger="click" placement="bottom" overlay={

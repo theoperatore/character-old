@@ -6,7 +6,7 @@ var React = require('react');
 var wan = require('./data/wan');
 
 // component requires
-var TitleBar = require('./components/title-bar');
+var Title = require('./components/title');
 var ContentArea = require('./components/content-area');
 
 // main out
@@ -15,7 +15,7 @@ var Character = React.createClass({
   render : function() {
     return (
       <div>
-        <TitleBar character={wan} />
+        <Title character={wan} />
         <ContentArea character={wan} />
       </div>
     );
