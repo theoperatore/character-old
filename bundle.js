@@ -705,6 +705,107 @@ var Spells = React.createClass({
             React.createElement("h3", {className: "bonus text-center"}, 8)
           )
         ), 
+
+        React.createElement(Accordion, {defaultActiveKey: ""}, 
+          React.createElement(Panel, {eventKey: 0, header: "Cantrips"}), 
+          React.createElement(Panel, {eventKey: 1, header: "1st Level"}, 
+            React.createElement("div", {className: "slots"}, 
+              React.createElement("p", null, "Spell Slots"), 
+              React.createElement(Grid, {fluid: true}, 
+                React.createElement(Row, null, 
+                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
+                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
+                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
+                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
+                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
+                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
+                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
+                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
+                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
+                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
+                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
+                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
+                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
+                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
+                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
+                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
+                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
+                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
+                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
+                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"}))
+                )
+              )
+            ), 
+            React.createElement(Accordion, {defaultActiveKey: ""}, 
+              React.createElement(Panel, {eventKey: 1, header: "Ki Punching!"}, 
+                React.createElement("p", null, "I punch you. Hard. In the mouth. 1d6 damage...to your pride")
+              ), 
+              React.createElement(Panel, {eventKey: 2, header: "Taunt"}, 
+                React.createElement("p", null, "I tell you that you'll never be as good as some other people...you cry.")
+              ), 
+              React.createElement(Panel, {eventKey: 3, header: "Long"}, 
+                React.createElement("p", null, "Placeholder to simulate a lot of spells...")
+              ), 
+              React.createElement(Panel, {eventKey: 4, header: "Long"}, 
+                React.createElement("p", null, "Placeholder to simulate a lot of spells...")
+              ), 
+              React.createElement(Panel, {eventKey: 5, header: "Long"}, 
+                React.createElement("p", null, "Placeholder to simulate a lot of spells...")
+              ), 
+              React.createElement(Panel, {eventKey: 6, header: "Long"}, 
+                React.createElement("p", null, "Placeholder to simulate a lot of spells...")
+              ), 
+              React.createElement(Panel, {eventKey: 7, header: "Long"}, 
+                React.createElement("p", null, "Placeholder to simulate a lot of spells...")
+              ), 
+              React.createElement(Panel, {eventKey: 8, header: "Long"}, 
+                React.createElement("p", null, "Placeholder to simulate a lot of spells...")
+              ), 
+              React.createElement(Panel, {eventKey: 9, header: "Long"}, 
+                React.createElement("p", null, "Placeholder to simulate a lot of spells...")
+              ), 
+              React.createElement(Panel, {eventKey: 10, header: "Long"}, 
+                React.createElement("p", null, "Placeholder to simulate a lot of spells...")
+              ), 
+              React.createElement(Panel, {eventKey: 11, header: "Long"}, 
+                React.createElement("p", null, "Placeholder to simulate a lot of spells...")
+              ), 
+              React.createElement(Panel, {eventKey: 12, header: "Long"}, 
+                React.createElement("p", null, "Placeholder to simulate a lot of spells...")
+              )
+            )
+          ), 
+          React.createElement(Panel, {eventKey: 2, header: "2nd Level"}, 
+            React.createElement("div", {className: "slots"}, 
+              React.createElement("p", null, "Spell Slots"), 
+              React.createElement(Grid, {fluid: true}, 
+                React.createElement(Row, null, 
+                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
+                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
+                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
+                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
+                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"}))
+                )
+              )
+            ), 
+            React.createElement(Accordion, {defaultActiveKey: ""}, 
+              React.createElement(Panel, {eventKey: 1, header: "Ki Punching AGAIN!"}, 
+                React.createElement("p", null, "More punching. With Force. In the mouth.")
+              ), 
+              React.createElement(Panel, {eventKey: 2, header: "Jumping"}, 
+                React.createElement("p", null, "It's a spell that lets me jump really high. It's cool.")
+              )
+            )
+          ), 
+          React.createElement(Panel, {eventKey: 3, header: "3rd Level"}), 
+          React.createElement(Panel, {eventKey: 4, header: "4th Level"}), 
+          React.createElement(Panel, {eventKey: 5, header: "5th Level"}), 
+          React.createElement(Panel, {eventKey: 6, header: "6th Level"}), 
+          React.createElement(Panel, {eventKey: 7, header: "7th Level"}), 
+          React.createElement(Panel, {eventKey: 8, header: "8th Level"}), 
+          React.createElement(Panel, {eventKey: 9, header: "9th Level"})
+        ), 
+
         
         React.createElement(ButtonGroup, {className: "spell-selector", justified: true}, 
             React.createElement(DropdownButton, {title: "Spell Level", onSelect: this.handleLevelChange}, 
