@@ -147,37 +147,37 @@ var ContentArea = React.createClass({
       React.createElement(TabbedArea, {defaultActiveKey: 5}, 
 
         React.createElement(TabPane, {eventKey: 1, tab: React.createElement(Glyphicon, {glyph: "info-sign"})}, 
-          React.createElement(ContentInfo, {character: this.props.character})
+          React.createElement(ContentInfo, {character: this.props.character, edit: this.props.edit})
         ), 
 
 
         React.createElement(TabPane, {eventKey: 2, tab: React.createElement(Glyphicon, {glyph: "bookmark"})}, 
-          React.createElement(ContentAbility, {character: this.props.character})
+          React.createElement(ContentAbility, {character: this.props.character, edit: this.props.edit})
         ), 
 
 
         React.createElement(TabPane, {eventKey: 3, tab: React.createElement(Glyphicon, {glyph: "tower"})}, 
-          React.createElement(ContentDefense, {character: this.props.character})
+          React.createElement(ContentDefense, {character: this.props.character, edit: this.props.edit})
         ), 
 
 
         React.createElement(TabPane, {eventKey: 4, tab: React.createElement(Glyphicon, {glyph: "flash"})}, 
-          React.createElement(ContentFeature, {character: this.props.character})
+          React.createElement(ContentFeature, {character: this.props.character, edit: this.props.edit})
         ), 
 
 
         React.createElement(TabPane, {eventKey: 5, tab: React.createElement(Glyphicon, {glyph: "fire"})}, 
-          React.createElement(ContentAttack, {character: this.props.character})
+          React.createElement(ContentAttack, {character: this.props.character, edit: this.props.edit})
         ), 
 
 
         React.createElement(TabPane, {eventKey: 6, tab: React.createElement(Glyphicon, {glyph: "book"})}, 
-          React.createElement(ContentSpell, {character: this.props.character})
+          React.createElement(ContentSpell, {character: this.props.character, edit: this.props.edit})
         ), 
 
 
         React.createElement(TabPane, {eventKey: 7, tab: React.createElement(Glyphicon, {glyph: "shopping-cart"})}, 
-          React.createElement(ContentEquipment, {character: this.props.character})
+          React.createElement(ContentEquipment, {character: this.props.character, edit: this.props.edit})
         )
 
       )
@@ -196,6 +196,8 @@ var Input = require('react-bootstrap/Input');
 var Grid = require('react-bootstrap/Grid');
 var Row = require('react-bootstrap/Row');
 var Col = require('react-bootstrap/Col');
+var TabbedArea = require('react-bootstrap/TabbedArea');
+var TabPane = require('react-bootstrap/TabPane');
 var OverlayTrigger = require('react-bootstrap/OverlayTrigger');
 var OverlayMixin = require('react-bootstrap/OverlayMixin');
 var Tooltip = require('react-bootstrap/Tooltip');
@@ -210,25 +212,72 @@ var Attack = React.createClass({
     return ({
       prof : true,
       abil : "dex",
-      spell: "wis",
-      needsAttack : false,
+      toggle : false,
       name : "",
-      desc : ""
+      desc : "",
+      edit : -1,
+      changeName : "",
+      changeDesc : "",
+      mode : 0
     });
   },
   handleProficient : function(e) {
     this.setState({ prof : e.target.checked });
   },
-  handleSelectAttack : function(e) {
+  handleSelectAbil : function(e) {
     this.setState({ abil : e.target.value });
   },
-  handleSelectSpell : function(e) {
-    this.setState({ spell : e.target.value });
-  },
   handleAttackClose : function() {
-    this.setState({ needsAttack : !this.state.needsAttack });
+    var state = {};
+
+    state.name = "";
+    state.desc = "";
+    state.changeName = "";
+    state.changeDesc = "";
+    state.edit = -1;
+    state.mode = 0;
+    state.toggle = !this.state.toggle;
+
+    this.setState(state);
   },
   handleAttackAdd : function() {
+    var tmp = this.props.character;
+    var data = {};
+    var path = "charAttacks";
+
+    // mode 0 -- add new attack
+    if (this.state.mode === 0) {
+
+      // make sure we have enough info to add
+      if (this.state.name === "" || this.state.desc === "") return;
+      
+      // build new attack node
+      data.name = this.state.name;
+      data.desc = this.state.desc;
+
+      // modify character
+      tmp['charAttacks'].push(data);
+      path += ".add";
+    }
+    
+    // mode 1 -- edit attack
+    else if (this.state.mode === 1) {
+
+      // make sure something is selected
+      if (this.state.edit === -1 || this.state.changeName === "" || this.state.changeDesc === "") return;
+
+      // log old name
+      path += ".edit." + tmp['charAttacks'][this.state.edit].name;
+
+      // modify character
+      tmp['charAttacks'][this.state.edit].name = this.state.changeName;
+      tmp['charAttacks'][this.state.edit].desc = this.state.changeDesc;
+    }
+
+    // from index.js -- push changes upstream
+    this.props.edit({ path : path, character : tmp });
+
+    // close modal and reset state
     this.handleAttackClose();
   },
   handleAttackName : function(e) {
@@ -237,14 +286,73 @@ var Attack = React.createClass({
   handleAttackDesc : function(e) {
     this.setState({ desc : e.target.value });
   },
-  renderOverlay : function() {
-    if (!this.state.needsAttack) return React.createElement("span", null);
+  handleAttackEditSelect : function(e) {
+    var idx = parseInt(e.target.value, 10);
+    var attack = this.props.character['charAttacks'][idx];
+    var name = (idx === -1) ? "" : attack.name;
+    var desc = (idx === -1) ? "" : attack.desc;
+    var state = {};
 
+    state.edit = idx;
+    state.changeName = name;
+    state.changeDesc = desc;
+    
+    this.setState(state);
+  },
+  handleEditName : function(e) {
+    this.setState({ changeName : e.target.value });
+  },
+  handleEditDesc : function(e) {
+    this.setState({ changeDesc : e.target.value });
+  },
+  handleDelete : function() {
+    var tmp = this.props.character;
+    var path = "charAttacks.delete.";
+
+    tmp['charAttacks'].splice(this.state.edit, 1);
+
+    this.props.edit({ path : path, character : tmp });
+    this.handleAttackClose();
+  },
+  handleModalModeChange : function(mode) {
+    this.setState({ mode : mode });
+  },
+  renderOverlay : function() {
+    if (!this.state.toggle) return React.createElement("span", null);
+
+    var attacks = [];
+    this.props.character['charAttacks'].forEach(function(atk, i) {
+      attacks.push(
+        React.createElement("option", {key: i, value: i}, atk.name)
+      );
+    }); 
+
+    // add new attack modal
     return (
-      React.createElement(Modal, {title: "Add New Attack!", onRequestHide: this.handleAttackClose}, 
+      React.createElement(Modal, {onRequestHide: this.handleAttackClose}, 
         React.createElement("div", {className: "modal-body"}, 
-          React.createElement(Input, {value: this.state.name, type: "text", label: "Attack Name", onChange: this.handleAttackName}), 
-          React.createElement(Input, {value: this.state.desc, type: "text", label: "Attack Desc", onChange: this.handleAttackDesc})
+          React.createElement(TabbedArea, {activeKey: this.state.mode, onSelect: this.handleModalModeChange}, 
+            React.createElement(TabPane, {eventKey: 0, tab: "new"}, 
+              React.createElement("div", {className: "container-fluid"}, 
+                React.createElement("h3", null, "Add new attack"), 
+                React.createElement(Input, {placeholder: "name", value: this.state.name, type: "text", label: "Attack Name", onChange: this.handleAttackName}), 
+                React.createElement(Input, {placeholder: "short description", value: this.state.desc, type: "text", label: "Attack Desc", onChange: this.handleAttackDesc})
+              )
+            ), 
+            React.createElement(TabPane, {eventKey: 1, tab: "edit"}, 
+              React.createElement("div", {className: "container-fluid"}, 
+                React.createElement("h3", null, "Edit attack"), 
+                React.createElement("p", null, "Change the name or description of an attack by first selecting an attack name and then entering new values"), 
+                React.createElement(Input, {type: "select", onChange: this.handleAttackEditSelect, defaultSelected: -1}, 
+                  React.createElement("option", {value: -1}, "Select an Attack"), 
+                  attacks
+                ), 
+                React.createElement(Input, {disabled: (this.state.edit === -1) ? true : false, type: "text", onChange: this.handleEditName, placeholder: "attack name", value: this.state.changeName, label: "New Attack Name"}), 
+                React.createElement(Input, {disabled: (this.state.edit === -1) ? true : false, type: "text", onChange: this.handleEditDesc, placeholder: "attack desc", value: this.state.changeDesc, label: "New Attack Desc"}), 
+                React.createElement(Button, {disabled: (this.state.edit === -1) ? true : false, bsStyle: "danger", bsSize: "large", onClick: this.handleDelete}, "Delete")
+              )
+            )
+          )
         ), 
         React.createElement("div", {className: "modal-footer"}, 
           React.createElement(Button, {bsStyle: "danger", onClick: this.handleAttackClose}, "Close"), 
@@ -257,8 +365,15 @@ var Attack = React.createClass({
   render : function() {
 
     var charAttacks = this.props.character['charAttacks'];
+    var bonus = this.props.character['charAbilities'][this.state.abil]['mod'];
+    var prof = this.props.character['charProficiencyBonus']['score'];
     var attacks = [];
+    var charges = [];
 
+    // add proficiency bonus
+    if (this.state.prof) bonus += prof;
+
+    // compile list of attacks
     charAttacks.forEach(function(attack, i) {
       attacks.push(
         React.createElement(Panel, {className: "no-padding", bsStyle: "warning", key: i, header: attack.name, eventKey: i}, 
@@ -267,13 +382,7 @@ var Attack = React.createClass({
       );
     }.bind(this));
 
-    var bonus = this.props.character['charAbilities'][this.state.abil]['mod'];
-    var prof = this.props.character['charProficiencyBonus']['score'];
-    var spell = this.props.character['charAbilities'][this.state.spell]['mod'];
-    if (this.state.prof) bonus += prof;
-
     // render class charges
-    var charges = [];
     this.props.character['charClassCharges'].forEach(function(resource, i) {
       var slots = [];
 
@@ -298,6 +407,7 @@ var Attack = React.createClass({
     });
 
 
+    // render the component
     return (
       React.createElement("div", {className: "container-fluid"}, 
         React.createElement("h3", null, 
@@ -319,7 +429,7 @@ var Attack = React.createClass({
           React.createElement(OverlayTrigger, {trigger: "click", placement: "bottom", overlay: 
             React.createElement(Popover, {title: "Attack Bonus Config"}, 
               React.createElement("div", null, 
-                React.createElement(Input, {type: "select", label: "Ability Mod", defaultValue: "str", onChange: this.handleSelectAttack}, 
+                React.createElement(Input, {type: "select", label: "Ability Mod", defaultValue: "str", onChange: this.handleSelectAbil}, 
                   React.createElement("option", {value: "str"}, "str"), 
                   React.createElement("option", {value: "dex"}, "dex"), 
                   React.createElement("option", {value: "con"}, "con"), 
@@ -348,7 +458,7 @@ var Attack = React.createClass({
 
 module.exports = Attack;
 
-},{"react":199,"react-bootstrap/Accordion":14,"react-bootstrap/Button":16,"react-bootstrap/Col":18,"react-bootstrap/Glyphicon":24,"react-bootstrap/Grid":25,"react-bootstrap/Input":26,"react-bootstrap/Modal":29,"react-bootstrap/OverlayMixin":32,"react-bootstrap/OverlayTrigger":33,"react-bootstrap/Panel":35,"react-bootstrap/Popover":37,"react-bootstrap/Row":39,"react-bootstrap/Tooltip":42}],4:[function(require,module,exports){
+},{"react":199,"react-bootstrap/Accordion":14,"react-bootstrap/Button":16,"react-bootstrap/Col":18,"react-bootstrap/Glyphicon":24,"react-bootstrap/Grid":25,"react-bootstrap/Input":26,"react-bootstrap/Modal":29,"react-bootstrap/OverlayMixin":32,"react-bootstrap/OverlayTrigger":33,"react-bootstrap/Panel":35,"react-bootstrap/Popover":37,"react-bootstrap/Row":39,"react-bootstrap/TabPane":40,"react-bootstrap/TabbedArea":41,"react-bootstrap/Tooltip":42}],4:[function(require,module,exports){
 var React = require('react');
 var Glyphicon = require('react-bootstrap/Glyphicon');
 var Accordion = require('react-bootstrap/Accordion');
@@ -1250,11 +1360,19 @@ var ContentArea = require('./components/content-area');
 // main out
 var Character = React.createClass({
   displayName : "Character",
+  getInitialState : function() {
+    return ({ character : wan })
+  },
+  editCharacter : function(data) {
+    console.log("received from: ", data.path);
+    console.log("     data: ", data.character);
+    this.setState({ character : data.character });
+  },
   render : function() {
     return (
       React.createElement("div", null, 
-        React.createElement(Title, {character: wan}), 
-        React.createElement(ContentArea, {character: wan})
+        React.createElement(Title, {character: this.state.character, edit: this.editCharacter}), 
+        React.createElement(ContentArea, {character: this.state.character, edit: this.editCharacter})
       )
     );
   }

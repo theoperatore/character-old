@@ -6,6 +6,8 @@ var Input = require('react-bootstrap/Input');
 var Grid = require('react-bootstrap/Grid');
 var Row = require('react-bootstrap/Row');
 var Col = require('react-bootstrap/Col');
+var TabbedArea = require('react-bootstrap/TabbedArea');
+var TabPane = require('react-bootstrap/TabPane');
 var OverlayTrigger = require('react-bootstrap/OverlayTrigger');
 var OverlayMixin = require('react-bootstrap/OverlayMixin');
 var Tooltip = require('react-bootstrap/Tooltip');
@@ -20,26 +22,23 @@ var Attack = React.createClass({
     return ({
       prof : true,
       abil : "dex",
-      spell: "wis",
-      needsAttack : false,
+      toggle : false,
       name : "",
-      desc : ""
+      desc : "",
+      edit : -1,
+      changeName : "",
+      changeDesc : "",
+      mode : 0
     });
   },
   handleProficient : function(e) {
     this.setState({ prof : e.target.checked });
   },
-  handleSelectAttack : function(e) {
+  handleSelectAbil : function(e) {
     this.setState({ abil : e.target.value });
   },
-  handleSelectSpell : function(e) {
-    this.setState({ spell : e.target.value });
-  },
-  handleAttackClose : function() {
-    this.setState({ needsAttack : !this.state.needsAttack });
-  },
-  handleAttackAdd : function() {
-    this.handleAttackClose();
+  handleModalModeChange : function(mode) {
+    this.setState({ mode : mode });
   },
   handleAttackName : function(e) {
     this.setState({ name : e.target.value });
@@ -47,14 +46,127 @@ var Attack = React.createClass({
   handleAttackDesc : function(e) {
     this.setState({ desc : e.target.value });
   },
-  renderOverlay : function() {
-    if (!this.state.needsAttack) return <span/>;
+  handleEditName : function(e) {
+    this.setState({ changeName : e.target.value });
+  },
+  handleEditDesc : function(e) {
+    this.setState({ changeDesc : e.target.value });
+  },
+  handleAttackClose : function() {
+    var state = {};
 
+    state.name = "";
+    state.desc = "";
+    state.changeName = "";
+    state.changeDesc = "";
+    state.edit = -1;
+    state.mode = 0;
+    state.toggle = !this.state.toggle;
+
+    this.setState(state);
+  },
+  handleAttackEditSelect : function(e) {
+    var idx = parseInt(e.target.value, 10);
+    var attack = this.props.character['charAttacks'][idx];
+    var name = (idx === -1) ? "" : attack.name;
+    var desc = (idx === -1) ? "" : attack.desc;
+    var state = {};
+
+    state.edit = idx;
+    state.changeName = name;
+    state.changeDesc = desc;
+    
+    this.setState(state);
+  },
+  handleDelete : function() {
+    var tmp = this.props.character;
+    var path = "charAttacks.delete.";
+    var atk;
+
+    // delete attack
+    atk = tmp['charAttacks'].splice(this.state.edit, 1);
+    path += atk.name;
+
+    // push changes upstream
+    this.props.edit({ path : path, character : tmp });
+    this.handleAttackClose();
+  },
+  handleAttackAdd : function() {
+    var tmp = this.props.character;
+    var data = {};
+    var path = "charAttacks";
+
+    // mode 0 -- add new attack
+    if (this.state.mode === 0) {
+
+      // make sure we have enough info to add
+      if (this.state.name === "" || this.state.desc === "") return;
+      
+      // build new attack node
+      data.name = this.state.name;
+      data.desc = this.state.desc;
+
+      // modify character
+      tmp['charAttacks'].push(data);
+      path += ".add";
+    }
+    
+    // mode 1 -- edit attack
+    else if (this.state.mode === 1) {
+
+      // make sure something is selected
+      if (this.state.edit === -1 || this.state.changeName === "" || this.state.changeDesc === "") return;
+
+      // log old name
+      path += ".edit." + tmp['charAttacks'][this.state.edit].name;
+
+      // modify character
+      tmp['charAttacks'][this.state.edit].name = this.state.changeName;
+      tmp['charAttacks'][this.state.edit].desc = this.state.changeDesc;
+    }
+
+    // from index.js -- push changes upstream
+    this.props.edit({ path : path, character : tmp });
+
+    // close modal and reset state
+    this.handleAttackClose();
+  },
+  renderOverlay : function() {
+    if (!this.state.toggle) return <span/>;
+
+    var attacks = [];
+    this.props.character['charAttacks'].forEach(function(atk, i) {
+      attacks.push(
+        <option key={i} value={i}>{atk.name}</option>
+      );
+    }); 
+
+    // add new attack modal
     return (
-      <Modal title="Add New Attack!" onRequestHide={this.handleAttackClose}>
+      <Modal onRequestHide={this.handleAttackClose}>
         <div className="modal-body">
-          <Input value={this.state.name} type="text" label="Attack Name" onChange={this.handleAttackName}/>
-          <Input value={this.state.desc} type="text" label="Attack Desc" onChange={this.handleAttackDesc}/>
+          <TabbedArea activeKey={this.state.mode} onSelect={this.handleModalModeChange}>
+            <TabPane eventKey={0} tab="new">
+              <div className="container-fluid">
+                <h3>{"Add new attack"}</h3>
+                <Input placeholder="name" value={this.state.name} type="text" label="Attack Name" onChange={this.handleAttackName}/>
+                <Input placeholder="short description" value={this.state.desc} type="text" label="Attack Desc" onChange={this.handleAttackDesc}/>
+              </div>
+            </TabPane>
+            <TabPane eventKey={1} tab="edit">
+              <div className="container-fluid">
+                <h3>{"Edit attack"}</h3>
+                <p>{"Change the name or description of an attack by first selecting an attack name and then entering new values"}</p>
+                <Input type="select" onChange={this.handleAttackEditSelect} defaultSelected={-1}>
+                  <option value={-1}>{"Select an Attack"}</option>
+                  {attacks}
+                </Input>
+                <Input disabled={(this.state.edit === -1) ? true : false} type="text" onChange={this.handleEditName} placeholder={"attack name"} value={this.state.changeName} label={"New Attack Name"}/>
+                <Input disabled={(this.state.edit === -1) ? true : false} type="text" onChange={this.handleEditDesc} placeholder={"attack desc"} value={this.state.changeDesc} label={"New Attack Desc"}/>
+                <Button disabled={(this.state.edit === -1) ? true : false} bsStyle="danger" bsSize="large" onClick={this.handleDelete}>Delete</Button>
+              </div>
+            </TabPane>
+          </TabbedArea>
         </div>
         <div className="modal-footer">
           <Button bsStyle="danger"  onClick={this.handleAttackClose}>Close</Button>
@@ -67,8 +179,15 @@ var Attack = React.createClass({
   render : function() {
 
     var charAttacks = this.props.character['charAttacks'];
+    var bonus = this.props.character['charAbilities'][this.state.abil]['mod'];
+    var prof = this.props.character['charProficiencyBonus']['score'];
     var attacks = [];
+    var charges = [];
 
+    // add proficiency bonus
+    if (this.state.prof) bonus += prof;
+
+    // compile list of attacks
     charAttacks.forEach(function(attack, i) {
       attacks.push(
         <Panel className="no-padding" bsStyle="warning" key={i} header={attack.name} eventKey={i}>
@@ -77,13 +196,7 @@ var Attack = React.createClass({
       );
     }.bind(this));
 
-    var bonus = this.props.character['charAbilities'][this.state.abil]['mod'];
-    var prof = this.props.character['charProficiencyBonus']['score'];
-    var spell = this.props.character['charAbilities'][this.state.spell]['mod'];
-    if (this.state.prof) bonus += prof;
-
     // render class charges
-    var charges = [];
     this.props.character['charClassCharges'].forEach(function(resource, i) {
       var slots = [];
 
@@ -108,6 +221,7 @@ var Attack = React.createClass({
     });
 
 
+    // render the component
     return (
       <div className="container-fluid">
         <h3>
@@ -129,7 +243,7 @@ var Attack = React.createClass({
           <OverlayTrigger trigger="click" placement="bottom" overlay={
             <Popover title="Attack Bonus Config">
               <div>
-                <Input type="select" label='Ability Mod' defaultValue="str" onChange={this.handleSelectAttack}>
+                <Input type="select" label='Ability Mod' defaultValue="str" onChange={this.handleSelectAbil}>
                   <option value="str">str</option>
                   <option value="dex">dex</option>
                   <option value="con">con</option>

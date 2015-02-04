@@ -12,11 +12,19 @@ var ContentArea = require('./components/content-area');
 // main out
 var Character = React.createClass({
   displayName : "Character",
+  getInitialState : function() {
+    return ({ character : wan })
+  },
+  editCharacter : function(data) {
+    console.log("received from: ", data.path);
+    console.log("     data: ", data.character);
+    this.setState({ character : data.character });
+  },
   render : function() {
     return (
       <div>
-        <Title character={wan} />
-        <ContentArea character={wan} />
+        <Title character={this.state.character}  edit={this.editCharacter} />
+        <ContentArea character={this.state.character} edit={this.editCharacter} />
       </div>
     );
   }
