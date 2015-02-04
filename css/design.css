@@ -20,6 +20,9 @@ html {
   margin:auto;
 }
 
+.slots {
+  margin-bottom: 10px;
+}
 .slots>p {
   text-align: center;
 }

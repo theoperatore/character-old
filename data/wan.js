@@ -18,15 +18,74 @@ module.exports = {
     {
       "name" : "Ki",
       "desc" : "Do cool stuff with your inner power!",
-      "charges" : 15
-    },
-    {
-      "name" : "Sorcery",
-      "desc" : "RAGE and do lots of damage",
-      "charges" : 3
+      "charges" : 5
     }
   ],
-  "charSpellSlots" : [],
+  "charSpells" : [
+    {
+      "name" : "Cantrips",
+      "spells" : [
+        {
+          "name" : "Acid Splash",
+          "desc" : "CT: 1 action; R: 60ft; CMP: VS; DUR: Instantaneous; Choose one creatuer within range, or two creatures within range that are within 5 ft of each other. A target must succeed on a DEX save or take 1d6 acid damage"
+        },
+        {
+          "name" : "Blade Ward",
+          "desc" : "CT: 1 action; R: Self; CMP: VS; DUR: 1 round; You extend your hand and trace a sigil of warding in the air. Until the end of your next turn, you have resistance against bludgeoning, piercing, and slashing damage dealt by weapon attacks"
+        }
+      ]
+    },
+    {
+      "name" : "1st",
+      "slots" : 2,
+      "spells" : [
+        {
+          "name" : "Bless",
+          "desc" : "CT: 1 action; R: 30ft; CMP: VSM(a sprinkling of holy water); DUR: Concentration, up to 1 min; You bless up to three creatures of your choice within range. Whenever a target makes an attack roll or a saving throw before the spell ends, the target can roll a d4 and add the number rolled to the attack roll or saving throw"
+        }
+      ]
+    },
+    {
+      "name" : "2nd",
+      "slots" : 0,
+      "spells" : []
+    },
+    {
+      "name" : "3rd",
+      "slots" : 0,
+      "spells" : []
+    },
+    {
+      "name" : "4th",
+      "slots" : 0,
+      "spells" : []
+    },
+    {
+      "name" : "5th",
+      "slots" : 0,
+      "spells" : []
+    },
+    {
+      "name" : "6th",
+      "slots" : 0,
+      "spells" : []
+    },
+    {
+      "name" : "7th",
+      "slots" : 0,
+      "spells" : []
+    },
+    {
+      "name" : "8th",
+      "slots" : 0,
+      "spells" : []
+    },
+    {
+      "name" : "9th",
+      "slots" : 0,
+      "spells" : []
+    }
+  ],
   "charAbilities" : {
     "str" : {
       "score" : 11,
