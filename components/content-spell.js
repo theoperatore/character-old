@@ -12,8 +12,23 @@ var Popover = require('react-bootstrap/Popover');
 var Modal = require('react-bootstrap/Modal');
 var Button = require('react-bootstrap/Button');
 
+var TabbedArea = require('react-bootstrap/TabbedArea');
+var TabPane = require('react-bootstrap/TabPane');
+var DropdownButton = require('react-bootstrap/DropdownButton');
+var MenuItem = require('react-bootstrap/MenuItem');
+var ButtonGroup = require('react-bootstrap/ButtonGroup');
+
+
 var Spells = React.createClass({
   displayName : "CharSpell",
+  getInitialState : function() {
+    return ({
+      spellLevel : 0
+    });
+  },
+  handleLevelChange : function(key) {
+    this.setState({ spellLevel : key });
+  },
   render : function() {
     return (
       <div className="container-fluid">
@@ -38,8 +53,27 @@ var Spells = React.createClass({
           </OverlayTrigger>
         </Panel>
         
-        <Accordion defaultActiveKey="">
-          <Panel header="1st Level" eventKey={1}>
+        <ButtonGroup className="spell-selector" justified>
+            <DropdownButton title={"Spell Level"} onSelect={this.handleLevelChange}>
+              <MenuItem eventKey={0}>{"Cantrips"}</MenuItem>
+              <MenuItem eventKey={1}>{"1st Level"}</MenuItem>
+              <MenuItem eventKey={2}>{"2nd Level"}</MenuItem>
+              <MenuItem eventKey={3}>{"3rd Level"}</MenuItem>
+              <MenuItem eventKey={4}>{"4th Level"}</MenuItem>
+              <MenuItem eventKey={5}>{"5th Level"}</MenuItem>
+              <MenuItem eventKey={6}>{"6th Level"}</MenuItem>
+              <MenuItem eventKey={7}>{"7th Level"}</MenuItem>
+              <MenuItem eventKey={8}>{"8th Level"}</MenuItem>
+              <MenuItem eventKey={9}>{"9th Level"}</MenuItem>
+            </DropdownButton>
+        </ButtonGroup>
+
+        <TabbedArea className="spell-area" activeKey={this.state.spellLevel}>
+          <TabPane eventKey={0}>
+            <h3>{"Cantrips"}</h3>
+          </TabPane>
+          <TabPane eventKey={1}>
+            <h3>{"1st Level Spells"}</h3>
             <div className="slots">
               <p>Spell Slots</p>
               <Grid fluid>
@@ -105,12 +139,16 @@ var Spells = React.createClass({
                 <p>{"Placeholder to simulate a lot of spells..."}</p>
               </Panel>
             </Accordion>
-          </Panel>
-          <Panel header="2nd Level" eventKey={2}>
+          </TabPane>
+
+          <TabPane eventKey={2}>
+            <h3>{"2nd Level Spells"}</h3>
             <div className="slots">
               <p>Spell Slots</p>
               <Grid fluid>
                 <Row>
+                  <Col xs={1}><input type="checkbox" /></Col>
+                  <Col xs={1}><input type="checkbox" /></Col>
                   <Col xs={1}><input type="checkbox" /></Col>
                   <Col xs={1}><input type="checkbox" /></Col>
                   <Col xs={1}><input type="checkbox" /></Col>
@@ -125,9 +163,30 @@ var Spells = React.createClass({
                 <p>{"It's a spell that lets me jump really high. It's cool."}</p>
               </Panel>
             </Accordion>
-          </Panel>
-        </Accordion>
+          </TabPane>
 
+          <TabPane eventKey={3}>
+            <h3>{"3rd Level Spells"}</h3>
+          </TabPane>
+          <TabPane eventKey={4}>
+            <h3>{"4th Level Spells"}</h3>
+          </TabPane>
+          <TabPane eventKey={5}>
+            <h3>{"5th Level Spells"}</h3> 
+          </TabPane>
+          <TabPane eventKey={6}>
+            <h3>{"6th Level Spells"}</h3>
+          </TabPane>
+          <TabPane eventKey={7}>
+            <h3>{"7th Level Spells"}</h3>
+          </TabPane>
+          <TabPane eventKey={8}>
+            <h3>{"8th Level Spells"}</h3>
+          </TabPane>
+          <TabPane eventKey={9}>
+            <h3>{"9th Level Spells"}</h3>
+          </TabPane>
+        </TabbedArea>
       </div>
     );
   }

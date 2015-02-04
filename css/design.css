@@ -30,6 +30,15 @@ html {
   display:inline-block;
 }
 
+.spell-area {
+  border-top: 0 !important;
+  margin-top: 10px !important;
+}
+
+.spell-selector button {
+  border-radius: 4px !important;
+}
+
 .circle {
   padding:10px;
 }
