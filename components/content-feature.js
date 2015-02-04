@@ -12,7 +12,7 @@ var Features = React.createClass({
     var feats = [];
     this.props.character['charFeatures'].forEach(function(feat, i) {
       feats.push(
-        <Panel key={i} header={feat.name} eventKey={i}>
+        <Panel className="no-padding" bsStyle="warning" key={i} header={feat.name} eventKey={i}>
             <p>{feat.desc}</p>
         </Panel>
       );

@@ -84,19 +84,19 @@ var Info = React.createClass({
 
         <h3>{"Traits"} <Button className="no-border"><Glyphicon glyph="cog"/></Button></h3>
         <Accordion defaultActiveKey="">
-          <Panel eventKey={0} header="Personality Traits">
+          <Panel className="no-padding" bsStyle="warning" eventKey={0} header="Personality Traits">
             <p>{this.props.character['charTraits']['personalityTraits']}</p>  
           </Panel>
           
-          <Panel eventKey={1} header="Ideals">
+          <Panel className="no-padding" bsStyle="warning" eventKey={1} header="Ideals">
             <p>{this.props.character['charTraits']['ideals']}</p>
           </Panel>
 
-          <Panel eventKey={2} header="Bonds">
+          <Panel className="no-padding" bsStyle="warning" eventKey={2} header="Bonds">
             <p>{this.props.character['charTraits']['bonds']}</p>
           </Panel>        
           
-          <Panel eventKey={3} header="Flaws">
+          <Panel className="no-padding" bsStyle="warning" eventKey={3} header="Flaws">
             <p>{this.props.character['charTraits']['flaws']}</p>
           </Panel>
         </Accordion>

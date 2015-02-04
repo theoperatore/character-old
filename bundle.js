@@ -261,7 +261,7 @@ var Attack = React.createClass({
 
     charAttacks.forEach(function(attack, i) {
       attacks.push(
-        React.createElement(Panel, {key: i, header: attack.name, eventKey: i}, 
+        React.createElement(Panel, {className: "no-padding", bsStyle: "warning", key: i, header: attack.name, eventKey: i}, 
             React.createElement("p", null, attack.desc)
         )
       );
@@ -540,7 +540,7 @@ var Features = React.createClass({
     var feats = [];
     this.props.character['charFeatures'].forEach(function(feat, i) {
       feats.push(
-        React.createElement(Panel, {key: i, header: feat.name, eventKey: i}, 
+        React.createElement(Panel, {className: "no-padding", bsStyle: "warning", key: i, header: feat.name, eventKey: i}, 
             React.createElement("p", null, feat.desc)
         )
       );
@@ -646,19 +646,19 @@ var Info = React.createClass({
 
         React.createElement("h3", null, "Traits", " ", React.createElement(Button, {className: "no-border"}, React.createElement(Glyphicon, {glyph: "cog"}))), 
         React.createElement(Accordion, {defaultActiveKey: ""}, 
-          React.createElement(Panel, {eventKey: 0, header: "Personality Traits"}, 
+          React.createElement(Panel, {className: "no-padding", bsStyle: "warning", eventKey: 0, header: "Personality Traits"}, 
             React.createElement("p", null, this.props.character['charTraits']['personalityTraits'])
           ), 
           
-          React.createElement(Panel, {eventKey: 1, header: "Ideals"}, 
+          React.createElement(Panel, {className: "no-padding", bsStyle: "warning", eventKey: 1, header: "Ideals"}, 
             React.createElement("p", null, this.props.character['charTraits']['ideals'])
           ), 
 
-          React.createElement(Panel, {eventKey: 2, header: "Bonds"}, 
+          React.createElement(Panel, {className: "no-padding", bsStyle: "warning", eventKey: 2, header: "Bonds"}, 
             React.createElement("p", null, this.props.character['charTraits']['bonds'])
           ), 
           
-          React.createElement(Panel, {eventKey: 3, header: "Flaws"}, 
+          React.createElement(Panel, {className: "no-padding", bsStyle: "warning", eventKey: 3, header: "Flaws"}, 
             React.createElement("p", null, this.props.character['charTraits']['flaws'])
           )
         ), 

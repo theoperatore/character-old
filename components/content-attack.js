@@ -71,7 +71,7 @@ var Attack = React.createClass({
 
     charAttacks.forEach(function(attack, i) {
       attacks.push(
-        <Panel key={i} header={attack.name} eventKey={i}>
+        <Panel className="no-padding" bsStyle="warning" key={i} header={attack.name} eventKey={i}>
             <p>{attack.desc}</p>
         </Panel>
       );
