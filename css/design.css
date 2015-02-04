@@ -30,6 +30,18 @@ html {
   display:inline-block;
 }
 
+.no-padding>.panel-heading {
+  background-color: transparent;
+}
+.no-padding.panel {
+  border-color: transparent;
+  border-radius:0;
+}
+.no-padding>.panel-collapse>.panel-body {
+  padding:0;
+  padding-top:10px;
+}
+
 .spell-area {
   border-top: 0 !important;
   margin-top: 10px !important;

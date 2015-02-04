@@ -674,15 +674,59 @@ var ButtonGroup = require('react-bootstrap/ButtonGroup');
 
 var Spells = React.createClass({
   displayName : "CharSpell",
-  getInitialState : function() {
-    return ({
-      spellLevel : 0
-    });
-  },
-  handleLevelChange : function(key) {
-    this.setState({ spellLevel : key });
-  },
   render : function() {
+
+    var spells = [];
+    this.props.character['charSpells'].forEach(function(level, i) {
+      if (level.spells.length !== 0) {
+        // get spell slots
+        var slots = [];
+        for (var k = 0; k < level.slots; k++) {
+          slots.push(
+            React.createElement(Col, {key: k, xs: 1}, React.createElement("input", {type: "checkbox"}))
+          );
+        }
+
+        // if there are spell slots, draw them
+        var slotsArea;
+        if (slots.length !== 0) {
+          slotsArea = (React.createElement("div", {className: "slots"}, 
+            React.createElement("p", null, "Spell Slots"), 
+            React.createElement(Grid, {fluid: true}, 
+              React.createElement(Row, null, 
+                slots
+              )
+            )
+          ));
+        } 
+
+        // get each spell
+        var sps = [];
+        level.spells.forEach(function(spell, j) {
+          sps.push(
+            React.createElement(Panel, {key: j, eventKey: j, header: spell['name']}, 
+              React.createElement("p", null, React.createElement("strong", null, "CT:"), "  ", spell['cast']), 
+              React.createElement("p", null, React.createElement("strong", null, "R:"), "   ", spell['range']), 
+              React.createElement("p", null, React.createElement("strong", null, "CMP:"), " ", spell['cmp']), 
+              React.createElement("p", null, React.createElement("strong", null, "DUR:"), " ", spell['dur']), 
+              React.createElement("p", null, spell['desc'])
+            )
+          );
+        });
+
+        // put it all together
+        spells.push(
+          React.createElement(Panel, {bsStyle: "warning", className: "no-padding", key: i, eventKey: i, header: level['name'] + " Level"}, 
+            slotsArea, 
+            React.createElement(Accordion, {defaultActiveKey: ""}, 
+              sps
+            )
+          )
+        );
+      }
+    });
+
+
     return (
       React.createElement("div", {className: "container-fluid"}, 
         React.createElement("h3", null, "Spells"), 
@@ -707,239 +751,7 @@ var Spells = React.createClass({
         ), 
 
         React.createElement(Accordion, {defaultActiveKey: ""}, 
-          React.createElement(Panel, {eventKey: 0, header: "Cantrips"}), 
-          React.createElement(Panel, {eventKey: 1, header: "1st Level"}, 
-            React.createElement("div", {className: "slots"}, 
-              React.createElement("p", null, "Spell Slots"), 
-              React.createElement(Grid, {fluid: true}, 
-                React.createElement(Row, null, 
-                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
-                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
-                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
-                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
-                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
-                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
-                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
-                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
-                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
-                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
-                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
-                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
-                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
-                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
-                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
-                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
-                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
-                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
-                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
-                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"}))
-                )
-              )
-            ), 
-            React.createElement(Accordion, {defaultActiveKey: ""}, 
-              React.createElement(Panel, {eventKey: 1, header: "Ki Punching!"}, 
-                React.createElement("p", null, "I punch you. Hard. In the mouth. 1d6 damage...to your pride")
-              ), 
-              React.createElement(Panel, {eventKey: 2, header: "Taunt"}, 
-                React.createElement("p", null, "I tell you that you'll never be as good as some other people...you cry.")
-              ), 
-              React.createElement(Panel, {eventKey: 3, header: "Long"}, 
-                React.createElement("p", null, "Placeholder to simulate a lot of spells...")
-              ), 
-              React.createElement(Panel, {eventKey: 4, header: "Long"}, 
-                React.createElement("p", null, "Placeholder to simulate a lot of spells...")
-              ), 
-              React.createElement(Panel, {eventKey: 5, header: "Long"}, 
-                React.createElement("p", null, "Placeholder to simulate a lot of spells...")
-              ), 
-              React.createElement(Panel, {eventKey: 6, header: "Long"}, 
-                React.createElement("p", null, "Placeholder to simulate a lot of spells...")
-              ), 
-              React.createElement(Panel, {eventKey: 7, header: "Long"}, 
-                React.createElement("p", null, "Placeholder to simulate a lot of spells...")
-              ), 
-              React.createElement(Panel, {eventKey: 8, header: "Long"}, 
-                React.createElement("p", null, "Placeholder to simulate a lot of spells...")
-              ), 
-              React.createElement(Panel, {eventKey: 9, header: "Long"}, 
-                React.createElement("p", null, "Placeholder to simulate a lot of spells...")
-              ), 
-              React.createElement(Panel, {eventKey: 10, header: "Long"}, 
-                React.createElement("p", null, "Placeholder to simulate a lot of spells...")
-              ), 
-              React.createElement(Panel, {eventKey: 11, header: "Long"}, 
-                React.createElement("p", null, "Placeholder to simulate a lot of spells...")
-              ), 
-              React.createElement(Panel, {eventKey: 12, header: "Long"}, 
-                React.createElement("p", null, "Placeholder to simulate a lot of spells...")
-              )
-            )
-          ), 
-          React.createElement(Panel, {eventKey: 2, header: "2nd Level"}, 
-            React.createElement("div", {className: "slots"}, 
-              React.createElement("p", null, "Spell Slots"), 
-              React.createElement(Grid, {fluid: true}, 
-                React.createElement(Row, null, 
-                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
-                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
-                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
-                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
-                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"}))
-                )
-              )
-            ), 
-            React.createElement(Accordion, {defaultActiveKey: ""}, 
-              React.createElement(Panel, {eventKey: 1, header: "Ki Punching AGAIN!"}, 
-                React.createElement("p", null, "More punching. With Force. In the mouth.")
-              ), 
-              React.createElement(Panel, {eventKey: 2, header: "Jumping"}, 
-                React.createElement("p", null, "It's a spell that lets me jump really high. It's cool.")
-              )
-            )
-          ), 
-          React.createElement(Panel, {eventKey: 3, header: "3rd Level"}), 
-          React.createElement(Panel, {eventKey: 4, header: "4th Level"}), 
-          React.createElement(Panel, {eventKey: 5, header: "5th Level"}), 
-          React.createElement(Panel, {eventKey: 6, header: "6th Level"}), 
-          React.createElement(Panel, {eventKey: 7, header: "7th Level"}), 
-          React.createElement(Panel, {eventKey: 8, header: "8th Level"}), 
-          React.createElement(Panel, {eventKey: 9, header: "9th Level"})
-        ), 
-
-        
-        React.createElement(ButtonGroup, {className: "spell-selector", justified: true}, 
-            React.createElement(DropdownButton, {title: "Spell Level", onSelect: this.handleLevelChange}, 
-              React.createElement(MenuItem, {eventKey: 0}, "Cantrips"), 
-              React.createElement(MenuItem, {eventKey: 1}, "1st Level"), 
-              React.createElement(MenuItem, {eventKey: 2}, "2nd Level"), 
-              React.createElement(MenuItem, {eventKey: 3}, "3rd Level"), 
-              React.createElement(MenuItem, {eventKey: 4}, "4th Level"), 
-              React.createElement(MenuItem, {eventKey: 5}, "5th Level"), 
-              React.createElement(MenuItem, {eventKey: 6}, "6th Level"), 
-              React.createElement(MenuItem, {eventKey: 7}, "7th Level"), 
-              React.createElement(MenuItem, {eventKey: 8}, "8th Level"), 
-              React.createElement(MenuItem, {eventKey: 9}, "9th Level")
-            )
-        ), 
-
-        React.createElement(TabbedArea, {className: "spell-area", activeKey: this.state.spellLevel}, 
-          React.createElement(TabPane, {eventKey: 0}, 
-            React.createElement("h3", null, "Cantrips")
-          ), 
-          React.createElement(TabPane, {eventKey: 1}, 
-            React.createElement("h3", null, "1st Level Spells"), 
-            React.createElement("div", {className: "slots"}, 
-              React.createElement("p", null, "Spell Slots"), 
-              React.createElement(Grid, {fluid: true}, 
-                React.createElement(Row, null, 
-                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
-                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
-                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
-                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
-                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
-                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
-                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
-                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
-                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
-                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
-                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
-                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
-                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
-                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
-                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
-                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
-                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
-                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
-                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
-                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"}))
-                )
-              )
-            ), 
-            React.createElement(Accordion, {defaultActiveKey: ""}, 
-              React.createElement(Panel, {eventKey: 1, header: "Ki Punching!"}, 
-                React.createElement("p", null, "I punch you. Hard. In the mouth. 1d6 damage...to your pride")
-              ), 
-              React.createElement(Panel, {eventKey: 2, header: "Taunt"}, 
-                React.createElement("p", null, "I tell you that you'll never be as good as some other people...you cry.")
-              ), 
-              React.createElement(Panel, {eventKey: 3, header: "Long"}, 
-                React.createElement("p", null, "Placeholder to simulate a lot of spells...")
-              ), 
-              React.createElement(Panel, {eventKey: 4, header: "Long"}, 
-                React.createElement("p", null, "Placeholder to simulate a lot of spells...")
-              ), 
-              React.createElement(Panel, {eventKey: 5, header: "Long"}, 
-                React.createElement("p", null, "Placeholder to simulate a lot of spells...")
-              ), 
-              React.createElement(Panel, {eventKey: 6, header: "Long"}, 
-                React.createElement("p", null, "Placeholder to simulate a lot of spells...")
-              ), 
-              React.createElement(Panel, {eventKey: 7, header: "Long"}, 
-                React.createElement("p", null, "Placeholder to simulate a lot of spells...")
-              ), 
-              React.createElement(Panel, {eventKey: 8, header: "Long"}, 
-                React.createElement("p", null, "Placeholder to simulate a lot of spells...")
-              ), 
-              React.createElement(Panel, {eventKey: 9, header: "Long"}, 
-                React.createElement("p", null, "Placeholder to simulate a lot of spells...")
-              ), 
-              React.createElement(Panel, {eventKey: 10, header: "Long"}, 
-                React.createElement("p", null, "Placeholder to simulate a lot of spells...")
-              ), 
-              React.createElement(Panel, {eventKey: 11, header: "Long"}, 
-                React.createElement("p", null, "Placeholder to simulate a lot of spells...")
-              ), 
-              React.createElement(Panel, {eventKey: 12, header: "Long"}, 
-                React.createElement("p", null, "Placeholder to simulate a lot of spells...")
-              )
-            )
-          ), 
-
-          React.createElement(TabPane, {eventKey: 2}, 
-            React.createElement("h3", null, "2nd Level Spells"), 
-            React.createElement("div", {className: "slots"}, 
-              React.createElement("p", null, "Spell Slots"), 
-              React.createElement(Grid, {fluid: true}, 
-                React.createElement(Row, null, 
-                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
-                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
-                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
-                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"})), 
-                  React.createElement(Col, {xs: 1}, React.createElement("input", {type: "checkbox"}))
-                )
-              )
-            ), 
-            React.createElement(Accordion, {defaultActiveKey: ""}, 
-              React.createElement(Panel, {eventKey: 1, header: "Ki Punching AGAIN!"}, 
-                React.createElement("p", null, "More punching. With Force. In the mouth.")
-              ), 
-              React.createElement(Panel, {eventKey: 2, header: "Jumping"}, 
-                React.createElement("p", null, "It's a spell that lets me jump really high. It's cool.")
-              )
-            )
-          ), 
-
-          React.createElement(TabPane, {eventKey: 3}, 
-            React.createElement("h3", null, "3rd Level Spells")
-          ), 
-          React.createElement(TabPane, {eventKey: 4}, 
-            React.createElement("h3", null, "4th Level Spells")
-          ), 
-          React.createElement(TabPane, {eventKey: 5}, 
-            React.createElement("h3", null, "5th Level Spells")
-          ), 
-          React.createElement(TabPane, {eventKey: 6}, 
-            React.createElement("h3", null, "6th Level Spells")
-          ), 
-          React.createElement(TabPane, {eventKey: 7}, 
-            React.createElement("h3", null, "7th Level Spells")
-          ), 
-          React.createElement(TabPane, {eventKey: 8}, 
-            React.createElement("h3", null, "8th Level Spells")
-          ), 
-          React.createElement(TabPane, {eventKey: 9}, 
-            React.createElement("h3", null, "9th Level Spells")
-          )
+          spells
         )
       )
     );
@@ -993,14 +805,23 @@ module.exports = {
   "charSpells" : [
     {
       "name" : "Cantrips",
+      "slots" : 0,
       "spells" : [
         {
           "name" : "Acid Splash",
-          "desc" : "CT: 1 action; R: 60ft; CMP: VS; DUR: Instantaneous; Choose one creatuer within range, or two creatures within range that are within 5 ft of each other. A target must succeed on a DEX save or take 1d6 acid damage"
+          "cast" : "1 action",
+          "range" : "60ft",
+          "cmp" : "VS",
+          "dur" : "Instantaneous",
+          "desc" : "Choose one creatuer within range, or two creatures within range that are within 5 ft of each other. A target must succeed on a DEX save or take 1d6 acid damage"
         },
         {
           "name" : "Blade Ward",
-          "desc" : "CT: 1 action; R: Self; CMP: VS; DUR: 1 round; You extend your hand and trace a sigil of warding in the air. Until the end of your next turn, you have resistance against bludgeoning, piercing, and slashing damage dealt by weapon attacks"
+          "cast" : "1 action",
+          "range" : "Self",
+          "cmp" : "VS",
+          "dur" : "1 round",
+          "desc" : "You extend your hand and trace a sigil of warding in the air. Until the end of your next turn, you have resistance against bludgeoning, piercing, and slashing damage dealt by weapon attacks"
         }
       ]
     },
@@ -1010,7 +831,11 @@ module.exports = {
       "spells" : [
         {
           "name" : "Bless",
-          "desc" : "CT: 1 action; R: 30ft; CMP: VSM(a sprinkling of holy water); DUR: Concentration, up to 1 min; You bless up to three creatures of your choice within range. Whenever a target makes an attack roll or a saving throw before the spell ends, the target can roll a d4 and add the number rolled to the attack roll or saving throw"
+          "cast" : "1 action",
+          "range" : "30ft",
+          "cmp" : "VSM (a sprinkling of holy water)",
+          "dur" : "Concentration, up to 1 min",
+          "desc" : "You bless up to three creatures of your choice within range. Whenever a target makes an attack roll or a saving throw before the spell ends, the target can roll a d4 and add the number rolled to the attack roll or saving throw"
         }
       ]
     },

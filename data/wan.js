@@ -24,14 +24,23 @@ module.exports = {
   "charSpells" : [
     {
       "name" : "Cantrips",
+      "slots" : 0,
       "spells" : [
         {
           "name" : "Acid Splash",
-          "desc" : "CT: 1 action; R: 60ft; CMP: VS; DUR: Instantaneous; Choose one creatuer within range, or two creatures within range that are within 5 ft of each other. A target must succeed on a DEX save or take 1d6 acid damage"
+          "cast" : "1 action",
+          "range" : "60ft",
+          "cmp" : "VS",
+          "dur" : "Instantaneous",
+          "desc" : "Choose one creatuer within range, or two creatures within range that are within 5 ft of each other. A target must succeed on a DEX save or take 1d6 acid damage"
         },
         {
           "name" : "Blade Ward",
-          "desc" : "CT: 1 action; R: Self; CMP: VS; DUR: 1 round; You extend your hand and trace a sigil of warding in the air. Until the end of your next turn, you have resistance against bludgeoning, piercing, and slashing damage dealt by weapon attacks"
+          "cast" : "1 action",
+          "range" : "Self",
+          "cmp" : "VS",
+          "dur" : "1 round",
+          "desc" : "You extend your hand and trace a sigil of warding in the air. Until the end of your next turn, you have resistance against bludgeoning, piercing, and slashing damage dealt by weapon attacks"
         }
       ]
     },
@@ -41,7 +50,11 @@ module.exports = {
       "spells" : [
         {
           "name" : "Bless",
-          "desc" : "CT: 1 action; R: 30ft; CMP: VSM(a sprinkling of holy water); DUR: Concentration, up to 1 min; You bless up to three creatures of your choice within range. Whenever a target makes an attack roll or a saving throw before the spell ends, the target can roll a d4 and add the number rolled to the attack roll or saving throw"
+          "cast" : "1 action",
+          "range" : "30ft",
+          "cmp" : "VSM (a sprinkling of holy water)",
+          "dur" : "Concentration, up to 1 min",
+          "desc" : "You bless up to three creatures of your choice within range. Whenever a target makes an attack roll or a saving throw before the spell ends, the target can roll a d4 and add the number rolled to the attack roll or saving throw"
         }
       ]
     },
