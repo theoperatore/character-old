@@ -202,8 +202,8 @@ var InfoModal = React.createClass({
   /////////////////////////////////////////////////////////////////////////////
   render : function() {
     var alert;
-    var validationLvl = "";
-    var validationXp = "";
+    var validationLvl;
+    var validationXp;
 
     // if an alert is shown becasue of xp, display a red outline around the
     // xp input to tell the user the value is still wrong

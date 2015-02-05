@@ -1,5 +1,6 @@
 var React = require('react');
 var ModalInfo = require('./modals/modal-info');
+var ModalProf = require('./modals/modal-proficiencies');
 
 var Accordion = require('react-bootstrap/Accordion');
 var Grid = require('react-bootstrap/Grid');
@@ -21,25 +22,29 @@ var Info = React.createClass({
       langs : false
     });
   },
-  handleInfoToggle : function() {
-    this.setState({ infos : !this.state.infos });
+  handleToggle : function(cmp) {
+    var state = {};
+    state[cmp] = !this.state[cmp];
+    this.setState(state);
   },
   renderOverlay : function() {
     if (this.state.infos) {
-      return (<ModalInfo character={this.props.character} edit={this.props.edit} close={this.handleInfoToggle}/>);
+      return (<ModalInfo character={this.props.character} edit={this.props.edit} close={this.handleToggle.bind(this, "infos")}/>);
     }
-    else if (this.state.traits) {
-
-    }
-    else if (this.state.profs) {
-
-    }
-    else if (this.state.langs) {
-
-    }
-    else {
+    
+    if (this.state.traits) {
       return <span />;
     }
+    
+    if (this.state.profs) {
+      return (<ModalProf character={this.props.character} edit={this.props.edit} close={this.handleToggle.bind(this, "profs")} />);
+    }
+    
+    if (this.state.langs) {
+      return <span />;
+    }
+    
+    return <span />;
   },
   render : function() {
 
@@ -66,7 +71,7 @@ var Info = React.createClass({
     // list everything else.
     return (
       <div className="container-fluid">
-        <h3>{"Info"} <Button className="no-border" onClick={this.handleInfoToggle}><Glyphicon glyph="cog"/></Button></h3>
+        <h3>{"Info"} <Button className="no-border" onClick={this.handleToggle.bind(this, "infos")}><Glyphicon glyph="cog"/></Button></h3>
         <Panel>
           <Grid fluid>
             <Row>
@@ -135,7 +140,7 @@ var Info = React.createClass({
           </Panel>
         </Accordion>
 
-        <h3>{"Proficiencies"} <Button className="no-border"><Glyphicon glyph="cog"/></Button></h3>
+        <h3>{"Proficiencies"} <Button className="no-border" onClick={this.handleToggle.bind(this, "profs")}><Glyphicon glyph="cog"/></Button></h3>
         <Accordion defaultActiveKey="">
           {proficiencies}
         </Accordion>
