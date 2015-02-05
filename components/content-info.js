@@ -1,4 +1,5 @@
 var React = require('react');
+var ModalInfo = require('./modals/modal-info');
 
 var Accordion = require('react-bootstrap/Accordion');
 var Grid = require('react-bootstrap/Grid');
@@ -7,11 +8,42 @@ var Col = require('react-bootstrap/Col');
 var Panel = require('react-bootstrap/Panel');
 var Button = require('react-bootstrap/Button');
 var Glyphicon = require('react-bootstrap/Glyphicon');
+var OverlayMixin = require('react-bootstrap/OverlayMixin');
 
 var Info = React.createClass({
   displayName : "CharInfo",
+  mixins : [OverlayMixin],
+  getInitialState : function() {
+    return ({
+      infos : false,
+      traits : false,
+      profs : false,
+      langs : false
+    });
+  },
+  handleInfoToggle : function() {
+    this.setState({ infos : !this.state.infos });
+  },
+  renderOverlay : function() {
+    if (this.state.infos) {
+      return (<ModalInfo character={this.props.character} ok={this.props.edit} close={this.handleInfoToggle}/>);
+    }
+    else if (this.state.traits) {
+
+    }
+    else if (this.state.profs) {
+
+    }
+    else if (this.state.langs) {
+
+    }
+    else {
+      return <span />;
+    }
+  },
   render : function() {
 
+    // list languages known
     var languages = [];
     this.props.character["charOtherProficiencies"]["languages"].forEach(function(lan, i) {
       languages.push(
@@ -21,6 +53,7 @@ var Info = React.createClass({
       )
     });
 
+    // list proficiencies
     var proficiencies = [];
     this.props.character["charOtherProficiencies"]["proficiencies"].forEach(function(prof, i) {
       proficiencies.push(
@@ -30,9 +63,10 @@ var Info = React.createClass({
       )
     });
 
+    // list everything else.
     return (
       <div className="container-fluid">
-        <h3>{"Info"} <Button className="no-border"><Glyphicon glyph="cog"/></Button></h3>
+        <h3>{"Info"} <Button className="no-border" onClick={this.handleInfoToggle}><Glyphicon glyph="cog"/></Button></h3>
         <Panel>
           <Grid fluid>
             <Row>

@@ -81,7 +81,10 @@ var Attack = React.createClass({
   handleDelete : function() {
     var tmp = this.props.character;
     var path = "charAttacks.delete.";
+    var name = tmp['charAttacks'][this.state.edit].name;
     var atk;
+
+    if (!confirm("Do you really want to get rid of\n '" + name + "'\n forever?")) return;
 
     // delete attack
     atk = tmp['charAttacks'].splice(this.state.edit, 1);
@@ -149,6 +152,7 @@ var Attack = React.createClass({
             <TabPane eventKey={0} tab="new">
               <div className="container-fluid">
                 <h3>{"Add new attack"}</h3>
+                <p>{"Enter the name of the new attack and a short description."}</p>
                 <Input placeholder="name" value={this.state.name} type="text" label="Attack Name" onChange={this.handleAttackName}/>
                 <Input placeholder="short description" value={this.state.desc} type="textarea" label="Attack Desc" onChange={this.handleAttackDesc}/>
               </div>
@@ -157,20 +161,28 @@ var Attack = React.createClass({
               <div className="container-fluid">
                 <h3>{"Edit attack"}</h3>
                 <p>{"Change the name or description of an attack by first selecting an attack name and then entering new values"}</p>
-                <Input type="select" onChange={this.handleAttackEditSelect} defaultSelected={-1}>
-                  <option value={-1}>{"Select an Attack"}</option>
-                  {attacks}
+                <Input>
+                  <Row>
+                    <Col xs={8}>
+                      <Input type="select" onChange={this.handleAttackEditSelect} defaultSelected={-1}>
+                        <option value={-1}>{"Select an Attack"}</option>
+                        {attacks}
+                      </Input>
+                    </Col>
+                    <Col xs={4}>
+                      <Button disabled={(this.state.edit === -1) ? true : false} bsStyle="danger" onClick={this.handleDelete}>Delete</Button>
+                    </Col>
+                  </Row>
                 </Input>
                 <Input disabled={(this.state.edit === -1) ? true : false} type="text" onChange={this.handleEditName} placeholder={"attack name"} value={this.state.changeName} label={"New Attack Name"}/>
                 <Input disabled={(this.state.edit === -1) ? true : false} type="textarea" onChange={this.handleEditDesc} placeholder={"attack desc"} value={this.state.changeDesc} label={"New Attack Desc"}/>
-                <Button disabled={(this.state.edit === -1) ? true : false} bsStyle="danger" bsSize="large" onClick={this.handleDelete}>Delete</Button>
               </div>
             </TabPane>
           </TabbedArea>
         </div>
         <div className="modal-footer">
           <Button bsStyle="danger"  onClick={this.handleAttackClose}>Close</Button>
-          <Button bsStyle="success" onClick={this.handleAttackAdd}>Ok</Button>
+          <Button bsStyle="success" onClick={this.handleAttackAdd}>Save</Button>
         </div>
       </Modal>
     );
@@ -227,6 +239,7 @@ var Attack = React.createClass({
         <h3>
           {"Attacks"} 
           <Button className="no-border" onClick={this.handleAttackClose}><Glyphicon glyph="cog"/></Button>
+
           <OverlayTrigger placement="bottom" trigger="click" overlay={
             <Tooltip>
               <p>{"Class points like 'Ki', 'Rage', or 'Sorcery' can be modified in 'Features' ("} <Glyphicon glyph="flash" /> {")"}</p>
