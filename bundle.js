@@ -273,6 +273,8 @@ var Attack = React.createClass({
     var path = "charAttacks.delete.";
     var atk;
 
+    if (!confirm("Do you really want to get rid of '" + tmp['charAttacks'][this.state.edit].name + "' forever?")) return;
+
     // delete attack
     atk = tmp['charAttacks'].splice(this.state.edit, 1);
     path += atk.name;
@@ -339,6 +341,7 @@ var Attack = React.createClass({
             React.createElement(TabPane, {eventKey: 0, tab: "new"}, 
               React.createElement("div", {className: "container-fluid"}, 
                 React.createElement("h3", null, "Add new attack"), 
+                React.createElement("p", null, "Enter the name of the new attack and a short description."), 
                 React.createElement(Input, {placeholder: "name", value: this.state.name, type: "text", label: "Attack Name", onChange: this.handleAttackName}), 
                 React.createElement(Input, {placeholder: "short description", value: this.state.desc, type: "textarea", label: "Attack Desc", onChange: this.handleAttackDesc})
               )
@@ -347,20 +350,28 @@ var Attack = React.createClass({
               React.createElement("div", {className: "container-fluid"}, 
                 React.createElement("h3", null, "Edit attack"), 
                 React.createElement("p", null, "Change the name or description of an attack by first selecting an attack name and then entering new values"), 
-                React.createElement(Input, {type: "select", onChange: this.handleAttackEditSelect, defaultSelected: -1}, 
-                  React.createElement("option", {value: -1}, "Select an Attack"), 
-                  attacks
+                React.createElement(Input, null, 
+                  React.createElement(Row, null, 
+                    React.createElement(Col, {xs: 8}, 
+                      React.createElement(Input, {type: "select", onChange: this.handleAttackEditSelect, defaultSelected: -1}, 
+                        React.createElement("option", {value: -1}, "Select an Attack"), 
+                        attacks
+                      )
+                    ), 
+                    React.createElement(Col, {xs: 4}, 
+                      React.createElement(Button, {disabled: (this.state.edit === -1) ? true : false, bsStyle: "danger", onClick: this.handleDelete}, "Delete")
+                    )
+                  )
                 ), 
                 React.createElement(Input, {disabled: (this.state.edit === -1) ? true : false, type: "text", onChange: this.handleEditName, placeholder: "attack name", value: this.state.changeName, label: "New Attack Name"}), 
-                React.createElement(Input, {disabled: (this.state.edit === -1) ? true : false, type: "textarea", onChange: this.handleEditDesc, placeholder: "attack desc", value: this.state.changeDesc, label: "New Attack Desc"}), 
-                React.createElement(Button, {disabled: (this.state.edit === -1) ? true : false, bsStyle: "danger", bsSize: "large", onClick: this.handleDelete}, "Delete")
+                React.createElement(Input, {disabled: (this.state.edit === -1) ? true : false, type: "textarea", onChange: this.handleEditDesc, placeholder: "attack desc", value: this.state.changeDesc, label: "New Attack Desc"})
               )
             )
           )
         ), 
         React.createElement("div", {className: "modal-footer"}, 
           React.createElement(Button, {bsStyle: "danger", onClick: this.handleAttackClose}, "Close"), 
-          React.createElement(Button, {bsStyle: "success", onClick: this.handleAttackAdd}, "Ok")
+          React.createElement(Button, {bsStyle: "success", onClick: this.handleAttackAdd}, "Save")
         )
       )
     );
@@ -417,6 +428,7 @@ var Attack = React.createClass({
         React.createElement("h3", null, 
           "Attacks", 
           React.createElement(Button, {className: "no-border", onClick: this.handleAttackClose}, React.createElement(Glyphicon, {glyph: "cog"})), 
+
           React.createElement(OverlayTrigger, {placement: "bottom", trigger: "click", overlay: 
             React.createElement(Tooltip, null, 
               React.createElement("p", null, "Class points like 'Ki', 'Rage', or 'Sorcery' can be modified in 'Features' (", " ", React.createElement(Glyphicon, {glyph: "flash"}), " ", ")"), 
@@ -683,11 +695,39 @@ var Col = require('react-bootstrap/Col');
 var Panel = require('react-bootstrap/Panel');
 var Button = require('react-bootstrap/Button');
 var Glyphicon = require('react-bootstrap/Glyphicon');
+var OverlayMixin = require('react-bootstrap/OverlayMixin');
 
 var Info = React.createClass({
   displayName : "CharInfo",
+  mixins : [OverlayMixin],
+  getInitialState : function() {
+    return ({
+      infos : false,
+      traits : false,
+      profs : false,
+      langs : false
+    });
+  },
+  renderOverlay : function() {
+    if (this.state.infos) {
+
+    }
+    else if (this.state.traits) {
+
+    }
+    else if (this.state.profs) {
+
+    }
+    else if (this.state.langs) {
+
+    }
+    else {
+      return React.createElement("span", null);
+    }
+  },
   render : function() {
 
+    // list languages known
     var languages = [];
     this.props.character["charOtherProficiencies"]["languages"].forEach(function(lan, i) {
       languages.push(
@@ -697,6 +737,7 @@ var Info = React.createClass({
       )
     });
 
+    // list proficiencies
     var proficiencies = [];
     this.props.character["charOtherProficiencies"]["proficiencies"].forEach(function(prof, i) {
       proficiencies.push(
@@ -706,6 +747,7 @@ var Info = React.createClass({
       )
     });
 
+    // list everything else.
     return (
       React.createElement("div", {className: "container-fluid"}, 
         React.createElement("h3", null, "Info", " ", React.createElement(Button, {className: "no-border"}, React.createElement(Glyphicon, {glyph: "cog"}))), 
@@ -793,7 +835,7 @@ var Info = React.createClass({
 
 module.exports = Info;
 
-},{"react":199,"react-bootstrap/Accordion":14,"react-bootstrap/Button":16,"react-bootstrap/Col":18,"react-bootstrap/Glyphicon":24,"react-bootstrap/Grid":25,"react-bootstrap/Panel":35,"react-bootstrap/Row":39}],8:[function(require,module,exports){
+},{"react":199,"react-bootstrap/Accordion":14,"react-bootstrap/Button":16,"react-bootstrap/Col":18,"react-bootstrap/Glyphicon":24,"react-bootstrap/Grid":25,"react-bootstrap/OverlayMixin":32,"react-bootstrap/Panel":35,"react-bootstrap/Row":39}],8:[function(require,module,exports){
 var React = require('react');
 var Glyphicon = require('react-bootstrap/Glyphicon');
 var Accordion = require('react-bootstrap/Accordion');
