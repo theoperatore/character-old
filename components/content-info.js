@@ -26,7 +26,7 @@ var Info = React.createClass({
   },
   renderOverlay : function() {
     if (this.state.infos) {
-      return (<ModalInfo character={this.props.character} ok={this.props.edit} close={this.handleInfoToggle}/>);
+      return (<ModalInfo character={this.props.character} edit={this.props.edit} close={this.handleInfoToggle}/>);
     }
     else if (this.state.traits) {
 
