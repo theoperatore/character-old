@@ -285,22 +285,26 @@ var Attack = React.createClass({
 
     // render attack bonus bubbles -- might have to think of something
     // different than using popovers
-    var grid = 12 / this.props.preferences.atkBubbles.length;
     this.props.preferences.atkBubbles.forEach(function(bubble, i) {
       var bonus = this.props.character['charAbilities'][bubble.abil]['mod'];
       bonus += (bubble.prof === true) ? prof : 0;
 
       bubbles.push(
-        React.createElement(Col, {key: i, xs: grid}, 
-          React.createElement("p", null, bubble.desc), 
-          React.createElement(OverlayTrigger, {ref: "trigger" + i, placement: "bottom", trigger: "manual", overlay: 
-            React.createElement(Popover, {title: "Atk Bonus Config"}, 
-              React.createElement(AttackConfig, {pane: "CharAttack", configName: "atkBubbles", close: this.handleConfigToggle.bind(this, "trigger" + i), idx: i, bubble: bubble, edit: this.props.editPreferences, preferences: this.props.preferences})
+        React.createElement(Row, {key: i}, 
+          React.createElement(Col, {xs: 12}, 
+            
+            React.createElement(OverlayTrigger, {ref: "trigger" + i, placement: "bottom", trigger: "manual", overlay: 
+              React.createElement(Popover, {title: "Atk Bonus Config"}, 
+                React.createElement(AttackConfig, {pane: "CharAttack", configName: "atkBubbles", close: this.handleConfigToggle.bind(this, "trigger" + i), idx: i, bubble: bubble, edit: this.props.editPreferences, preferences: this.props.preferences})
+              )
+            }, 
+              React.createElement("div", null, 
+                React.createElement("h3", {onClick: this.handleConfigToggle.bind(this, "trigger" + i), className: "bonus text-center" + ((bubble.prof === true) ? " trained" : "")}, bonus), 
+                React.createElement("p", {className: "bonus-desc"}, bubble.desc), 
+                React.createElement("p", null, bubble.abil + ((bubble.prof === true) ? " + prof" : ""))
+              )
             )
-          }, 
-            React.createElement("h3", {onClick: this.handleConfigToggle.bind(this, "trigger" + i), className: "bonus text-center" + ((bubble.prof === true) ? " trained" : "")}, bonus)
-          ), 
-          React.createElement("p", null, bubble.abil + ((bubble.prof === true) ? " + prof" : ""))
+          )
         )
       );
 
@@ -326,7 +330,7 @@ var Attack = React.createClass({
           )
         ), 
 
-        React.createElement(Panel, {className: "text-center"}, 
+        React.createElement(Panel, null, 
           React.createElement(Grid, {fluid: true}, 
             React.createElement(Row, null, 
               bubbles

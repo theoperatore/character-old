@@ -89,23 +89,27 @@ var Attack = React.createClass({
 
     // render attack bonus bubbles -- might have to think of something
     // different than using popovers
-    var grid = 12 / this.props.preferences.atkBubbles.length;
     this.props.preferences.atkBubbles.forEach(function(bubble, i) {
       var bonus = this.props.character['charAbilities'][bubble.abil]['mod'];
       bonus += (bubble.prof === true) ? prof : 0;
 
       bubbles.push(
-        <Col key={i} xs={grid}>
-          <p>{bubble.desc}</p>
-          <OverlayTrigger ref={"trigger" + i} placement="bottom" trigger="manual" overlay={
-            <Popover title="Atk Bonus Config">
-              <AttackConfig pane="CharAttack" configName="atkBubbles" close={this.handleConfigToggle.bind(this, "trigger" + i)} idx={i} bubble={bubble} edit={this.props.editPreferences} preferences={this.props.preferences}/>
-            </Popover>
-          }>
-            <h3 onClick={this.handleConfigToggle.bind(this, "trigger" + i)} className={"bonus text-center" + ((bubble.prof === true) ? " trained" : "")}>{bonus}</h3>
-          </OverlayTrigger>
-          <p>{bubble.abil + ((bubble.prof === true) ? " + prof" : "")}</p>
-        </Col>
+        <Row key={i}>
+          <Col xs={12}>
+            
+            <OverlayTrigger ref={"trigger" + i} placement="bottom" trigger="manual" overlay={
+              <Popover title="Atk Bonus Config">
+                <AttackConfig pane="CharAttack" configName="atkBubbles" close={this.handleConfigToggle.bind(this, "trigger" + i)} idx={i} bubble={bubble} edit={this.props.editPreferences} preferences={this.props.preferences}/>
+              </Popover>
+            }>
+              <div>
+                <h3 onClick={this.handleConfigToggle.bind(this, "trigger" + i)} className={"bonus text-center" + ((bubble.prof === true) ? " trained" : "")}>{bonus}</h3>
+                <p className="bonus-desc">{bubble.desc}</p>
+                <p>{bubble.abil + ((bubble.prof === true) ? " + prof" : "")}</p>
+              </div>
+            </OverlayTrigger>
+          </Col>
+        </Row>
       );
 
     }.bind(this));
@@ -130,7 +134,7 @@ var Attack = React.createClass({
           </OverlayTrigger>
         </h3>
 
-        <Panel className="text-center">
+        <Panel>
           <Grid fluid>
             <Row>
               {bubbles}
