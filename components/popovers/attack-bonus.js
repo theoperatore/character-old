@@ -36,6 +36,7 @@ var Bubble = React.createClass({
     var path = this.props.pane + "." + this.props.configName;
 
     if (cmp === "add") {
+      if (data[this.props.configName].length === 3) return;
       data[this.props.configName].push({
         abil : "str",
         prof : "false",

@@ -1487,6 +1487,7 @@ var Bubble = React.createClass({displayName: "Bubble",
     var path = this.props.pane + "." + this.props.configName;
 
     if (cmp === "add") {
+      if (data[this.props.configName].length === 3) return;
       data[this.props.configName].push({
         abil : "str",
         prof : "false",
@@ -1532,8 +1533,6 @@ var Bubble = React.createClass({displayName: "Bubble",
             React.createElement(Glyphicon, {glyph: "plus-sign"})
           )
         )
-
-        
       )
     );
   }
