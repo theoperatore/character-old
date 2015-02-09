@@ -88,6 +88,15 @@ html {
   background-color: #d9edf7 !important;
 }
 
+.bonus-container {
+  margin: auto;
+}
+.bonus-container:after {
+  content: " ";
+  clear:both;
+  display: table;
+}
+
 .bonus {
   width: 60px;
   height: 60px;

@@ -96,18 +96,19 @@ var Attack = React.createClass({
       bubbles.push(
         <Row key={i}>
           <Col xs={12}>
-            
-            <OverlayTrigger ref={"trigger" + i} placement="bottom" trigger="manual" overlay={
-              <Popover title="Atk Bonus Config">
-                <AttackConfig pane="CharAttack" configName="atkBubbles" close={this.handleConfigToggle.bind(this, "trigger" + i)} idx={i} bubble={bubble} edit={this.props.editPreferences} preferences={this.props.preferences}/>
-              </Popover>
-            }>
-              <div>
-                <h3 onClick={this.handleConfigToggle.bind(this, "trigger" + i)} className={"bonus text-center" + ((bubble.prof === true) ? " trained" : "")}>{bonus}</h3>
-                <p className="bonus-desc">{bubble.desc}</p>
-                <p>{bubble.abil + ((bubble.prof === true) ? " + prof" : "")}</p>
-              </div>
-            </OverlayTrigger>
+            <div className="container-fluid">
+              <OverlayTrigger ref={"trigger" + i} placement="bottom" trigger="manual" overlay={
+                <Popover title="Atk Bonus Config">
+                  <AttackConfig pane="CharAttack" configName="atkBubbles" close={this.handleConfigToggle.bind(this, "trigger" + i)} idx={i} bubble={bubble} edit={this.props.editPreferences} preferences={this.props.preferences}/>
+                </Popover>
+              }>
+                <div className="bonus-container">
+                  <h3 onClick={this.handleConfigToggle.bind(this, "trigger" + i)} className={"bonus text-center" + ((bubble.prof === true) ? " trained" : "")}>{bonus}</h3>
+                  <p className="bonus-desc">{bubble.desc}</p>
+                  <p>{bubble.abil + ((bubble.prof === true) ? " + prof" : "")}</p>
+                </div>
+              </OverlayTrigger>
+            </div>
           </Col>
         </Row>
       );
