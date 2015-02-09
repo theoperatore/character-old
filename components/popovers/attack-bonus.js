@@ -39,7 +39,7 @@ var Bubble = React.createClass({
       if (data[this.props.configName].length === 3) return;
       data[this.props.configName].push({
         abil : "str",
-        prof : "false",
+        prof : false,
         desc : "Attack Bonus"
       });
     }
