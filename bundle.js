@@ -290,20 +290,20 @@ var Attack = React.createClass({
       bonus += (bubble.prof === true) ? prof : 0;
 
       bubbles.push(
-        React.createElement(Row, {key: i}, 
-          React.createElement(Col, {xs: 12}, 
-            React.createElement("div", {className: "container-fluid"}, 
-              React.createElement(OverlayTrigger, {ref: "trigger" + i, placement: "bottom", trigger: "manual", overlay: 
-                React.createElement(Popover, {title: "Atk Bonus Config"}, 
-                  React.createElement(AttackConfig, {pane: "CharAttack", configName: "atkBubbles", close: this.handleConfigToggle.bind(this, "trigger" + i), idx: i, bubble: bubble, edit: this.props.editPreferences, preferences: this.props.preferences})
-                )
-              }, 
-                React.createElement("div", {className: "bonus-container"}, 
-                  React.createElement("h3", {onClick: this.handleConfigToggle.bind(this, "trigger" + i), className: "bonus text-center" + ((bubble.prof === true) ? " trained" : "")}, bonus), 
-                  React.createElement("p", {className: "bonus-desc"}, bubble.desc), 
-                  React.createElement("p", null, bubble.abil + ((bubble.prof === true) ? " + prof" : ""))
-                )
+        React.createElement(OverlayTrigger, {key: i, ref: "trigger" + i, placement: "bottom", trigger: "manual", overlay: 
+          React.createElement(Popover, {title: "Atk Bonus Config"}, 
+            React.createElement(AttackConfig, {pane: "CharAttack", configName: "atkBubbles", close: this.handleConfigToggle.bind(this, "trigger" + i), idx: i, bubble: bubble, edit: this.props.editPreferences, preferences: this.props.preferences})
+          )
+        }, 
+          React.createElement(Row, null, 
+            React.createElement(Col, {className: "no-padding", xs: 5}, 
+              React.createElement("div", {className: "bonus-container"}, 
+                React.createElement("h3", {onClick: this.handleConfigToggle.bind(this, "trigger" + i), className: "bonus text-center" + ((bubble.prof === true) ? " trained" : "")}, bonus)
               )
+            ), 
+            React.createElement(Col, {className: "no-padding", xs: 7}, 
+              React.createElement("p", {className: "bonus-desc"}, bubble.desc), 
+              React.createElement("p", null, bubble.abil + ((bubble.prof === true) ? " + prof" : ""))
             )
           )
         )

@@ -94,23 +94,23 @@ var Attack = React.createClass({
       bonus += (bubble.prof === true) ? prof : 0;
 
       bubbles.push(
-        <Row key={i}>
-          <Col xs={12}>
-            <div className="container-fluid">
-              <OverlayTrigger ref={"trigger" + i} placement="bottom" trigger="manual" overlay={
-                <Popover title="Atk Bonus Config">
-                  <AttackConfig pane="CharAttack" configName="atkBubbles" close={this.handleConfigToggle.bind(this, "trigger" + i)} idx={i} bubble={bubble} edit={this.props.editPreferences} preferences={this.props.preferences}/>
-                </Popover>
-              }>
-                <div className="bonus-container">
-                  <h3 onClick={this.handleConfigToggle.bind(this, "trigger" + i)} className={"bonus text-center" + ((bubble.prof === true) ? " trained" : "")}>{bonus}</h3>
-                  <p className="bonus-desc">{bubble.desc}</p>
-                  <p>{bubble.abil + ((bubble.prof === true) ? " + prof" : "")}</p>
-                </div>
-              </OverlayTrigger>
-            </div>
-          </Col>
-        </Row>
+        <OverlayTrigger key={i} ref={"trigger" + i} placement="bottom" trigger="manual" overlay={
+          <Popover title="Atk Bonus Config">
+            <AttackConfig pane="CharAttack" configName="atkBubbles" close={this.handleConfigToggle.bind(this, "trigger" + i)} idx={i} bubble={bubble} edit={this.props.editPreferences} preferences={this.props.preferences}/>
+          </Popover>
+        }>
+          <Row>
+            <Col className="no-padding" xs={5}>
+              <div className="bonus-container">
+                <h3 onClick={this.handleConfigToggle.bind(this, "trigger" + i)} className={"bonus text-center" + ((bubble.prof === true) ? " trained" : "")}>{bonus}</h3>
+              </div>
+            </Col>
+            <Col className="no-padding" xs={7}>
+              <p className="bonus-desc">{bubble.desc}</p>
+              <p>{bubble.abil + ((bubble.prof === true) ? " + prof" : "")}</p>
+            </Col>
+          </Row>
+        </OverlayTrigger>
       );
 
     }.bind(this));
