@@ -43,12 +43,18 @@ var ContentArea = React.createClass({
 
 
         <TabPane eventKey={5} tab={<Glyphicon glyph="fire" />}>
-          <ContentAttack character={this.props.character} edit={this.props.edit} />
+          <ContentAttack 
+            character={this.props.character} edit={this.props.edit}
+            preferences={this.props.preferences} editPreferences={this.props.editPreferences}
+          />
         </TabPane>
 
 
         <TabPane eventKey={6} tab={<Glyphicon glyph="book" />}>
-          <ContentSpell character={this.props.character} edit={this.props.edit} />
+          <ContentSpell 
+            character={this.props.character} edit={this.props.edit} 
+            preferences={this.props.preferences} editPreferences={this.props.editPreferences}
+          />
         </TabPane>
 
 

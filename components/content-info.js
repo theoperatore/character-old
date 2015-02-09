@@ -121,7 +121,7 @@ var Info = React.createClass({
           </Grid>
         </Panel>
 
-        <h3>{"Traits"} <Button className="no-border"><Glyphicon glyph="cog"/></Button></h3>
+        <h3>{"Traits"} <Button className="no-border" onClick={this.handleToggle.bind(this, "traits")}><Glyphicon glyph="cog"/></Button></h3>
         <Accordion defaultActiveKey="">
           <Panel className="no-padding" bsStyle="warning" eventKey={0} header="Personality Traits">
             <p>{this.props.character['charTraits']['personalityTraits']}</p>  
@@ -145,7 +145,7 @@ var Info = React.createClass({
           {proficiencies}
         </Accordion>
 
-        <h3>{"Languages"} <Button className="no-border"><Glyphicon glyph="cog"/></Button></h3>
+        <h3>{"Languages"} <Button className="no-border" onClick={this.handleToggle.bind(this, "langs")}><Glyphicon glyph="cog"/></Button></h3>
         <Accordion defaultActiveKey="">
           {languages}
         </Accordion>
