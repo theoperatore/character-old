@@ -1,6 +1,8 @@
 var React = require('react');
 var ModalInfo = require('./modals/modal-info');
 var ModalProf = require('./modals/modal-proficiencies');
+var ModalTraits = require('./modals/modal-traits');
+var ModalLangs = require('./modals/modal-langs');
 
 var Accordion = require('react-bootstrap/Accordion');
 var Grid = require('react-bootstrap/Grid');
@@ -33,7 +35,7 @@ var Info = React.createClass({
     }
     
     if (this.state.traits) {
-      return <span />;
+      return (<ModalTraits character={this.props.character} edit={this.props.edit} close={this.handleToggle.bind(this, "traits")} />);
     }
     
     if (this.state.profs) {
@@ -41,7 +43,7 @@ var Info = React.createClass({
     }
     
     if (this.state.langs) {
-      return <span />;
+      return (<ModalLangs character={this.props.character} edit={this.props.edit} close={this.handleToggle.bind(this, "langs")} />);
     }
     
     return <span />;
