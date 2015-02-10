@@ -17,7 +17,6 @@ module.exports = {
   "charClassCharges" : [
     {
       "name" : "Ki",
-      "desc" : "Do cool stuff with your inner power!",
       "charges" : 5
     }
   ],
@@ -388,7 +387,8 @@ module.exports = {
     },
     {
       "name" : "Ki",
-      "desc" : "(See monk table for amount) Saving throw against Ki DC = 8 + PROF + WIS"
+      "desc" : "(See monk table for amount) Saving throw against Ki DC = 8 + PROF + WIS",
+      "idx" : 0
     },
     {
       "name" : "Unarmored Movement",
