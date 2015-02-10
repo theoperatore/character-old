@@ -8,11 +8,6 @@ var prefs = {
       abil : "dex",
       prof : true,
       desc : "Attack Bonus"
-    },
-    {
-      abil : "str",
-      prof : false,
-      desc : "Attack Bonus"
     }
   ],
   spellBubbles : [

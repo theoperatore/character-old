@@ -1,8 +1,12 @@
 var React = require('react');
+var HelpTooltip = require('./tooltips/help');
+
 var Glyphicon = require('react-bootstrap/Glyphicon');
 var Accordion = require('react-bootstrap/Accordion');
 var Panel = require('react-bootstrap/Panel');
 var ProgressBar = require('react-bootstrap/ProgressBar');
+var OverlayTrigger = require('react-bootstrap/OverlayTrigger');
+var Tooltip = require('react-bootstrap/Tooltip');
 var Input = require('react-bootstrap/Input');
 var Grid = require('react-bootstrap/Grid');
 var Row = require('react-bootstrap/Row');
@@ -11,11 +15,82 @@ var Button = require('react-bootstrap/Button');
 
 var Defense = React.createClass({
   displayName : "CharDefenses",
+  getInitialState : function() {
+    return ({
+      hpOpen : false,
+      temp : "",
+      dmg : ""
+    });
+  },
+  toggleHP : function() {
+    this.setState({ hpOpen : !this.state.hpOpen });
+  },
+  handleHPInput : function(cmp, e) {
+    var node = {};
+    node[cmp] = e.target.value;
+    this.setState(node);
+  },
+  handleHP : function(mode) {
+    var data = this.props.character;
+    var path = "charDefenses.";
+    var amount = parseInt(this.state.dmg, 10);
+    var temp = parseInt(this.state.temp, 10);
+    var diff;
+
+    if (mode === "heal") {
+
+      if (isNaN(amount)) return;
+
+      path += "hpHeal." + amount;
+      data['charHitPoints']['current'] = 
+        (data['charHitPoints']['current'] + amount >= data['charHitPoints']['maximum'])
+        ? data['charHitPoints']['maximum']
+        : data['charHitPoints']['current'] + amount;
+    }
+    else if (mode === "dmg") {
+
+      if (isNaN(amount)) return;
+
+      path += "hpDamage." + amount;
+      if (data['charHitPoints']['temporary'] !== 0) {
+        diff = data['charHitPoints']['temporary'] - amount;
+
+        if (diff < 0) {
+          data['charHitPoints']['temporary'] = 0;
+          data['charHitPoints']['current'] += diff;         
+        }
+        else if (diff >= 0) {
+          data['charHitPoints']['temporary'] = diff;
+        }
+      }
+      else {
+        data['charHitPoints']['current'] -= amount;
+      }
+    }
+    else if (mode === "temp") {
+      if (isNaN(temp)) return;
+
+      path += "tempHP." + temp;
+      data['charHitPoints']['temporary'] += temp;
+    }
+
+    this.props.edit({ path : path, character : data });
+    this.setState({ dmg : "", temp : "", hpOpen : false });
+  },
+  handleHelpToggle : function() {
+    this.refs.help.toggle();
+  },
   render : function() {
     var curr = this.props.character['charHitPoints']['current'];
     var max  = this.props.character['charHitPoints']['maximum'];
-    var hpPercent = Math.floor(curr / max) * 100;
+    var temp = this.props.character['charHitPoints']['temporary'];
+    var hpPercent = Math.floor((curr / max) * 100);
+    var tempPercent = Math.floor((temp / max) * 100);
     var hpStyle = "success";
+    var showhp = (this.state.hpOpen === true) ? "" : " hide";
+    var heal;
+    var dmg;
+    var tempHeal;
 
     if (curr <= (max / 4)) {
       hpStyle = "danger";
@@ -24,10 +99,47 @@ var Defense = React.createClass({
       hpStyle = "warning";
     }
 
+    heal = (
+      <Button onClick={this.handleHP.bind(this, "heal")}>Heal</Button>
+    );
+
+    dmg = (
+      <Button onClick={this.handleHP.bind(this, "dmg")}>Dmg</Button>
+    );
+
+    tempHeal = (
+      <Button onClick={this.handleHP.bind(this, "temp")}>Add</Button>
+    );
+
     return (
       <div className="container-fluid">
-        <h3>{"Defenses"} <Button className="no-border"><Glyphicon glyph="cog"/></Button> <Button className="no-border"><Glyphicon glyph="question-sign"/></Button></h3>
-        <ProgressBar bsStyle={hpStyle} label={curr + " / " + max} now={hpPercent} />
+        <h3>
+          {"Defenses"}
+          <Button className="no-border"><Glyphicon glyph="cog"/></Button>
+
+          <OverlayTrigger ref="help" placement="bottom" trigger="manual" overlay={
+            <Tooltip>
+              <HelpTooltip close={this.handleHelpToggle}>
+                <p>{"Tap on the health bar to change current, maximum, and temporary values."}</p>
+              </HelpTooltip>
+            </Tooltip>
+          }>
+            <Button className="no-border" onClick={this.handleHelpToggle}>
+              <Glyphicon glyph="question-sign"/>
+            </Button>
+          </OverlayTrigger>
+        </h3>
+
+        <ProgressBar onClick={this.toggleHP}>
+          <ProgressBar bsStyle="info" label={temp + " temp"} now={tempPercent} key={1}/>
+          <ProgressBar bsStyle={hpStyle} label={curr + " / " + max} now={hpPercent} key={2}/>
+        </ProgressBar>
+        
+
+        <div className={"container-fluid" + showhp}>
+          <Input type="text" value={this.state.dmg} placeholder="damage taken / hp healed" onChange={this.handleHPInput.bind(this, "dmg")} buttonBefore={dmg} buttonAfter={heal}/>
+          <Input type="text" value={this.state.temp} placeholder="temporary hps" onChange={this.handleHPInput.bind(this, "temp")} buttonAfter={tempHeal} />
+        </div>
 
         <Panel className="text-center">
           <Grid fluid>

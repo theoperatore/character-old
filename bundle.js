@@ -144,7 +144,7 @@ var ContentArea = React.createClass({
   displayName : "ContentArea",
   render : function() {
     return (
-      React.createElement(TabbedArea, {defaultActiveKey: 5}, 
+      React.createElement(TabbedArea, {defaultActiveKey: 3}, 
 
         React.createElement(TabPane, {eventKey: 1, tab: React.createElement(Glyphicon, {glyph: "info-sign"})}, 
           React.createElement(ContentInfo, {character: this.props.character, edit: this.props.edit})
@@ -353,10 +353,14 @@ module.exports = Attack;
 
 },{"./modals/modal-attack":9,"./popovers/attack-bonus":12,"./tooltips/help":14,"react":205,"react-bootstrap/Accordion":19,"react-bootstrap/Button":22,"react-bootstrap/Col":24,"react-bootstrap/Glyphicon":30,"react-bootstrap/Grid":31,"react-bootstrap/OverlayMixin":38,"react-bootstrap/OverlayTrigger":39,"react-bootstrap/Panel":41,"react-bootstrap/Popover":43,"react-bootstrap/Row":45,"react-bootstrap/Tooltip":48}],4:[function(require,module,exports){
 var React = require('react');
+var HelpTooltip = require('./tooltips/help');
+
 var Glyphicon = require('react-bootstrap/Glyphicon');
 var Accordion = require('react-bootstrap/Accordion');
 var Panel = require('react-bootstrap/Panel');
 var ProgressBar = require('react-bootstrap/ProgressBar');
+var OverlayTrigger = require('react-bootstrap/OverlayTrigger');
+var Tooltip = require('react-bootstrap/Tooltip');
 var Input = require('react-bootstrap/Input');
 var Grid = require('react-bootstrap/Grid');
 var Row = require('react-bootstrap/Row');
@@ -365,11 +369,82 @@ var Button = require('react-bootstrap/Button');
 
 var Defense = React.createClass({
   displayName : "CharDefenses",
+  getInitialState : function() {
+    return ({
+      hpOpen : false,
+      temp : "",
+      dmg : ""
+    });
+  },
+  toggleHP : function() {
+    this.setState({ hpOpen : !this.state.hpOpen });
+  },
+  handleHPInput : function(cmp, e) {
+    var node = {};
+    node[cmp] = e.target.value;
+    this.setState(node);
+  },
+  handleHP : function(mode) {
+    var data = this.props.character;
+    var path = "charDefenses.";
+    var amount = parseInt(this.state.dmg, 10);
+    var temp = parseInt(this.state.temp, 10);
+    var diff;
+
+    if (mode === "heal") {
+
+      if (isNaN(amount)) return;
+
+      path += "hpHeal." + amount;
+      data['charHitPoints']['current'] = 
+        (data['charHitPoints']['current'] + amount >= data['charHitPoints']['maximum'])
+        ? data['charHitPoints']['maximum']
+        : data['charHitPoints']['current'] + amount;
+    }
+    else if (mode === "dmg") {
+
+      if (isNaN(amount)) return;
+
+      path += "hpDamage." + amount;
+      if (data['charHitPoints']['temporary'] !== 0) {
+        diff = data['charHitPoints']['temporary'] - amount;
+
+        if (diff < 0) {
+          data['charHitPoints']['temporary'] = 0;
+          data['charHitPoints']['current'] += diff;         
+        }
+        else if (diff >= 0) {
+          data['charHitPoints']['temporary'] = diff;
+        }
+      }
+      else {
+        data['charHitPoints']['current'] -= amount;
+      }
+    }
+    else if (mode === "temp") {
+      if (isNaN(temp)) return;
+
+      path += "tempHP." + temp;
+      data['charHitPoints']['temporary'] += temp;
+    }
+
+    this.props.edit({ path : path, character : data });
+    this.setState({ dmg : "", temp : "", hpOpen : false });
+  },
+  handleHelpToggle : function() {
+    this.refs.help.toggle();
+  },
   render : function() {
     var curr = this.props.character['charHitPoints']['current'];
     var max  = this.props.character['charHitPoints']['maximum'];
-    var hpPercent = Math.floor(curr / max) * 100;
+    var temp = this.props.character['charHitPoints']['temporary'];
+    var hpPercent = Math.floor((curr / max) * 100);
+    var tempPercent = Math.floor((temp / max) * 100);
     var hpStyle = "success";
+    var showhp = (this.state.hpOpen === true) ? "" : " hide";
+    var heal;
+    var dmg;
+    var tempHeal;
 
     if (curr <= (max / 4)) {
       hpStyle = "danger";
@@ -378,10 +453,47 @@ var Defense = React.createClass({
       hpStyle = "warning";
     }
 
+    heal = (
+      React.createElement(Button, {onClick: this.handleHP.bind(this, "heal")}, "Heal")
+    );
+
+    dmg = (
+      React.createElement(Button, {onClick: this.handleHP.bind(this, "dmg")}, "Dmg")
+    );
+
+    tempHeal = (
+      React.createElement(Button, {onClick: this.handleHP.bind(this, "temp")}, "Add")
+    );
+
     return (
       React.createElement("div", {className: "container-fluid"}, 
-        React.createElement("h3", null, "Defenses", " ", React.createElement(Button, {className: "no-border"}, React.createElement(Glyphicon, {glyph: "cog"})), " ", React.createElement(Button, {className: "no-border"}, React.createElement(Glyphicon, {glyph: "question-sign"}))), 
-        React.createElement(ProgressBar, {bsStyle: hpStyle, label: curr + " / " + max, now: hpPercent}), 
+        React.createElement("h3", null, 
+          "Defenses", 
+          React.createElement(Button, {className: "no-border"}, React.createElement(Glyphicon, {glyph: "cog"})), 
+
+          React.createElement(OverlayTrigger, {ref: "help", placement: "bottom", trigger: "manual", overlay: 
+            React.createElement(Tooltip, null, 
+              React.createElement(HelpTooltip, {close: this.handleHelpToggle}, 
+                React.createElement("p", null, "Tap on the health bar to change current, maximum, and temporary values.")
+              )
+            )
+          }, 
+            React.createElement(Button, {className: "no-border", onClick: this.handleHelpToggle}, 
+              React.createElement(Glyphicon, {glyph: "question-sign"})
+            )
+          )
+        ), 
+
+        React.createElement(ProgressBar, {onClick: this.toggleHP}, 
+          React.createElement(ProgressBar, {bsStyle: "info", label: temp + " temp", now: tempPercent, key: 1}), 
+          React.createElement(ProgressBar, {bsStyle: hpStyle, label: curr + " / " + max, now: hpPercent, key: 2})
+        ), 
+        
+
+        React.createElement("div", {className: "container-fluid" + showhp}, 
+          React.createElement(Input, {type: "text", value: this.state.dmg, placeholder: "damage taken / hp healed", onChange: this.handleHPInput.bind(this, "dmg"), buttonBefore: dmg, buttonAfter: heal}), 
+          React.createElement(Input, {type: "text", value: this.state.temp, placeholder: "temporary hps", onChange: this.handleHPInput.bind(this, "temp"), buttonAfter: tempHeal})
+        ), 
 
         React.createElement(Panel, {className: "text-center"}, 
           React.createElement(Grid, {fluid: true}, 
@@ -472,7 +584,7 @@ var Defense = React.createClass({
 
 module.exports = Defense;
 
-},{"react":205,"react-bootstrap/Accordion":19,"react-bootstrap/Button":22,"react-bootstrap/Col":24,"react-bootstrap/Glyphicon":30,"react-bootstrap/Grid":31,"react-bootstrap/Input":32,"react-bootstrap/Panel":41,"react-bootstrap/ProgressBar":44,"react-bootstrap/Row":45}],5:[function(require,module,exports){
+},{"./tooltips/help":14,"react":205,"react-bootstrap/Accordion":19,"react-bootstrap/Button":22,"react-bootstrap/Col":24,"react-bootstrap/Glyphicon":30,"react-bootstrap/Grid":31,"react-bootstrap/Input":32,"react-bootstrap/OverlayTrigger":39,"react-bootstrap/Panel":41,"react-bootstrap/ProgressBar":44,"react-bootstrap/Row":45,"react-bootstrap/Tooltip":48}],5:[function(require,module,exports){
 var React = require('react');
 var Glyphicon = require('react-bootstrap/Glyphicon');
 var Accordion = require('react-bootstrap/Accordion');
@@ -1789,7 +1901,7 @@ module.exports = {
   "charHitPoints" : {
     "current" : 37,
     "maximum" : 37,
-    "temporary" : 0,
+    "temporary" : 10,
     "hitDiceTotal" : "5d8",
     "deathSaves" : {
       "successes" : 0,
@@ -2044,11 +2156,6 @@ var prefs = {
     {
       abil : "dex",
       prof : true,
-      desc : "Attack Bonus"
-    },
-    {
-      abil : "str",
-      prof : false,
       desc : "Attack Bonus"
     }
   ],

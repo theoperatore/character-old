@@ -20,6 +20,13 @@ html {
   margin:auto;
 }
 
+.progress {
+  height: 50px;
+}
+.progress-bar {
+  line-height: 50px;
+}
+
 .slots {
   margin-bottom: 10px;
 }

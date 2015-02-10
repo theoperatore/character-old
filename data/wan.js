@@ -180,7 +180,7 @@ module.exports = {
   "charHitPoints" : {
     "current" : 37,
     "maximum" : 37,
-    "temporary" : 0,
+    "temporary" : 10,
     "hitDiceTotal" : "5d8",
     "deathSaves" : {
       "successes" : 0,
