@@ -6,7 +6,7 @@ var Title = React.createClass({
   render : function() {
     return (
       <div className="container-fluid">
-        <h1>{this.props.character['charName']}</h1>
+        <h2>{this.props.character['charName']}</h2>
       </div>
     );
   }

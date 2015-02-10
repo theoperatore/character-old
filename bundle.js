@@ -352,6 +352,7 @@ var Attack = React.createClass({
 module.exports = Attack;
 
 },{"./modals/modal-attack":9,"./popovers/attack-bonus":12,"./tooltips/help":14,"react":205,"react-bootstrap/Accordion":19,"react-bootstrap/Button":22,"react-bootstrap/Col":24,"react-bootstrap/Glyphicon":30,"react-bootstrap/Grid":31,"react-bootstrap/OverlayMixin":38,"react-bootstrap/OverlayTrigger":39,"react-bootstrap/Panel":41,"react-bootstrap/Popover":43,"react-bootstrap/Row":45,"react-bootstrap/Tooltip":48}],4:[function(require,module,exports){
+
 var React = require('react');
 var HelpTooltip = require('./tooltips/help');
 
@@ -371,13 +372,13 @@ var Defense = React.createClass({
   displayName : "CharDefenses",
   getInitialState : function() {
     return ({
-      hpOpen : false,
+      hpOpen : 0,
       temp : "",
       dmg : ""
     });
   },
   toggleHP : function() {
-    this.setState({ hpOpen : !this.state.hpOpen });
+    this.setState({ hpOpen : ((this.state.hpOpen === 0) ? 1 : 0) });
   },
   handleHPInput : function(cmp, e) {
     var node = {};
@@ -427,9 +428,15 @@ var Defense = React.createClass({
       path += "tempHP." + temp;
       data['charHitPoints']['temporary'] += temp;
     }
+    else if (mode === "clear") {
+
+      path += "tempHP.clear";
+      data['charHitPoints']['temporary'] = 0;
+
+    }
 
     this.props.edit({ path : path, character : data });
-    this.setState({ dmg : "", temp : "", hpOpen : false });
+    this.setState({ dmg : "", temp : "", hpOpen : 0 });
   },
   handleHelpToggle : function() {
     this.refs.help.toggle();
@@ -445,6 +452,7 @@ var Defense = React.createClass({
     var heal;
     var dmg;
     var tempHeal;
+    var clear;
 
     if (curr <= (max / 4)) {
       hpStyle = "danger";
@@ -463,6 +471,10 @@ var Defense = React.createClass({
 
     tempHeal = (
       React.createElement(Button, {onClick: this.handleHP.bind(this, "temp")}, "Add")
+    );
+
+    clear = (
+      React.createElement(Button, {onClick: this.handleHP.bind(this, "clear")}, "Clear")
     );
 
     return (
@@ -489,10 +501,11 @@ var Defense = React.createClass({
           React.createElement(ProgressBar, {bsStyle: hpStyle, label: curr + " / " + max, now: hpPercent, key: 2})
         ), 
         
-
-        React.createElement("div", {className: "container-fluid" + showhp}, 
-          React.createElement(Input, {type: "text", value: this.state.dmg, placeholder: "damage taken / hp healed", onChange: this.handleHPInput.bind(this, "dmg"), buttonBefore: dmg, buttonAfter: heal}), 
-          React.createElement(Input, {type: "text", value: this.state.temp, placeholder: "temporary hps", onChange: this.handleHPInput.bind(this, "temp"), buttonAfter: tempHeal})
+        React.createElement(Accordion, {activeKey: this.state.hpOpen}, 
+          React.createElement(Panel, {className: "no-padding", eventKey: 1}, 
+            React.createElement(Input, {type: "text", value: this.state.dmg, placeholder: "damage taken / hp healed", onChange: this.handleHPInput.bind(this, "dmg"), buttonBefore: dmg, buttonAfter: heal}), 
+            React.createElement(Input, {type: "text", value: this.state.temp, placeholder: "temporary hps", onChange: this.handleHPInput.bind(this, "temp"), buttonBefore: clear, buttonAfter: tempHeal})
+          )
         ), 
 
         React.createElement(Panel, {className: "text-center"}, 
@@ -525,6 +538,39 @@ var Defense = React.createClass({
                 React.createElement("div", null, 
                   React.createElement("p", null, "Hit Dice"), 
                   React.createElement("h3", null, this.props.character['charHitPoints']['hitDiceTotal'])
+                )
+              )
+            )
+          )
+        ), 
+
+        React.createElement(Panel, null, 
+          React.createElement(Grid, {fluid: true}, 
+            React.createElement(Row, {className: "text-center"}, 
+              React.createElement(Col, {xs: 6}, 
+                React.createElement("p", null, React.createElement("strong", null, "successes"))
+              ), 
+              React.createElement(Col, {xs: 6}, 
+                React.createElement("p", null, React.createElement("strong", null, "failures"))
+              )
+            ), 
+            React.createElement(Row, null, 
+              React.createElement(Col, {xs: 6}, 
+                React.createElement(Grid, {fluid: true}, 
+                  React.createElement(Row, {className: "no-padding"}, 
+                    React.createElement(Col, {xs: 4}, React.createElement("input", {type: "checkbox"})), 
+                    React.createElement(Col, {xs: 4}, React.createElement("input", {type: "checkbox"})), 
+                    React.createElement(Col, {xs: 4}, React.createElement("input", {type: "checkbox"}))
+                  )
+                )
+              ), 
+              React.createElement(Col, {xs: 6}, 
+                React.createElement(Grid, {fluid: true}, 
+                  React.createElement(Row, {className: "no-padding"}, 
+                    React.createElement(Col, {xs: 4}, React.createElement("input", {type: "checkbox"})), 
+                    React.createElement(Col, {xs: 4}, React.createElement("input", {type: "checkbox"})), 
+                    React.createElement(Col, {xs: 4}, React.createElement("input", {type: "checkbox"}))
+                  )
                 )
               )
             )
@@ -1666,7 +1712,7 @@ var Title = React.createClass({
   render : function() {
     return (
       React.createElement("div", {className: "container-fluid"}, 
-        React.createElement("h1", null, this.props.character['charName'])
+        React.createElement("h2", null, this.props.character['charName'])
       )
     );
   }

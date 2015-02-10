@@ -1,3 +1,4 @@
+
 var React = require('react');
 var HelpTooltip = require('./tooltips/help');
 
@@ -17,13 +18,13 @@ var Defense = React.createClass({
   displayName : "CharDefenses",
   getInitialState : function() {
     return ({
-      hpOpen : false,
+      hpOpen : 0,
       temp : "",
       dmg : ""
     });
   },
   toggleHP : function() {
-    this.setState({ hpOpen : !this.state.hpOpen });
+    this.setState({ hpOpen : ((this.state.hpOpen === 0) ? 1 : 0) });
   },
   handleHPInput : function(cmp, e) {
     var node = {};
@@ -73,9 +74,15 @@ var Defense = React.createClass({
       path += "tempHP." + temp;
       data['charHitPoints']['temporary'] += temp;
     }
+    else if (mode === "clear") {
+
+      path += "tempHP.clear";
+      data['charHitPoints']['temporary'] = 0;
+
+    }
 
     this.props.edit({ path : path, character : data });
-    this.setState({ dmg : "", temp : "", hpOpen : false });
+    this.setState({ dmg : "", temp : "", hpOpen : 0 });
   },
   handleHelpToggle : function() {
     this.refs.help.toggle();
@@ -91,6 +98,7 @@ var Defense = React.createClass({
     var heal;
     var dmg;
     var tempHeal;
+    var clear;
 
     if (curr <= (max / 4)) {
       hpStyle = "danger";
@@ -109,6 +117,10 @@ var Defense = React.createClass({
 
     tempHeal = (
       <Button onClick={this.handleHP.bind(this, "temp")}>Add</Button>
+    );
+
+    clear = (
+      <Button onClick={this.handleHP.bind(this, "clear")}>Clear</Button>
     );
 
     return (
@@ -135,11 +147,12 @@ var Defense = React.createClass({
           <ProgressBar bsStyle={hpStyle} label={curr + " / " + max} now={hpPercent} key={2}/>
         </ProgressBar>
         
-
-        <div className={"container-fluid" + showhp}>
-          <Input type="text" value={this.state.dmg} placeholder="damage taken / hp healed" onChange={this.handleHPInput.bind(this, "dmg")} buttonBefore={dmg} buttonAfter={heal}/>
-          <Input type="text" value={this.state.temp} placeholder="temporary hps" onChange={this.handleHPInput.bind(this, "temp")} buttonAfter={tempHeal} />
-        </div>
+        <Accordion activeKey={this.state.hpOpen}>
+          <Panel className="no-padding" eventKey={1}>
+            <Input type="text" value={this.state.dmg} placeholder="damage taken / hp healed" onChange={this.handleHPInput.bind(this, "dmg")} buttonBefore={dmg} buttonAfter={heal}/>
+            <Input type="text" value={this.state.temp} placeholder="temporary hps" onChange={this.handleHPInput.bind(this, "temp")} buttonBefore={clear} buttonAfter={tempHeal} />
+          </Panel>
+        </Accordion>
 
         <Panel className="text-center">
           <Grid fluid>
@@ -172,6 +185,39 @@ var Defense = React.createClass({
                   <p>Hit Dice</p>
                   <h3>{this.props.character['charHitPoints']['hitDiceTotal']}</h3>
                 </div>
+              </Col>
+            </Row>
+          </Grid>
+        </Panel>
+
+        <Panel>
+          <Grid fluid>
+            <Row className="text-center">
+              <Col xs={6}>
+                <p><strong>successes</strong></p>
+              </Col>
+              <Col xs={6}>
+                <p><strong>failures</strong></p>
+              </Col>
+            </Row>
+            <Row>
+              <Col xs={6}>
+                <Grid fluid>
+                  <Row className="no-padding">
+                    <Col xs={4}><input type="checkbox" /></Col>
+                    <Col xs={4}><input type="checkbox" /></Col>
+                    <Col xs={4}><input type="checkbox" /></Col>
+                  </Row>
+                </Grid>
+              </Col>
+              <Col xs={6}>
+                <Grid fluid>
+                  <Row className="no-padding">
+                    <Col xs={4}><input type="checkbox" /></Col>
+                    <Col xs={4}><input type="checkbox" /></Col>
+                    <Col xs={4}><input type="checkbox" /></Col>
+                  </Row>
+                </Grid>
               </Col>
             </Row>
           </Grid>
