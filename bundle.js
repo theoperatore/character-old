@@ -17,22 +17,29 @@ var Ability = React.createClass({
 
     var skills = [];
     var skillNames = Object.keys(this.props.character['charSkills']);
-    skillNames.forEach(function(skillName, i) {
-      var skill = this.props.character['charSkills'][skillName];
+    for (var i = 0, j = 1; j < skillNames.length; j+=2, i+=2) {
+      var sk1 = skillNames[i];
+      var sk2 = skillNames[j];
+      var skill1 = this.props.character['charSkills'][sk1];
+      var skill2 = this.props.character['charSkills'][sk2];
+
       skills.push(
         React.createElement(Row, {key: i}, 
-          React.createElement(Col, {xs: 4}, 
-            React.createElement("div", {className: "circle text-center"}, 
-              React.createElement("h4", {className: ((skill.trained === true) ? " trained" : "")}, skill.score)
+          React.createElement(Col, {xs: 6}, 
+            React.createElement("div", {className: "card"}, 
+              React.createElement("p", null, sk1), 
+              React.createElement("h3", {className: (skill1.trained === true) ? "trained" : ""}, skill1.score)
             )
           ), 
-          React.createElement(Col, {xs: 8}, 
-            React.createElement("p", {className: "card-description"}, skillName)
+          React.createElement(Col, {xs: 6}, 
+            React.createElement("div", {className: "card"}, 
+              React.createElement("p", null, sk2), 
+              React.createElement("h3", {className: (skill2.trained === true) ? "trained" : ""}, skill2.score)
+            )
           )
         )
-      );
-
-    }.bind(this));
+      )
+    }
 
     return (
       React.createElement("div", {className: "container-fluid"}, 

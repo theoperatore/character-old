@@ -16,22 +16,29 @@ var Ability = React.createClass({
 
     var skills = [];
     var skillNames = Object.keys(this.props.character['charSkills']);
-    skillNames.forEach(function(skillName, i) {
-      var skill = this.props.character['charSkills'][skillName];
+    for (var i = 0, j = 1; j < skillNames.length; j+=2, i+=2) {
+      var sk1 = skillNames[i];
+      var sk2 = skillNames[j];
+      var skill1 = this.props.character['charSkills'][sk1];
+      var skill2 = this.props.character['charSkills'][sk2];
+
       skills.push(
         <Row key={i}>
-          <Col xs={4}>
-            <div className="circle text-center">
-              <h4 className={((skill.trained === true) ? " trained" : "")}>{skill.score}</h4>
+          <Col xs={6}>
+            <div className="card">
+              <p>{sk1}</p>
+              <h3 className={(skill1.trained === true) ? "trained" : ""}>{skill1.score}</h3>
             </div>
           </Col>
-          <Col xs={8}>
-            <p className="card-description">{skillName}</p>
+          <Col xs={6}>
+            <div className="card">
+              <p>{sk2}</p>
+              <h3 className={(skill2.trained === true) ? "trained" : ""}>{skill2.score}</h3>
+            </div>
           </Col>
         </Row>
-      );
-
-    }.bind(this));
+      )
+    }
 
     return (
       <div className="container-fluid">
