@@ -690,7 +690,6 @@ module.exports = Equipment;
 var React = require('react');
 var ModalFeature = require('./modals/modal-features');
 
-
 var Glyphicon = require('react-bootstrap/Glyphicon');
 var Accordion = require('react-bootstrap/Accordion');
 var Panel = require('react-bootstrap/Panel');
@@ -1185,6 +1184,7 @@ var Row = require('react-bootstrap/Row');
 var Col = require('react-bootstrap/Col');
 var TabbedArea = require('react-bootstrap/TabbedArea');
 var TabPane = require('react-bootstrap/TabPane');
+var Alert = require('react-bootstrap/Alert');
 
 // The modal object to export
 var FeatureModal = React.createClass({displayName: "FeatureModal",
@@ -1205,6 +1205,9 @@ var FeatureModal = React.createClass({displayName: "FeatureModal",
     // holds the index into charClassCharges to edit
     state.editCharges = -1;
     state.charges = false;
+
+    // alert for entering a number
+    state.alert = false;
 
     return (state);
   },
@@ -1246,12 +1249,20 @@ var FeatureModal = React.createClass({displayName: "FeatureModal",
     var path = "charFeatures.delete";
     var name = tmp['charFeatures'][this.state.edit].name;
     var feat;
+    var clsCrgs;
 
     // if mistake, stop deleting!
     if (!confirm("Do you really want to get rid of\n '" + name + "'\n forever?")) return;
 
     feat = tmp['charFeatures'].splice(this.state.edit, 1);
-    path += "." + feat.name;
+    path += "." + feat[0].name;
+
+    // if this feat is tied to class charges remove them too
+    if (feat[0].idx !== undefined) {
+      console.log(feat);
+      clsCrgs = tmp['charClassCharges'].splice(feat[0].idx, 1);
+      path += "." + clsCrgs[0].charges;
+    }
 
     // save and close
     this.props.edit({ path : path, character : tmp });
@@ -1262,8 +1273,9 @@ var FeatureModal = React.createClass({displayName: "FeatureModal",
     var tmp = this.props.character;
     var path = "charFeatures";
     var data = {};
+    var crgs = {};
 
-    // adding new proficiency
+    // adding new feature
     if (this.state.mode === 0) {
 
       // if the name isn't given, then don't add
@@ -1272,19 +1284,48 @@ var FeatureModal = React.createClass({displayName: "FeatureModal",
       data.name = this.state.name;
       data.desc = this.state.desc;
 
+      // if we need to add class charges
+      if (this.state.numCharges !== "") {
+
+        if (isNaN(parseInt(this.state.numCharges, 10))) {
+          this.setState({ alert : true });
+          return;
+        }
+
+        crgs.name = this.state.name;
+        crgs.charges = parseInt(this.state.numCharges,10);
+
+        tmp['charClassCharges'].push(crgs);
+        data.idx = tmp['charClassCharges'].length - 1;
+      }
+
       tmp['charFeatures'].push(data);
       path += ".add." + data.name;
     }
 
-    // editing existing proficiency
+    // editing existing feature
     else if (this.state.mode === 1) {
 
       // if nothing is selected, don't change
       if (this.state.edit === -1) return;
 
+      // handle new class charges
+      var idx = tmp['charFeatures'][this.state.edit]['idx']; 
+      if (idx !== undefined) {
+
+        if (isNaN(parseInt(this.state.newCharges, 10))) {
+          this.setState({ alert : true });
+          return;
+        }
+
+        tmp['charClassCharges'][idx]['charges'] = parseInt(this.state.newCharges,10);
+        tmp['charClassCharges'][idx]['name'] = this.state.newName;
+      }
+
       // make the changes
       tmp['charFeatures'][this.state.edit].name = this.state.newName;
       tmp['charFeatures'][this.state.edit].desc = this.state.newDesc;
+      
 
       // log the changes made
       path += ".edit." + tmp['charFeatures'][this.state.edit].name;
@@ -1299,7 +1340,20 @@ var FeatureModal = React.createClass({displayName: "FeatureModal",
     this.setState({ charges : !this.state.charges });
   },
 
+  closeAlert : function() {
+    this.setState({ alert : false });
+  },
+
   render : function() {
+    var alert;
+    if (this.state.alert) {
+      alert = (
+        React.createElement(Alert, {bsStyle: "danger", onDismiss: this.closeAlert}, 
+          React.createElement("h4", null, "Critical Failure!"), 
+          React.createElement("p", null, "Class Charges must be a valid decimal number. #FFFFFF does not count...")
+        )
+      );
+    }
 
     // populate the select box
     var features = [];
@@ -1321,7 +1375,8 @@ var FeatureModal = React.createClass({displayName: "FeatureModal",
                 React.createElement(Input, {placeholder: "name", value: this.state.name, type: "text", label: "Feature Name", onChange: this.handleChange.bind(this, "name")}), 
                 React.createElement(Input, {placeholder: "short description", value: this.state.desc, type: "textarea", label: "Feature Description", onChange: this.handleChange.bind(this, "desc")}), 
                 React.createElement(Input, {type: "checkbox", onChange: this.enableCharges, label: "gives class charges?"}), 
-                React.createElement(Input, {disabled: (this.state.charges === false) ? true : false, type: "text", label: "Number of Charges", placeholder: "check box to enable", help: "(Ki, Rages, Sorcery, etc)?"})
+                alert, 
+                React.createElement(Input, {disabled: (this.state.charges === false) ? true : false, type: "text", label: "Number of Charges", placeholder: "check box to enable", help: "(Ki, Rages, Sorcery, etc)?", value: this.state.numCharges, onChange: this.handleChange.bind(this, "numCharges")})
               )
             ), 
 
@@ -1344,9 +1399,11 @@ var FeatureModal = React.createClass({displayName: "FeatureModal",
                 ), 
                 React.createElement(Input, {disabled: (this.state.edit === -1) ? true : false, type: "text", onChange: this.handleChange.bind(this, "newName"), placeholder: "feat name", value: this.state.newName, label: "New Feature Name"}), 
                 React.createElement(Input, {disabled: (this.state.edit === -1) ? true : false, type: "textarea", onChange: this.handleChange.bind(this, "newDesc"), placeholder: "feat desc", value: this.state.newDesc, label: "New Feature Desc"}), 
-                React.createElement(Input, {disabled: (this.state.editCharges === -1) ? true : false, type: "text", placeholder: "number of charges", label: "New Amount of Class Charges", value: this.state.newCharges})
+                alert, 
+                React.createElement(Input, {disabled: (this.state.editCharges === -1) ? true : false, type: "text", onChange: this.handleChange.bind(this, "newCharges"), placeholder: "number of charges", label: "New Amount of Class Charges", value: this.state.newCharges})
               )
             )
+
           )
         ), 
         React.createElement("div", {className: "modal-footer"}, 
@@ -1987,7 +2044,6 @@ var ProfModal = React.createClass({displayName: "ProfModal",
 module.exports = ProfModal;
 
 },{"react":208,"react-bootstrap/Alert":23,"react-bootstrap/Button":25,"react-bootstrap/Col":27,"react-bootstrap/Input":35,"react-bootstrap/Modal":38,"react-bootstrap/Row":48,"react-bootstrap/TabPane":49,"react-bootstrap/TabbedArea":50}],14:[function(require,module,exports){
-
 var React = require('react');
 var Modal = require('react-bootstrap/Modal');
 var Input = require('react-bootstrap/Input');
@@ -1998,16 +2054,16 @@ var Col = require('react-bootstrap/Col');
 var TraitModal = React.createClass({displayName: "TraitModal",
 
 	getInitialState : function () {
-		var state = {};
+        var state = {};
         var copyPers = this.props.character['charTraits']['personalityTraits'];
         var copyIdeals = this.props.character['charTraits']['ideals'];
         var copyBonds = this.props.character['charTraits']['bonds'];
         var copyFlaws = this.props.character['charTraits']['flaws'];
 
-		state.personalityTraits = copyPers;
-		state.ideals = copyIdeals;
-		state.bonds = copyBonds;
-		state.flaws = copyFlaws;
+        state.personalityTraits = copyPers;
+        state.ideals = copyIdeals;
+        state.bonds = copyBonds;
+        state.flaws = copyFlaws;
 
 		return (state);
 	},
@@ -2015,7 +2071,6 @@ var TraitModal = React.createClass({displayName: "TraitModal",
 		var node = {};
 		node[cmp] = e.target.value;
 		this.setState(node);
-		console.log(cmp, "with value:", e.target.value);
 	},
 	handleOk : function () {
 		var tmp = this.props.character;

@@ -1,4 +1,3 @@
-
 var React = require('react');
 var Modal = require('react-bootstrap/Modal');
 var Input = require('react-bootstrap/Input');
@@ -9,16 +8,16 @@ var Col = require('react-bootstrap/Col');
 var TraitModal = React.createClass({
 
 	getInitialState : function () {
-		var state = {};
+        var state = {};
         var copyPers = this.props.character['charTraits']['personalityTraits'];
         var copyIdeals = this.props.character['charTraits']['ideals'];
         var copyBonds = this.props.character['charTraits']['bonds'];
         var copyFlaws = this.props.character['charTraits']['flaws'];
 
-		state.personalityTraits = copyPers;
-		state.ideals = copyIdeals;
-		state.bonds = copyBonds;
-		state.flaws = copyFlaws;
+        state.personalityTraits = copyPers;
+        state.ideals = copyIdeals;
+        state.bonds = copyBonds;
+        state.flaws = copyFlaws;
 
 		return (state);
 	},
@@ -26,7 +25,6 @@ var TraitModal = React.createClass({
 		var node = {};
 		node[cmp] = e.target.value;
 		this.setState(node);
-		console.log(cmp, "with value:", e.target.value);
 	},
 	handleOk : function () {
 		var tmp = this.props.character;

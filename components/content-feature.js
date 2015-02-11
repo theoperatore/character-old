@@ -1,7 +1,6 @@
 var React = require('react');
 var ModalFeature = require('./modals/modal-features');
 
-
 var Glyphicon = require('react-bootstrap/Glyphicon');
 var Accordion = require('react-bootstrap/Accordion');
 var Panel = require('react-bootstrap/Panel');

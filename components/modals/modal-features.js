@@ -9,6 +9,7 @@ var Row = require('react-bootstrap/Row');
 var Col = require('react-bootstrap/Col');
 var TabbedArea = require('react-bootstrap/TabbedArea');
 var TabPane = require('react-bootstrap/TabPane');
+var Alert = require('react-bootstrap/Alert');
 
 // The modal object to export
 var FeatureModal = React.createClass({
@@ -29,6 +30,9 @@ var FeatureModal = React.createClass({
     // holds the index into charClassCharges to edit
     state.editCharges = -1;
     state.charges = false;
+
+    // alert for entering a number
+    state.alert = false;
 
     return (state);
   },
@@ -70,12 +74,20 @@ var FeatureModal = React.createClass({
     var path = "charFeatures.delete";
     var name = tmp['charFeatures'][this.state.edit].name;
     var feat;
+    var clsCrgs;
 
     // if mistake, stop deleting!
     if (!confirm("Do you really want to get rid of\n '" + name + "'\n forever?")) return;
 
     feat = tmp['charFeatures'].splice(this.state.edit, 1);
-    path += "." + feat.name;
+    path += "." + feat[0].name;
+
+    // if this feat is tied to class charges remove them too
+    if (feat[0].idx !== undefined) {
+      console.log(feat);
+      clsCrgs = tmp['charClassCharges'].splice(feat[0].idx, 1);
+      path += "." + clsCrgs[0].charges;
+    }
 
     // save and close
     this.props.edit({ path : path, character : tmp });
@@ -86,8 +98,9 @@ var FeatureModal = React.createClass({
     var tmp = this.props.character;
     var path = "charFeatures";
     var data = {};
+    var crgs = {};
 
-    // adding new proficiency
+    // adding new feature
     if (this.state.mode === 0) {
 
       // if the name isn't given, then don't add
@@ -96,19 +109,48 @@ var FeatureModal = React.createClass({
       data.name = this.state.name;
       data.desc = this.state.desc;
 
+      // if we need to add class charges
+      if (this.state.numCharges !== "") {
+
+        if (isNaN(parseInt(this.state.numCharges, 10))) {
+          this.setState({ alert : true });
+          return;
+        }
+
+        crgs.name = this.state.name;
+        crgs.charges = parseInt(this.state.numCharges,10);
+
+        tmp['charClassCharges'].push(crgs);
+        data.idx = tmp['charClassCharges'].length - 1;
+      }
+
       tmp['charFeatures'].push(data);
       path += ".add." + data.name;
     }
 
-    // editing existing proficiency
+    // editing existing feature
     else if (this.state.mode === 1) {
 
       // if nothing is selected, don't change
       if (this.state.edit === -1) return;
 
+      // handle new class charges
+      var idx = tmp['charFeatures'][this.state.edit]['idx']; 
+      if (idx !== undefined) {
+
+        if (isNaN(parseInt(this.state.newCharges, 10))) {
+          this.setState({ alert : true });
+          return;
+        }
+
+        tmp['charClassCharges'][idx]['charges'] = parseInt(this.state.newCharges,10);
+        tmp['charClassCharges'][idx]['name'] = this.state.newName;
+      }
+
       // make the changes
       tmp['charFeatures'][this.state.edit].name = this.state.newName;
       tmp['charFeatures'][this.state.edit].desc = this.state.newDesc;
+      
 
       // log the changes made
       path += ".edit." + tmp['charFeatures'][this.state.edit].name;
@@ -123,7 +165,20 @@ var FeatureModal = React.createClass({
     this.setState({ charges : !this.state.charges });
   },
 
+  closeAlert : function() {
+    this.setState({ alert : false });
+  },
+
   render : function() {
+    var alert;
+    if (this.state.alert) {
+      alert = (
+        <Alert bsStyle="danger" onDismiss={this.closeAlert}>
+          <h4>Critical Failure!</h4>
+          <p>Class Charges must be a valid decimal number. #FFFFFF does not count...</p>
+        </Alert>
+      );
+    }
 
     // populate the select box
     var features = [];
@@ -145,7 +200,8 @@ var FeatureModal = React.createClass({
                 <Input placeholder="name" value={this.state.name} type="text" label="Feature Name" onChange={this.handleChange.bind(this, "name")}/>
                 <Input placeholder="short description" value={this.state.desc} type="textarea" label="Feature Description" onChange={this.handleChange.bind(this, "desc")}/>
                 <Input type="checkbox" onChange={this.enableCharges} label="gives class charges?" />
-                <Input disabled={(this.state.charges === false) ? true : false} type="text" label="Number of Charges" placeholder="check box to enable" help="(Ki, Rages, Sorcery, etc)?"/>
+                {alert}
+                <Input disabled={(this.state.charges === false) ? true : false} type="text" label="Number of Charges" placeholder="check box to enable" help="(Ki, Rages, Sorcery, etc)?" value={this.state.numCharges} onChange={this.handleChange.bind(this, "numCharges")}/>
               </div>
             </TabPane>
 
@@ -168,9 +224,11 @@ var FeatureModal = React.createClass({
                 </Input>
                 <Input disabled={(this.state.edit === -1) ? true : false} type="text" onChange={this.handleChange.bind(this, "newName")} placeholder={"feat name"} value={this.state.newName} label={"New Feature Name"}/>
                 <Input disabled={(this.state.edit === -1) ? true : false} type="textarea" onChange={this.handleChange.bind(this, "newDesc")} placeholder={"feat desc"} value={this.state.newDesc} label={"New Feature Desc"}/>
-                <Input disabled={(this.state.editCharges === -1) ? true : false} type="text" placeholder={"number of charges"} label={"New Amount of Class Charges"} value={this.state.newCharges} />
+                {alert}
+                <Input disabled={(this.state.editCharges === -1) ? true : false} type="text" onChange={this.handleChange.bind(this, "newCharges")} placeholder={"number of charges"} label={"New Amount of Class Charges"} value={this.state.newCharges} />
               </div>
             </TabPane>
+
           </TabbedArea>
         </div>
         <div className="modal-footer">
