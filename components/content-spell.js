@@ -26,6 +26,7 @@ var Spells = React.createClass({
     var state = {};
 
     state.toggle = 0;
+    state.settings = 0;
 
     return (state);
   },
@@ -40,6 +41,9 @@ var Spells = React.createClass({
   },
   handleToggle : function() {
     this.setState({ toggle : (this.state.toggle === 0) ? 1 : 0 });
+  },
+  handleSettingsTabs : function(e) {
+    this.setState({ settings : e });
   },
   render : function() {
     var prof = this.props.character['charProficiencyBonus']['score'];
@@ -170,11 +174,12 @@ var Spells = React.createClass({
         <Accordion activeKey={this.state.toggle}>
           <Panel className="no-padding" eventKey={1}>
             <Well>
-            <TabbedArea activeKey={0}>
+            <TabbedArea activeKey={this.state.settings} onSelect={this.handleSettingsTabs}>
             
               <TabPane eventKey={0} tab="new">
                 <div className="container-fluid">
-                  <h4>{"Add new spell"}</h4>
+                  <h3>{"Add new spell"}</h3>
+                  <p>{"Add as many spells as you want in this tab. After entering informaiton, hitting save will save your spell and reset the fields so you can enter more spells."}</p>
                   <Input type="text" label={"Name"}/>
                   <Input type="select" label={"Spell Level"} defaultSelected={-1}>
                     <option value={-1}>{"Spell Level"}</option>
@@ -193,12 +198,15 @@ var Spells = React.createClass({
                   <Input type="text" label={"Components"}/>
                   <Input type="text" label={"Casting TIme"}/>
                   <Input type="text" label={"Duration"}/>
+                  <Button bsStyle="danger" onClick={this.handleToggle}>Close</Button>
+                  <Button bsStyle="success">Save</Button>
                 </div>
               </TabPane>
 
               <TabPane eventKey={1} tab="edit">
                 <div className="container-fluid">
-                  <h4>{"Edit attack"}</h4>
+                  <h3>{"Edit spells"}</h3>
+                  <p>{"Change any part of a spell in this pane. Hitting save after editing will save your edits and reset the fields for more editing."}</p>
                   <Input>
                     <Row>
                       <Col xs={8}>
@@ -210,21 +218,54 @@ var Spells = React.createClass({
                         <Button disabled={true} bsStyle="danger">Delete</Button>
                       </Col>
                     </Row>
+                    <Input type="text" label={"Name"}/>
+                    <Input type="select" label={"Spell Level"} defaultSelected={-1}>
+                      <option value={-1}>{"Spell Level"}</option>
+                      <option value={0}>{"Cantrip"}</option>
+                      <option value={1}>{"1st Level"}</option>
+                      <option value={2}>{"2nd Level"}</option>
+                      <option value={3}>{"3rd Level"}</option>
+                      <option value={4}>{"4th Level"}</option>
+                      <option value={5}>{"5th Level"}</option>
+                      <option value={6}>{"6th Level"}</option>
+                      <option value={7}>{"7th Level"}</option>
+                      <option value={8}>{"8th Level"}</option>
+                      <option value={9}>{"9th Level"}</option>
+                    </Input>
+                    <Input type="textarea" label={"Description"}/>
+                    <Input type="text" label={"Components"}/>
+                    <Input type="text" label={"Casting TIme"}/>
+                    <Input type="text" label={"Duration"}/>
                   </Input>
                     
-
+                  <Button bsStyle="danger" onClick={this.handleToggle}>Close</Button>
+                  <Button bsStyle="success">Save</Button>
                 </div>
               </TabPane>
 
               <TabPane eventKey={2} tab="slots">
                 <div className="container-fluid">
-                  <h4>{"Edit spell slots"}</h4>
+                  <h3>{"Edit spell slots"}</h3>
+                  <p>{"Change the amount of spell slots per level by first selecting a level, then adding in the appropriate number."}</p>
+                  <Input type="select" label={"Spell Level"} defaultSelected={-1}>
+                    <option value={-1}>{"Spell Level"}</option>
+                    <option value={1}>{"1st Level"}</option>
+                    <option value={2}>{"2nd Level"}</option>
+                    <option value={3}>{"3rd Level"}</option>
+                    <option value={4}>{"4th Level"}</option>
+                    <option value={5}>{"5th Level"}</option>
+                    <option value={6}>{"6th Level"}</option>
+                    <option value={7}>{"7th Level"}</option>
+                    <option value={8}>{"8th Level"}</option>
+                    <option value={9}>{"9th Level"}</option>
+                  </Input>
+                  <Input type="text" placeholder={"slots"} label="Number of Spell Slots"/>
+                  <Button bsStyle="danger" onClick={this.handleToggle}>Close</Button>
+                  <Button bsStyle="success">Save</Button>
                 </div>
               </TabPane>
 
             </TabbedArea>
-            <Button bsStyle="danger" onClick={this.handleToggle}>Close</Button>
-            <Button bsStyle="success">Save</Button>
             </Well>
           </Panel>
         </Accordion>

@@ -934,6 +934,7 @@ var Spells = React.createClass({
     var state = {};
 
     state.toggle = 0;
+    state.settings = 0;
 
     return (state);
   },
@@ -948,6 +949,9 @@ var Spells = React.createClass({
   },
   handleToggle : function() {
     this.setState({ toggle : (this.state.toggle === 0) ? 1 : 0 });
+  },
+  handleSettingsTabs : function(e) {
+    this.setState({ settings : e });
   },
   render : function() {
     var prof = this.props.character['charProficiencyBonus']['score'];
@@ -1078,11 +1082,12 @@ var Spells = React.createClass({
         React.createElement(Accordion, {activeKey: this.state.toggle}, 
           React.createElement(Panel, {className: "no-padding", eventKey: 1}, 
             React.createElement(Well, null, 
-            React.createElement(TabbedArea, {activeKey: 0}, 
+            React.createElement(TabbedArea, {activeKey: this.state.settings, onSelect: this.handleSettingsTabs}, 
             
               React.createElement(TabPane, {eventKey: 0, tab: "new"}, 
                 React.createElement("div", {className: "container-fluid"}, 
-                  React.createElement("h4", null, "Add new spell"), 
+                  React.createElement("h3", null, "Add new spell"), 
+                  React.createElement("p", null, "Add as many spells as you want in this tab. After entering informaiton, hitting save will save your spell and reset the fields so you can enter more spells."), 
                   React.createElement(Input, {type: "text", label: "Name"}), 
                   React.createElement(Input, {type: "select", label: "Spell Level", defaultSelected: -1}, 
                     React.createElement("option", {value: -1}, "Spell Level"), 
@@ -1100,13 +1105,16 @@ var Spells = React.createClass({
                   React.createElement(Input, {type: "textarea", label: "Description"}), 
                   React.createElement(Input, {type: "text", label: "Components"}), 
                   React.createElement(Input, {type: "text", label: "Casting TIme"}), 
-                  React.createElement(Input, {type: "text", label: "Duration"})
+                  React.createElement(Input, {type: "text", label: "Duration"}), 
+                  React.createElement(Button, {bsStyle: "danger", onClick: this.handleToggle}, "Close"), 
+                  React.createElement(Button, {bsStyle: "success"}, "Save")
                 )
               ), 
 
               React.createElement(TabPane, {eventKey: 1, tab: "edit"}, 
                 React.createElement("div", {className: "container-fluid"}, 
-                  React.createElement("h4", null, "Edit attack"), 
+                  React.createElement("h3", null, "Edit spells"), 
+                  React.createElement("p", null, "Change any part of a spell in this pane. Hitting save after editing will save your edits and reset the fields for more editing."), 
                   React.createElement(Input, null, 
                     React.createElement(Row, null, 
                       React.createElement(Col, {xs: 8}, 
@@ -1117,22 +1125,55 @@ var Spells = React.createClass({
                       React.createElement(Col, {xs: 4}, 
                         React.createElement(Button, {disabled: true, bsStyle: "danger"}, "Delete")
                       )
-                    )
-                  )
+                    ), 
+                    React.createElement(Input, {type: "text", label: "Name"}), 
+                    React.createElement(Input, {type: "select", label: "Spell Level", defaultSelected: -1}, 
+                      React.createElement("option", {value: -1}, "Spell Level"), 
+                      React.createElement("option", {value: 0}, "Cantrip"), 
+                      React.createElement("option", {value: 1}, "1st Level"), 
+                      React.createElement("option", {value: 2}, "2nd Level"), 
+                      React.createElement("option", {value: 3}, "3rd Level"), 
+                      React.createElement("option", {value: 4}, "4th Level"), 
+                      React.createElement("option", {value: 5}, "5th Level"), 
+                      React.createElement("option", {value: 6}, "6th Level"), 
+                      React.createElement("option", {value: 7}, "7th Level"), 
+                      React.createElement("option", {value: 8}, "8th Level"), 
+                      React.createElement("option", {value: 9}, "9th Level")
+                    ), 
+                    React.createElement(Input, {type: "textarea", label: "Description"}), 
+                    React.createElement(Input, {type: "text", label: "Components"}), 
+                    React.createElement(Input, {type: "text", label: "Casting TIme"}), 
+                    React.createElement(Input, {type: "text", label: "Duration"})
+                  ), 
                     
-
+                  React.createElement(Button, {bsStyle: "danger", onClick: this.handleToggle}, "Close"), 
+                  React.createElement(Button, {bsStyle: "success"}, "Save")
                 )
               ), 
 
               React.createElement(TabPane, {eventKey: 2, tab: "slots"}, 
                 React.createElement("div", {className: "container-fluid"}, 
-                  React.createElement("h4", null, "Edit spell slots")
+                  React.createElement("h3", null, "Edit spell slots"), 
+                  React.createElement("p", null, "Change the amount of spell slots per level by first selecting a level, then adding in the appropriate number."), 
+                  React.createElement(Input, {type: "select", label: "Spell Level", defaultSelected: -1}, 
+                    React.createElement("option", {value: -1}, "Spell Level"), 
+                    React.createElement("option", {value: 1}, "1st Level"), 
+                    React.createElement("option", {value: 2}, "2nd Level"), 
+                    React.createElement("option", {value: 3}, "3rd Level"), 
+                    React.createElement("option", {value: 4}, "4th Level"), 
+                    React.createElement("option", {value: 5}, "5th Level"), 
+                    React.createElement("option", {value: 6}, "6th Level"), 
+                    React.createElement("option", {value: 7}, "7th Level"), 
+                    React.createElement("option", {value: 8}, "8th Level"), 
+                    React.createElement("option", {value: 9}, "9th Level")
+                  ), 
+                  React.createElement(Input, {type: "text", placeholder: "slots", label: "Number of Spell Slots"}), 
+                  React.createElement(Button, {bsStyle: "danger", onClick: this.handleToggle}, "Close"), 
+                  React.createElement(Button, {bsStyle: "success"}, "Save")
                 )
               )
 
-            ), 
-            React.createElement(Button, {bsStyle: "danger", onClick: this.handleToggle}, "Close"), 
-            React.createElement(Button, {bsStyle: "success"}, "Save")
+            )
             )
           )
         ), 
