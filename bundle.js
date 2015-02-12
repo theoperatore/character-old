@@ -702,19 +702,18 @@ var Accordion = require('react-bootstrap/Accordion');
 var Panel = require('react-bootstrap/Panel');
 var Input = require('react-bootstrap/Input');
 var Button = require('react-bootstrap/Button');
-var OverlayMixin = require('react-bootstrap/OverlayMixin');
+var Well = require('react-bootstrap/Well');
 
 var Features = React.createClass({
   displayName : "CharFeatures",
-  mixins : [OverlayMixin],
   getInitialState : function() {
     return ({
-      toggle : false,
+      toggle : 0,
       activeFeat : -1
     });
   },
   handleToggle : function() {
-    this.setState({ toggle : !this.state.toggle });
+    this.setState({ toggle : (this.state.toggle === 0) ? 1 : 0 });
   },
   handleFeatSelect : function(key) {
     var state = {};
@@ -726,13 +725,6 @@ var Features = React.createClass({
     state.activeFeat = key;
 
     this.setState(state);
-  },
-  renderOverlay : function() {
-    if (!this.state.toggle) return React.createElement("span", null);
-
-    return (
-      React.createElement(ModalFeature, {character: this.props.character, edit: this.props.edit, close: this.handleToggle})
-    );
   },
   handleEditToggle : function(idx, e) {
     e.preventDefault();
@@ -755,14 +747,18 @@ var Features = React.createClass({
 
     var feats = [];
     this.props.character['charFeatures'].forEach(function(feat, i) {
+      var charges = (feat.idx === undefined) ? ""
+        : this.props.character['charClassCharges'][feat.idx]['charges'];
+
       feats.push(
         React.createElement(Panel, {className: "no-padding", bsStyle: "warning", key: i, header: React.createElement("div", null, feat.name, " ", React.createElement(Button, {onClick: this.handleEditToggle.bind(this, i), className: "pull-right no-border edit-btn" + ((this.state.activeFeat === i) ? "" : " hide")}, React.createElement(Glyphicon, {glyph: "cog"}))), eventKey: i}, 
             React.createElement("p", {className: (this.state["edit"+i] === true) ? "hide" : ""}, feat.desc), 
             React.createElement(Input, null, 
               React.createElement("div", {className: (this.state["edit"+i] === true) ? "" : "hide"}, 
                 React.createElement(Input, {type: "text", label: "Edit Feature Name", value: feat.name}), 
-                React.createElement(Input, {type: "text", label: "Edit Feature Description", value: feat.desc}), 
-                React.createElement(Button, {bsStyle: "success"}, "Save"), 
+                React.createElement(Input, {type: "textarea", label: "Edit Feature Description", value: feat.desc}), 
+                React.createElement(Input, {type: "checkbox", label: "gives class charges?", checked: (feat.idx === undefined) ? false : true}), 
+                React.createElement(Input, {type: "text", disabled: (feat.idx === undefined) ? true : false, label: "Number of Charges", value: charges}), 
                 React.createElement(Button, {bsStyle: "danger"}, "Delete")
               )
             )
@@ -777,6 +773,23 @@ var Features = React.createClass({
     return (
       React.createElement("div", {className: "container-fluid"}, 
         React.createElement("h3", null, "Features", " ", React.createElement(Button, {className: "no-border", onClick: this.handleToggle}, React.createElement(Glyphicon, {glyph: "plus-sign"}))), 
+        
+        React.createElement(Accordion, {activeKey: this.state.toggle}, 
+          React.createElement(Panel, {eventKey: 1, className: "no-padding"}, 
+            React.createElement(Well, null, 
+              React.createElement("h3", null, "Add New Feature"), 
+              React.createElement("p", null, "What do you guys think about having this as the way to add a feature?"), 
+              
+              React.createElement(Input, {type: "text", label: "Feature Name"}), 
+              React.createElement(Input, {type: "textarea", label: "Feature Description"}), 
+              React.createElement(Input, {type: "checkbox", label: "gives class charges?"}), 
+              React.createElement(Input, {type: "text", label: "Number of Charges", help: "(Ki, Rages, Sorcery, etc)?"}), 
+              React.createElement(Button, {bsStyle: "danger", onClick: this.handleToggle}, "close"), 
+              React.createElement(Button, {bsStyle: "success"}, "Save")
+            )
+          )
+        ), 
+          
         React.createElement(Accordion, {activeKey: this.state.activeFeat, onSelect: this.handleFeatSelect}, 
           feats
         )
@@ -787,7 +800,7 @@ var Features = React.createClass({
 
 module.exports = Features;
 
-},{"./modals/modal-features":10,"react":205,"react-bootstrap/Accordion":23,"react-bootstrap/Button":26,"react-bootstrap/Glyphicon":30,"react-bootstrap/Input":32,"react-bootstrap/OverlayMixin":37,"react-bootstrap/Panel":40}],7:[function(require,module,exports){
+},{"./modals/modal-features":10,"react":205,"react-bootstrap/Accordion":23,"react-bootstrap/Button":26,"react-bootstrap/Glyphicon":30,"react-bootstrap/Input":32,"react-bootstrap/Panel":40,"react-bootstrap/Well":48}],7:[function(require,module,exports){
 var React = require('react');
 var ModalInfo = require('./modals/modal-info');
 var ModalProf = require('./modals/modal-proficiencies');
