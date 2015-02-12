@@ -54,6 +54,7 @@ html {
 .no-padding.panel {
   border-color: transparent;
   border-radius:0;
+  box-shadow:none;
 }
 .no-padding>.panel-collapse>.panel-body {
   padding:0;

@@ -12,19 +12,20 @@ var Grid = require('react-bootstrap/Grid');
 var Row = require('react-bootstrap/Row');
 var Col = require('react-bootstrap/Col');
 var OverlayTrigger = require('react-bootstrap/OverlayTrigger');
-var OverlayMixin = require('react-bootstrap/OverlayMixin');
 var Popover = require('react-bootstrap/Popover');
 var Modal = require('react-bootstrap/Modal');
 var Button = require('react-bootstrap/Button');
 var Tooltip = require('react-bootstrap/Tooltip');
+var TabbedArea = require('react-bootstrap/TabbedArea');
+var TabPane = require('react-bootstrap/TabPane');
+var Well = require('react-bootstrap/Well');
 
 var Spells = React.createClass({
   displayName : "CharSpell",
-  mixins : [OverlayMixin],
   getInitialState : function() {
     var state = {};
 
-    state.toggle = false;
+    state.toggle = 0;
 
     return (state);
   },
@@ -38,14 +39,7 @@ var Spells = React.createClass({
     this.refs.help.toggle();
   },
   handleToggle : function() {
-    this.setState({ toggle : !this.state.toggle });
-  },
-  renderOverlay : function() {
-    if (!this.state.toggle) return <span />;
-
-    return (
-      <ModalSpell close={this.handleToggle} character={this.props.character} edit={this.props.edit}/>
-    );
+    this.setState({ toggle : (this.state.toggle === 0) ? 1 : 0 });
   },
   render : function() {
     var prof = this.props.character['charProficiencyBonus']['score'];
@@ -172,6 +166,69 @@ var Spells = React.createClass({
             </Button>
           </OverlayTrigger>
         </h3>
+
+        <Accordion activeKey={this.state.toggle}>
+          <Panel className="no-padding" eventKey={1}>
+            <Well>
+            <TabbedArea activeKey={0}>
+            
+              <TabPane eventKey={0} tab="new">
+                <div className="container-fluid">
+                  <h4>{"Add new spell"}</h4>
+                  <Input type="text" label={"Name"}/>
+                  <Input type="select" label={"Spell Level"} defaultSelected={-1}>
+                    <option value={-1}>{"Spell Level"}</option>
+                    <option value={0}>{"Cantrip"}</option>
+                    <option value={1}>{"1st Level"}</option>
+                    <option value={2}>{"2nd Level"}</option>
+                    <option value={3}>{"3rd Level"}</option>
+                    <option value={4}>{"4th Level"}</option>
+                    <option value={5}>{"5th Level"}</option>
+                    <option value={6}>{"6th Level"}</option>
+                    <option value={7}>{"7th Level"}</option>
+                    <option value={8}>{"8th Level"}</option>
+                    <option value={9}>{"9th Level"}</option>
+                  </Input>
+                  <Input type="textarea" label={"Description"}/>
+                  <Input type="text" label={"Components"}/>
+                  <Input type="text" label={"Casting TIme"}/>
+                  <Input type="text" label={"Duration"}/>
+                </div>
+              </TabPane>
+
+              <TabPane eventKey={1} tab="edit">
+                <div className="container-fluid">
+                  <h4>{"Edit attack"}</h4>
+                  <Input>
+                    <Row>
+                      <Col xs={8}>
+                        <Input type="select" defaultSelected={-1}>
+                          <option value={-1}>{"Select a Spell"}</option>
+                        </Input>
+                      </Col>
+                      <Col xs={4}>
+                        <Button disabled={true} bsStyle="danger">Delete</Button>
+                      </Col>
+                    </Row>
+                  </Input>
+                    
+
+                </div>
+              </TabPane>
+
+              <TabPane eventKey={2} tab="slots">
+                <div className="container-fluid">
+                  <h4>{"Edit spell slots"}</h4>
+                </div>
+              </TabPane>
+
+            </TabbedArea>
+            <Button bsStyle="danger" onClick={this.handleToggle}>Close</Button>
+            <Button bsStyle="success">Save</Button>
+            </Well>
+          </Panel>
+        </Accordion>
+
         <Panel>
           {spelldc}
           {bubbles}
