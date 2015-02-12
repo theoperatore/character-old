@@ -4,6 +4,8 @@ var AttackConfig = require('./popovers/attack-bonus');
 var HelpTooltip = require('./tooltips/help');
 var ModalSpell = require('./modals/modal-spell');
 
+var Settings = require('./settings/settings-tear');
+
 var Glyphicon = require('react-bootstrap/Glyphicon');
 var Accordion = require('react-bootstrap/Accordion');
 var Panel = require('react-bootstrap/Panel');
@@ -45,6 +47,12 @@ var Spells = React.createClass({
   handleSettingsTabs : function(e) {
     this.setState({ settings : e });
   },
+
+
+  handleSettingsToggle : function() {
+    this.refs.settings.toggle();
+  },
+
   render : function() {
     var prof = this.props.character['charProficiencyBonus']['score'];
 
@@ -156,7 +164,7 @@ var Spells = React.createClass({
     return (
       <div className="container-fluid">
         <h3>{"Spells"} 
-          <Button className="no-border" onClick={this.handleToggle}><Glyphicon glyph="cog"/></Button>
+          <Button className="no-border" onClick={this.handleSettingsToggle}><Glyphicon glyph="cog"/></Button>
           <OverlayTrigger ref="help" placement="bottom" trigger="manual" overlay={
             <Tooltip>
               <HelpTooltip close={this.handleHelpToggle}>
@@ -171,104 +179,73 @@ var Spells = React.createClass({
           </OverlayTrigger>
         </h3>
 
-        <Accordion activeKey={this.state.toggle}>
-          <Panel className="no-padding" eventKey={1}>
-            <Well>
-            <TabbedArea activeKey={this.state.settings} onSelect={this.handleSettingsTabs}>
+        <Settings ref="settings">
+          <TabbedArea defaultActiveKey={0}>
             
-              <TabPane eventKey={0} tab="new">
-                <div className="container-fluid">
-                  <h3>{"Add new spell"}</h3>
-                  <p>{"Add as many spells as you want in this tab. After entering informaiton, hitting save will save your spell and reset the fields so you can enter more spells."}</p>
-                  <Input type="text" label={"Name"}/>
-                  <Input type="select" label={"Spell Level"} defaultSelected={-1}>
-                    <option value={-1}>{"Spell Level"}</option>
-                    <option value={0}>{"Cantrip"}</option>
-                    <option value={1}>{"1st Level"}</option>
-                    <option value={2}>{"2nd Level"}</option>
-                    <option value={3}>{"3rd Level"}</option>
-                    <option value={4}>{"4th Level"}</option>
-                    <option value={5}>{"5th Level"}</option>
-                    <option value={6}>{"6th Level"}</option>
-                    <option value={7}>{"7th Level"}</option>
-                    <option value={8}>{"8th Level"}</option>
-                    <option value={9}>{"9th Level"}</option>
-                  </Input>
-                  <Input type="textarea" label={"Description"}/>
-                  <Input type="text" label={"Components"}/>
-                  <Input type="text" label={"Casting TIme"}/>
-                  <Input type="text" label={"Duration"}/>
-                  <Button bsStyle="danger" onClick={this.handleToggle}>Close</Button>
-                  <Button bsStyle="success">Save</Button>
-                </div>
-              </TabPane>
+            <TabPane eventKey={0} tab="new">
+              <div className="container-fluid">
+                <h3>{"Add new spell"}</h3>
+                <Input type="text" label={"Name"}/>
+                <Input type="select" label={"Spell Level"} defaultSelected={-1}>
+                  <option value={-1}>{"Spell Level"}</option>
+                  <option value={0}>{"Cantrip"}</option>
+                  <option value={1}>{"1st Level"}</option>
+                  <option value={2}>{"2nd Level"}</option>
+                  <option value={3}>{"3rd Level"}</option>
+                  <option value={4}>{"4th Level"}</option>
+                  <option value={5}>{"5th Level"}</option>
+                  <option value={6}>{"6th Level"}</option>
+                  <option value={7}>{"7th Level"}</option>
+                  <option value={8}>{"8th Level"}</option>
+                  <option value={9}>{"9th Level"}</option>
+                </Input>
+                <Input type="textarea" label={"Description"}/>
+                <Input type="text" label={"Components"}/>
+                <Input type="text" label={"Casting TIme"}/>
+                <Input type="text" label={"Duration"}/>
+              </div>
+            </TabPane>
 
-              <TabPane eventKey={1} tab="edit">
-                <div className="container-fluid">
-                  <h3>{"Edit spells"}</h3>
-                  <p>{"Change any part of a spell in this pane. Hitting save after editing will save your edits and reset the fields for more editing."}</p>
-                  <Input>
-                    <Row>
-                      <Col xs={8}>
-                        <Input type="select" defaultSelected={-1}>
-                          <option value={-1}>{"Select a Spell"}</option>
-                        </Input>
-                      </Col>
-                      <Col xs={4}>
-                        <Button disabled={true} bsStyle="danger">Delete</Button>
-                      </Col>
-                    </Row>
-                    <Input type="text" label={"Name"}/>
-                    <Input type="select" label={"Spell Level"} defaultSelected={-1}>
-                      <option value={-1}>{"Spell Level"}</option>
-                      <option value={0}>{"Cantrip"}</option>
-                      <option value={1}>{"1st Level"}</option>
-                      <option value={2}>{"2nd Level"}</option>
-                      <option value={3}>{"3rd Level"}</option>
-                      <option value={4}>{"4th Level"}</option>
-                      <option value={5}>{"5th Level"}</option>
-                      <option value={6}>{"6th Level"}</option>
-                      <option value={7}>{"7th Level"}</option>
-                      <option value={8}>{"8th Level"}</option>
-                      <option value={9}>{"9th Level"}</option>
-                    </Input>
-                    <Input type="textarea" label={"Description"}/>
-                    <Input type="text" label={"Components"}/>
-                    <Input type="text" label={"Casting TIme"}/>
-                    <Input type="text" label={"Duration"}/>
-                  </Input>
-                    
-                  <Button bsStyle="danger" onClick={this.handleToggle}>Close</Button>
-                  <Button bsStyle="success">Save</Button>
-                </div>
-              </TabPane>
+            <TabPane eventKey={1} tab="edit">
+              <div className="container-fluid">
+                <h3>{"Edit attack"}</h3>
+                <Input>
+                  <Row>
+                    <Col xs={8}>
+                      <Input type="select" defaultSelected={-1}>
+                        <option value={-1}>{"Select a Spell"}</option>
+                      </Input>
+                    </Col>
+                    <Col xs={4}>
+                      <Button bsStyle="danger">Delete</Button>
+                    </Col>
+                  </Row>
+                </Input>
+                  
 
-              <TabPane eventKey={2} tab="slots">
-                <div className="container-fluid">
-                  <h3>{"Edit spell slots"}</h3>
-                  <p>{"Change the amount of spell slots per level by first selecting a level, then adding in the appropriate number."}</p>
-                  <Input type="select" label={"Spell Level"} defaultSelected={-1}>
-                    <option value={-1}>{"Spell Level"}</option>
-                    <option value={1}>{"1st Level"}</option>
-                    <option value={2}>{"2nd Level"}</option>
-                    <option value={3}>{"3rd Level"}</option>
-                    <option value={4}>{"4th Level"}</option>
-                    <option value={5}>{"5th Level"}</option>
-                    <option value={6}>{"6th Level"}</option>
-                    <option value={7}>{"7th Level"}</option>
-                    <option value={8}>{"8th Level"}</option>
-                    <option value={9}>{"9th Level"}</option>
-                  </Input>
-                  <Input type="text" placeholder={"slots"} label="Number of Spell Slots"/>
-                  <Button bsStyle="danger" onClick={this.handleToggle}>Close</Button>
-                  <Button bsStyle="success">Save</Button>
-                </div>
-              </TabPane>
+              </div>
+            </TabPane>
 
-            </TabbedArea>
-            </Well>
-          </Panel>
-        </Accordion>
+            <TabPane eventKey={2} tab="slots">
+              <div className="container-fluid">
+                <h3>{"Edit spell slots"}</h3>
+                <Input type="select" label={"Spell Level"} defaultSelected={-1}>
+                  <option value={-1}>{"Spell Level"}</option>
+                  <option value={1}>{"1st Level"}</option>
+                  <option value={2}>{"2nd Level"}</option>
+                  <option value={3}>{"3rd Level"}</option>
+                  <option value={4}>{"4th Level"}</option>
+                  <option value={5}>{"5th Level"}</option>
+                  <option value={6}>{"6th Level"}</option>
+                  <option value={7}>{"7th Level"}</option>
+                  <option value={8}>{"8th Level"}</option>
+                  <option value={9}>{"9th Level"}</option>
+                </Input>
+              </div>
+            </TabPane>
+
+          </TabbedArea>
+        </Settings>
 
         <Panel>
           {spelldc}

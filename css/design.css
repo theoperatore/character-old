@@ -158,3 +158,47 @@ html {
 .no-padding {
   padding: 0 !important;
 }
+
+/* 
+* Main CSS for settings-tearing
+*/
+.settings-tear {
+  border: 0 !important;
+  box-shadow: none !important;
+  margin: auto -15px;
+  padding: 0 15px;
+  background-color: rgba(51, 51, 51, 1);
+  color: rgba(220, 220, 220, 1);
+
+  /* Taken from https://medium.com/coding-design/saw-tooth-banners-with-css-95c31e91c196 */
+  background-image:
+    /* Top jagged */
+    linear-gradient(
+        135deg,
+        rgba(255,255,255,1) 50%, rgba(255,255,255,0) 50%
+    ),
+    linear-gradient(
+        -135deg,
+        rgba(255,255,255,1) 50%, rgba(255,255,255,0) 50%
+    ),
+    /* Bottom jagged */
+    linear-gradient(
+        45deg,
+        rgba(255,255,255,1) 50%, rgba(255,255,255,0) 50%
+    ),
+    linear-gradient(
+        -45deg,
+        rgba(255,255,255,1) 50%, rgba(255,255,255,0) 50%
+    );
+  background-position:
+    /* Top jagged */
+    top center, top center,
+    /* Bottom jagged */
+    bottom center, bottom center;
+  background-size:
+    /* Top + bottom jagged */
+    0.75rem 0.75rem, 0.75rem 0.75rem,
+    0.75rem 0.75rem, 0.75rem 0.75rem;
+  background-repeat: repeat-x;
+}
+
