@@ -55,7 +55,7 @@ var Features = React.createClass({
         : this.props.character['charClassCharges'][feat.idx]['charges'];
 
       feats.push(
-        <Panel className="no-padding" bsStyle="warning" key={i} header={<div>{feat.name} <Button onClick={this.handleEditToggle.bind(this, i)} className={"pull-right no-border edit-btn" + ((this.state.activeFeat === i) ? "" : " hide")}><Glyphicon glyph="cog"/></Button></div>} eventKey={i}>
+        <Panel className="no-padding" bsStyle="warning" key={i} header={<div>{feat.name} <Button onClick={this.handleEditToggle.bind(this, i)} className={"pull-right no-border edit-btn"}><Glyphicon glyph="cog"/></Button></div>} eventKey={i}>
             <p className={(this.state["edit"+i] === true) ? "hide" : "" }>{feat.desc}</p>
             <Panel className={((this.state["edit"+i] === true) ? "" : "hide")}>
               <Input type="text" label={"Edit Feature Name"} value={feat.name} />

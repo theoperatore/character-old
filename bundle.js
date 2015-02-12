@@ -751,7 +751,7 @@ var Features = React.createClass({
         : this.props.character['charClassCharges'][feat.idx]['charges'];
 
       feats.push(
-        React.createElement(Panel, {className: "no-padding", bsStyle: "warning", key: i, header: React.createElement("div", null, feat.name, " ", React.createElement(Button, {onClick: this.handleEditToggle.bind(this, i), className: "pull-right no-border edit-btn" + ((this.state.activeFeat === i) ? "" : " hide")}, React.createElement(Glyphicon, {glyph: "cog"}))), eventKey: i}, 
+        React.createElement(Panel, {className: "no-padding", bsStyle: "warning", key: i, header: React.createElement("div", null, feat.name, " ", React.createElement(Button, {onClick: this.handleEditToggle.bind(this, i), className: "pull-right no-border edit-btn"}, React.createElement(Glyphicon, {glyph: "cog"}))), eventKey: i}, 
             React.createElement("p", {className: (this.state["edit"+i] === true) ? "hide" : ""}, feat.desc), 
             React.createElement(Panel, {className: ((this.state["edit"+i] === true) ? "" : "hide")}, 
               React.createElement(Input, {type: "text", label: "Edit Feature Name", value: feat.name}), 
