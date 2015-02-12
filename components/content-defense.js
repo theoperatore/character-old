@@ -204,18 +204,18 @@ var Defense = React.createClass({
               <Col xs={6}>
                 <Grid fluid>
                   <Row className="no-padding">
-                    <Col xs={4}><input type="checkbox" /></Col>
-                    <Col xs={4}><input type="checkbox" /></Col>
-                    <Col xs={4}><input type="checkbox" /></Col>
+                    <Col xs={4}><input className="chkbox-lg" type="checkbox" /></Col>
+                    <Col xs={4}><input className="chkbox-lg" type="checkbox" /></Col>
+                    <Col xs={4}><input className="chkbox-lg" type="checkbox" /></Col>
                   </Row>
                 </Grid>
               </Col>
               <Col xs={6}>
                 <Grid fluid>
                   <Row className="no-padding">
-                    <Col xs={4}><input type="checkbox" /></Col>
-                    <Col xs={4}><input type="checkbox" /></Col>
-                    <Col xs={4}><input type="checkbox" /></Col>
+                    <Col xs={4}><input className="chkbox-lg" type="checkbox" /></Col>
+                    <Col xs={4}><input className="chkbox-lg" type="checkbox" /></Col>
+                    <Col xs={4}><input className="chkbox-lg" type="checkbox" /></Col>
                   </Row>
                 </Grid>
               </Col>

@@ -1,5 +1,5 @@
 module.exports = {
-  "charName" : "Ralf McBeardsly",
+  "charName" : "Wan",
   "charInfo" : {
     "class" : "Monk",
     "level" : 5,

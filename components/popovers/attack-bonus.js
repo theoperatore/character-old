@@ -74,14 +74,16 @@ var Bubble = React.createClass({
         </Input>
         <Input type="checkbox" checked={this.props.bubble.prof} label="Proficient"  onChange={this.handleChange.bind(this, "prof")}/>
         <Input type="text" value={this.props.bubble.desc} label="Name" onChange={this.handleChange.bind(this, "desc")}/>
-        <Input label="Add/Remove Attack Bubble">
-          <Button className="no-border" onClick={this.manipBubbles.bind(this, "sub")}>
-            <Glyphicon glyph="minus-sign" />
-          </Button>
-          <Button className="no-border" onClick={this.manipBubbles.bind(this, "add")}>
-            <Glyphicon glyph="plus-sign" />
-          </Button>
-        </Input> 
+        <div className={(this.props.hidecontrols) ? "hide" : ""}>
+          <Input label="Add/Remove Attack Bubble">
+            <Button className="no-border" onClick={this.manipBubbles.bind(this, "sub")}>
+              <Glyphicon glyph="minus-sign" />
+            </Button>
+            <Button className="no-border" onClick={this.manipBubbles.bind(this, "add")}>
+              <Glyphicon glyph="plus-sign" />
+            </Button>
+          </Input> 
+        </div>
       </div>
     );
   }

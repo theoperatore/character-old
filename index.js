@@ -1,6 +1,14 @@
 // config? and preferences?
 require('fastclick')(document.body);
 
+// main requires
+var React = require('react');
+var wan = require('./data/wan');
+
+// component requires
+var Title = require('./components/title');
+var ContentArea = require('./components/content-area');
+
 // app preferences
 var prefs = {
   atkBubbles : [
@@ -13,24 +21,18 @@ var prefs = {
   spellBubbles : [
     {
       abil : "wis",
-      prof : true,
-      desc : "Attack Bonus"
-    },
-    {
-      abil : "int",
       prof : false,
       desc : "Attack Bonus"
     }
+  ],
+  spellDC : [
+    {
+      abil : "wis",
+      prof : true,
+      desc : "Ki DC"
+    }
   ]
 };
-
-// main requires
-var React = require('react');
-var wan = require('./data/wan');
-
-// component requires
-var Title = require('./components/title');
-var ContentArea = require('./components/content-area');
 
 // main out
 var Character = React.createClass({
@@ -42,6 +44,15 @@ var Character = React.createClass({
     console.log("received from: ", data.path);
     console.log("     data: ", data.character);
     this.setState({ character : data.character });
+
+    // save to firebase
+  },
+  editCharacterState : function(data) {
+    console.log("received from: ", data.path);
+    console.log("     updated: ", data.character);
+    console.warn("this function has not yet been fully implemented. Nothing is saved.");
+
+    // save to local storage only? or to firebase?
   },
   editPreferences : function(data) {
     console.log("received preferences from: ", data.path);

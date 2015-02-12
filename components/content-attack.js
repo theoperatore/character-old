@@ -68,7 +68,7 @@ var Attack = React.createClass({
 
       for (var j = 0; j < resource['charges']; j++) {
         slots.push(
-          <Col key={j} xs={1}><input type="checkbox" /></Col>
+          <Col key={j} xs={1}><input className="chkbox-lg" type="checkbox" /></Col>
         );
       }
 
