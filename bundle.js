@@ -753,14 +753,12 @@ var Features = React.createClass({
       feats.push(
         React.createElement(Panel, {className: "no-padding", bsStyle: "warning", key: i, header: React.createElement("div", null, feat.name, " ", React.createElement(Button, {onClick: this.handleEditToggle.bind(this, i), className: "pull-right no-border edit-btn" + ((this.state.activeFeat === i) ? "" : " hide")}, React.createElement(Glyphicon, {glyph: "cog"}))), eventKey: i}, 
             React.createElement("p", {className: (this.state["edit"+i] === true) ? "hide" : ""}, feat.desc), 
-            React.createElement(Input, null, 
-              React.createElement("div", {className: (this.state["edit"+i] === true) ? "" : "hide"}, 
-                React.createElement(Input, {type: "text", label: "Edit Feature Name", value: feat.name}), 
-                React.createElement(Input, {type: "textarea", label: "Edit Feature Description", value: feat.desc}), 
-                React.createElement(Input, {type: "checkbox", label: "gives class charges?", checked: (feat.idx === undefined) ? false : true}), 
-                React.createElement(Input, {type: "text", disabled: (feat.idx === undefined) ? true : false, label: "Number of Charges", value: charges}), 
-                React.createElement(Button, {bsStyle: "danger"}, "Delete")
-              )
+            React.createElement(Panel, {className: ((this.state["edit"+i] === true) ? "" : "hide")}, 
+              React.createElement(Input, {type: "text", label: "Edit Feature Name", value: feat.name}), 
+              React.createElement(Input, {type: "textarea", label: "Edit Feature Description", value: feat.desc}), 
+              React.createElement(Input, {type: "checkbox", label: "gives class charges?", checked: (feat.idx === undefined) ? false : true}), 
+              React.createElement(Input, {type: "text", disabled: (feat.idx === undefined) ? true : false, label: "Number of Charges", value: charges}), 
+              React.createElement(Button, {bsStyle: "danger"}, "Delete")
             )
         )
       );

@@ -57,15 +57,13 @@ var Features = React.createClass({
       feats.push(
         <Panel className="no-padding" bsStyle="warning" key={i} header={<div>{feat.name} <Button onClick={this.handleEditToggle.bind(this, i)} className={"pull-right no-border edit-btn" + ((this.state.activeFeat === i) ? "" : " hide")}><Glyphicon glyph="cog"/></Button></div>} eventKey={i}>
             <p className={(this.state["edit"+i] === true) ? "hide" : "" }>{feat.desc}</p>
-            <Input>
-              <div className={(this.state["edit"+i] === true) ? "" : "hide" }>
-                <Input type="text" label={"Edit Feature Name"} value={feat.name} />
-                <Input type="textarea" label={"Edit Feature Description"} value={feat.desc} />
-                <Input type="checkbox" label={"gives class charges?"} checked={(feat.idx === undefined) ? false : true} />
-                <Input type="text" disabled={(feat.idx === undefined) ? true : false} label={"Number of Charges"} value={charges} />
-                <Button bsStyle="danger">{"Delete"}</Button>
-              </div>
-            </Input>
+            <Panel className={((this.state["edit"+i] === true) ? "" : "hide")}>
+              <Input type="text" label={"Edit Feature Name"} value={feat.name} />
+              <Input type="textarea" label={"Edit Feature Description"} value={feat.desc} />
+              <Input type="checkbox" label={"gives class charges?"} checked={(feat.idx === undefined) ? false : true} />
+              <Input type="text" disabled={(feat.idx === undefined) ? true : false} label={"Number of Charges"} value={charges} />
+              <Button bsStyle="danger">{"Delete"}</Button>
+            </Panel>
         </Panel>
       );
 
