@@ -138,10 +138,16 @@ html {
 }
 .modal-backdrop.in {
   height: 100%;
+  top:0;
+  left:0;
 }
 
 .no-border {
   border: none !important;
+}
+
+.edit-btn {
+  padding-bottom: 5px;
 }
 
 .no-margin {

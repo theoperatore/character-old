@@ -708,10 +708,24 @@ var Features = React.createClass({
   displayName : "CharFeatures",
   mixins : [OverlayMixin],
   getInitialState : function() {
-    return ({ toggle : false });
+    return ({
+      toggle : false,
+      activeFeat : -1
+    });
   },
   handleToggle : function() {
     this.setState({ toggle : !this.state.toggle });
+  },
+  handleFeatSelect : function(key) {
+    var state = {};
+    var prev = this.state.activeFeat;
+    key = (key === prev) ? -1 : key;
+
+    // should handle saving changes instead of hiding them
+    state['edit' + prev] = false;
+    state.activeFeat = key;
+
+    this.setState(state);
   },
   renderOverlay : function() {
     if (!this.state.toggle) return React.createElement("span", null);
@@ -720,21 +734,50 @@ var Features = React.createClass({
       React.createElement(ModalFeature, {character: this.props.character, edit: this.props.edit, close: this.handleToggle})
     );
   },
+  handleEditToggle : function(idx, e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    var state = {};
+
+    state["edit" + idx] = 
+        (this.state["edit" + idx] === undefined)
+        ? false 
+        : this.state["edit" + idx];
+
+    state["edit" + idx] = !state["edit" + idx];
+    state.activeFeat = idx;
+
+    this.setState(state);
+
+  },
   render : function() {
 
     var feats = [];
     this.props.character['charFeatures'].forEach(function(feat, i) {
       feats.push(
-        React.createElement(Panel, {className: "no-padding", bsStyle: "warning", key: i, header: feat.name, eventKey: i}, 
-            React.createElement("p", null, feat.desc)
+        React.createElement(Panel, {className: "no-padding", bsStyle: "warning", key: i, header: React.createElement("div", null, feat.name, " ", React.createElement(Button, {onClick: this.handleEditToggle.bind(this, i), className: "pull-right no-border edit-btn" + ((this.state.activeFeat === i) ? "" : " hide")}, React.createElement(Glyphicon, {glyph: "cog"}))), eventKey: i}, 
+            React.createElement("p", {className: (this.state["edit"+i] === true) ? "hide" : ""}, feat.desc), 
+            React.createElement(Input, null, 
+              React.createElement("div", {className: (this.state["edit"+i] === true) ? "" : "hide"}, 
+                React.createElement(Input, {type: "text", label: "Edit Feature Name", value: feat.name}), 
+                React.createElement(Input, {type: "text", label: "Edit Feature Description", value: feat.desc}), 
+                React.createElement(Button, {bsStyle: "success"}, "Save"), 
+                React.createElement(Button, {bsStyle: "danger"}, "Delete")
+              )
+            )
         )
       );
-    });
+
+      feats.push(
+
+      );
+    }.bind(this));
 
     return (
       React.createElement("div", {className: "container-fluid"}, 
-        React.createElement("h3", null, "Features", " ", React.createElement(Button, {className: "no-border", onClick: this.handleToggle}, React.createElement(Glyphicon, {glyph: "cog"}))), 
-        React.createElement(Accordion, {defaultActiveKey: ""}, 
+        React.createElement("h3", null, "Features", " ", React.createElement(Button, {className: "no-border", onClick: this.handleToggle}, React.createElement(Glyphicon, {glyph: "plus-sign"}))), 
+        React.createElement(Accordion, {activeKey: this.state.activeFeat, onSelect: this.handleFeatSelect}, 
           feats
         )
       )
