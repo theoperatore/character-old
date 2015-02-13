@@ -1,6 +1,6 @@
 var React = require('react');
 
-var ModalAttack = require('./modals/modal-attack');
+var SettingsAttack = require('./settings/settings-attacks');
 var AttackConfig = require('./popovers/attack-bonus');
 var HelpTooltip = require('./tooltips/help');
 
@@ -11,21 +11,14 @@ var Grid = require('react-bootstrap/Grid');
 var Row = require('react-bootstrap/Row');
 var Col = require('react-bootstrap/Col');
 var OverlayTrigger = require('react-bootstrap/OverlayTrigger');
-var OverlayMixin = require('react-bootstrap/OverlayMixin');
 var Tooltip = require('react-bootstrap/Tooltip');
 var Popover = require('react-bootstrap/Popover');
 var Button = require('react-bootstrap/Button');
 
 var Attack = React.createClass({
   displayName : "CharAttack",
-  mixins : [OverlayMixin],
-  
-  getInitialState : function() {
-    return ({ toggle : false });
-  },
-
-  handleToggle : function() {
-    this.setState({ toggle : !this.state.toggle });
+  handleToggle : function(cmp) {
+    this.refs[cmp].toggle();
   },
 
   handleConfigToggle : function(ref) {
@@ -34,16 +27,6 @@ var Attack = React.createClass({
 
   handleHelpToggle : function() {
     this.refs['help'].toggle();
-  },
-
-  renderOverlay : function() {
-    if (!this.state.toggle) return <span/>; 
-
-    // show modal
-    return (
-      <ModalAttack close={this.handleToggle} character={this.props.character} edit={this.props.edit}/>
-    );
-
   },
   render : function() {
 
@@ -120,7 +103,7 @@ var Attack = React.createClass({
       <div className="container-fluid">
         <h3>
           {"Attacks"} 
-          <Button className="no-border" onClick={this.handleToggle}><Glyphicon glyph="cog"/></Button>
+          <Button className="no-border" onClick={this.handleToggle.bind(this, "settings-attacks")}><Glyphicon glyph="cog"/></Button>
           <OverlayTrigger ref="help" placement="bottom" trigger="manual" overlay={
             <Tooltip>
               <HelpTooltip close={this.handleHelpToggle}>
@@ -134,7 +117,7 @@ var Attack = React.createClass({
             </Button>
           </OverlayTrigger>
         </h3>
-
+        <SettingsAttack ref="settings-attacks" character={this.props.character} />
         <Panel>
           <Grid fluid>
             <Row>

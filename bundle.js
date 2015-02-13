@@ -128,7 +128,7 @@ var Ability = React.createClass({
 
 module.exports = Ability;
 
-},{"react":206,"react-bootstrap/Accordion":24,"react-bootstrap/Button":27,"react-bootstrap/Col":28,"react-bootstrap/Glyphicon":31,"react-bootstrap/Grid":32,"react-bootstrap/Input":33,"react-bootstrap/Modal":35,"react-bootstrap/Panel":41,"react-bootstrap/Popover":43,"react-bootstrap/Row":45}],2:[function(require,module,exports){
+},{"react":209,"react-bootstrap/Accordion":27,"react-bootstrap/Button":29,"react-bootstrap/Col":31,"react-bootstrap/Glyphicon":34,"react-bootstrap/Grid":35,"react-bootstrap/Input":36,"react-bootstrap/Modal":38,"react-bootstrap/Panel":44,"react-bootstrap/Popover":46,"react-bootstrap/Row":48}],2:[function(require,module,exports){
 var React = require('react');
 
 // components
@@ -200,10 +200,10 @@ var ContentArea = React.createClass({
 
 module.exports = ContentArea;
 
-},{"./content-ability":1,"./content-attack":3,"./content-defense":4,"./content-equipment":5,"./content-feature":6,"./content-info":7,"./content-spell":8,"react":206,"react-bootstrap/Glyphicon":31,"react-bootstrap/TabPane":46,"react-bootstrap/TabbedArea":47}],3:[function(require,module,exports){
+},{"./content-ability":1,"./content-attack":3,"./content-defense":4,"./content-equipment":5,"./content-feature":6,"./content-info":7,"./content-spell":8,"react":209,"react-bootstrap/Glyphicon":34,"react-bootstrap/TabPane":49,"react-bootstrap/TabbedArea":50}],3:[function(require,module,exports){
 var React = require('react');
 
-var ModalAttack = require('./modals/modal-attack');
+var SettingsAttack = require('./settings/settings-attacks');
 var AttackConfig = require('./popovers/attack-bonus');
 var HelpTooltip = require('./tooltips/help');
 
@@ -214,21 +214,14 @@ var Grid = require('react-bootstrap/Grid');
 var Row = require('react-bootstrap/Row');
 var Col = require('react-bootstrap/Col');
 var OverlayTrigger = require('react-bootstrap/OverlayTrigger');
-var OverlayMixin = require('react-bootstrap/OverlayMixin');
 var Tooltip = require('react-bootstrap/Tooltip');
 var Popover = require('react-bootstrap/Popover');
 var Button = require('react-bootstrap/Button');
 
 var Attack = React.createClass({
   displayName : "CharAttack",
-  mixins : [OverlayMixin],
-  
-  getInitialState : function() {
-    return ({ toggle : false });
-  },
-
-  handleToggle : function() {
-    this.setState({ toggle : !this.state.toggle });
+  handleToggle : function(cmp) {
+    this.refs[cmp].toggle();
   },
 
   handleConfigToggle : function(ref) {
@@ -237,16 +230,6 @@ var Attack = React.createClass({
 
   handleHelpToggle : function() {
     this.refs['help'].toggle();
-  },
-
-  renderOverlay : function() {
-    if (!this.state.toggle) return React.createElement("span", null); 
-
-    // show modal
-    return (
-      React.createElement(ModalAttack, {close: this.handleToggle, character: this.props.character, edit: this.props.edit})
-    );
-
   },
   render : function() {
 
@@ -323,7 +306,7 @@ var Attack = React.createClass({
       React.createElement("div", {className: "container-fluid"}, 
         React.createElement("h3", null, 
           "Attacks", 
-          React.createElement(Button, {className: "no-border", onClick: this.handleToggle}, React.createElement(Glyphicon, {glyph: "cog"})), 
+          React.createElement(Button, {className: "no-border", onClick: this.handleToggle.bind(this, "settings-attacks")}, React.createElement(Glyphicon, {glyph: "cog"})), 
           React.createElement(OverlayTrigger, {ref: "help", placement: "bottom", trigger: "manual", overlay: 
             React.createElement(Tooltip, null, 
               React.createElement(HelpTooltip, {close: this.handleHelpToggle}, 
@@ -337,7 +320,7 @@ var Attack = React.createClass({
             )
           )
         ), 
-
+        React.createElement(SettingsAttack, {ref: "settings-attacks", character: this.props.character}), 
         React.createElement(Panel, null, 
           React.createElement(Grid, {fluid: true}, 
             React.createElement(Row, null, 
@@ -358,10 +341,11 @@ var Attack = React.createClass({
 
 module.exports = Attack;
 
-},{"./modals/modal-attack":9,"./popovers/attack-bonus":16,"./tooltips/help":19,"react":206,"react-bootstrap/Accordion":24,"react-bootstrap/Button":27,"react-bootstrap/Col":28,"react-bootstrap/Glyphicon":31,"react-bootstrap/Grid":32,"react-bootstrap/OverlayMixin":38,"react-bootstrap/OverlayTrigger":39,"react-bootstrap/Panel":41,"react-bootstrap/Popover":43,"react-bootstrap/Row":45,"react-bootstrap/Tooltip":48}],4:[function(require,module,exports){
-
+},{"./popovers/attack-bonus":9,"./settings/settings-attacks":10,"./tooltips/help":22,"react":209,"react-bootstrap/Accordion":27,"react-bootstrap/Button":29,"react-bootstrap/Col":31,"react-bootstrap/Glyphicon":34,"react-bootstrap/Grid":35,"react-bootstrap/OverlayTrigger":42,"react-bootstrap/Panel":44,"react-bootstrap/Popover":46,"react-bootstrap/Row":48,"react-bootstrap/Tooltip":51}],4:[function(require,module,exports){
 var React = require('react');
 var HelpTooltip = require('./tooltips/help');
+var SettingsDefenses = require('./settings/settings-defenses');
+var SettingsThrows = require('./settings/settings-saving-throws');
 
 var Glyphicon = require('react-bootstrap/Glyphicon');
 var Accordion = require('react-bootstrap/Accordion');
@@ -383,6 +367,9 @@ var Defense = React.createClass({
       temp : "",
       dmg : ""
     });
+  },
+  toggle : function(cmp) {
+    this.refs[cmp].toggle();
   },
   toggleHP : function() {
     this.setState({ hpOpen : ((this.state.hpOpen === 0) ? 1 : 0) });
@@ -488,7 +475,7 @@ var Defense = React.createClass({
       React.createElement("div", {className: "container-fluid"}, 
         React.createElement("h3", null, 
           "Defenses", 
-          React.createElement(Button, {className: "no-border"}, React.createElement(Glyphicon, {glyph: "cog"})), 
+          React.createElement(Button, {className: "no-border", onClick: this.toggle.bind(this, "settings-defenses")}, React.createElement(Glyphicon, {glyph: "cog"})), 
 
           React.createElement(OverlayTrigger, {ref: "help", placement: "bottom", trigger: "manual", overlay: 
             React.createElement(Tooltip, null, 
@@ -502,6 +489,8 @@ var Defense = React.createClass({
             )
           )
         ), 
+
+        React.createElement(SettingsDefenses, {ref: "settings-defenses", character: this.props.character}), 
 
         React.createElement(ProgressBar, {onClick: this.toggleHP}, 
           React.createElement(ProgressBar, {bsStyle: "info", label: temp + " temp", now: tempPercent, key: 1}), 
@@ -585,7 +574,8 @@ var Defense = React.createClass({
         ), 
 
 
-        React.createElement("h3", null, "Saving Throws", " ", React.createElement(Button, {className: "no-border"}, React.createElement(Glyphicon, {glyph: "cog"}))), 
+        React.createElement("h3", null, "Saving Throws", " ", React.createElement(Button, {className: "no-border", onClick: this.toggle.bind(this, "settings-saving-throws")}, React.createElement(Glyphicon, {glyph: "cog"}))), 
+        React.createElement(SettingsThrows, {ref: "settings-saving-throws", character: this.props.character}), 
         React.createElement(Panel, {className: "text-center"}, 
           React.createElement(Grid, {fluid: true}, 
             React.createElement(Row, null, 
@@ -637,8 +627,10 @@ var Defense = React.createClass({
 
 module.exports = Defense;
 
-},{"./tooltips/help":19,"react":206,"react-bootstrap/Accordion":24,"react-bootstrap/Button":27,"react-bootstrap/Col":28,"react-bootstrap/Glyphicon":31,"react-bootstrap/Grid":32,"react-bootstrap/Input":33,"react-bootstrap/OverlayTrigger":39,"react-bootstrap/Panel":41,"react-bootstrap/ProgressBar":44,"react-bootstrap/Row":45,"react-bootstrap/Tooltip":48}],5:[function(require,module,exports){
+},{"./settings/settings-defenses":11,"./settings/settings-saving-throws":17,"./tooltips/help":22,"react":209,"react-bootstrap/Accordion":27,"react-bootstrap/Button":29,"react-bootstrap/Col":31,"react-bootstrap/Glyphicon":34,"react-bootstrap/Grid":35,"react-bootstrap/Input":36,"react-bootstrap/OverlayTrigger":42,"react-bootstrap/Panel":44,"react-bootstrap/ProgressBar":47,"react-bootstrap/Row":48,"react-bootstrap/Tooltip":51}],5:[function(require,module,exports){
 var React = require('react');
+var SettingsEquip = require('./settings/settings-equipment');
+
 var Glyphicon = require('react-bootstrap/Glyphicon');
 var Accordion = require('react-bootstrap/Accordion');
 var Panel = require('react-bootstrap/Panel');
@@ -650,12 +642,15 @@ var Col = require('react-bootstrap/Col');
 
 var Equipment = React.createClass({
   displayName : "CharEquipment",
+  toggle : function() {
+    this.refs.settings.toggle();
+  },
   render : function() {
 
     var equips = [];
     this.props.character['charEquipment']['otherEquipment'].forEach(function(equip, i) {
       equips.push(
-        React.createElement(Panel, {eventKey: i, key: i, header: equip.name}, 
+        React.createElement(Panel, {bsStyle: "warning", className: "no-padding", eventKey: i, key: i, header: equip.name}, 
             React.createElement("p", null, equip.desc)
         )
       );
@@ -663,7 +658,8 @@ var Equipment = React.createClass({
 
     return (
       React.createElement("div", {className: "container-fluid"}, 
-        React.createElement("h3", null, "Equipment", " ", React.createElement(Button, {className: "no-border"}, React.createElement(Glyphicon, {glyph: "cog"}))), 
+        React.createElement("h3", null, "Equipment", " ", React.createElement(Button, {className: "no-border", onClick: this.toggle}, React.createElement(Glyphicon, {glyph: "cog"}))), 
+        React.createElement(SettingsEquip, {ref: "settings", character: this.props.character}), 
         React.createElement(Panel, {bsStyle: "warning", header: "Money"}, 
           React.createElement(Grid, {fluid: true, className: "text-center"}, 
             React.createElement(Row, null, 
@@ -693,32 +689,21 @@ var Equipment = React.createClass({
 
 module.exports = Equipment;
 
-},{"react":206,"react-bootstrap/Accordion":24,"react-bootstrap/Button":27,"react-bootstrap/Col":28,"react-bootstrap/Glyphicon":31,"react-bootstrap/Grid":32,"react-bootstrap/Input":33,"react-bootstrap/Panel":41,"react-bootstrap/Row":45}],6:[function(require,module,exports){
+},{"./settings/settings-equipment":12,"react":209,"react-bootstrap/Accordion":27,"react-bootstrap/Button":29,"react-bootstrap/Col":31,"react-bootstrap/Glyphicon":34,"react-bootstrap/Grid":35,"react-bootstrap/Input":36,"react-bootstrap/Panel":44,"react-bootstrap/Row":48}],6:[function(require,module,exports){
 var React = require('react');
-var ModalFeature = require('./modals/modal-features');
+
+var Settings = require('./settings/settings-features');
 
 var Glyphicon = require('react-bootstrap/Glyphicon');
 var Accordion = require('react-bootstrap/Accordion');
 var Panel = require('react-bootstrap/Panel');
 var Input = require('react-bootstrap/Input');
 var Button = require('react-bootstrap/Button');
-var OverlayMixin = require('react-bootstrap/OverlayMixin');
 
 var Features = React.createClass({
   displayName : "CharFeatures",
-  mixins : [OverlayMixin],
-  getInitialState : function() {
-    return ({ toggle : false });
-  },
   handleToggle : function() {
-    this.setState({ toggle : !this.state.toggle });
-  },
-  renderOverlay : function() {
-    if (!this.state.toggle) return React.createElement("span", null);
-
-    return (
-      React.createElement(ModalFeature, {character: this.props.character, edit: this.props.edit, close: this.handleToggle})
-    );
+    this.refs.settings.toggle();
   },
   render : function() {
 
@@ -734,6 +719,7 @@ var Features = React.createClass({
     return (
       React.createElement("div", {className: "container-fluid"}, 
         React.createElement("h3", null, "Features", " ", React.createElement(Button, {className: "no-border", onClick: this.handleToggle}, React.createElement(Glyphicon, {glyph: "cog"}))), 
+        React.createElement(Settings, {ref: "settings", character: this.props.character}), 
         React.createElement(Accordion, {defaultActiveKey: ""}, 
           feats
         )
@@ -744,12 +730,12 @@ var Features = React.createClass({
 
 module.exports = Features;
 
-},{"./modals/modal-features":10,"react":206,"react-bootstrap/Accordion":24,"react-bootstrap/Button":27,"react-bootstrap/Glyphicon":31,"react-bootstrap/Input":33,"react-bootstrap/OverlayMixin":38,"react-bootstrap/Panel":41}],7:[function(require,module,exports){
+},{"./settings/settings-features":13,"react":209,"react-bootstrap/Accordion":27,"react-bootstrap/Button":29,"react-bootstrap/Glyphicon":34,"react-bootstrap/Input":36,"react-bootstrap/Panel":44}],7:[function(require,module,exports){
 var React = require('react');
-var ModalInfo = require('./modals/modal-info');
-var ModalProf = require('./modals/modal-proficiencies');
-var ModalTraits = require('./modals/modal-traits');
-var ModalLangs = require('./modals/modal-langs');
+var SettingsInfo = require('./settings/settings-info');
+var SettingsTraits = require('./settings/settings-traits');
+var SettingsProfs = require('./settings/settings-proficiencies');
+var SettingsLangs = require('./settings/settings-languages');
 
 var Accordion = require('react-bootstrap/Accordion');
 var Grid = require('react-bootstrap/Grid');
@@ -762,38 +748,8 @@ var OverlayMixin = require('react-bootstrap/OverlayMixin');
 
 var Info = React.createClass({
   displayName : "CharInfo",
-  mixins : [OverlayMixin],
-  getInitialState : function() {
-    return ({
-      infos : false,
-      traits : false,
-      profs : false,
-      langs : false
-    });
-  },
   handleToggle : function(cmp) {
-    var state = {};
-    state[cmp] = !this.state[cmp];
-    this.setState(state);
-  },
-  renderOverlay : function() {
-    if (this.state.infos) {
-      return (React.createElement(ModalInfo, {character: this.props.character, edit: this.props.edit, close: this.handleToggle.bind(this, "infos")}));
-    }
-    
-    if (this.state.traits) {
-      return (React.createElement(ModalTraits, {character: this.props.character, edit: this.props.edit, close: this.handleToggle.bind(this, "traits")}));
-    }
-    
-    if (this.state.profs) {
-      return (React.createElement(ModalProf, {character: this.props.character, edit: this.props.edit, close: this.handleToggle.bind(this, "profs")}));
-    }
-    
-    if (this.state.langs) {
-      return (React.createElement(ModalLangs, {character: this.props.character, edit: this.props.edit, close: this.handleToggle.bind(this, "langs")}));
-    }
-    
-    return React.createElement("span", null);
+    this.refs[cmp].toggle();
   },
   render : function() {
 
@@ -820,7 +776,8 @@ var Info = React.createClass({
     // list everything else.
     return (
       React.createElement("div", {className: "container-fluid"}, 
-        React.createElement("h3", null, "Info", " ", React.createElement(Button, {className: "no-border", onClick: this.handleToggle.bind(this, "infos")}, React.createElement(Glyphicon, {glyph: "cog"}))), 
+        React.createElement("h3", null, "Info", " ", React.createElement(Button, {className: "no-border", onClick: this.handleToggle.bind(this, "settings-info")}, React.createElement(Glyphicon, {glyph: "cog"}))), 
+        React.createElement(SettingsInfo, {ref: "settings-info", character: this.props.character}), 
         React.createElement(Panel, null, 
           React.createElement(Grid, {fluid: true}, 
             React.createElement(Row, null, 
@@ -870,7 +827,8 @@ var Info = React.createClass({
           )
         ), 
 
-        React.createElement("h3", null, "Traits", " ", React.createElement(Button, {className: "no-border", onClick: this.handleToggle.bind(this, "traits")}, React.createElement(Glyphicon, {glyph: "cog"}))), 
+        React.createElement("h3", null, "Traits", " ", React.createElement(Button, {className: "no-border", onClick: this.handleToggle.bind(this, "settings-traits")}, React.createElement(Glyphicon, {glyph: "cog"}))), 
+        React.createElement(SettingsTraits, {ref: "settings-traits", character: this.props.character}), 
         React.createElement(Accordion, {defaultActiveKey: ""}, 
           React.createElement(Panel, {className: "no-padding", bsStyle: "warning", eventKey: 0, header: "Personality Traits"}, 
             React.createElement("p", null, this.props.character['charTraits']['personalityTraits'])
@@ -889,12 +847,14 @@ var Info = React.createClass({
           )
         ), 
 
-        React.createElement("h3", null, "Proficiencies", " ", React.createElement(Button, {className: "no-border", onClick: this.handleToggle.bind(this, "profs")}, React.createElement(Glyphicon, {glyph: "cog"}))), 
+        React.createElement("h3", null, "Proficiencies", " ", React.createElement(Button, {className: "no-border", onClick: this.handleToggle.bind(this, "settings-proficiencies")}, React.createElement(Glyphicon, {glyph: "cog"}))), 
+        React.createElement(SettingsProfs, {ref: "settings-proficiencies", character: this.props.character}), 
         React.createElement(Accordion, {defaultActiveKey: ""}, 
           proficiencies
         ), 
 
-        React.createElement("h3", null, "Languages", " ", React.createElement(Button, {className: "no-border", onClick: this.handleToggle.bind(this, "langs")}, React.createElement(Glyphicon, {glyph: "cog"}))), 
+        React.createElement("h3", null, "Languages", " ", React.createElement(Button, {className: "no-border", onClick: this.handleToggle.bind(this, "settings-languages")}, React.createElement(Glyphicon, {glyph: "cog"}))), 
+        React.createElement(SettingsLangs, {ref: "settings-languages", character: this.props.character}), 
         React.createElement(Accordion, {defaultActiveKey: ""}, 
           languages
         )
@@ -905,12 +865,12 @@ var Info = React.createClass({
 
 module.exports = Info;
 
-},{"./modals/modal-info":11,"./modals/modal-langs":12,"./modals/modal-proficiencies":13,"./modals/modal-traits":15,"react":206,"react-bootstrap/Accordion":24,"react-bootstrap/Button":27,"react-bootstrap/Col":28,"react-bootstrap/Glyphicon":31,"react-bootstrap/Grid":32,"react-bootstrap/OverlayMixin":38,"react-bootstrap/Panel":41,"react-bootstrap/Row":45}],8:[function(require,module,exports){
+},{"./settings/settings-info":14,"./settings/settings-languages":15,"./settings/settings-proficiencies":16,"./settings/settings-traits":20,"react":209,"react-bootstrap/Accordion":27,"react-bootstrap/Button":29,"react-bootstrap/Col":31,"react-bootstrap/Glyphicon":34,"react-bootstrap/Grid":35,"react-bootstrap/OverlayMixin":41,"react-bootstrap/Panel":44,"react-bootstrap/Row":48}],8:[function(require,module,exports){
 var React = require('react');
 
 var AttackConfig = require('./popovers/attack-bonus');
 var HelpTooltip = require('./tooltips/help');
-var ModalSpell = require('./modals/modal-spell');
+var SettingsSpells = require('./settings/settings-spells');
 
 var Settings = require('./settings/settings-tear');
 
@@ -935,7 +895,6 @@ var Spells = React.createClass({
   getInitialState : function() {
     var state = {};
 
-    state.toggle = 0;
     state.settings = 0;
 
     return (state);
@@ -949,18 +908,9 @@ var Spells = React.createClass({
   handleHelpToggle : function() {
     this.refs.help.toggle();
   },
-  handleToggle : function() {
-    this.setState({ toggle : (this.state.toggle === 0) ? 1 : 0 });
+  handleToggle : function(cmp) {
+    this.refs[cmp].toggle();
   },
-  handleSettingsTabs : function(e) {
-    this.setState({ settings : e });
-  },
-
-
-  handleSettingsToggle : function() {
-    this.refs.settings.toggle();
-  },
-
   render : function() {
     var prof = this.props.character['charProficiencyBonus']['score'];
 
@@ -1072,7 +1022,7 @@ var Spells = React.createClass({
     return (
       React.createElement("div", {className: "container-fluid"}, 
         React.createElement("h3", null, "Spells", 
-          React.createElement(Button, {className: "no-border", onClick: this.handleSettingsToggle}, React.createElement(Glyphicon, {glyph: "cog"})), 
+          React.createElement(Button, {className: "no-border", onClick: this.handleToggle.bind(this, "settings-spells")}, React.createElement(Glyphicon, {glyph: "cog"})), 
           React.createElement(OverlayTrigger, {ref: "help", placement: "bottom", trigger: "manual", overlay: 
             React.createElement(Tooltip, null, 
               React.createElement(HelpTooltip, {close: this.handleHelpToggle}, 
@@ -1087,73 +1037,7 @@ var Spells = React.createClass({
           )
         ), 
 
-        React.createElement(Settings, {ref: "settings"}, 
-          React.createElement(TabbedArea, {defaultActiveKey: 0}, 
-            
-            React.createElement(TabPane, {eventKey: 0, tab: "new"}, 
-              React.createElement("div", {className: "container-fluid"}, 
-                React.createElement("h3", null, "Add new spell"), 
-                React.createElement(Input, {type: "text", label: "Name"}), 
-                React.createElement(Input, {type: "select", label: "Spell Level", defaultSelected: -1}, 
-                  React.createElement("option", {value: -1}, "Spell Level"), 
-                  React.createElement("option", {value: 0}, "Cantrip"), 
-                  React.createElement("option", {value: 1}, "1st Level"), 
-                  React.createElement("option", {value: 2}, "2nd Level"), 
-                  React.createElement("option", {value: 3}, "3rd Level"), 
-                  React.createElement("option", {value: 4}, "4th Level"), 
-                  React.createElement("option", {value: 5}, "5th Level"), 
-                  React.createElement("option", {value: 6}, "6th Level"), 
-                  React.createElement("option", {value: 7}, "7th Level"), 
-                  React.createElement("option", {value: 8}, "8th Level"), 
-                  React.createElement("option", {value: 9}, "9th Level")
-                ), 
-                React.createElement(Input, {type: "textarea", label: "Description"}), 
-                React.createElement(Input, {type: "text", label: "Components"}), 
-                React.createElement(Input, {type: "text", label: "Casting TIme"}), 
-                React.createElement(Input, {type: "text", label: "Duration"})
-              )
-            ), 
-
-            React.createElement(TabPane, {eventKey: 1, tab: "edit"}, 
-              React.createElement("div", {className: "container-fluid"}, 
-                React.createElement("h3", null, "Edit attack"), 
-                React.createElement(Input, null, 
-                  React.createElement(Row, null, 
-                    React.createElement(Col, {xs: 8}, 
-                      React.createElement(Input, {type: "select", defaultSelected: -1}, 
-                        React.createElement("option", {value: -1}, "Select a Spell")
-                      )
-                    ), 
-                    React.createElement(Col, {xs: 4}, 
-                      React.createElement(Button, {bsStyle: "danger"}, "Delete")
-                    )
-                  )
-                )
-                  
-
-              )
-            ), 
-
-            React.createElement(TabPane, {eventKey: 2, tab: "slots"}, 
-              React.createElement("div", {className: "container-fluid"}, 
-                React.createElement("h3", null, "Edit spell slots"), 
-                React.createElement(Input, {type: "select", label: "Spell Level", defaultSelected: -1}, 
-                  React.createElement("option", {value: -1}, "Spell Level"), 
-                  React.createElement("option", {value: 1}, "1st Level"), 
-                  React.createElement("option", {value: 2}, "2nd Level"), 
-                  React.createElement("option", {value: 3}, "3rd Level"), 
-                  React.createElement("option", {value: 4}, "4th Level"), 
-                  React.createElement("option", {value: 5}, "5th Level"), 
-                  React.createElement("option", {value: 6}, "6th Level"), 
-                  React.createElement("option", {value: 7}, "7th Level"), 
-                  React.createElement("option", {value: 8}, "8th Level"), 
-                  React.createElement("option", {value: 9}, "9th Level")
-                )
-              )
-            )
-
-          )
-        ), 
+        React.createElement(SettingsSpells, {ref: "settings-spells", character: this.props.character}), 
 
         React.createElement(Panel, null, 
           spelldc, 
@@ -1170,1322 +1054,7 @@ var Spells = React.createClass({
 
 module.exports = Spells;
 
-},{"./modals/modal-spell":14,"./popovers/attack-bonus":16,"./settings/settings-tear":17,"./tooltips/help":19,"react":206,"react-bootstrap/Accordion":24,"react-bootstrap/Button":27,"react-bootstrap/Col":28,"react-bootstrap/Glyphicon":31,"react-bootstrap/Grid":32,"react-bootstrap/Input":33,"react-bootstrap/Modal":35,"react-bootstrap/OverlayTrigger":39,"react-bootstrap/Panel":41,"react-bootstrap/Popover":43,"react-bootstrap/Row":45,"react-bootstrap/TabPane":46,"react-bootstrap/TabbedArea":47,"react-bootstrap/Tooltip":48,"react-bootstrap/Well":49}],9:[function(require,module,exports){
-var React = require('react');
-var Modal = require('react-bootstrap/Modal');
-var Button = require('react-bootstrap/Button');
-var Panel = require('react-bootstrap/Panel');
-var Input = require('react-bootstrap/Input');
-var Grid = require('react-bootstrap/Grid');
-var Row = require('react-bootstrap/Row');
-var Col = require('react-bootstrap/Col');
-var TabbedArea = require('react-bootstrap/TabbedArea');
-var TabPane = require('react-bootstrap/TabPane');
-
-
-
-var AttackModal = React.createClass({
-  displayName : "AttackModal",
-  getInitialState : function() {
-    var state = {};
-
-    state.toggle = false,
-    state.name = "",
-    state.desc = "",
-    state.edit = -1,
-    state.changeName = "",
-    state.changeDesc = "",
-    state.mode = 0
-
-    return (state);
-  },
-
-  handleChange : function(cmp, e) {
-    var state = {};
-    state[cmp] = e.target.value;
-    this.setState(state);
-  },
-
-  handleModeChange : function(mode) {
-    this.setState({ mode : mode });
-  },
-
-  handleEditSelect : function(e) {
-    var idx = parseInt(e.target.value, 10);
-    var attack = this.props.character['charAttacks'][idx];
-    var name = (idx === -1) ? "" : attack.name;
-    var desc = (idx === -1) ? "" : attack.desc;
-    var state = {};
-
-    state.edit = idx;
-    state.changeName = name;
-    state.changeDesc = desc;
-    
-    this.setState(state);
-  },
-  handleDelete : function() {
-    var tmp = this.props.character;
-    var path = "charAttacks.delete.";
-    var name = tmp['charAttacks'][this.state.edit].name;
-    var atk;
-
-    if (!confirm("Do you really want to get rid of\n '" + name + "'\n forever?")) return;
-
-    // delete attack
-    atk = tmp['charAttacks'].splice(this.state.edit, 1);
-    path += atk.name;
-
-    // push changes upstream
-    this.props.edit({ path : path, character : tmp });
-    this.props.close();
-  },
-  handleAdd : function() {
-    var tmp = this.props.character;
-    var data = {};
-    var path = "charAttacks";
-
-    // mode 0 -- add new attack
-    if (this.state.mode === 0) {
-
-      // make sure we have enough info to add
-      if (this.state.name === "" || this.state.desc === "") return;
-      
-      // build new attack node
-      data.name = this.state.name;
-      data.desc = this.state.desc;
-
-      // modify character
-      tmp['charAttacks'].push(data);
-      path += ".add";
-    }
-    
-    // mode 1 -- edit attack
-    else if (this.state.mode === 1) {
-
-      // make sure something is selected
-      if (this.state.edit === -1 || this.state.changeName === "" || this.state.changeDesc === "") return;
-
-      // log old name
-      path += ".edit." + tmp['charAttacks'][this.state.edit].name;
-
-      // modify character
-      tmp['charAttacks'][this.state.edit].name = this.state.changeName;
-      tmp['charAttacks'][this.state.edit].desc = this.state.changeDesc;
-    }
-    
-    this.props.edit({ path : path, character : tmp });
-    this.props.close();
-  },
-
-  // draw it
-  render : function() {
-
-    // set up attack options
-    var attacks = [];
-    this.props.character['charAttacks'].forEach(function(atk, i) {
-      attacks.push(
-        React.createElement("option", {key: i, value: i}, atk.name)
-      );
-    });
-
-    return (
-      React.createElement(Modal, {onRequestHide: this.props.close}, 
-        React.createElement("div", {className: "modal-body"}, 
-          React.createElement(TabbedArea, {activeKey: this.state.mode, onSelect: this.handleModeChange}, 
-            React.createElement(TabPane, {eventKey: 0, tab: "new"}, 
-              React.createElement("div", {className: "container-fluid"}, 
-                React.createElement("h3", null, "Add new attack"), 
-                React.createElement("p", null, "Enter the name of the new attack and a short description."), 
-                React.createElement(Input, {placeholder: "name", value: this.state.name, type: "text", label: "Attack Name", onChange: this.handleChange.bind(this,"name")}), 
-                React.createElement(Input, {placeholder: "short description", value: this.state.desc, type: "textarea", label: "Attack Desc", onChange: this.handleChange.bind(this, "desc")})
-              )
-            ), 
-            React.createElement(TabPane, {eventKey: 1, tab: "edit"}, 
-              React.createElement("div", {className: "container-fluid"}, 
-                React.createElement("h3", null, "Edit attack"), 
-                React.createElement("p", null, "Change the name or description of an attack by first selecting an attack name and then entering new values"), 
-                React.createElement(Input, null, 
-                  React.createElement(Row, null, 
-                    React.createElement(Col, {xs: 8}, 
-                      React.createElement(Input, {type: "select", onChange: this.handleEditSelect, defaultSelected: -1}, 
-                        React.createElement("option", {value: -1}, "Select an Attack"), 
-                        attacks
-                      )
-                    ), 
-                    React.createElement(Col, {xs: 4}, 
-                      React.createElement(Button, {disabled: (this.state.edit === -1) ? true : false, bsStyle: "danger", onClick: this.handleDelete}, "Delete")
-                    )
-                  )
-                ), 
-                React.createElement(Input, {disabled: (this.state.edit === -1) ? true : false, type: "text", onChange: this.handleChange.bind(this,"changeName"), placeholder: "attack name", value: this.state.changeName, label: "New Attack Name"}), 
-                React.createElement(Input, {disabled: (this.state.edit === -1) ? true : false, type: "textarea", onChange: this.handleChange.bind(this, "changeDesc"), placeholder: "attack desc", value: this.state.changeDesc, label: "New Attack Desc"})
-              )
-            )
-          )
-        ), 
-        React.createElement("div", {className: "modal-footer"}, 
-          React.createElement(Button, {bsStyle: "danger", onClick: this.props.close}, "Close"), 
-          React.createElement(Button, {bsStyle: "success", onClick: this.handleAdd}, "Save")
-        )
-      )
-    );
-  }
-})
-
-module.exports = AttackModal;
-
-},{"react":206,"react-bootstrap/Button":27,"react-bootstrap/Col":28,"react-bootstrap/Grid":32,"react-bootstrap/Input":33,"react-bootstrap/Modal":35,"react-bootstrap/Panel":41,"react-bootstrap/Row":45,"react-bootstrap/TabPane":46,"react-bootstrap/TabbedArea":47}],10:[function(require,module,exports){
-// Main requires
-var React = require('react');
-var Modal = require('react-bootstrap/Modal');
-var Input = require('react-bootstrap/Input');
-var Button = require('react-bootstrap/Button');
-var Alert = require('react-bootstrap/Alert');
-var Panel = require('react-bootstrap/Panel');
-var Row = require('react-bootstrap/Row');
-var Col = require('react-bootstrap/Col');
-var TabbedArea = require('react-bootstrap/TabbedArea');
-var TabPane = require('react-bootstrap/TabPane');
-var Alert = require('react-bootstrap/Alert');
-
-// The modal object to export
-var FeatureModal = React.createClass({displayName: "FeatureModal",
-
-  getInitialState : function() {
-    var state = {};
-
-    state.name = "";
-    state.desc = "";
-    state.numCharges = "";
-    state.mode = 0;
-    state.newName = "";
-    state.newDesc = "";
-    state.newCharges = "";
-
-    state.edit = -1;
-
-    // holds the index into charClassCharges to edit
-    state.editCharges = -1;
-    state.charges = false;
-
-    // alert for entering a number
-    state.alert = false;
-
-    return (state);
-  },
-
-  handleModeChange : function(mode) {
-    this.setState({ mode : mode });
-  },
-
-  handleChange : function(cmp, e) {
-    var node = {};
-    node[cmp] = e.target.value;
-    this.setState(node);
-  },
-
-  handleSelect : function(e) {
-    var idx = parseInt(e.target.value, 10);
-    var feat = this.props.character['charFeatures'][idx];
-    var charges = this.props.character['charClassCharges'];
-    var name = (idx === -1) ? "" : feat.name;
-    var desc = (idx === -1) ? "" : feat.desc;
-    var charge = feat.idx;
-    var state = {};
-
-    if (charge !== undefined) {
-      state.editCharges = charge;
-      state.newCharges = charges[charge]['charges'];  
-    }
-
-    
-    state.edit = idx;
-    state.newName = name;
-    state.newDesc = desc;
-    
-    this.setState(state);
-  },
-
-  handleDelete : function() {
-    var tmp = this.props.character;
-    var path = "charFeatures.delete";
-    var name = tmp['charFeatures'][this.state.edit].name;
-    var feat;
-    var clsCrgs;
-
-    // if mistake, stop deleting!
-    if (!confirm("Do you really want to get rid of\n '" + name + "'\n forever?")) return;
-
-    feat = tmp['charFeatures'].splice(this.state.edit, 1);
-    path += "." + feat[0].name;
-
-    // if this feat is tied to class charges remove them too
-    if (feat[0].idx !== undefined) {
-      console.log(feat);
-      clsCrgs = tmp['charClassCharges'].splice(feat[0].idx, 1);
-      path += "." + clsCrgs[0].charges;
-    }
-
-    // save and close
-    this.props.edit({ path : path, character : tmp });
-    this.props.close();
-  },
-
-  handleOk : function() {
-    var tmp = this.props.character;
-    var path = "charFeatures";
-    var data = {};
-    var crgs = {};
-
-    // adding new feature
-    if (this.state.mode === 0) {
-
-      // if the name isn't given, then don't add
-      if (this.state.name === "") return;
-
-      data.name = this.state.name;
-      data.desc = this.state.desc;
-
-      // if we need to add class charges
-      if (this.state.numCharges !== "") {
-
-        if (isNaN(parseInt(this.state.numCharges, 10))) {
-          this.setState({ alert : true });
-          return;
-        }
-
-        crgs.name = this.state.name;
-        crgs.charges = parseInt(this.state.numCharges,10);
-
-        tmp['charClassCharges'].push(crgs);
-        data.idx = tmp['charClassCharges'].length - 1;
-      }
-
-      tmp['charFeatures'].push(data);
-      path += ".add." + data.name;
-    }
-
-    // editing existing feature
-    else if (this.state.mode === 1) {
-
-      // if nothing is selected, don't change
-      if (this.state.edit === -1) return;
-
-      // handle new class charges
-      var idx = tmp['charFeatures'][this.state.edit]['idx']; 
-      if (idx !== undefined) {
-
-        if (isNaN(parseInt(this.state.newCharges, 10))) {
-          this.setState({ alert : true });
-          return;
-        }
-
-        tmp['charClassCharges'][idx]['charges'] = parseInt(this.state.newCharges,10);
-        tmp['charClassCharges'][idx]['name'] = this.state.newName;
-      }
-
-      // make the changes
-      tmp['charFeatures'][this.state.edit].name = this.state.newName;
-      tmp['charFeatures'][this.state.edit].desc = this.state.newDesc;
-      
-
-      // log the changes made
-      path += ".edit." + tmp['charFeatures'][this.state.edit].name;
-    }
-      
-    // save and close
-    this.props.edit({ path : path, character : tmp });
-    this.props.close();
-  },
-
-  enableCharges : function() {
-    this.setState({ charges : !this.state.charges });
-  },
-
-  closeAlert : function() {
-    this.setState({ alert : false });
-  },
-
-  render : function() {
-    var alert;
-    if (this.state.alert) {
-      alert = (
-        React.createElement(Alert, {bsStyle: "danger", onDismiss: this.closeAlert}, 
-          React.createElement("h4", null, "Critical Failure!"), 
-          React.createElement("p", null, "Class Charges must be a valid decimal number. #FFFFFF does not count...")
-        )
-      );
-    }
-
-    // populate the select box
-    var features = [];
-    this.props.character['charFeatures'].forEach(function(feat, i) {
-      features.push(
-        React.createElement("option", {key: i, value: i}, feat.name)
-      );
-    }); 
-
-    return (
-      React.createElement(Modal, {onRequestHide: this.props.close}, 
-        React.createElement("div", {className: "modal-body"}, 
-          React.createElement(TabbedArea, {activeKey: this.state.mode, onSelect: this.handleModeChange}, 
-            
-            React.createElement(TabPane, {eventKey: 0, tab: "new"}, 
-              React.createElement("div", {className: "container-fluid"}, 
-                React.createElement("h3", null, "Add New Class Feature"), 
-                React.createElement("p", null, "Enter the name of the feature and a sort description."), 
-                React.createElement(Input, {placeholder: "name", value: this.state.name, type: "text", label: "Feature Name", onChange: this.handleChange.bind(this, "name")}), 
-                React.createElement(Input, {placeholder: "short description", value: this.state.desc, type: "textarea", label: "Feature Description", onChange: this.handleChange.bind(this, "desc")}), 
-                React.createElement(Input, {type: "checkbox", onChange: this.enableCharges, label: "gives class charges?"}), 
-                alert, 
-                React.createElement(Input, {disabled: (this.state.charges === false) ? true : false, type: "text", label: "Number of Charges", placeholder: "check box to enable", help: "(Ki, Rages, Sorcery, etc)?", value: this.state.numCharges, onChange: this.handleChange.bind(this, "numCharges")})
-              )
-            ), 
-
-            React.createElement(TabPane, {eventKey: 1, tab: "edit"}, 
-              React.createElement("div", {className: "container-fluid"}, 
-                React.createElement("h3", null, "Edit Class Features"), 
-                React.createElement("p", null, "Change the name or description of a feature by first selecting the feature to edit and then entering new values."), 
-                React.createElement(Input, null, 
-                  React.createElement(Row, null, 
-                    React.createElement(Col, {xs: 8}, 
-                      React.createElement(Input, {type: "select", onChange: this.handleSelect, defaultSelected: -1}, 
-                        React.createElement("option", {value: -1}, "Select a Feature"), 
-                        features
-                      )
-                    ), 
-                    React.createElement(Col, {xs: 4}, 
-                      React.createElement(Button, {disabled: (this.state.edit === -1) ? true : false, bsStyle: "danger", onClick: this.handleDelete}, "Delete")
-                    )
-                  )
-                ), 
-                React.createElement(Input, {disabled: (this.state.edit === -1) ? true : false, type: "text", onChange: this.handleChange.bind(this, "newName"), placeholder: "feat name", value: this.state.newName, label: "New Feature Name"}), 
-                React.createElement(Input, {disabled: (this.state.edit === -1) ? true : false, type: "textarea", onChange: this.handleChange.bind(this, "newDesc"), placeholder: "feat desc", value: this.state.newDesc, label: "New Feature Desc"}), 
-                alert, 
-                React.createElement(Input, {disabled: (this.state.editCharges === -1) ? true : false, type: "text", onChange: this.handleChange.bind(this, "newCharges"), placeholder: "number of charges", label: "New Amount of Class Charges", value: this.state.newCharges})
-              )
-            )
-
-          )
-        ), 
-        React.createElement("div", {className: "modal-footer"}, 
-          React.createElement(Button, {bsStyle: "danger", onClick: this.props.close}, "Close"), 
-          React.createElement(Button, {bsStyle: "success", onClick: this.handleOk}, "Save")
-        )
-      )
-    );
-  }
-})
-
-// export
-module.exports = FeatureModal;
-
-},{"react":206,"react-bootstrap/Alert":25,"react-bootstrap/Button":27,"react-bootstrap/Col":28,"react-bootstrap/Input":33,"react-bootstrap/Modal":35,"react-bootstrap/Panel":41,"react-bootstrap/Row":45,"react-bootstrap/TabPane":46,"react-bootstrap/TabbedArea":47}],11:[function(require,module,exports){
-// Main requires
-var React = require('react');
-var Modal = require('react-bootstrap/Modal');
-var Input = require('react-bootstrap/Input');
-var Button = require('react-bootstrap/Button');
-var Alert = require('react-bootstrap/Alert');
-var Row = require('react-bootstrap/Row');
-var Col = require('react-bootstrap/Col');
-
-// The modal object to export
-var InfoModal = React.createClass({displayName: "InfoModal",
-
-  /////////////////////////////////////////////////////////////////////////////
-  //
-  // the initial state of every modal should hold values that are going to
-  // change as a result of human interaction.
-  // 
-  // this modal deals with character info, so starting state should include
-  // class, level, xp, background, race, and alignment.
-  //
-  // since we want to keep level and class values stored as integers and not
-  // strings, we also create state values for alerting if we cannot parse
-  // any input from the user for those inputs.
-  //
-  /////////////////////////////////////////////////////////////////////////////
-  getInitialState : function() {
-    var state = {};
-
-    state.cls = "";
-    state.lvl = "";
-    state.xp = "";
-    state.bg  = "";
-    state.race = "";
-    state.align = "";
-    state.alert = false;
-    state.alertMsg = "";
-    state.alertType = "";
-
-    return (state);
-  },
-
-  /////////////////////////////////////////////////////////////////////////////
-  //
-  // This function gets called anytime a user types a button into one of the 
-  // inputs in this modal.
-  //
-  // the parameter `cmp` holds the value from the corresponding .bind() call
-  // declared with the <Input> element.
-  //
-  // ex: If a user types one letter `a` into the `Class` <Input>, `cmp` would
-  // equals 'cls' because we called this.handleChange.bind(this, 'cls')
-  //
-  // parameter `e` is a reference to the DOM node of the input element.
-  // to get the value the user typed in, `e.target.value` is used.
-  //
-  // Lastly, this function sets the state defined above for each Input to get
-  // ready to save the new inputs
-  //
-  /////////////////////////////////////////////////////////////////////////////
-  handleChange : function(cmp, e) {
-    var node = {};
-    node[cmp] = e.target.value;
-    this.setState(node);
-  },
-
-  /////////////////////////////////////////////////////////////////////////////
-  //
-  // The function to be run when the `Save` button is clicked. 
-  //
-  // This function should check the value of each state value to save, to make
-  // sure the inputs make sense. This is where we try to parse the values of 
-  // level and xp as integers. If they cannot be parsed as decimal integers,
-  // we set the state of the alert flag to true and stop the saving function
-  // in order for the user to correct their mistake.
-  //
-  // To do the actual saving, we need to manipulate the props object
-  // `character`. However, don't use this.props.character directly. First get a
-  // cached copy, like I do with tmp. Then perform operations on tmp.
-  //
-  // this.props.character refers back to the character object, or the skeleton
-  // of the app. Wan.js is what is used for testing.
-  //
-  // after manipulating the relevant data, pass tmp and a `path` or message
-  // variable to the props function `edit` as one object via this.props.edit()
-  //
-  // ex: I have edited tmp the way I want to, and I want to remember that I 
-  // edited tmp in `charInfo`, so I called the edit function:
-  //    
-  //    var data = {};
-  //    
-  //    data.path = "charInfo";
-  //    data.character = tmp;
-  //
-  //    this.props.edit(data);
-  //
-  // this will put into effect any changes to the character model that may have
-  // changed.
-  //
-  // once you save, close the modal by calling the props function `close`:
-  //
-  //    this.props.close();
-  //
-  /////////////////////////////////////////////////////////////////////////////
-  handleOk : function() {
-
-    // reference the props and create the path variable
-    var tmp = this.props.character;
-    var path = "charInfo";
-
-    // update the character if there is input for class
-    if (this.state.cls !== "") { 
-      tmp['charInfo']['class'] = this.state.cls;
-      path += ".class." + this.state.cls;
-    }
-
-    // first parse the lvl in state, if not valid integer, show and alert and
-    // stop saving.
-    // otherwise, update the character and continue
-    if (this.state.lvl !== "") {
-      var lvl = parseInt(this.state.lvl,10);
-
-      if (isNaN(lvl)) {
-        this.setState({ 
-          alert : true,
-          alertMsg : "Yo! Enter a number for your level! Any number will do, just so that it's a valid decimal number.",
-          alertType : "lvl"
-        });
-        return;
-      }
-      
-      tmp['charInfo']['level'] = lvl; 
-      path += ".level." + this.state.lvl;
-    }
-
-    // same as above, first parse for integer, and handle incorrect types
-    // if everything is good, then update the character and continue
-    if (this.state.xp !== "") { 
-      var xp = parseInt(this.state.xp,10);
-
-      if (isNaN(xp)) {
-        this.setState({ 
-          alert : true,
-          alertMsg : "Yo! Enter a number for your XP! Any number will do, just so that it's a valid decimal number.",
-          alertType : "xp"
-        });
-        return;
-      }
-      // test for NaN first
-      tmp['charInfo']['xp'] = xp; 
-      path += ".xp." + this.state.xp;
-    }
-
-    // handle updating character background
-    if (this.state.bg !== "") { 
-      tmp['charInfo']['background'] = this.state.bg; 
-      path += ".background." + this.state.bg;
-    }
-
-    // handle updating character race
-    if (this.state.race !== "") { 
-      tmp['charInfo']['race'] = this.state.race; 
-      path += ".race." + this.state.race;
-    }
-
-    // handle updating character alignment
-    if (this.state.align !== "") { 
-      tmp['charInfo']['alignment'] = this.state.align; 
-      path += ".alignment." + this.state.align;
-    }
-    
-
-    // save the changes (if any) to the character skeleton
-    this.props.edit({ path : path, character : tmp });
-
-    // close this modal
-    this.props.close();
-  },
-
-  /////////////////////////////////////////////////////////////////////////////
-  //
-  // This function is called when a user closes the Alert that pops up if an
-  // input for level or xp cannot be parsed as an integer.
-  //
-  // this function sets the state of `alert` to false so the alert will no
-  // longer be displaed, and sets the alertMsg to an empty string as a 
-  // convenience.
-  //
-  /////////////////////////////////////////////////////////////////////////////
-  handleAlert : function() {
-    this.setState({ alert : false, alertMsg : "" });
-  },
-
-  /////////////////////////////////////////////////////////////////////////////
-  //
-  // This is the function that handles displaying EVERYTHING for the modal.
-  //
-  // This function must return exactly ONE root element (it's a requirement).
-  //
-  // It is here you define the layout of the modal and attach any event
-  // listeners to the function you made above.
-  //
-  /////////////////////////////////////////////////////////////////////////////
-  render : function() {
-    var alert;
-    var validationLvl;
-    var validationXp;
-
-    // if an alert is shown becasue of xp, display a red outline around the
-    // xp input to tell the user the value is still wrong
-    if (this.state.alertType === "xp") {
-      validationXp = "error";
-    }
-
-    // if an alert is shown becasue of lvl, display a red outline around the
-    // level input to tell the user the value is still wrong
-    if (this.state.alertType === "lvl") {
-      validationLvl = "error";
-    }
-
-    // if alert state is true, show the alert
-    if (this.state.alert) {
-      alert = (
-        React.createElement(Alert, {bsStyle: "danger", onDismiss: this.handleAlert}, 
-          React.createElement("h4", null, "Critical Failure!"), 
-          React.createElement("p", null, this.state.alertMsg)
-        )
-      );
-    }
-
-    // if alert state variable is false, don't show the alert
-    else {
-      alert = React.createElement("span", null);
-    }
-
-    // return the main modal ouline. This is a style of Javascript called JSX.
-    // this must get compiled to normal javascript before it can be run correctly
-    // in any browser.
-    // 
-    // if you run `npm run dev` on the command line, the compile step will be taken 
-    // care of for you.
-    //
-    // For the most part, you can use normal HTML syntax
-    // However, if you want to insert javascript into anything you must enclose the
-    // javascript in {}.
-    // One more caveat is that in order to give an element a CSS Class, use
-    // className instead of just class. see the elements below for an example.
-    return (
-      React.createElement(Modal, {onRequestHide: this.props.close, title: "Edit Info"}, 
-        React.createElement("div", {className: "modal-body"}, 
-          React.createElement("p", null, "Enter a new value for any Character Info. If a field is left blank and no new values are entered, nothing will be changed."), 
-          alert, 
-          React.createElement(Input, null, 
-            React.createElement(Row, null, 
-              React.createElement(Col, {xs: 6}, 
-                React.createElement(Input, {type: "text", onChange: this.handleChange.bind(this, "cls"), label: "Class", placeholder: this.props.character['charInfo']['class'], value: this.state.cls})
-              ), 
-              React.createElement(Col, {xs: 6}, 
-                React.createElement(Input, {type: "text", onChange: this.handleChange.bind(this, "race"), label: "Race", placeholder: this.props.character['charInfo']['race'], value: this.state.race})
-              )
-            ), 
-            React.createElement(Row, null, 
-              React.createElement(Col, {xs: 6}, 
-                React.createElement(Input, {type: "text", bsStyle: validationLvl, onChange: this.handleChange.bind(this, "lvl"), label: "Level", placeholder: this.props.character['charInfo']['level'], value: this.state.lvl})
-              ), 
-              React.createElement(Col, {xs: 6}, 
-                React.createElement(Input, {type: "text", bsStyle: validationXp, onChange: this.handleChange.bind(this, "xp"), label: "Xp", placeholder: this.props.character['charInfo']['xp'], value: this.state.xp})
-              )
-            ), 
-            React.createElement(Row, null, 
-              React.createElement(Col, {xs: 6}, 
-                React.createElement(Input, {type: "text", onChange: this.handleChange.bind(this, "bg"), label: "Background", placeholder: this.props.character['charInfo']['background'], value: this.state.bg})
-              ), 
-              React.createElement(Col, {xs: 6}, 
-                React.createElement(Input, {type: "text", onChange: this.handleChange.bind(this, "align"), label: "Alignment", placeholder: this.props.character['charInfo']['alignment'], value: this.state.align})
-              )
-            )
-          )
-        ), 
-        React.createElement("div", {className: "modal-footer"}, 
-          React.createElement(Button, {bsStyle: "danger", onClick: this.props.close}, "Close"), 
-          React.createElement(Button, {bsStyle: "success", onClick: this.handleOk}, "Save")
-        )
-      )
-    );
-  }
-})
-
-// Export our InfoModal we just created when required
-module.exports = InfoModal;
-
-},{"react":206,"react-bootstrap/Alert":25,"react-bootstrap/Button":27,"react-bootstrap/Col":28,"react-bootstrap/Input":33,"react-bootstrap/Modal":35,"react-bootstrap/Row":45}],12:[function(require,module,exports){
-//Main requires
-var React = require('react');
-var Modal = require('react-bootstrap/Modal');
-var Input = require('react-bootstrap/Input');
-var Button = require('react-bootstrap/Button');
-var Alert = require('react-bootstrap/Alert');
-var Row = require('react-bootstrap/Row');
-var Col = require('react-bootstrap/Col');
-var TabbedArea = require('react-bootstrap/TabbedArea');
-var TabPane = require('react-bootstrap/TabPane');
-
-//The modal object to export
-var LangsModal = React.createClass({displayName: "LangsModal",
-
-	getInitialState : function () {
-		var state = {};
-
-		state.name = "";
-		state.desc = "";
-		state.mode = 0;
-		state.newDesc = "";
-		state.newName = "";
-
-		//this holds the mode of the language to edit
-		state.edit = -1;
-
-		return (state);
-	},
-
-	handleModeChange : function(mode) {
-		this.setState({ mode : mode })
-	},
-
-	handleChange : function(cmp, e) {
-		var node = {};
-		node[cmp] = e.target.value;
-		this.setState(node);
-	},
-
-	handleSelect : function(e) {
-		var idx = parseInt(e.target.value, 10);
-		var langs = this.props.character['charOtherProficiencies']['languages'][idx];
-		var name = (idx === -1) ? "" : langs.name;
-		var desc = (idx === -1) ? "" : langs.desc;
-		var state = {};
-
-		state.edit = idx;
-		state.newName = name;
-		state.newDesc = desc;
-
-		this.setState(state);
-	},
-
-	handleDelete : function () {
-		var tmp = this.props.character;
-		var path = "charOtherProficiencies.languages.delete";
-		var name = tmp['charOtherProficiencies']['languages'][this.state.edit].name;
-		var langs;
-
-		//if mistake, stop deleting!
-		if (!confirm("Do you really want to get rid of\n '" + name + "'\n forever?")) return;
-
-		langs = tmp['charOtherProficiencies']['languages'].splice(this.state.edit, 1);
-		path += "." + langs.name;
-
-		//save and close
-		this.props.edit({ path : path, character : tmp });
-		this.props.close();
-	},
-
-	handleOk : function () {
-		var tmp = this.props.character;
-		var path = "charOtherProficiencies.languages";
-		var data = {};
-
-		//adding new language
-		if (this.state.mode === 0) {
-
-		  //if the name isn't given, don't add
-		  if (this.state.name === "") return;
-
-		  data.name = this.state.name;
-		  data.desc = this.state.desc;
-
-		  tmp['charOtherProficiencies']['languages'].push(data);
-		  path += ".add." + data.name;
-	    }
-	    
-	    //edit existing language
-	    else if (this.state.mode === 1) {
-
-	    	//if nothing is selected, don't change
-	    	if (this.state.edit === -1) return;
-
-	    	// make the changes
-	    	tmp['charOtherProficiencies']['languages'][this.state.edit].name = this.state.newName;
-	    	tmp['charOtherProficiencies']['languages'][this.state.edit].desc = this.state.newDesc;
-
-	    	// log the changes made
-	    	path += ".edit." + tmp['charOtherProficiencies']['languages'][this.state.edit].name;
-	    } 
-
-	    // save and close
-	    this.props.edit({ path : path, character : tmp });
-	    this.props.close();
-	},
-
-	render : function () {
-
-		// populate the select box
-		var languages = [];
-		this.props.character['charOtherProficiencies']['languages'].forEach(function(langs, i) {
-		  languages.push(
-			  React.createElement("option", {key: i, value: i}, langs.name)
-			);
-		});
-
-        return (
-        	React.createElement(Modal, {onRequestHide: this.props.close}, 
-        	  React.createElement("div", {className: "modal-body"}, 
-        	    React.createElement(TabbedArea, {activeKey: this.state.mode, onSelect: this.handleModeChange}, 
-
-        	      React.createElement(TabPane, {eventKey: 0, tab: "new"}, 
-        	        React.createElement("div", {className: "container-fluid"}, 
-        	          React.createElement("h3", null, "Add New Language"), 
-        	            React.createElement("p", null, "Enter the name of the language (ex: Draconic) and an optional sort description."), 
-        	            React.createElement(Input, {placeholder: "name", value: this.state.name, type: "text", label: "Language Name", onChange: this.handleChange.bind(this, "name")}), 
-        	            React.createElement(Input, {placeholder: "short description", value: this.state.desc, type: "textarea", label: "Language Description", onChange: this.handleChange.bind(this, "desc")})
-        	        )
-        	      ), 
-
-        	      React.createElement(TabPane, {eventKey: 1, tab: "edit"}, 
-        	        React.createElement("div", {className: "container-fluid"}, 
-        	          React.createElement("h3", null, "Edit Languages"), 
-        	          React.createElement("p", null, "Change the name or description of a language by first selecting the language to edit and then entering new values."), 
-        	          React.createElement(Input, null, 
-        	            React.createElement(Row, null, 
-        	              React.createElement(Col, {xs: 8}, 
-        	                React.createElement(Input, {type: "select", onChange: this.handleSelect, defaultSelected: -1}, 
-        	                  React.createElement("option", {value: -1}, "Select a Language"), 
-        	                  languages
-        	                )
-        	              ), 
-        	              React.createElement(Col, {xs: 4}, 
-        	                React.createElement(Button, {disabled: (this.state.edit === -1) ? true : false, bsStyle: "danger", onClick: this.handleDelete}, "Delete")
-        	              )
-        	            )
-        	          ), 
-        	          React.createElement(Input, {disabled: (this.state.edit === -1) ? true : false, type: "text", onChange: this.handleChange.bind(this, "newName"), placeholder: "langs name", value: this.state.newName, label: "New Language Name"}), 
-        	          React.createElement(Input, {disabled: (this.state.edit === -1) ? true : false, type: "textarea", onChange: this.handleChange.bind(this, "newDesc"), placeholder: "langs desc", value: this.state.newDesc, label: "New Language Description"})
-        	        )
-        	      )
-        	    )
-        	  ), 
-        	  React.createElement("div", {className: "modal-footer"}, 
-                React.createElement(Button, {bsStyle: "danger", onClick: this.props.close}, "Close"), 
-        	    React.createElement(Button, {bsStyle: "success", onClick: this.handleOk}, "Save")
-        	  )
-        	)
-        );
-	} 
-})
-
-// export
-module.exports = LangsModal;
-
-},{"react":206,"react-bootstrap/Alert":25,"react-bootstrap/Button":27,"react-bootstrap/Col":28,"react-bootstrap/Input":33,"react-bootstrap/Modal":35,"react-bootstrap/Row":45,"react-bootstrap/TabPane":46,"react-bootstrap/TabbedArea":47}],13:[function(require,module,exports){
-// Main requires
-var React = require('react');
-var Modal = require('react-bootstrap/Modal');
-var Input = require('react-bootstrap/Input');
-var Button = require('react-bootstrap/Button');
-var Alert = require('react-bootstrap/Alert');
-var Row = require('react-bootstrap/Row');
-var Col = require('react-bootstrap/Col');
-var TabbedArea = require('react-bootstrap/TabbedArea');
-var TabPane = require('react-bootstrap/TabPane');
-
-// The modal object to export
-var ProfModal = React.createClass({displayName: "ProfModal",
-
-  getInitialState : function() {
-    var state = {};
-
-    state.name = "";
-    state.desc = "";
-    state.mode = 0;
-    state.newName = "";
-    state.newDesc = "";
-
-    // this holds the index of the proficiency to edit
-    state.edit = -1;
-
-    return (state);
-  },
-
-  handleModeChange : function(mode) {
-    this.setState({ mode : mode });
-  },
-
-  handleChange : function(cmp, e) {
-    var node = {};
-    node[cmp] = e.target.value;
-    this.setState(node);
-  },
-
-  handleSelect : function(e) {
-    var idx = parseInt(e.target.value, 10);
-    var prof = this.props.character['charOtherProficiencies']['proficiencies'][idx];
-    var name = (idx === -1) ? "" : prof.name;
-    var desc = (idx === -1) ? "" : prof.desc;
-    var state = {};
-
-    state.edit = idx;
-    state.newName = name;
-    state.newDesc = desc;
-    
-    this.setState(state);
-  },
-
-  handleDelete : function() {
-    var tmp = this.props.character;
-    var path = "charOtherProficiencies.proficiencies.delete";
-    var name = tmp['charOtherProficiencies']['proficiencies'][this.state.edit].name;
-    var prof;
-
-    // if mistake, stop deleting!
-    if (!confirm("Do you really want to get rid of\n '" + name + "'\n forever?")) return;
-
-    prof = tmp['charOtherProficiencies']['proficiencies'].splice(this.state.edit, 1);
-    path += "." + prof.name;
-
-    // save and close
-    this.props.edit({ path : path, character : tmp });
-    this.props.close();
-  },
-
-  handleOk : function() {
-    var tmp = this.props.character;
-    var path = "charOtherProficiencies.proficiencies";
-    var data = {};
-
-    // adding new proficiency
-    if (this.state.mode === 0) {
-
-      // if the name isn't given, then don't add
-      if (this.state.name === "") return;
-
-      data.name = this.state.name;
-      data.desc = this.state.desc;
-
-      tmp['charOtherProficiencies']['proficiencies'].push(data);
-      path += ".add." + data.name;
-    }
-
-    // editing existing proficiency
-    else if (this.state.mode === 1) {
-
-      // if nothing is selected, don't change
-      if (this.state.edit === -1) return;
-
-      // make the changes
-      tmp['charOtherProficiencies']['proficiencies'][this.state.edit].name = this.state.newName;
-      tmp['charOtherProficiencies']['proficiencies'][this.state.edit].desc = this.state.newDesc;
-
-      // log the changes made
-      path += ".edit." + tmp['charOtherProficiencies']['proficiencies'][this.state.edit].name;
-    }
-      
-    // save and close
-    this.props.edit({ path : path, character : tmp });
-    this.props.close();
-  },
-
-  render : function() {
-
-    // populate the select box
-    var proficiencies = [];
-    this.props.character['charOtherProficiencies']['proficiencies'].forEach(function(prof, i) {
-      proficiencies.push(
-        React.createElement("option", {key: i, value: i}, prof.name)
-      );
-    }); 
-
-    return (
-      React.createElement(Modal, {onRequestHide: this.props.close}, 
-        React.createElement("div", {className: "modal-body"}, 
-          React.createElement(TabbedArea, {activeKey: this.state.mode, onSelect: this.handleModeChange}, 
-            
-            React.createElement(TabPane, {eventKey: 0, tab: "new"}, 
-              React.createElement("div", {className: "container-fluid"}, 
-                React.createElement("h3", null, "Add New Proficiency"), 
-                React.createElement("p", null, "Enter the name of the proficiency (ex: Herbalism Kit) and an optional sort description."), 
-                React.createElement(Input, {placeholder: "name", value: this.state.name, type: "text", label: "Proficiency Name", onChange: this.handleChange.bind(this, "name")}), 
-                React.createElement(Input, {placeholder: "short description", value: this.state.desc, type: "textarea", label: "Proficiency Description", onChange: this.handleChange.bind(this, "desc")})
-              )
-            ), 
-
-            React.createElement(TabPane, {eventKey: 1, tab: "edit"}, 
-              React.createElement("div", {className: "container-fluid"}, 
-                React.createElement("h3", null, "Edit Proficiencies"), 
-                React.createElement("p", null, "Change the name or description of a proficiency by first selecting the proficiency to edit and then entering new values."), 
-                React.createElement(Input, null, 
-                  React.createElement(Row, null, 
-                    React.createElement(Col, {xs: 8}, 
-                      React.createElement(Input, {type: "select", onChange: this.handleSelect, defaultSelected: -1}, 
-                        React.createElement("option", {value: -1}, "Select a Proficiency"), 
-                        proficiencies
-                      )
-                    ), 
-                    React.createElement(Col, {xs: 4}, 
-                      React.createElement(Button, {disabled: (this.state.edit === -1) ? true : false, bsStyle: "danger", onClick: this.handleDelete}, "Delete")
-                    )
-                  )
-                ), 
-                React.createElement(Input, {disabled: (this.state.edit === -1) ? true : false, type: "text", onChange: this.handleChange.bind(this, "newName"), placeholder: "prof name", value: this.state.newName, label: "New Proficiency Name"}), 
-                React.createElement(Input, {disabled: (this.state.edit === -1) ? true : false, type: "textarea", onChange: this.handleChange.bind(this, "newDesc"), placeholder: "prof desc", value: this.state.newDesc, label: "New Proficiency Desc"})
-              )
-            )
-          )
-        ), 
-        React.createElement("div", {className: "modal-footer"}, 
-          React.createElement(Button, {bsStyle: "danger", onClick: this.props.close}, "Close"), 
-          React.createElement(Button, {bsStyle: "success", onClick: this.handleOk}, "Save")
-        )
-      )
-    );
-  }
-})
-
-// export
-module.exports = ProfModal;
-
-},{"react":206,"react-bootstrap/Alert":25,"react-bootstrap/Button":27,"react-bootstrap/Col":28,"react-bootstrap/Input":33,"react-bootstrap/Modal":35,"react-bootstrap/Row":45,"react-bootstrap/TabPane":46,"react-bootstrap/TabbedArea":47}],14:[function(require,module,exports){
-var React = require('react');
-var Modal = require('react-bootstrap/Modal');
-var Button = require('react-bootstrap/Button');
-var Panel = require('react-bootstrap/Panel');
-var Input = require('react-bootstrap/Input');
-var Grid = require('react-bootstrap/Grid');
-var Row = require('react-bootstrap/Row');
-var Col = require('react-bootstrap/Col');
-var TabbedArea = require('react-bootstrap/TabbedArea');
-var TabPane = require('react-bootstrap/TabPane');
-
-
-
-var SpellModal = React.createClass({
-  displayName : "SpellModal",
-  getInitialState : function() {
-    var state = {};
-
-    state.toggle = false,
-    state.name = "",
-    state.desc = "",
-    state.edit = -1,
-    state.changeName = "",
-    state.changeDesc = "",
-    state.mode = 0
-
-    return (state);
-  },
-
-  handleChange : function(cmp, e) {
-    var state = {};
-    state[cmp] = e.target.value;
-    this.setState(state);
-  },
-
-  handleModeChange : function(mode) {
-    this.setState({ mode : mode });
-  },
-
-  handleEditSelect : function(e) {
-    var idx = parseInt(e.target.value, 10);
-    var attack = this.props.character['charAttacks'][idx];
-    var name = (idx === -1) ? "" : attack.name;
-    var desc = (idx === -1) ? "" : attack.desc;
-    var state = {};
-
-    state.edit = idx;
-    state.changeName = name;
-    state.changeDesc = desc;
-    
-    this.setState(state);
-  },
-  handleDelete : function() {
-    var tmp = this.props.character;
-    var path = "charAttacks.delete.";
-    var name = tmp['charAttacks'][this.state.edit].name;
-    var atk;
-
-    if (!confirm("Do you really want to get rid of\n '" + name + "'\n forever?")) return;
-
-    // delete attack
-    atk = tmp['charAttacks'].splice(this.state.edit, 1);
-    path += atk.name;
-
-    // push changes upstream
-    this.props.edit({ path : path, character : tmp });
-    this.props.close();
-  },
-  handleAdd : function() {
-    var tmp = this.props.character;
-    var data = {};
-    var path = "charAttacks";
-
-    // mode 0 -- add new attack
-    if (this.state.mode === 0) {
-
-      // make sure we have enough info to add
-      if (this.state.name === "" || this.state.desc === "") return;
-      
-      // build new attack node
-      data.name = this.state.name;
-      data.desc = this.state.desc;
-
-      // modify character
-      tmp['charAttacks'].push(data);
-      path += ".add";
-    }
-    
-    // mode 1 -- edit attack
-    else if (this.state.mode === 1) {
-
-      // make sure something is selected
-      if (this.state.edit === -1 || this.state.changeName === "" || this.state.changeDesc === "") return;
-
-      // log old name
-      path += ".edit." + tmp['charAttacks'][this.state.edit].name;
-
-      // modify character
-      tmp['charAttacks'][this.state.edit].name = this.state.changeName;
-      tmp['charAttacks'][this.state.edit].desc = this.state.changeDesc;
-    }
-    
-    this.props.edit({ path : path, character : tmp });
-    this.props.close();
-  },
-
-  // draw it
-  render : function() {
-
-    // set up attack options
-    var spells = [];
-    this.props.character['charSpells'].forEach(function(lvl, i) {
-      lvl.spells.forEach(function(sp, j) {
-        spells.push(
-          React.createElement("option", {key: "level"+i+"spell"+j, value: j, lvl: i}, sp.name)
-        );
-      });
-    });
-
-    return (
-      React.createElement(Modal, {onRequestHide: this.props.close}, 
-        React.createElement("div", {className: "modal-body"}, 
-          React.createElement(TabbedArea, {activeKey: this.state.mode, onSelect: this.handleModeChange}, 
-            
-            React.createElement(TabPane, {eventKey: 0, tab: "new"}, 
-              React.createElement("div", {className: "container-fluid"}, 
-                React.createElement("h4", null, "Add new spell"), 
-                React.createElement(Input, {type: "text", label: "Name"}), 
-                React.createElement(Input, {type: "select", label: "Spell Level", defaultSelected: -1}, 
-                  React.createElement("option", {value: -1}, "Spell Level"), 
-                  React.createElement("option", {value: 0}, "Cantrip"), 
-                  React.createElement("option", {value: 1}, "1st Level"), 
-                  React.createElement("option", {value: 2}, "2nd Level"), 
-                  React.createElement("option", {value: 3}, "3rd Level"), 
-                  React.createElement("option", {value: 4}, "4th Level"), 
-                  React.createElement("option", {value: 5}, "5th Level"), 
-                  React.createElement("option", {value: 6}, "6th Level"), 
-                  React.createElement("option", {value: 7}, "7th Level"), 
-                  React.createElement("option", {value: 8}, "8th Level"), 
-                  React.createElement("option", {value: 9}, "9th Level")
-                ), 
-                React.createElement(Input, {type: "textarea", label: "Description"}), 
-                React.createElement(Input, {type: "text", label: "Components"}), 
-                React.createElement(Input, {type: "text", label: "Casting TIme"}), 
-                React.createElement(Input, {type: "text", label: "Duration"})
-              )
-            ), 
-
-            React.createElement(TabPane, {eventKey: 1, tab: "edit"}, 
-              React.createElement("div", {className: "container-fluid"}, 
-                React.createElement("h4", null, "Edit attack"), 
-                React.createElement(Input, null, 
-                  React.createElement(Row, null, 
-                    React.createElement(Col, {xs: 8}, 
-                      React.createElement(Input, {type: "select", onChange: this.handleEditSelect, defaultSelected: -1}, 
-                        React.createElement("option", {value: -1}, "Select a Spell"), 
-                        spells
-                      )
-                    ), 
-                    React.createElement(Col, {xs: 4}, 
-                      React.createElement(Button, {disabled: (this.state.edit === -1) ? true : false, bsStyle: "danger", onClick: this.handleDelete}, "Delete")
-                    )
-                  )
-                )
-                  
-
-              )
-            ), 
-
-            React.createElement(TabPane, {eventKey: 2, tab: "slots"}, 
-              React.createElement("div", {className: "container-fluid"}, 
-                React.createElement("h4", null, "Edit spell slots")
-              )
-            )
-
-          )
-        ), 
-        React.createElement("div", {className: "modal-footer"}, 
-          React.createElement(Button, {bsStyle: "danger", onClick: this.props.close}, "Close"), 
-          React.createElement(Button, {bsStyle: "success", onClick: this.handleAdd}, "Save")
-        )
-      )
-    );
-  }
-})
-
-module.exports = SpellModal;
-
-},{"react":206,"react-bootstrap/Button":27,"react-bootstrap/Col":28,"react-bootstrap/Grid":32,"react-bootstrap/Input":33,"react-bootstrap/Modal":35,"react-bootstrap/Panel":41,"react-bootstrap/Row":45,"react-bootstrap/TabPane":46,"react-bootstrap/TabbedArea":47}],15:[function(require,module,exports){
-var React = require('react');
-var Modal = require('react-bootstrap/Modal');
-var Input = require('react-bootstrap/Input');
-var Button = require('react-bootstrap/Button');
-var Row = require('react-bootstrap/Row');
-var Col = require('react-bootstrap/Col');
-
-var TraitModal = React.createClass({displayName: "TraitModal",
-
-	getInitialState : function () {
-        var state = {};
-        var copyPers = this.props.character['charTraits']['personalityTraits'];
-        var copyIdeals = this.props.character['charTraits']['ideals'];
-        var copyBonds = this.props.character['charTraits']['bonds'];
-        var copyFlaws = this.props.character['charTraits']['flaws'];
-
-        state.personalityTraits = copyPers;
-        state.ideals = copyIdeals;
-        state.bonds = copyBonds;
-        state.flaws = copyFlaws;
-
-		return (state);
-	},
-	handleChange : function(cmp, e) {
-		var node = {};
-		node[cmp] = e.target.value;
-		this.setState(node);
-	},
-	handleOk : function () {
-		var tmp = this.props.character;
-		var path = "charTraits";
-
-		if (this.state.personalityTraits !== "") {
-			tmp['charTraits']['personalityTraits'] = this.state.personalityTraits;
-			path += ".personalityTraits." + this.state.personalityTraits;
-		} 
-
-		if (this.state.ideals !== "") {
-			tmp['charTraits']['ideals'] = this.state.ideals;
-			path += ".ideals." + this.state.ideals;
-		}
-
-		if (this.state.bonds !== "") {
-			tmp['charTraits']['bonds'] = this.state.bonds;
-			path += ".bonds." + this.state.bonds;
-		}
-
-		if (this.state.flaws !== "") {
-			tmp['charTraits']['flaws'] = this.state.flaws;
-			path += ".flaws." + this.state.flaws;
-		}
-
-		this.props.edit({ path : path, character : tmp});
-
-		this.props.close(); 
-    },
-
-    render : function () {
-    	return (
-    		React.createElement(Modal, {onRequestHide: this.props.close, title: "Edit Traits"}, 
-    		  React.createElement("div", {className: "modal-body"}, 
-    		    React.createElement("p", null, "Enter new info for any Character Traits. If a field is left blank and no new values are entered, nothing will be changed"), 
-    		      React.createElement(Row, null, 
-    		        React.createElement(Col, {xs: 6}, 
-    		          React.createElement(Input, {type: "textarea", onChange: this.handleChange.bind(this, "personalityTraits"), label: "Personality Traits", placeholder: this.props.character['charTraits']['personalityTraits'], value: this.state.personalityTraits})
-    		        ), 
-    		        React.createElement(Col, {xs: 6}, 
-    		          React.createElement(Input, {type: "textarea", onChange: this.handleChange.bind(this, "ideals"), label: "Ideals", placeholder: this.props.character['charTraits']['ideals'], value: this.state.ideals})
-    		        )
-    		      ), 
-    		      React.createElement(Row, null, 
-    		        React.createElement(Col, {xs: 6}, 
-    		          React.createElement(Input, {type: "textarea", onChange: this.handleChange.bind(this, "bonds"), label: "Bonds", placeholder: this.props.character['charTraits']['bonds'], value: this.state.bonds})
-    		        ), 
-    		        React.createElement(Col, {xs: 6}, 
-    		          React.createElement(Input, {type: "textarea", onChange: this.handleChange.bind(this, "flaws"), label: "Flaws", placeholder: this.props.character['charTraits']['flaws'], value: this.state.flaws})
-    		        )
-    		      )
-    		  ), 
-    		  React.createElement("div", {className: "modal-footer"}, 
-    		    React.createElement(Button, {bsStyle: "danger", onClick: this.props.close}, "Close"), 
-    		    React.createElement(Button, {bsStyle: "success", onClick: this.handleOk}, "Save")
-    		  )
-    		)
-     	);
-    }
-})
-
-module.exports = TraitModal;
-
-},{"react":206,"react-bootstrap/Button":27,"react-bootstrap/Col":28,"react-bootstrap/Input":33,"react-bootstrap/Modal":35,"react-bootstrap/Row":45}],16:[function(require,module,exports){
+},{"./popovers/attack-bonus":9,"./settings/settings-spells":18,"./settings/settings-tear":19,"./tooltips/help":22,"react":209,"react-bootstrap/Accordion":27,"react-bootstrap/Button":29,"react-bootstrap/Col":31,"react-bootstrap/Glyphicon":34,"react-bootstrap/Grid":35,"react-bootstrap/Input":36,"react-bootstrap/Modal":38,"react-bootstrap/OverlayTrigger":42,"react-bootstrap/Panel":44,"react-bootstrap/Popover":46,"react-bootstrap/Row":48,"react-bootstrap/TabPane":49,"react-bootstrap/TabbedArea":50,"react-bootstrap/Tooltip":51,"react-bootstrap/Well":52}],9:[function(require,module,exports){
 var React = require('react');
 var EventListener = require('react-bootstrap/utils/EventListener');
 var Input = require('react-bootstrap/Input');
@@ -2579,16 +1148,1007 @@ var Bubble = React.createClass({displayName: "Bubble",
 
 module.exports = Bubble;
 
-},{"react":206,"react-bootstrap/Button":27,"react-bootstrap/Glyphicon":31,"react-bootstrap/Input":33,"react-bootstrap/utils/EventListener":52}],17:[function(require,module,exports){
+},{"react":209,"react-bootstrap/Button":29,"react-bootstrap/Glyphicon":34,"react-bootstrap/Input":36,"react-bootstrap/utils/EventListener":55}],10:[function(require,module,exports){
 var React = require('react');
-var Modal = require('react-bootstrap/Modal');
+var Settings = require('./settings-tear');
+
 var Input = require('react-bootstrap/Input');
+var ButtonToolbar = require('react-bootstrap/ButtonToolbar');
 var Button = require('react-bootstrap/Button');
-var Alert = require('react-bootstrap/Alert');
-var Row = require('react-bootstrap/Row');
-var Col = require('react-bootstrap/Col');
 var TabbedArea = require('react-bootstrap/TabbedArea');
 var TabPane = require('react-bootstrap/TabPane');
+var Row = require('react-bootstrap/Row');
+var Col = require('react-bootstrap/Col');
+
+var SettingsAttacks = React.createClass({displayName: "SettingsAttacks",
+  getInitialState : function () {
+    var state = {};
+
+    state.name = "";
+    state.desc = "";
+    state.mode = 0;
+    state.newName = "";
+    state.newDesc = "";
+    state.idx = -1;
+
+    return (state);
+  },
+  toggle : function() {
+    this.refs.settings.toggle();
+  },
+  handleModeChange : function(mode) {
+    this.setState({ mode : mode });
+  },
+  handleChange : function(cmp, e) {
+    var node = {};
+    node[cmp] = e.target.value;
+    this.setState(node);
+  },
+  handleSelect : function(e) {
+    var idx = parseInt(e.target.value, 10);
+    var prof = this.props.character['charAttacks'][idx];
+    var name = (idx === -1) ? "" : prof.name;
+    var desc = (idx === -1) ? "" : prof.desc;
+    var state = {};
+
+    state.idx = idx;
+    state.newName = name;
+    state.newDesc = desc;
+    
+    this.setState(state);
+  },
+  handleDelete : function() {
+    var tmp = this.props.character;
+    var path = "charAttacks.delete";
+    var name = tmp['charAttacks'][this.state.idx].name;
+    var atk;
+
+    // if mistake, stop deleting!
+    if (!confirm("Do you really want to get rid of\n '" + name + "'\n forever?")) return;
+
+    atk = tmp['charAttacks'].splice(this.state.idx, 1);
+    path += "." + atk.name;
+
+    // save and close
+    //this.props.edit({ path : path, character : tmp });
+  },
+  handleOk : function() {
+
+  },
+  renderAdd : function() {
+    return (
+      React.createElement("div", null, 
+        React.createElement("h3", null, "Add New Attack"), 
+        React.createElement("p", null, "Do the attack name and short description dance!"), 
+        React.createElement(Input, {placeholder: "name", value: this.state.name, type: "text", label: "Attack Name", onChange: this.handleChange.bind(this, "name")}), 
+        React.createElement(Input, {placeholder: "short description", value: this.state.desc, type: "textarea", label: "Attack Description", onChange: this.handleChange.bind(this, "desc")}), 
+         React.createElement(ButtonToolbar, null, 
+          React.createElement(Button, {bsStyle: "danger", onClick: this.toggle}, "Close"), 
+          React.createElement(Button, {bsStyle: "success"}, "Save")
+        )
+      )
+    );
+  },
+  renderEdit : function() {
+
+    // populate the select box
+    var attacks = [];
+    this.props.character['charAttacks'].forEach(function(atk, i) {
+      attacks.push(
+        React.createElement("option", {key: i, value: i}, atk.name)
+      );
+    }); 
+
+    return (
+      React.createElement("div", null, 
+        React.createElement("h3", null, "Edit Attacks"), 
+        React.createElement("p", null, "Change the name or description of an attack by first selecting the attack to edit and then entering new values."), 
+        React.createElement(Input, null, 
+          React.createElement(Row, null, 
+            React.createElement(Col, {xs: 8}, 
+              React.createElement(Input, {type: "select", onChange: this.handleSelect, defaultSelected: -1}, 
+                React.createElement("option", {value: -1}, "Select an Attack"), 
+                attacks
+              )
+            ), 
+            React.createElement(Col, {xs: 4}, 
+              React.createElement(Button, {disabled: (this.state.idx === -1) ? true : false, bsStyle: "danger", onClick: this.handleDelete}, "Delete")
+            )
+          )
+        ), 
+        React.createElement(Input, {disabled: (this.state.idx === -1) ? true : false, type: "text", onChange: this.handleChange.bind(this, "newName"), placeholder: "attack name", value: this.state.newName, label: "New Attack Name"}), 
+        React.createElement(Input, {disabled: (this.state.idx === -1) ? true : false, type: "textarea", onChange: this.handleChange.bind(this, "newDesc"), placeholder: "attack desc", value: this.state.newDesc, label: "New Attack Description"}), 
+        React.createElement(ButtonToolbar, null, 
+          React.createElement(Button, {bsStyle: "danger", onClick: this.toggle}, "Close"), 
+          React.createElement(Button, {bsStyle: "success"}, "Save")
+        )
+      )
+    );
+  },
+  render : function() {
+    return (
+      React.createElement(Settings, {ref: "settings"}, 
+        React.createElement(TabbedArea, {activeKey: this.state.mode, onSelect: this.handleModeChange}, 
+          React.createElement(TabPane, {eventKey: 0, tab: "new"}, 
+            this.renderAdd()
+          ), 
+          React.createElement(TabPane, {eventKey: 1, tab: "edit"}, 
+            this.renderEdit()
+          )
+        )
+      )
+    );
+  }
+})
+
+module.exports = SettingsAttacks;
+
+},{"./settings-tear":19,"react":209,"react-bootstrap/Button":29,"react-bootstrap/ButtonToolbar":30,"react-bootstrap/Col":31,"react-bootstrap/Input":36,"react-bootstrap/Row":48,"react-bootstrap/TabPane":49,"react-bootstrap/TabbedArea":50}],11:[function(require,module,exports){
+var React = require('react');
+var Settings = require('./settings-tear');
+
+var Input = require('react-bootstrap/Input');
+var ButtonToolbar = require('react-bootstrap/ButtonToolbar');
+var Button = require('react-bootstrap/Button');
+
+var SettingsDefenses = React.createClass({displayName: "SettingsDefenses",
+  getInitialState : function() {
+    var state = {};
+
+    state.hp = "";
+    state.ac = "";
+    state.init = "";
+    state.speed  = "";
+    state.hitdice = "";
+
+    return (state);
+  },
+  toggle : function() {
+    this.refs.settings.toggle();
+  },
+  handleChange : function(cmp, e) {
+    var node = {};
+    node[cmp] = e.target.value;
+    this.setState(node);
+  },
+  handleOk : function() {
+
+  },
+  render : function() {
+    return (
+      React.createElement(Settings, {ref: "settings"}, 
+        React.createElement("h3", null, "Edit Defenses"), 
+        React.createElement("p", null, "Edit the values for your character's maximum hit points, hit dice, initiative, speed, and armor class."), 
+        React.createElement(Input, {type: "text", onChange: this.handleChange.bind(this, "hp"), label: "Maximum Hit Points", placeholder: this.props.character['charHitPoints']['maximum'], value: this.state.hp}), 
+        React.createElement(Input, {type: "text", onChange: this.handleChange.bind(this, "ac"), label: "Armor Class", placeholder: this.props.character['charArmorClass']['score'], value: this.state.ac}), 
+        React.createElement(Input, {type: "text", onChange: this.handleChange.bind(this, "init"), label: "initiative", placeholder: this.props.character['charInitiative']['score'], value: this.state.init}), 
+        React.createElement(Input, {type: "text", onChange: this.handleChange.bind(this, "speed"), label: "Speed (ft)", placeholder: this.props.character['charSpeed']['score'], value: this.state.speed}), 
+        React.createElement(Input, {type: "text", onChange: this.handleChange.bind(this, "hitdice"), label: "Total Hit Dice", placeholder: this.props.character['charHitPoints']['hitDiceTotal'], value: this.state.hitdice}), 
+        React.createElement(ButtonToolbar, null, 
+          React.createElement(Button, {bsStyle: "danger", onClick: this.toggle}, "Close"), 
+          React.createElement(Button, {bsStyle: "success"}, "Save")
+        )
+      )
+    );
+  }
+})
+
+module.exports = SettingsDefenses;
+
+},{"./settings-tear":19,"react":209,"react-bootstrap/Button":29,"react-bootstrap/ButtonToolbar":30,"react-bootstrap/Input":36}],12:[function(require,module,exports){
+var React = require('react');
+var Settings = require('./settings-tear');
+
+var Input = require('react-bootstrap/Input');
+var ButtonToolbar = require('react-bootstrap/ButtonToolbar');
+var Button = require('react-bootstrap/Button');
+var TabbedArea = require('react-bootstrap/TabbedArea');
+var TabPane = require('react-bootstrap/TabPane');
+var Row = require('react-bootstrap/Row');
+var Col = require('react-bootstrap/Col');
+
+var SettingsEquip = React.createClass({displayName: "SettingsEquip",
+  getInitialState : function () {
+    var state = {};
+
+    state.name = "";
+    state.desc = "";
+    state.mode = 0;
+    state.newName = "";
+    state.newDesc = "";
+    state.idx = -1;
+
+    return (state);
+  },
+  toggle : function() {
+    this.refs.settings.toggle();
+  },
+  handleModeChange : function(mode) {
+    this.setState({ mode : mode });
+  },
+  handleChange : function(cmp, e) {
+    var node = {};
+    node[cmp] = e.target.value;
+    this.setState(node);
+  },
+  handleSelect : function(e) {
+    
+  },
+  handleDelete : function() {
+    
+  },
+  handleOk : function() {
+
+  },
+  renderAdd : function() {
+    return (
+      React.createElement("div", null, 
+        React.createElement("h3", null, "Add New Equipment"), 
+        React.createElement("p", null, "Enter the name and a short description of a new equipment!"), 
+        React.createElement(Input, {placeholder: "name", value: this.state.name, type: "text", label: "Equipment Name", onChange: this.handleChange.bind(this, "name")}), 
+        React.createElement(Input, {placeholder: "short description", value: this.state.desc, type: "textarea", label: "Equipment Description", onChange: this.handleChange.bind(this, "desc")}), 
+         React.createElement(ButtonToolbar, null, 
+          React.createElement(Button, {bsStyle: "danger", onClick: this.toggle}, "Close"), 
+          React.createElement(Button, {bsStyle: "success"}, "Save")
+        )
+      )
+    );
+  },
+  renderEdit : function() {
+
+    // populate the select box
+    var equips = [];
+    this.props.character['charEquipment']['otherEquipment'].forEach(function(equip, i) {
+      equips.push(
+        React.createElement("option", {key: i, value: i}, equip.name)
+      );
+    }); 
+
+    return (
+      React.createElement("div", null, 
+        React.createElement("h3", null, "Edit Proficiencies"), 
+        React.createElement("p", null, "Change something you definitely don't like about equipment pieces..."), 
+        React.createElement(Input, null, 
+          React.createElement(Row, null, 
+            React.createElement(Col, {xs: 8}, 
+              React.createElement(Input, {type: "select", onChange: this.handleSelect, defaultSelected: -1}, 
+                React.createElement("option", {value: -1}, "Select an Equipment"), 
+                equips
+              )
+            ), 
+            React.createElement(Col, {xs: 4}, 
+              React.createElement(Button, {disabled: (this.state.idx === -1) ? true : false, bsStyle: "danger", onClick: this.handleDelete}, "Delete")
+            )
+          )
+        ), 
+        React.createElement(Input, {disabled: (this.state.idx === -1) ? true : false, type: "text", onChange: this.handleChange.bind(this, "newName"), placeholder: "equipmen name", value: this.state.newName, label: "New Equipment Name"}), 
+        React.createElement(Input, {disabled: (this.state.idx === -1) ? true : false, type: "textarea", onChange: this.handleChange.bind(this, "newDesc"), placeholder: "equipment desc", value: this.state.newDesc, label: "New Equipment Description"}), 
+        React.createElement(ButtonToolbar, null, 
+          React.createElement(Button, {bsStyle: "danger", onClick: this.toggle}, "Close"), 
+          React.createElement(Button, {bsStyle: "success"}, "Save")
+        )
+      )
+    );
+  },
+  render : function() {
+    return (
+      React.createElement(Settings, {ref: "settings"}, 
+        React.createElement(TabbedArea, {activeKey: this.state.mode, onSelect: this.handleModeChange}, 
+          React.createElement(TabPane, {eventKey: 0, tab: "new"}, 
+            this.renderAdd()
+          ), 
+          React.createElement(TabPane, {eventKey: 1, tab: "edit"}, 
+            this.renderEdit()
+          )
+        )
+      )
+    );
+  }
+})
+
+module.exports = SettingsEquip;
+
+},{"./settings-tear":19,"react":209,"react-bootstrap/Button":29,"react-bootstrap/ButtonToolbar":30,"react-bootstrap/Col":31,"react-bootstrap/Input":36,"react-bootstrap/Row":48,"react-bootstrap/TabPane":49,"react-bootstrap/TabbedArea":50}],13:[function(require,module,exports){
+var React = require('react');
+var Settings = require('./settings-tear');
+
+var TabbedArea = require('react-bootstrap/TabbedArea');
+var TabPane = require('react-bootstrap/TabPane');
+var Input = require('react-bootstrap/Input');
+var ButtonToolbar = require('react-bootstrap/ButtonToolbar');
+var Button = require('react-bootstrap/Button');
+var Row = require('react-bootstrap/Row');
+var Col = require('react-bootstrap/Col');
+
+var SettingsFeatures = React.createClass({displayName: "SettingsFeatures",
+  getInitialState : function() {
+    var state = {};
+
+    state.mode = 0;
+    state.name = "";
+    state.desc = "";
+    state.charges = "";
+    state.enableCharges = false;
+
+    state.newName = "";
+    state.newDesc = "";
+    state.newCharges = "";
+
+    return (state);
+  },
+  toggle : function() {
+    this.refs.settings.toggle();
+  },
+  toggleCharges : function() {
+    this.setState({ enableCharges : !this.state.enableCharges });
+  },
+  handleMode : function(key) {
+    this.setState({ mode : key });
+  },
+  handleChange : function(cmp, e) {
+    var node = {};
+    node[cmp] = e.target.value;
+    this.setState(node);
+  },
+  handleDelete : function() {
+
+  },
+  handleSelect : function(e) {
+
+  },
+  handleOk : function() {
+
+  },
+  renderAdd : function() {
+
+    return (
+      React.createElement("div", null, 
+        React.createElement("h3", null, "Add New Feature"), 
+        React.createElement("p", null, "Do the things with the adding, to get new features."), 
+        React.createElement(Input, {placeholder: "name", value: this.state.name, type: "text", label: "Feature Name", onChange: this.handleChange.bind(this, "name")}), 
+        React.createElement(Input, {placeholder: "short description", value: this.state.desc, type: "textarea", label: "Feature Description", onChange: this.handleChange.bind(this, "desc")}), 
+        React.createElement(Input, {type: "checkbox", label: "gives class charges?", onChange: this.toggleCharges}), 
+        React.createElement(Input, {disabled: (this.state.enableCharges) ? false : true, placeholder: "check box to enable", type: "text", label: "Number of Charges", help: "(Ki, Rages, Sorcery, etc)?", onChange: this.handleChange.bind(this, "charges")}), 
+        React.createElement(ButtonToolbar, null, 
+          React.createElement(Button, {bsStyle: "danger", onClick: this.toggle}, "Close"), 
+          React.createElement(Button, {bsStyle: "success"}, "Save")
+        )
+      )
+    );
+  },
+  renderEdit : function() {
+    // set up features for box
+    var features = [];
+    this.props.character['charFeatures'].forEach(function(feat, i) {
+      features.push(
+        React.createElement("option", {key: i, value: i}, feat.name)
+      );
+    });
+
+    return (
+      React.createElement("div", null, 
+        React.createElement("h3", null, "Edit Features"), 
+        React.createElement("p", null, "Do the things with the editing, for making changes to features."), 
+        React.createElement(Input, null, 
+          React.createElement(Row, null, 
+            React.createElement(Col, {xs: 8}, 
+              React.createElement(Input, {type: "select", onChange: this.handleSelect, defaultSelected: -1}, 
+                React.createElement("option", {value: -1}, "Select a Feature"), 
+                features
+              )
+            ), 
+            React.createElement(Col, {xs: 4}, 
+              React.createElement(Button, {bsStyle: "danger", onClick: this.handleDelete}, "Delete")
+            )
+          )
+        ), 
+        React.createElement(Input, {type: "text", onChange: this.handleChange.bind(this, "newName"), placeholder: "feat name", label: "New Feature Name", value: this.state.newName}), 
+        React.createElement(Input, {type: "textarea", onChange: this.handleChange.bind(this, "newDesc"), placeholder: "feat desc", label: "New Feature Description", value: this.state.newDesc}), 
+        React.createElement(Input, {type: "text", onChange: this.handleChange.bind(this, "newCharges"), placeholder: "number of charges", label: "New Amount of Class Charges", value: this.state.newCharges}), 
+        React.createElement(ButtonToolbar, null, 
+          React.createElement(Button, {bsStyle: "danger", onClick: this.toggle}, "Close"), 
+          React.createElement(Button, {bsStyle: "success"}, "Save")
+        )
+      )
+    );
+  },
+  render : function() {
+
+    return (
+      React.createElement(Settings, {ref: "settings"}, 
+        React.createElement(TabbedArea, {activeKey: this.state.mode, onSelect: this.handleMode}, 
+          React.createElement(TabPane, {eventKey: 0, tab: "new"}, 
+            this.renderAdd()
+          ), 
+          React.createElement(TabPane, {eventKey: 1, tab: "edit"}, 
+            this.renderEdit()
+          )
+        )
+      )
+    );
+  }
+})
+
+module.exports = SettingsFeatures;
+
+},{"./settings-tear":19,"react":209,"react-bootstrap/Button":29,"react-bootstrap/ButtonToolbar":30,"react-bootstrap/Col":31,"react-bootstrap/Input":36,"react-bootstrap/Row":48,"react-bootstrap/TabPane":49,"react-bootstrap/TabbedArea":50}],14:[function(require,module,exports){
+var React = require('react');
+var Settings = require('./settings-tear');
+
+var Input = require('react-bootstrap/Input');
+var ButtonToolbar = require('react-bootstrap/ButtonToolbar');
+var Button = require('react-bootstrap/Button');
+
+var SettingsInfo = React.createClass({displayName: "SettingsInfo",
+  getInitialState : function() {
+    var state = {};
+
+    state.cls = "";
+    state.lvl = "";
+    state.xp = "";
+    state.bg  = "";
+    state.race = "";
+    state.align = "";
+
+    return (state);
+  },
+  toggle : function() {
+    this.refs.settings.toggle();
+  },
+  handleChange : function(cmp, e) {
+    var node = {};
+    node[cmp] = e.target.value;
+    this.setState(node);
+  },
+  handleOk : function() {
+
+  },
+  render : function() {
+    return (
+      React.createElement(Settings, {ref: "settings"}, 
+        React.createElement("h3", null, "Edit Character Info"), 
+        React.createElement("p", null, "Enter a new value for any Character Info. If a field is left blank and no new values are entered, nothing will be changed."), 
+        React.createElement(Input, {type: "text", onChange: this.handleChange.bind(this, "cls"), label: "Class", placeholder: this.props.character['charInfo']['class'], value: this.state.cls}), 
+        React.createElement(Input, {type: "text", onChange: this.handleChange.bind(this, "race"), label: "Race", placeholder: this.props.character['charInfo']['race'], value: this.state.race}), 
+        React.createElement(Input, {type: "text", onChange: this.handleChange.bind(this, "lvl"), label: "Level", placeholder: this.props.character['charInfo']['level'], value: this.state.lvl}), 
+        React.createElement(Input, {type: "text", onChange: this.handleChange.bind(this, "xp"), label: "Xp", placeholder: this.props.character['charInfo']['xp'], value: this.state.xp}), 
+        React.createElement(Input, {type: "text", onChange: this.handleChange.bind(this, "bg"), label: "Background", placeholder: this.props.character['charInfo']['background'], value: this.state.bg}), 
+        React.createElement(Input, {type: "text", onChange: this.handleChange.bind(this, "align"), label: "Alignment", placeholder: this.props.character['charInfo']['alignment'], value: this.state.align}), 
+        React.createElement(ButtonToolbar, null, 
+          React.createElement(Button, {bsStyle: "danger", onClick: this.toggle}, "Close"), 
+          React.createElement(Button, {bsStyle: "success"}, "Save")
+        )
+      )
+    );
+  }
+})
+
+module.exports = SettingsInfo;
+
+},{"./settings-tear":19,"react":209,"react-bootstrap/Button":29,"react-bootstrap/ButtonToolbar":30,"react-bootstrap/Input":36}],15:[function(require,module,exports){
+var React = require('react');
+var Settings = require('./settings-tear');
+
+var Input = require('react-bootstrap/Input');
+var ButtonToolbar = require('react-bootstrap/ButtonToolbar');
+var Button = require('react-bootstrap/Button');
+var TabbedArea = require('react-bootstrap/TabbedArea');
+var TabPane = require('react-bootstrap/TabPane');
+var Row = require('react-bootstrap/Row');
+var Col = require('react-bootstrap/Col');
+
+var SettingsTraits = React.createClass({displayName: "SettingsTraits",
+  getInitialState : function () {
+    var state = {};
+
+    state.name = "";
+    state.desc = "";
+    state.mode = 0;
+    state.newDesc = "";
+    state.newName = "";
+    state.idx = -1;
+
+    return (state);
+  },
+  toggle : function() {
+    this.refs.settings.toggle();
+  },
+  handleModeChange : function(mode) {
+    this.setState({ mode : mode });
+  },
+  handleChange : function(cmp, e) {
+    var node = {};
+    node[cmp] = e.target.value;
+    this.setState(node);
+  },
+  handleSelect : function(e) {
+    var idx = parseInt(e.target.value, 10);
+    var langs = this.props.character['charOtherProficiencies']['languages'][idx];
+    var name = (idx === -1) ? "" : langs.name;
+    var desc = (idx === -1) ? "" : langs.desc;
+    var state = {};
+
+    state.idx = idx;
+    state.newName = name;
+    state.newDesc = desc;
+
+    this.setState(state);
+  },
+  handleDelete : function() {
+    var tmp = this.props.character;
+    var path = "charOtherProficiencies.languages.delete";
+    var name = tmp['charOtherProficiencies']['languages'][this.state.idx].name;
+    var langs;
+
+    //if mistake, stop deleting!
+    if (!confirm("Do you really want to get rid of\n '" + name + "'\n forever?")) return;
+
+    langs = tmp['charOtherProficiencies']['languages'].splice(this.state.idx, 1);
+    path += "." + langs.name;
+
+    //save and close
+    //this.props.edit({ path : path, character : tmp });
+    //this.props.close();
+  },
+  handleOk : function() {
+
+  },
+  renderAdd : function() {
+    return (
+      React.createElement("div", null, 
+        React.createElement("h3", null, "Add New Language"), 
+        React.createElement("p", null, "Enter the name of the language (ex: Draconic) and an optional sort description."), 
+        React.createElement(Input, {placeholder: "name", value: this.state.name, type: "text", label: "Language Name", onChange: this.handleChange.bind(this, "name")}), 
+        React.createElement(Input, {placeholder: "short description", value: this.state.desc, type: "textarea", label: "Language Description", onChange: this.handleChange.bind(this, "desc")}), 
+        React.createElement(ButtonToolbar, null, 
+          React.createElement(Button, {bsStyle: "danger", onClick: this.toggle}, "Close"), 
+          React.createElement(Button, {bsStyle: "success"}, "Save")
+        )
+      )
+    );
+  },
+  renderEdit : function() {
+
+    // populate the select box
+    var languages = [];
+    this.props.character['charOtherProficiencies']['languages'].forEach(function(langs, i) {
+      languages.push(
+        React.createElement("option", {key: i, value: i}, langs.name)
+      );
+    });
+
+    return (
+      React.createElement("div", null, 
+        React.createElement("h3", null, "Edit Languages"), 
+        React.createElement("p", null, "Change the name or description of a language by first selecting the language to edit and then entering new values."), 
+        React.createElement(Input, null, 
+          React.createElement(Row, null, 
+            React.createElement(Col, {xs: 8}, 
+              React.createElement(Input, {type: "select", onChange: this.handleSelect, defaultSelected: -1}, 
+                React.createElement("option", {value: -1}, "Select a Language"), 
+                languages
+              )
+            ), 
+            React.createElement(Col, {xs: 4}, 
+              React.createElement(Button, {disabled: (this.state.idx === -1) ? true : false, bsStyle: "danger", onClick: this.handleDelete}, "Delete")
+            )
+          )
+        ), 
+        React.createElement(Input, {disabled: (this.state.idx === -1) ? true : false, type: "text", onChange: this.handleChange.bind(this, "newName"), placeholder: "langs name", value: this.state.newName, label: "New Language Name"}), 
+        React.createElement(Input, {disabled: (this.state.idx === -1) ? true : false, type: "textarea", onChange: this.handleChange.bind(this, "newDesc"), placeholder: "langs desc", value: this.state.newDesc, label: "New Language Description"}), 
+        React.createElement(ButtonToolbar, null, 
+          React.createElement(Button, {bsStyle: "danger", onClick: this.toggle}, "Close"), 
+          React.createElement(Button, {bsStyle: "success"}, "Save")
+        )
+      )
+    );
+  },
+  render : function() {
+    return (
+      React.createElement(Settings, {ref: "settings"}, 
+        React.createElement(TabbedArea, {activeKey: this.state.mode, onSelect: this.handleModeChange}, 
+          React.createElement(TabPane, {eventKey: 0, tab: "new"}, 
+            this.renderAdd()
+          ), 
+          React.createElement(TabPane, {eventKey: 1, tab: "edit"}, 
+            this.renderEdit()
+          )
+        )
+      )
+    );
+  }
+})
+
+module.exports = SettingsTraits;
+
+},{"./settings-tear":19,"react":209,"react-bootstrap/Button":29,"react-bootstrap/ButtonToolbar":30,"react-bootstrap/Col":31,"react-bootstrap/Input":36,"react-bootstrap/Row":48,"react-bootstrap/TabPane":49,"react-bootstrap/TabbedArea":50}],16:[function(require,module,exports){
+var React = require('react');
+var Settings = require('./settings-tear');
+
+var Input = require('react-bootstrap/Input');
+var ButtonToolbar = require('react-bootstrap/ButtonToolbar');
+var Button = require('react-bootstrap/Button');
+var TabbedArea = require('react-bootstrap/TabbedArea');
+var TabPane = require('react-bootstrap/TabPane');
+var Row = require('react-bootstrap/Row');
+var Col = require('react-bootstrap/Col');
+
+var SettingsTraits = React.createClass({displayName: "SettingsTraits",
+  getInitialState : function () {
+    var state = {};
+
+    state.name = "";
+    state.desc = "";
+    state.mode = 0;
+    state.newName = "";
+    state.newDesc = "";
+    state.idx = -1;
+
+    return (state);
+  },
+  toggle : function() {
+    this.refs.settings.toggle();
+  },
+  handleModeChange : function(mode) {
+    this.setState({ mode : mode });
+  },
+  handleChange : function(cmp, e) {
+    var node = {};
+    node[cmp] = e.target.value;
+    this.setState(node);
+  },
+  handleSelect : function(e) {
+    var idx = parseInt(e.target.value, 10);
+    var prof = this.props.character['charOtherProficiencies']['proficiencies'][idx];
+    var name = (idx === -1) ? "" : prof.name;
+    var desc = (idx === -1) ? "" : prof.desc;
+    var state = {};
+
+    state.idx = idx;
+    state.newName = name;
+    state.newDesc = desc;
+    
+    this.setState(state);
+  },
+  handleDelete : function() {
+    var tmp = this.props.character;
+    var path = "charOtherProficiencies.proficiencies.delete";
+    var name = tmp['charOtherProficiencies']['proficiencies'][this.state.idx].name;
+    var prof;
+
+    // if mistake, stop deleting!
+    if (!confirm("Do you really want to get rid of\n '" + name + "'\n forever?")) return;
+
+    prof = tmp['charOtherProficiencies']['proficiencies'].splice(this.state.idx, 1);
+    path += "." + prof.name;
+
+    // save and close
+    //this.props.edit({ path : path, character : tmp });
+  },
+  handleOk : function() {
+
+  },
+  renderAdd : function() {
+    return (
+      React.createElement("div", null, 
+        React.createElement("h3", null, "Add New Proficiency"), 
+        React.createElement("p", null, "Enter the name of the proficiency (ex: Herbalism Kit) and an optional sort description."), 
+        React.createElement(Input, {placeholder: "name", value: this.state.name, type: "text", label: "Proficiency Name", onChange: this.handleChange.bind(this, "name")}), 
+        React.createElement(Input, {placeholder: "short description", value: this.state.desc, type: "textarea", label: "Proficiency Description", onChange: this.handleChange.bind(this, "desc")}), 
+         React.createElement(ButtonToolbar, null, 
+          React.createElement(Button, {bsStyle: "danger", onClick: this.toggle}, "Close"), 
+          React.createElement(Button, {bsStyle: "success"}, "Save")
+        )
+      )
+    );
+  },
+  renderEdit : function() {
+
+    // populate the select box
+    var proficiencies = [];
+    this.props.character['charOtherProficiencies']['proficiencies'].forEach(function(prof, i) {
+      proficiencies.push(
+        React.createElement("option", {key: i, value: i}, prof.name)
+      );
+    }); 
+
+    return (
+      React.createElement("div", null, 
+        React.createElement("h3", null, "Edit Proficiencies"), 
+        React.createElement("p", null, "Change the name or description of a proficiency by first selecting the proficiency to edit and then entering new values."), 
+        React.createElement(Input, null, 
+          React.createElement(Row, null, 
+            React.createElement(Col, {xs: 8}, 
+              React.createElement(Input, {type: "select", onChange: this.handleSelect, defaultSelected: -1}, 
+                React.createElement("option", {value: -1}, "Select a Proficiency"), 
+                proficiencies
+              )
+            ), 
+            React.createElement(Col, {xs: 4}, 
+              React.createElement(Button, {disabled: (this.state.idx === -1) ? true : false, bsStyle: "danger", onClick: this.handleDelete}, "Delete")
+            )
+          )
+        ), 
+        React.createElement(Input, {disabled: (this.state.idx === -1) ? true : false, type: "text", onChange: this.handleChange.bind(this, "newName"), placeholder: "prof name", value: this.state.newName, label: "New Proficiency Name"}), 
+        React.createElement(Input, {disabled: (this.state.idx === -1) ? true : false, type: "textarea", onChange: this.handleChange.bind(this, "newDesc"), placeholder: "prof desc", value: this.state.newDesc, label: "New Proficiency Desc"}), 
+        React.createElement(ButtonToolbar, null, 
+          React.createElement(Button, {bsStyle: "danger", onClick: this.toggle}, "Close"), 
+          React.createElement(Button, {bsStyle: "success"}, "Save")
+        )
+      )
+    );
+  },
+  render : function() {
+    return (
+      React.createElement(Settings, {ref: "settings"}, 
+        React.createElement(TabbedArea, {activeKey: this.state.mode, onSelect: this.handleModeChange}, 
+          React.createElement(TabPane, {eventKey: 0, tab: "new"}, 
+            this.renderAdd()
+          ), 
+          React.createElement(TabPane, {eventKey: 1, tab: "edit"}, 
+            this.renderEdit()
+          )
+        )
+      )
+    );
+  }
+})
+
+module.exports = SettingsTraits;
+
+},{"./settings-tear":19,"react":209,"react-bootstrap/Button":29,"react-bootstrap/ButtonToolbar":30,"react-bootstrap/Col":31,"react-bootstrap/Input":36,"react-bootstrap/Row":48,"react-bootstrap/TabPane":49,"react-bootstrap/TabbedArea":50}],17:[function(require,module,exports){
+var React = require('react');
+var Settings = require('./settings-tear');
+
+var Input = require('react-bootstrap/Input');
+var ButtonToolbar = require('react-bootstrap/ButtonToolbar');
+var Button = require('react-bootstrap/Button');
+var Row = require('react-bootstrap/Row');
+var Col = require('react-bootstrap/Col');
+
+var SettingsSavingThrows = React.createClass({displayName: "SettingsSavingThrows",
+  getInitialState : function() {
+    var state = {};
+
+    state.profThrows = [];
+
+    return (state);
+  },
+  toggle : function() {
+    this.refs.settings.toggle();
+  },
+  handleChange : function(cmp, e) {
+    var node = {};
+    node[cmp] = e.target.value;
+    this.setState(node);
+  },
+  handleOk : function() {
+
+  },
+  handleProfSelect : function(e) {
+    console.log("selected:", e.target.value);
+  },
+  render : function() {
+
+    var prof = [];
+    Object.keys(this.props.character['charSavingThrows']).forEach(function(key) {
+      if (this.props.character['charSavingThrows'][key].proficient) {
+        prof.push(key);
+      }
+    }.bind(this));
+
+    return (
+      React.createElement(Settings, {ref: "settings"}, 
+        React.createElement("h3", null, "Edit Saving Throws"), 
+        React.createElement("p", null, "Edit the saving throws with which you are proficient and add any modifiers you may also have for that saving throw."), 
+        React.createElement(Input, {type: "select", multiple: true, label: "Select Proficient Saving Throws", defaultValue: prof, onChange: this.handleProfSelect}, 
+          React.createElement("option", {value: "str"}, "Strength"), 
+          React.createElement("option", {value: "dex"}, "Dexterity"), 
+          React.createElement("option", {value: "con"}, "Constitution"), 
+          React.createElement("option", {value: "int"}, "Intelligence"), 
+          React.createElement("option", {value: "wis"}, "Wisdom"), 
+          React.createElement("option", {value: "cha"}, "Charisma")
+        ), 
+        React.createElement(Input, null, 
+          React.createElement(Row, null, 
+            React.createElement(Col, {xs: 4}, 
+              React.createElement(Input, {type: "text", label: "Strength"})
+            ), 
+            React.createElement(Col, {xs: 4}, 
+              React.createElement(Input, {type: "text", label: "Dexterity"})
+            ), 
+            React.createElement(Col, {xs: 4}, 
+              React.createElement(Input, {type: "text", label: "Constitution"})
+            )
+          ), 
+          React.createElement(Row, null, 
+            React.createElement(Col, {xs: 4}, 
+              React.createElement(Input, {type: "text", label: "Intelligence"})
+            ), 
+            React.createElement(Col, {xs: 4}, 
+              React.createElement(Input, {type: "text", label: "Wisdom"})
+            ), 
+            React.createElement(Col, {xs: 4}, 
+              React.createElement(Input, {type: "text", label: "Charisma"})
+            )
+          )
+        ), 
+        React.createElement(ButtonToolbar, null, 
+          React.createElement(Button, {bsStyle: "danger", onClick: this.toggle}, "Close"), 
+          React.createElement(Button, {bsStyle: "success"}, "Save")
+        )
+      )
+    );
+  }
+})
+
+module.exports = SettingsSavingThrows;
+
+},{"./settings-tear":19,"react":209,"react-bootstrap/Button":29,"react-bootstrap/ButtonToolbar":30,"react-bootstrap/Col":31,"react-bootstrap/Input":36,"react-bootstrap/Row":48}],18:[function(require,module,exports){
+var React = require('react');
+var Settings = require('./settings-tear');
+
+var Input = require('react-bootstrap/Input');
+var ButtonToolbar = require('react-bootstrap/ButtonToolbar');
+var Button = require('react-bootstrap/Button');
+var TabbedArea = require('react-bootstrap/TabbedArea');
+var TabPane = require('react-bootstrap/TabPane');
+var Row = require('react-bootstrap/Row');
+var Col = require('react-bootstrap/Col');
+
+var SettingsSpells = React.createClass({displayName: "SettingsSpells",
+  getInitialState : function () {
+    var state = {};
+
+    state.name = "";
+    state.desc = "";
+    state.mode = 0;
+    state.newName = "";
+    state.newDesc = "";
+    state.idx = -1;
+
+    return (state);
+  },
+  toggle : function() {
+    this.refs.settings.toggle();
+  },
+  handleModeChange : function(mode) {
+    this.setState({ mode : mode });
+  },
+  handleChange : function(cmp, e) {
+    var node = {};
+    node[cmp] = e.target.value;
+    this.setState(node);
+  },
+  handleSelect : function(e) {
+
+  },
+  handleDelete : function() {
+    
+  },
+  handleOk : function() {
+
+  },
+  renderAdd : function() {
+    return (
+      React.createElement("div", null, 
+        React.createElement("h3", null, "Add new spell"), 
+        React.createElement("p", null, "Enter the info for each spell. The only required information is spell level and name--all other fields are optional."), 
+        React.createElement(Input, {type: "text", label: "Name"}), 
+        React.createElement(Input, {type: "select", label: "Spell Level", defaultSelected: -1}, 
+          React.createElement("option", {value: -1}, "Spell Level"), 
+          React.createElement("option", {value: 0}, "Cantrip"), 
+          React.createElement("option", {value: 1}, "1st Level"), 
+          React.createElement("option", {value: 2}, "2nd Level"), 
+          React.createElement("option", {value: 3}, "3rd Level"), 
+          React.createElement("option", {value: 4}, "4th Level"), 
+          React.createElement("option", {value: 5}, "5th Level"), 
+          React.createElement("option", {value: 6}, "6th Level"), 
+          React.createElement("option", {value: 7}, "7th Level"), 
+          React.createElement("option", {value: 8}, "8th Level"), 
+          React.createElement("option", {value: 9}, "9th Level")
+        ), 
+        React.createElement(Input, {type: "textarea", label: "Description"}), 
+        React.createElement(Input, {type: "text", label: "Components"}), 
+        React.createElement(Input, {type: "text", label: "Casting TIme"}), 
+        React.createElement(Input, {type: "text", label: "Duration"}), 
+        React.createElement(ButtonToolbar, null, 
+          React.createElement(Button, {bsStyle: "danger", onClick: this.toggle}, "Close"), 
+          React.createElement(Button, {bsStyle: "success"}, "Save")
+        )
+      )
+    );
+  },
+  renderEdit : function() {
+    return (
+      React.createElement("div", null, 
+        React.createElement("h3", null, "Edit Spells"), 
+        React.createElement("p", null, "Select a spell to edit any detail. Be as thorough as possible."), 
+        React.createElement(Input, null, 
+          React.createElement(Row, null, 
+            React.createElement(Col, {xs: 8}, 
+              React.createElement(Input, {type: "select", defaultSelected: -1}, 
+                React.createElement("option", {value: -1}, "Select a Spell")
+              )
+            ), 
+            React.createElement(Col, {xs: 4}, 
+              React.createElement(Button, {bsStyle: "danger"}, "Delete")
+            )
+          )
+        ), 
+        React.createElement(Input, {type: "text", label: "Name"}), 
+        React.createElement(Input, {type: "select", label: "Spell Level", defaultSelected: -1}, 
+          React.createElement("option", {value: -1}, "Spell Level"), 
+          React.createElement("option", {value: 0}, "Cantrip"), 
+          React.createElement("option", {value: 1}, "1st Level"), 
+          React.createElement("option", {value: 2}, "2nd Level"), 
+          React.createElement("option", {value: 3}, "3rd Level"), 
+          React.createElement("option", {value: 4}, "4th Level"), 
+          React.createElement("option", {value: 5}, "5th Level"), 
+          React.createElement("option", {value: 6}, "6th Level"), 
+          React.createElement("option", {value: 7}, "7th Level"), 
+          React.createElement("option", {value: 8}, "8th Level"), 
+          React.createElement("option", {value: 9}, "9th Level")
+        ), 
+        React.createElement(Input, {type: "textarea", label: "Description"}), 
+        React.createElement(Input, {type: "text", label: "Components"}), 
+        React.createElement(Input, {type: "text", label: "Casting TIme"}), 
+        React.createElement(Input, {type: "text", label: "Duration"}), 
+        React.createElement(ButtonToolbar, null, 
+          React.createElement(Button, {bsStyle: "danger", onClick: this.toggle}, "Close"), 
+          React.createElement(Button, {bsStyle: "success"}, "Save")
+        )
+      )
+    );
+  },
+  renderSpellSlots : function() {
+    return (
+      React.createElement("div", null, 
+        React.createElement("h3", null, "Edit spell slots"), 
+        React.createElement("p", null, "Select a spell level and enter how many spell slots your character has for that level."), 
+        React.createElement(Input, {type: "select", label: "Spell Level", defaultSelected: -1}, 
+          React.createElement("option", {value: -1}, "Spell Level"), 
+          React.createElement("option", {value: 1}, "1st Level"), 
+          React.createElement("option", {value: 2}, "2nd Level"), 
+          React.createElement("option", {value: 3}, "3rd Level"), 
+          React.createElement("option", {value: 4}, "4th Level"), 
+          React.createElement("option", {value: 5}, "5th Level"), 
+          React.createElement("option", {value: 6}, "6th Level"), 
+          React.createElement("option", {value: 7}, "7th Level"), 
+          React.createElement("option", {value: 8}, "8th Level"), 
+          React.createElement("option", {value: 9}, "9th Level")
+        ), 
+        React.createElement(Input, {type: "text", label: "New Amount of Spell Slots"}), 
+        React.createElement(ButtonToolbar, null, 
+          React.createElement(Button, {bsStyle: "danger", onClick: this.toggle}, "Close"), 
+          React.createElement(Button, {bsStyle: "success"}, "Save")
+        )
+      )
+    );
+  },
+  render : function() {
+    return (
+      React.createElement(Settings, {ref: "settings"}, 
+        React.createElement(TabbedArea, {activeKey: this.state.mode, onSelect: this.handleModeChange}, 
+          React.createElement(TabPane, {eventKey: 0, tab: "new"}, 
+            this.renderAdd()
+          ), 
+          React.createElement(TabPane, {eventKey: 1, tab: "edit"}, 
+            this.renderEdit()
+          ), 
+          React.createElement(TabPane, {eventKey: 2, tab: "slots"}, 
+            this.renderSpellSlots()
+          )
+        )
+      )
+    );
+  }
+})
+
+module.exports = SettingsSpells;
+
+},{"./settings-tear":19,"react":209,"react-bootstrap/Button":29,"react-bootstrap/ButtonToolbar":30,"react-bootstrap/Col":31,"react-bootstrap/Input":36,"react-bootstrap/Row":48,"react-bootstrap/TabPane":49,"react-bootstrap/TabbedArea":50}],19:[function(require,module,exports){
+var React = require('react');
 var Panel = require('react-bootstrap/Panel');
 var Accordion = require('react-bootstrap/Accordion');
 
@@ -2605,7 +2165,9 @@ var Settings = React.createClass({displayName: "Settings",
     return (
       React.createElement(Accordion, {activeKey: this.state.active}, 
         React.createElement(Panel, {eventKey: 1, className: "settings-tear"}, 
-          this.props.children
+          React.createElement("div", {className: "settings-body"}, 
+            this.props.children
+          )
         )
       )
     );
@@ -2614,7 +2176,61 @@ var Settings = React.createClass({displayName: "Settings",
 
 module.exports = Settings;
 
-},{"react":206,"react-bootstrap/Accordion":24,"react-bootstrap/Alert":25,"react-bootstrap/Button":27,"react-bootstrap/Col":28,"react-bootstrap/Input":33,"react-bootstrap/Modal":35,"react-bootstrap/Panel":41,"react-bootstrap/Row":45,"react-bootstrap/TabPane":46,"react-bootstrap/TabbedArea":47}],18:[function(require,module,exports){
+},{"react":209,"react-bootstrap/Accordion":27,"react-bootstrap/Panel":44}],20:[function(require,module,exports){
+var React = require('react');
+var Settings = require('./settings-tear');
+
+var Input = require('react-bootstrap/Input');
+var ButtonToolbar = require('react-bootstrap/ButtonToolbar');
+var Button = require('react-bootstrap/Button');
+
+var SettingsTraits = React.createClass({displayName: "SettingsTraits",
+  getInitialState : function () {
+    var state = {};
+    var copyPers = this.props.character['charTraits']['personalityTraits'];
+    var copyIdeals = this.props.character['charTraits']['ideals'];
+    var copyBonds = this.props.character['charTraits']['bonds'];
+    var copyFlaws = this.props.character['charTraits']['flaws'];
+
+    state.traits = copyPers;
+    state.ideals = copyIdeals;
+    state.bonds = copyBonds;
+    state.flaws = copyFlaws;
+
+    return (state);
+  },
+  toggle : function() {
+    this.refs.settings.toggle();
+  },
+  handleChange : function(cmp, e) {
+    var node = {};
+    node[cmp] = e.target.value;
+    this.setState(node);
+  },
+  handleOk : function() {
+
+  },
+  render : function() {
+    return (
+      React.createElement(Settings, {ref: "settings"}, 
+        React.createElement("h3", null, "Edit Character Traits"), 
+        React.createElement("p", null, "Enter new info for any Character Traits. If a field is left blank and no new values are entered, nothing will be changed"), 
+        React.createElement(Input, {type: "textarea", onChange: this.handleChange.bind(this, "traits"), label: "Personality Traits", placeholder: this.props.character['charTraits']['personalityTraits'], value: this.state.traits}), 
+        React.createElement(Input, {type: "textarea", onChange: this.handleChange.bind(this, "ideals"), label: "Ideals", placeholder: this.props.character['charTraits']['ideals'], value: this.state.ideals}), 
+        React.createElement(Input, {type: "textarea", onChange: this.handleChange.bind(this, "bonds"), label: "Bonds", placeholder: this.props.character['charTraits']['bonds'], value: this.state.bonds}), 
+        React.createElement(Input, {type: "textarea", onChange: this.handleChange.bind(this, "flaws"), label: "Flaws", placeholder: this.props.character['charTraits']['flaws'], value: this.state.flaws}), 
+        React.createElement(ButtonToolbar, null, 
+          React.createElement(Button, {bsStyle: "danger", onClick: this.toggle}, "Close"), 
+          React.createElement(Button, {bsStyle: "success"}, "Save")
+        )
+      )
+    );
+  }
+})
+
+module.exports = SettingsTraits;
+
+},{"./settings-tear":19,"react":209,"react-bootstrap/Button":29,"react-bootstrap/ButtonToolbar":30,"react-bootstrap/Input":36}],21:[function(require,module,exports){
 var React = require('react');
 var PageHeader = require('react-bootstrap/PageHeader');
 
@@ -2632,7 +2248,7 @@ var Title = React.createClass({
 // return component
 module.exports = Title;
 
-},{"react":206,"react-bootstrap/PageHeader":40}],19:[function(require,module,exports){
+},{"react":209,"react-bootstrap/PageHeader":43}],22:[function(require,module,exports){
 var React = require('react');
 var EventListener = require('react-bootstrap/utils/EventListener');
 
@@ -2675,7 +2291,7 @@ var HelpTooltip = React.createClass({displayName: "HelpTooltip",
 
 module.exports = HelpTooltip;
 
-},{"react":206,"react-bootstrap/utils/EventListener":52}],20:[function(require,module,exports){
+},{"react":209,"react-bootstrap/utils/EventListener":55}],23:[function(require,module,exports){
 module.exports = {
   "charName" : "Wan",
   "charInfo" : {
@@ -3103,7 +2719,7 @@ module.exports = {
   ]
 };
 
-},{}],21:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 // config? and preferences?
 require('fastclick')(document.body);
 
@@ -3187,7 +2803,7 @@ var Character = React.createClass({
 // render Character
 React.render(React.createElement(Character, null), document.body);
 
-},{"./components/content-area":2,"./components/title":18,"./data/wan":20,"fastclick":23,"react":206}],22:[function(require,module,exports){
+},{"./components/content-area":2,"./components/title":21,"./data/wan":23,"fastclick":26,"react":209}],25:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -3246,7 +2862,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],23:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 ;(function () {
 	'use strict';
 
@@ -4089,7 +3705,7 @@ process.umask = function() { return 0; };
 	}
 }());
 
-},{}],24:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 var React = require('react');
 var PanelGroup = require('./PanelGroup');
 
@@ -4104,67 +3720,7 @@ var Accordion = React.createClass({displayName: "Accordion",
 });
 
 module.exports = Accordion;
-},{"./PanelGroup":42,"react":206}],25:[function(require,module,exports){
-var React = require('react');
-var joinClasses = require('./utils/joinClasses');
-var classSet = require('./utils/classSet');
-var BootstrapMixin = require('./BootstrapMixin');
-
-
-var Alert = React.createClass({displayName: "Alert",
-  mixins: [BootstrapMixin],
-
-  propTypes: {
-    onDismiss: React.PropTypes.func,
-    dismissAfter: React.PropTypes.number
-  },
-
-  getDefaultProps: function () {
-    return {
-      bsClass: 'alert',
-      bsStyle: 'info'
-    };
-  },
-
-  renderDismissButton: function () {
-    return (
-      React.createElement("button", {
-        type: "button", 
-        className: "close", 
-        onClick: this.props.onDismiss, 
-        "aria-hidden": "true"}, 
-        "×"
-      )
-    );
-  },
-
-  render: function () {
-    var classes = this.getBsClassSet();
-    var isDismissable = !!this.props.onDismiss;
-
-    classes['alert-dismissable'] = isDismissable;
-
-    return (
-      React.createElement("div", React.__spread({},  this.props, {className: joinClasses(this.props.className, classSet(classes))}), 
-        isDismissable ? this.renderDismissButton() : null, 
-        this.props.children
-      )
-    );
-  },
-
-  componentDidMount: function() {
-    if (this.props.dismissAfter && this.props.onDismiss) {
-      this.dismissTimer = setTimeout(this.props.onDismiss, this.props.dismissAfter);
-    }
-  },
-
-  componentWillUnmount: function() {
-    clearTimeout(this.dismissTimer);
-  }
-});
-
-module.exports = Alert;
-},{"./BootstrapMixin":26,"./utils/classSet":56,"./utils/joinClasses":60,"react":206}],26:[function(require,module,exports){
+},{"./PanelGroup":45,"react":209}],28:[function(require,module,exports){
 var React = require('react');
 var constants = require('./constants');
 
@@ -4200,7 +3756,7 @@ var BootstrapMixin = {
 };
 
 module.exports = BootstrapMixin;
-},{"./constants":50,"react":206}],27:[function(require,module,exports){
+},{"./constants":53,"react":209}],29:[function(require,module,exports){
 var React = require('react');
 var joinClasses = require('./utils/joinClasses');
 var classSet = require('./utils/classSet');
@@ -4289,7 +3845,38 @@ var Button = React.createClass({displayName: "Button",
 
 module.exports = Button;
 
-},{"./BootstrapMixin":26,"./utils/classSet":56,"./utils/joinClasses":60,"react":206}],28:[function(require,module,exports){
+},{"./BootstrapMixin":28,"./utils/classSet":59,"./utils/joinClasses":63,"react":209}],30:[function(require,module,exports){
+var React = require('react');
+var joinClasses = require('./utils/joinClasses');
+var classSet = require('./utils/classSet');
+var BootstrapMixin = require('./BootstrapMixin');
+var Button = require('./Button');
+
+var ButtonToolbar = React.createClass({displayName: "ButtonToolbar",
+  mixins: [BootstrapMixin],
+
+  getDefaultProps: function () {
+    return {
+      bsClass: 'button-toolbar'
+    };
+  },
+
+  render: function () {
+    var classes = this.getBsClassSet();
+
+    return (
+      React.createElement("div", React.__spread({}, 
+        this.props, 
+        {role: "toolbar", 
+        className: joinClasses(this.props.className, classSet(classes))}), 
+        this.props.children
+      )
+    );
+  }
+});
+
+module.exports = ButtonToolbar;
+},{"./BootstrapMixin":28,"./Button":29,"./utils/classSet":59,"./utils/joinClasses":63,"react":209}],31:[function(require,module,exports){
 var React = require('react');
 var joinClasses = require('./utils/joinClasses');
 var classSet = require('./utils/classSet');
@@ -4364,7 +3951,7 @@ var Col = React.createClass({displayName: "Col",
 });
 
 module.exports = Col;
-},{"./constants":50,"./utils/classSet":56,"./utils/joinClasses":60,"react":206}],29:[function(require,module,exports){
+},{"./constants":53,"./utils/classSet":59,"./utils/joinClasses":63,"react":209}],32:[function(require,module,exports){
 var React = require('react');
 var TransitionEvents = require('./utils/TransitionEvents');
 
@@ -4486,7 +4073,7 @@ var CollapsableMixin = {
 
 module.exports = CollapsableMixin;
 
-},{"./utils/TransitionEvents":54,"react":206}],30:[function(require,module,exports){
+},{"./utils/TransitionEvents":57,"react":209}],33:[function(require,module,exports){
 /*global document */
 // TODO: listen for onTransitionEnd to remove el
 function getElementsAndSelf (root, classes){
@@ -4557,7 +4144,7 @@ module.exports = {
   }
 };
 
-},{}],31:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 var React = require('react');
 var joinClasses = require('./utils/joinClasses');
 var classSet = require('./utils/classSet');
@@ -4591,7 +4178,7 @@ var Glyphicon = React.createClass({displayName: "Glyphicon",
 });
 
 module.exports = Glyphicon;
-},{"./BootstrapMixin":26,"./constants":50,"./utils/classSet":56,"./utils/joinClasses":60,"react":206}],32:[function(require,module,exports){
+},{"./BootstrapMixin":28,"./constants":53,"./utils/classSet":59,"./utils/joinClasses":63,"react":209}],35:[function(require,module,exports){
 var React = require('react');
 var joinClasses = require('./utils/joinClasses');
 
@@ -4622,7 +4209,7 @@ var Grid = React.createClass({displayName: "Grid",
 });
 
 module.exports = Grid;
-},{"./utils/joinClasses":60,"react":206}],33:[function(require,module,exports){
+},{"./utils/joinClasses":63,"react":209}],36:[function(require,module,exports){
 var React = require('react');
 var joinClasses = require('./utils/joinClasses');
 var classSet = require('./utils/classSet');
@@ -4859,7 +4446,7 @@ var Input = React.createClass({displayName: "Input",
 
 module.exports = Input;
 
-},{"./Button":27,"./utils/classSet":56,"./utils/joinClasses":60,"react":206}],34:[function(require,module,exports){
+},{"./Button":29,"./utils/classSet":59,"./utils/joinClasses":63,"react":209}],37:[function(require,module,exports){
 // https://www.npmjs.org/package/react-interpolate-component
 'use strict';
 
@@ -4943,7 +4530,7 @@ var Interpolate = React.createClass({
 
 module.exports = Interpolate;
 
-},{"./utils/Object.assign":53,"./utils/ValidComponentChildren":55,"react":206}],35:[function(require,module,exports){
+},{"./utils/Object.assign":56,"./utils/ValidComponentChildren":58,"react":209}],38:[function(require,module,exports){
 /* global document:false */
 
 var React = require('react');
@@ -5107,7 +4694,7 @@ var Modal = React.createClass({displayName: "Modal",
 
 module.exports = Modal;
 
-},{"./BootstrapMixin":26,"./FadeMixin":30,"./utils/EventListener":52,"./utils/classSet":56,"./utils/joinClasses":60,"react":206}],36:[function(require,module,exports){
+},{"./BootstrapMixin":28,"./FadeMixin":33,"./utils/EventListener":55,"./utils/classSet":59,"./utils/joinClasses":63,"react":209}],39:[function(require,module,exports){
 var React = require('react');
 var joinClasses = require('./utils/joinClasses');
 var BootstrapMixin = require('./BootstrapMixin');
@@ -5221,7 +4808,7 @@ var Nav = React.createClass({displayName: "Nav",
 
 module.exports = Nav;
 
-},{"./BootstrapMixin":26,"./CollapsableMixin":29,"./utils/ValidComponentChildren":55,"./utils/classSet":56,"./utils/cloneWithProps":57,"./utils/createChainedFunction":58,"./utils/domUtils":59,"./utils/joinClasses":60,"react":206}],37:[function(require,module,exports){
+},{"./BootstrapMixin":28,"./CollapsableMixin":32,"./utils/ValidComponentChildren":58,"./utils/classSet":59,"./utils/cloneWithProps":60,"./utils/createChainedFunction":61,"./utils/domUtils":62,"./utils/joinClasses":63,"react":209}],40:[function(require,module,exports){
 var React = require('react');
 var joinClasses = require('./utils/joinClasses');
 var classSet = require('./utils/classSet');
@@ -5286,7 +4873,7 @@ var NavItem = React.createClass({displayName: "NavItem",
 });
 
 module.exports = NavItem;
-},{"./BootstrapMixin":26,"./utils/classSet":56,"./utils/joinClasses":60,"react":206}],38:[function(require,module,exports){
+},{"./BootstrapMixin":28,"./utils/classSet":59,"./utils/joinClasses":63,"react":209}],41:[function(require,module,exports){
 var React = require('react');
 var CustomPropTypes = require('./utils/CustomPropTypes');
 
@@ -5372,7 +4959,7 @@ module.exports = {
   }
 };
 
-},{"./utils/CustomPropTypes":51,"react":206}],39:[function(require,module,exports){
+},{"./utils/CustomPropTypes":54,"react":209}],42:[function(require,module,exports){
 var React = require('react');
 var OverlayMixin = require('./OverlayMixin');
 var domUtils = require('./utils/domUtils');
@@ -5600,7 +5187,7 @@ var OverlayTrigger = React.createClass({displayName: "OverlayTrigger",
 });
 
 module.exports = OverlayTrigger;
-},{"./OverlayMixin":38,"./utils/Object.assign":53,"./utils/cloneWithProps":57,"./utils/createChainedFunction":58,"./utils/domUtils":59,"react":206}],40:[function(require,module,exports){
+},{"./OverlayMixin":41,"./utils/Object.assign":56,"./utils/cloneWithProps":60,"./utils/createChainedFunction":61,"./utils/domUtils":62,"react":209}],43:[function(require,module,exports){
 var React = require('react');
 var joinClasses = require('./utils/joinClasses');
 
@@ -5616,7 +5203,7 @@ var PageHeader = React.createClass({displayName: "PageHeader",
 });
 
 module.exports = PageHeader;
-},{"./utils/joinClasses":60,"react":206}],41:[function(require,module,exports){
+},{"./utils/joinClasses":63,"react":209}],44:[function(require,module,exports){
 var React = require('react');
 var joinClasses = require('./utils/joinClasses');
 var classSet = require('./utils/classSet');
@@ -5763,7 +5350,7 @@ var Panel = React.createClass({displayName: "Panel",
 });
 
 module.exports = Panel;
-},{"./BootstrapMixin":26,"./CollapsableMixin":29,"./utils/classSet":56,"./utils/cloneWithProps":57,"./utils/joinClasses":60,"react":206}],42:[function(require,module,exports){
+},{"./BootstrapMixin":28,"./CollapsableMixin":32,"./utils/classSet":59,"./utils/cloneWithProps":60,"./utils/joinClasses":63,"react":209}],45:[function(require,module,exports){
 var React = require('react');
 var joinClasses = require('./utils/joinClasses');
 var classSet = require('./utils/classSet');
@@ -5850,7 +5437,7 @@ var PanelGroup = React.createClass({displayName: "PanelGroup",
 });
 
 module.exports = PanelGroup;
-},{"./BootstrapMixin":26,"./utils/ValidComponentChildren":55,"./utils/classSet":56,"./utils/cloneWithProps":57,"./utils/joinClasses":60,"react":206}],43:[function(require,module,exports){
+},{"./BootstrapMixin":28,"./utils/ValidComponentChildren":58,"./utils/classSet":59,"./utils/cloneWithProps":60,"./utils/joinClasses":63,"react":209}],46:[function(require,module,exports){
 var React = require('react');
 var joinClasses = require('./utils/joinClasses');
 var classSet = require('./utils/classSet');
@@ -5909,7 +5496,7 @@ var Popover = React.createClass({displayName: "Popover",
 });
 
 module.exports = Popover;
-},{"./BootstrapMixin":26,"./utils/classSet":56,"./utils/joinClasses":60,"react":206}],44:[function(require,module,exports){
+},{"./BootstrapMixin":28,"./utils/classSet":59,"./utils/joinClasses":63,"react":209}],47:[function(require,module,exports){
 var React = require('react');
 var joinClasses = require('./utils/joinClasses');
 var Interpolate = require('./Interpolate');
@@ -6044,7 +5631,7 @@ var ProgressBar = React.createClass({displayName: "ProgressBar",
 
 module.exports = ProgressBar;
 
-},{"./BootstrapMixin":26,"./Interpolate":34,"./utils/ValidComponentChildren":55,"./utils/classSet":56,"./utils/cloneWithProps":57,"./utils/joinClasses":60,"react":206}],45:[function(require,module,exports){
+},{"./BootstrapMixin":28,"./Interpolate":37,"./utils/ValidComponentChildren":58,"./utils/classSet":59,"./utils/cloneWithProps":60,"./utils/joinClasses":63,"react":209}],48:[function(require,module,exports){
 var React = require('react');
 var joinClasses = require('./utils/joinClasses');
 
@@ -6071,7 +5658,7 @@ var Row = React.createClass({displayName: "Row",
 });
 
 module.exports = Row;
-},{"./utils/joinClasses":60,"react":206}],46:[function(require,module,exports){
+},{"./utils/joinClasses":63,"react":209}],49:[function(require,module,exports){
 var React = require('react');
 var joinClasses = require('./utils/joinClasses');
 var classSet = require('./utils/classSet');
@@ -6154,7 +5741,7 @@ var TabPane = React.createClass({displayName: "TabPane",
 });
 
 module.exports = TabPane;
-},{"./utils/TransitionEvents":54,"./utils/classSet":56,"./utils/joinClasses":60,"react":206}],47:[function(require,module,exports){
+},{"./utils/TransitionEvents":57,"./utils/classSet":59,"./utils/joinClasses":63,"react":209}],50:[function(require,module,exports){
 var React = require('react');
 var BootstrapMixin = require('./BootstrapMixin');
 var cloneWithProps = require('./utils/cloneWithProps');
@@ -6294,7 +5881,7 @@ var TabbedArea = React.createClass({displayName: "TabbedArea",
 });
 
 module.exports = TabbedArea;
-},{"./BootstrapMixin":26,"./Nav":36,"./NavItem":37,"./utils/ValidComponentChildren":55,"./utils/cloneWithProps":57,"react":206}],48:[function(require,module,exports){
+},{"./BootstrapMixin":28,"./Nav":39,"./NavItem":40,"./utils/ValidComponentChildren":58,"./utils/cloneWithProps":60,"react":209}],51:[function(require,module,exports){
 var React = require('react');
 var joinClasses = require('./utils/joinClasses');
 var classSet = require('./utils/classSet');
@@ -6344,7 +5931,7 @@ var Tooltip = React.createClass({displayName: "Tooltip",
 });
 
 module.exports = Tooltip;
-},{"./BootstrapMixin":26,"./utils/classSet":56,"./utils/joinClasses":60,"react":206}],49:[function(require,module,exports){
+},{"./BootstrapMixin":28,"./utils/classSet":59,"./utils/joinClasses":63,"react":209}],52:[function(require,module,exports){
 var React = require('react');
 var joinClasses = require('./utils/joinClasses');
 var classSet = require('./utils/classSet');
@@ -6371,7 +5958,7 @@ var Well = React.createClass({displayName: "Well",
 });
 
 module.exports = Well;
-},{"./BootstrapMixin":26,"./utils/classSet":56,"./utils/joinClasses":60,"react":206}],50:[function(require,module,exports){
+},{"./BootstrapMixin":28,"./utils/classSet":59,"./utils/joinClasses":63,"react":209}],53:[function(require,module,exports){
 module.exports = {
   CLASSES: {
     'alert': 'alert',
@@ -6615,7 +6202,7 @@ module.exports = {
   ]
 };
 
-},{}],51:[function(require,module,exports){
+},{}],54:[function(require,module,exports){
 var React = require('react');
 
 var ANONYMOUS = '<<anonymous>>';
@@ -6678,7 +6265,7 @@ function createMountableChecker() {
 }
 
 module.exports = CustomPropTypes;
-},{"react":206}],52:[function(require,module,exports){
+},{"react":209}],55:[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -6734,7 +6321,7 @@ var EventListener = {
 
 module.exports = EventListener;
 
-},{}],53:[function(require,module,exports){
+},{}],56:[function(require,module,exports){
 /**
  * Copyright 2014, Facebook, Inc.
  * All rights reserved.
@@ -6783,7 +6370,7 @@ function assign(target, sources) {
 
 module.exports = assign;
 
-},{}],54:[function(require,module,exports){
+},{}],57:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -6898,7 +6485,7 @@ var ReactTransitionEvents = {
 
 module.exports = ReactTransitionEvents;
 
-},{}],55:[function(require,module,exports){
+},{}],58:[function(require,module,exports){
 var React = require('react');
 
 /**
@@ -6989,7 +6576,7 @@ module.exports = {
   numberOf: numberOfValidComponents,
   hasValidComponent: hasValidComponent
 };
-},{"react":206}],56:[function(require,module,exports){
+},{"react":209}],59:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -7029,7 +6616,7 @@ function cx(classNames) {
 }
 
 module.exports = cx;
-},{}],57:[function(require,module,exports){
+},{}],60:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -7173,7 +6760,7 @@ function cloneWithProps(child, props) {
 }
 
 module.exports = cloneWithProps;
-},{"./Object.assign":53,"./joinClasses":60,"react":206}],58:[function(require,module,exports){
+},{"./Object.assign":56,"./joinClasses":63,"react":209}],61:[function(require,module,exports){
 /**
  * Safe chained function
  *
@@ -7199,7 +6786,7 @@ function createChainedFunction(one, two) {
 }
 
 module.exports = createChainedFunction;
-},{}],59:[function(require,module,exports){
+},{}],62:[function(require,module,exports){
 
 /**
  * Shortcut to compute element style
@@ -7309,7 +6896,7 @@ module.exports = {
   getPosition: getPosition,
   offsetParent: offsetParent
 };
-},{}],60:[function(require,module,exports){
+},{}],63:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -7351,7 +6938,7 @@ function joinClasses(className/*, ... */) {
 
 module.exports = joinClasses;
 
-},{}],61:[function(require,module,exports){
+},{}],64:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -7378,7 +6965,7 @@ var AutoFocusMixin = {
 
 module.exports = AutoFocusMixin;
 
-},{"./focusNode":171}],62:[function(require,module,exports){
+},{"./focusNode":174}],65:[function(require,module,exports){
 /**
  * Copyright 2013 Facebook, Inc.
  * All rights reserved.
@@ -7600,7 +7187,7 @@ var BeforeInputEventPlugin = {
 
 module.exports = BeforeInputEventPlugin;
 
-},{"./EventConstants":75,"./EventPropagators":80,"./ExecutionEnvironment":81,"./SyntheticInputEvent":149,"./keyOf":193}],63:[function(require,module,exports){
+},{"./EventConstants":78,"./EventPropagators":83,"./ExecutionEnvironment":84,"./SyntheticInputEvent":152,"./keyOf":196}],66:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -7719,7 +7306,7 @@ var CSSProperty = {
 
 module.exports = CSSProperty;
 
-},{}],64:[function(require,module,exports){
+},{}],67:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -7854,7 +7441,7 @@ var CSSPropertyOperations = {
 module.exports = CSSPropertyOperations;
 
 }).call(this,require('_process'))
-},{"./CSSProperty":63,"./ExecutionEnvironment":81,"./camelizeStyleName":160,"./dangerousStyleValue":165,"./hyphenateStyleName":184,"./memoizeStringOnly":195,"./warning":205,"_process":22}],65:[function(require,module,exports){
+},{"./CSSProperty":66,"./ExecutionEnvironment":84,"./camelizeStyleName":163,"./dangerousStyleValue":168,"./hyphenateStyleName":187,"./memoizeStringOnly":198,"./warning":208,"_process":25}],68:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -7954,7 +7541,7 @@ PooledClass.addPoolingTo(CallbackQueue);
 module.exports = CallbackQueue;
 
 }).call(this,require('_process'))
-},{"./Object.assign":86,"./PooledClass":87,"./invariant":186,"_process":22}],66:[function(require,module,exports){
+},{"./Object.assign":89,"./PooledClass":90,"./invariant":189,"_process":25}],69:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -8336,7 +7923,7 @@ var ChangeEventPlugin = {
 
 module.exports = ChangeEventPlugin;
 
-},{"./EventConstants":75,"./EventPluginHub":77,"./EventPropagators":80,"./ExecutionEnvironment":81,"./ReactUpdates":139,"./SyntheticEvent":147,"./isEventSupported":187,"./isTextInputElement":189,"./keyOf":193}],67:[function(require,module,exports){
+},{"./EventConstants":78,"./EventPluginHub":80,"./EventPropagators":83,"./ExecutionEnvironment":84,"./ReactUpdates":142,"./SyntheticEvent":150,"./isEventSupported":190,"./isTextInputElement":192,"./keyOf":196}],70:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -8361,7 +7948,7 @@ var ClientReactRootIndex = {
 
 module.exports = ClientReactRootIndex;
 
-},{}],68:[function(require,module,exports){
+},{}],71:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -8620,7 +8207,7 @@ var CompositionEventPlugin = {
 
 module.exports = CompositionEventPlugin;
 
-},{"./EventConstants":75,"./EventPropagators":80,"./ExecutionEnvironment":81,"./ReactInputSelection":119,"./SyntheticCompositionEvent":145,"./getTextContentAccessor":181,"./keyOf":193}],69:[function(require,module,exports){
+},{"./EventConstants":78,"./EventPropagators":83,"./ExecutionEnvironment":84,"./ReactInputSelection":122,"./SyntheticCompositionEvent":148,"./getTextContentAccessor":184,"./keyOf":196}],72:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -8795,7 +8382,7 @@ var DOMChildrenOperations = {
 module.exports = DOMChildrenOperations;
 
 }).call(this,require('_process'))
-},{"./Danger":72,"./ReactMultiChildUpdateTypes":125,"./getTextContentAccessor":181,"./invariant":186,"_process":22}],70:[function(require,module,exports){
+},{"./Danger":75,"./ReactMultiChildUpdateTypes":128,"./getTextContentAccessor":184,"./invariant":189,"_process":25}],73:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -9094,7 +8681,7 @@ var DOMProperty = {
 module.exports = DOMProperty;
 
 }).call(this,require('_process'))
-},{"./invariant":186,"_process":22}],71:[function(require,module,exports){
+},{"./invariant":189,"_process":25}],74:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -9291,7 +8878,7 @@ var DOMPropertyOperations = {
 module.exports = DOMPropertyOperations;
 
 }).call(this,require('_process'))
-},{"./DOMProperty":70,"./escapeTextForBrowser":169,"./memoizeStringOnly":195,"./warning":205,"_process":22}],72:[function(require,module,exports){
+},{"./DOMProperty":73,"./escapeTextForBrowser":172,"./memoizeStringOnly":198,"./warning":208,"_process":25}],75:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -9477,7 +9064,7 @@ var Danger = {
 module.exports = Danger;
 
 }).call(this,require('_process'))
-},{"./ExecutionEnvironment":81,"./createNodesFromMarkup":164,"./emptyFunction":167,"./getMarkupWrap":178,"./invariant":186,"_process":22}],73:[function(require,module,exports){
+},{"./ExecutionEnvironment":84,"./createNodesFromMarkup":167,"./emptyFunction":170,"./getMarkupWrap":181,"./invariant":189,"_process":25}],76:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -9517,7 +9104,7 @@ var DefaultEventPluginOrder = [
 
 module.exports = DefaultEventPluginOrder;
 
-},{"./keyOf":193}],74:[function(require,module,exports){
+},{"./keyOf":196}],77:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -9657,7 +9244,7 @@ var EnterLeaveEventPlugin = {
 
 module.exports = EnterLeaveEventPlugin;
 
-},{"./EventConstants":75,"./EventPropagators":80,"./ReactMount":123,"./SyntheticMouseEvent":151,"./keyOf":193}],75:[function(require,module,exports){
+},{"./EventConstants":78,"./EventPropagators":83,"./ReactMount":126,"./SyntheticMouseEvent":154,"./keyOf":196}],78:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -9729,7 +9316,7 @@ var EventConstants = {
 
 module.exports = EventConstants;
 
-},{"./keyMirror":192}],76:[function(require,module,exports){
+},{"./keyMirror":195}],79:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -9819,7 +9406,7 @@ var EventListener = {
 module.exports = EventListener;
 
 }).call(this,require('_process'))
-},{"./emptyFunction":167,"_process":22}],77:[function(require,module,exports){
+},{"./emptyFunction":170,"_process":25}],80:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -10095,7 +9682,7 @@ var EventPluginHub = {
 module.exports = EventPluginHub;
 
 }).call(this,require('_process'))
-},{"./EventPluginRegistry":78,"./EventPluginUtils":79,"./accumulateInto":157,"./forEachAccumulated":172,"./invariant":186,"_process":22}],78:[function(require,module,exports){
+},{"./EventPluginRegistry":81,"./EventPluginUtils":82,"./accumulateInto":160,"./forEachAccumulated":175,"./invariant":189,"_process":25}],81:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -10375,7 +9962,7 @@ var EventPluginRegistry = {
 module.exports = EventPluginRegistry;
 
 }).call(this,require('_process'))
-},{"./invariant":186,"_process":22}],79:[function(require,module,exports){
+},{"./invariant":189,"_process":25}],82:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -10596,7 +10183,7 @@ var EventPluginUtils = {
 module.exports = EventPluginUtils;
 
 }).call(this,require('_process'))
-},{"./EventConstants":75,"./invariant":186,"_process":22}],80:[function(require,module,exports){
+},{"./EventConstants":78,"./invariant":189,"_process":25}],83:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -10738,7 +10325,7 @@ var EventPropagators = {
 module.exports = EventPropagators;
 
 }).call(this,require('_process'))
-},{"./EventConstants":75,"./EventPluginHub":77,"./accumulateInto":157,"./forEachAccumulated":172,"_process":22}],81:[function(require,module,exports){
+},{"./EventConstants":78,"./EventPluginHub":80,"./accumulateInto":160,"./forEachAccumulated":175,"_process":25}],84:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -10783,7 +10370,7 @@ var ExecutionEnvironment = {
 
 module.exports = ExecutionEnvironment;
 
-},{}],82:[function(require,module,exports){
+},{}],85:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -10975,7 +10562,7 @@ var HTMLDOMPropertyConfig = {
 
 module.exports = HTMLDOMPropertyConfig;
 
-},{"./DOMProperty":70,"./ExecutionEnvironment":81}],83:[function(require,module,exports){
+},{"./DOMProperty":73,"./ExecutionEnvironment":84}],86:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -11131,7 +10718,7 @@ var LinkedValueUtils = {
 module.exports = LinkedValueUtils;
 
 }).call(this,require('_process'))
-},{"./ReactPropTypes":132,"./invariant":186,"_process":22}],84:[function(require,module,exports){
+},{"./ReactPropTypes":135,"./invariant":189,"_process":25}],87:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014, Facebook, Inc.
@@ -11181,7 +10768,7 @@ var LocalEventTrapMixin = {
 module.exports = LocalEventTrapMixin;
 
 }).call(this,require('_process'))
-},{"./ReactBrowserEventEmitter":90,"./accumulateInto":157,"./forEachAccumulated":172,"./invariant":186,"_process":22}],85:[function(require,module,exports){
+},{"./ReactBrowserEventEmitter":93,"./accumulateInto":160,"./forEachAccumulated":175,"./invariant":189,"_process":25}],88:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -11239,7 +10826,7 @@ var MobileSafariClickEventPlugin = {
 
 module.exports = MobileSafariClickEventPlugin;
 
-},{"./EventConstants":75,"./emptyFunction":167}],86:[function(require,module,exports){
+},{"./EventConstants":78,"./emptyFunction":170}],89:[function(require,module,exports){
 /**
  * Copyright 2014, Facebook, Inc.
  * All rights reserved.
@@ -11286,7 +10873,7 @@ function assign(target, sources) {
 
 module.exports = assign;
 
-},{}],87:[function(require,module,exports){
+},{}],90:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -11402,7 +10989,7 @@ var PooledClass = {
 module.exports = PooledClass;
 
 }).call(this,require('_process'))
-},{"./invariant":186,"_process":22}],88:[function(require,module,exports){
+},{"./invariant":189,"_process":25}],91:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -11590,7 +11177,7 @@ React.version = '0.12.2';
 module.exports = React;
 
 }).call(this,require('_process'))
-},{"./DOMPropertyOperations":71,"./EventPluginUtils":79,"./ExecutionEnvironment":81,"./Object.assign":86,"./ReactChildren":91,"./ReactComponent":92,"./ReactCompositeComponent":94,"./ReactContext":95,"./ReactCurrentOwner":96,"./ReactDOM":97,"./ReactDOMComponent":99,"./ReactDefaultInjection":109,"./ReactElement":112,"./ReactElementValidator":113,"./ReactInstanceHandles":120,"./ReactLegacyElement":121,"./ReactMount":123,"./ReactMultiChild":124,"./ReactPerf":128,"./ReactPropTypes":132,"./ReactServerRendering":136,"./ReactTextComponent":138,"./deprecated":166,"./onlyChild":197,"_process":22}],89:[function(require,module,exports){
+},{"./DOMPropertyOperations":74,"./EventPluginUtils":82,"./ExecutionEnvironment":84,"./Object.assign":89,"./ReactChildren":94,"./ReactComponent":95,"./ReactCompositeComponent":97,"./ReactContext":98,"./ReactCurrentOwner":99,"./ReactDOM":100,"./ReactDOMComponent":102,"./ReactDefaultInjection":112,"./ReactElement":115,"./ReactElementValidator":116,"./ReactInstanceHandles":123,"./ReactLegacyElement":124,"./ReactMount":126,"./ReactMultiChild":127,"./ReactPerf":131,"./ReactPropTypes":135,"./ReactServerRendering":139,"./ReactTextComponent":141,"./deprecated":169,"./onlyChild":200,"_process":25}],92:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -11633,7 +11220,7 @@ var ReactBrowserComponentMixin = {
 module.exports = ReactBrowserComponentMixin;
 
 }).call(this,require('_process'))
-},{"./ReactEmptyComponent":114,"./ReactMount":123,"./invariant":186,"_process":22}],90:[function(require,module,exports){
+},{"./ReactEmptyComponent":117,"./ReactMount":126,"./invariant":189,"_process":25}],93:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -11988,7 +11575,7 @@ var ReactBrowserEventEmitter = assign({}, ReactEventEmitterMixin, {
 
 module.exports = ReactBrowserEventEmitter;
 
-},{"./EventConstants":75,"./EventPluginHub":77,"./EventPluginRegistry":78,"./Object.assign":86,"./ReactEventEmitterMixin":116,"./ViewportMetrics":156,"./isEventSupported":187}],91:[function(require,module,exports){
+},{"./EventConstants":78,"./EventPluginHub":80,"./EventPluginRegistry":81,"./Object.assign":89,"./ReactEventEmitterMixin":119,"./ViewportMetrics":159,"./isEventSupported":190}],94:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -12138,7 +11725,7 @@ var ReactChildren = {
 module.exports = ReactChildren;
 
 }).call(this,require('_process'))
-},{"./PooledClass":87,"./traverseAllChildren":204,"./warning":205,"_process":22}],92:[function(require,module,exports){
+},{"./PooledClass":90,"./traverseAllChildren":207,"./warning":208,"_process":25}],95:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -12581,7 +12168,7 @@ var ReactComponent = {
 module.exports = ReactComponent;
 
 }).call(this,require('_process'))
-},{"./Object.assign":86,"./ReactElement":112,"./ReactOwner":127,"./ReactUpdates":139,"./invariant":186,"./keyMirror":192,"_process":22}],93:[function(require,module,exports){
+},{"./Object.assign":89,"./ReactElement":115,"./ReactOwner":130,"./ReactUpdates":142,"./invariant":189,"./keyMirror":195,"_process":25}],96:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -12703,7 +12290,7 @@ var ReactComponentBrowserEnvironment = {
 module.exports = ReactComponentBrowserEnvironment;
 
 }).call(this,require('_process'))
-},{"./ReactDOMIDOperations":101,"./ReactMarkupChecksum":122,"./ReactMount":123,"./ReactPerf":128,"./ReactReconcileTransaction":134,"./getReactRootElementInContainer":180,"./invariant":186,"./setInnerHTML":200,"_process":22}],94:[function(require,module,exports){
+},{"./ReactDOMIDOperations":104,"./ReactMarkupChecksum":125,"./ReactMount":126,"./ReactPerf":131,"./ReactReconcileTransaction":137,"./getReactRootElementInContainer":183,"./invariant":189,"./setInnerHTML":203,"_process":25}],97:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -14143,7 +13730,7 @@ var ReactCompositeComponent = {
 module.exports = ReactCompositeComponent;
 
 }).call(this,require('_process'))
-},{"./Object.assign":86,"./ReactComponent":92,"./ReactContext":95,"./ReactCurrentOwner":96,"./ReactElement":112,"./ReactElementValidator":113,"./ReactEmptyComponent":114,"./ReactErrorUtils":115,"./ReactLegacyElement":121,"./ReactOwner":127,"./ReactPerf":128,"./ReactPropTransferer":129,"./ReactPropTypeLocationNames":130,"./ReactPropTypeLocations":131,"./ReactUpdates":139,"./instantiateReactComponent":185,"./invariant":186,"./keyMirror":192,"./keyOf":193,"./mapObject":194,"./monitorCodeUse":196,"./shouldUpdateReactComponent":202,"./warning":205,"_process":22}],95:[function(require,module,exports){
+},{"./Object.assign":89,"./ReactComponent":95,"./ReactContext":98,"./ReactCurrentOwner":99,"./ReactElement":115,"./ReactElementValidator":116,"./ReactEmptyComponent":117,"./ReactErrorUtils":118,"./ReactLegacyElement":124,"./ReactOwner":130,"./ReactPerf":131,"./ReactPropTransferer":132,"./ReactPropTypeLocationNames":133,"./ReactPropTypeLocations":134,"./ReactUpdates":142,"./instantiateReactComponent":188,"./invariant":189,"./keyMirror":195,"./keyOf":196,"./mapObject":197,"./monitorCodeUse":199,"./shouldUpdateReactComponent":205,"./warning":208,"_process":25}],98:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -14205,7 +13792,7 @@ var ReactContext = {
 
 module.exports = ReactContext;
 
-},{"./Object.assign":86}],96:[function(require,module,exports){
+},{"./Object.assign":89}],99:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -14239,7 +13826,7 @@ var ReactCurrentOwner = {
 
 module.exports = ReactCurrentOwner;
 
-},{}],97:[function(require,module,exports){
+},{}],100:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -14422,7 +14009,7 @@ var ReactDOM = mapObject({
 module.exports = ReactDOM;
 
 }).call(this,require('_process'))
-},{"./ReactElement":112,"./ReactElementValidator":113,"./ReactLegacyElement":121,"./mapObject":194,"_process":22}],98:[function(require,module,exports){
+},{"./ReactElement":115,"./ReactElementValidator":116,"./ReactLegacyElement":124,"./mapObject":197,"_process":25}],101:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -14487,7 +14074,7 @@ var ReactDOMButton = ReactCompositeComponent.createClass({
 
 module.exports = ReactDOMButton;
 
-},{"./AutoFocusMixin":61,"./ReactBrowserComponentMixin":89,"./ReactCompositeComponent":94,"./ReactDOM":97,"./ReactElement":112,"./keyMirror":192}],99:[function(require,module,exports){
+},{"./AutoFocusMixin":64,"./ReactBrowserComponentMixin":92,"./ReactCompositeComponent":97,"./ReactDOM":100,"./ReactElement":115,"./keyMirror":195}],102:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -14974,7 +14561,7 @@ assign(
 module.exports = ReactDOMComponent;
 
 }).call(this,require('_process'))
-},{"./CSSPropertyOperations":64,"./DOMProperty":70,"./DOMPropertyOperations":71,"./Object.assign":86,"./ReactBrowserComponentMixin":89,"./ReactBrowserEventEmitter":90,"./ReactComponent":92,"./ReactMount":123,"./ReactMultiChild":124,"./ReactPerf":128,"./escapeTextForBrowser":169,"./invariant":186,"./isEventSupported":187,"./keyOf":193,"./monitorCodeUse":196,"_process":22}],100:[function(require,module,exports){
+},{"./CSSPropertyOperations":67,"./DOMProperty":73,"./DOMPropertyOperations":74,"./Object.assign":89,"./ReactBrowserComponentMixin":92,"./ReactBrowserEventEmitter":93,"./ReactComponent":95,"./ReactMount":126,"./ReactMultiChild":127,"./ReactPerf":131,"./escapeTextForBrowser":172,"./invariant":189,"./isEventSupported":190,"./keyOf":196,"./monitorCodeUse":199,"_process":25}],103:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -15024,7 +14611,7 @@ var ReactDOMForm = ReactCompositeComponent.createClass({
 
 module.exports = ReactDOMForm;
 
-},{"./EventConstants":75,"./LocalEventTrapMixin":84,"./ReactBrowserComponentMixin":89,"./ReactCompositeComponent":94,"./ReactDOM":97,"./ReactElement":112}],101:[function(require,module,exports){
+},{"./EventConstants":78,"./LocalEventTrapMixin":87,"./ReactBrowserComponentMixin":92,"./ReactCompositeComponent":97,"./ReactDOM":100,"./ReactElement":115}],104:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -15210,7 +14797,7 @@ var ReactDOMIDOperations = {
 module.exports = ReactDOMIDOperations;
 
 }).call(this,require('_process'))
-},{"./CSSPropertyOperations":64,"./DOMChildrenOperations":69,"./DOMPropertyOperations":71,"./ReactMount":123,"./ReactPerf":128,"./invariant":186,"./setInnerHTML":200,"_process":22}],102:[function(require,module,exports){
+},{"./CSSPropertyOperations":67,"./DOMChildrenOperations":72,"./DOMPropertyOperations":74,"./ReactMount":126,"./ReactPerf":131,"./invariant":189,"./setInnerHTML":203,"_process":25}],105:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -15258,7 +14845,7 @@ var ReactDOMImg = ReactCompositeComponent.createClass({
 
 module.exports = ReactDOMImg;
 
-},{"./EventConstants":75,"./LocalEventTrapMixin":84,"./ReactBrowserComponentMixin":89,"./ReactCompositeComponent":94,"./ReactDOM":97,"./ReactElement":112}],103:[function(require,module,exports){
+},{"./EventConstants":78,"./LocalEventTrapMixin":87,"./ReactBrowserComponentMixin":92,"./ReactCompositeComponent":97,"./ReactDOM":100,"./ReactElement":115}],106:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -15436,7 +15023,7 @@ var ReactDOMInput = ReactCompositeComponent.createClass({
 module.exports = ReactDOMInput;
 
 }).call(this,require('_process'))
-},{"./AutoFocusMixin":61,"./DOMPropertyOperations":71,"./LinkedValueUtils":83,"./Object.assign":86,"./ReactBrowserComponentMixin":89,"./ReactCompositeComponent":94,"./ReactDOM":97,"./ReactElement":112,"./ReactMount":123,"./ReactUpdates":139,"./invariant":186,"_process":22}],104:[function(require,module,exports){
+},{"./AutoFocusMixin":64,"./DOMPropertyOperations":74,"./LinkedValueUtils":86,"./Object.assign":89,"./ReactBrowserComponentMixin":92,"./ReactCompositeComponent":97,"./ReactDOM":100,"./ReactElement":115,"./ReactMount":126,"./ReactUpdates":142,"./invariant":189,"_process":25}],107:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -15489,7 +15076,7 @@ var ReactDOMOption = ReactCompositeComponent.createClass({
 module.exports = ReactDOMOption;
 
 }).call(this,require('_process'))
-},{"./ReactBrowserComponentMixin":89,"./ReactCompositeComponent":94,"./ReactDOM":97,"./ReactElement":112,"./warning":205,"_process":22}],105:[function(require,module,exports){
+},{"./ReactBrowserComponentMixin":92,"./ReactCompositeComponent":97,"./ReactDOM":100,"./ReactElement":115,"./warning":208,"_process":25}],108:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -15673,7 +15260,7 @@ var ReactDOMSelect = ReactCompositeComponent.createClass({
 
 module.exports = ReactDOMSelect;
 
-},{"./AutoFocusMixin":61,"./LinkedValueUtils":83,"./Object.assign":86,"./ReactBrowserComponentMixin":89,"./ReactCompositeComponent":94,"./ReactDOM":97,"./ReactElement":112,"./ReactUpdates":139}],106:[function(require,module,exports){
+},{"./AutoFocusMixin":64,"./LinkedValueUtils":86,"./Object.assign":89,"./ReactBrowserComponentMixin":92,"./ReactCompositeComponent":97,"./ReactDOM":100,"./ReactElement":115,"./ReactUpdates":142}],109:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -15882,7 +15469,7 @@ var ReactDOMSelection = {
 
 module.exports = ReactDOMSelection;
 
-},{"./ExecutionEnvironment":81,"./getNodeForCharacterOffset":179,"./getTextContentAccessor":181}],107:[function(require,module,exports){
+},{"./ExecutionEnvironment":84,"./getNodeForCharacterOffset":182,"./getTextContentAccessor":184}],110:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -16023,7 +15610,7 @@ var ReactDOMTextarea = ReactCompositeComponent.createClass({
 module.exports = ReactDOMTextarea;
 
 }).call(this,require('_process'))
-},{"./AutoFocusMixin":61,"./DOMPropertyOperations":71,"./LinkedValueUtils":83,"./Object.assign":86,"./ReactBrowserComponentMixin":89,"./ReactCompositeComponent":94,"./ReactDOM":97,"./ReactElement":112,"./ReactUpdates":139,"./invariant":186,"./warning":205,"_process":22}],108:[function(require,module,exports){
+},{"./AutoFocusMixin":64,"./DOMPropertyOperations":74,"./LinkedValueUtils":86,"./Object.assign":89,"./ReactBrowserComponentMixin":92,"./ReactCompositeComponent":97,"./ReactDOM":100,"./ReactElement":115,"./ReactUpdates":142,"./invariant":189,"./warning":208,"_process":25}],111:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -16096,7 +15683,7 @@ var ReactDefaultBatchingStrategy = {
 
 module.exports = ReactDefaultBatchingStrategy;
 
-},{"./Object.assign":86,"./ReactUpdates":139,"./Transaction":155,"./emptyFunction":167}],109:[function(require,module,exports){
+},{"./Object.assign":89,"./ReactUpdates":142,"./Transaction":158,"./emptyFunction":170}],112:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -16225,7 +15812,7 @@ module.exports = {
 };
 
 }).call(this,require('_process'))
-},{"./BeforeInputEventPlugin":62,"./ChangeEventPlugin":66,"./ClientReactRootIndex":67,"./CompositionEventPlugin":68,"./DefaultEventPluginOrder":73,"./EnterLeaveEventPlugin":74,"./ExecutionEnvironment":81,"./HTMLDOMPropertyConfig":82,"./MobileSafariClickEventPlugin":85,"./ReactBrowserComponentMixin":89,"./ReactComponentBrowserEnvironment":93,"./ReactDOMButton":98,"./ReactDOMComponent":99,"./ReactDOMForm":100,"./ReactDOMImg":102,"./ReactDOMInput":103,"./ReactDOMOption":104,"./ReactDOMSelect":105,"./ReactDOMTextarea":107,"./ReactDefaultBatchingStrategy":108,"./ReactDefaultPerf":110,"./ReactEventListener":117,"./ReactInjection":118,"./ReactInstanceHandles":120,"./ReactMount":123,"./SVGDOMPropertyConfig":140,"./SelectEventPlugin":141,"./ServerReactRootIndex":142,"./SimpleEventPlugin":143,"./createFullPageComponent":163,"_process":22}],110:[function(require,module,exports){
+},{"./BeforeInputEventPlugin":65,"./ChangeEventPlugin":69,"./ClientReactRootIndex":70,"./CompositionEventPlugin":71,"./DefaultEventPluginOrder":76,"./EnterLeaveEventPlugin":77,"./ExecutionEnvironment":84,"./HTMLDOMPropertyConfig":85,"./MobileSafariClickEventPlugin":88,"./ReactBrowserComponentMixin":92,"./ReactComponentBrowserEnvironment":96,"./ReactDOMButton":101,"./ReactDOMComponent":102,"./ReactDOMForm":103,"./ReactDOMImg":105,"./ReactDOMInput":106,"./ReactDOMOption":107,"./ReactDOMSelect":108,"./ReactDOMTextarea":110,"./ReactDefaultBatchingStrategy":111,"./ReactDefaultPerf":113,"./ReactEventListener":120,"./ReactInjection":121,"./ReactInstanceHandles":123,"./ReactMount":126,"./SVGDOMPropertyConfig":143,"./SelectEventPlugin":144,"./ServerReactRootIndex":145,"./SimpleEventPlugin":146,"./createFullPageComponent":166,"_process":25}],113:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -16485,7 +16072,7 @@ var ReactDefaultPerf = {
 
 module.exports = ReactDefaultPerf;
 
-},{"./DOMProperty":70,"./ReactDefaultPerfAnalysis":111,"./ReactMount":123,"./ReactPerf":128,"./performanceNow":199}],111:[function(require,module,exports){
+},{"./DOMProperty":73,"./ReactDefaultPerfAnalysis":114,"./ReactMount":126,"./ReactPerf":131,"./performanceNow":202}],114:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -16691,7 +16278,7 @@ var ReactDefaultPerfAnalysis = {
 
 module.exports = ReactDefaultPerfAnalysis;
 
-},{"./Object.assign":86}],112:[function(require,module,exports){
+},{"./Object.assign":89}],115:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014, Facebook, Inc.
@@ -16937,7 +16524,7 @@ ReactElement.isValidElement = function(object) {
 module.exports = ReactElement;
 
 }).call(this,require('_process'))
-},{"./ReactContext":95,"./ReactCurrentOwner":96,"./warning":205,"_process":22}],113:[function(require,module,exports){
+},{"./ReactContext":98,"./ReactCurrentOwner":99,"./warning":208,"_process":25}],116:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014, Facebook, Inc.
@@ -17219,7 +16806,7 @@ var ReactElementValidator = {
 module.exports = ReactElementValidator;
 
 }).call(this,require('_process'))
-},{"./ReactCurrentOwner":96,"./ReactElement":112,"./ReactPropTypeLocations":131,"./monitorCodeUse":196,"./warning":205,"_process":22}],114:[function(require,module,exports){
+},{"./ReactCurrentOwner":99,"./ReactElement":115,"./ReactPropTypeLocations":134,"./monitorCodeUse":199,"./warning":208,"_process":25}],117:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014, Facebook, Inc.
@@ -17296,7 +16883,7 @@ var ReactEmptyComponent = {
 module.exports = ReactEmptyComponent;
 
 }).call(this,require('_process'))
-},{"./ReactElement":112,"./invariant":186,"_process":22}],115:[function(require,module,exports){
+},{"./ReactElement":115,"./invariant":189,"_process":25}],118:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -17328,7 +16915,7 @@ var ReactErrorUtils = {
 
 module.exports = ReactErrorUtils;
 
-},{}],116:[function(require,module,exports){
+},{}],119:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -17378,7 +16965,7 @@ var ReactEventEmitterMixin = {
 
 module.exports = ReactEventEmitterMixin;
 
-},{"./EventPluginHub":77}],117:[function(require,module,exports){
+},{"./EventPluginHub":80}],120:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -17562,7 +17149,7 @@ var ReactEventListener = {
 
 module.exports = ReactEventListener;
 
-},{"./EventListener":76,"./ExecutionEnvironment":81,"./Object.assign":86,"./PooledClass":87,"./ReactInstanceHandles":120,"./ReactMount":123,"./ReactUpdates":139,"./getEventTarget":177,"./getUnboundedScrollPosition":182}],118:[function(require,module,exports){
+},{"./EventListener":79,"./ExecutionEnvironment":84,"./Object.assign":89,"./PooledClass":90,"./ReactInstanceHandles":123,"./ReactMount":126,"./ReactUpdates":142,"./getEventTarget":180,"./getUnboundedScrollPosition":185}],121:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -17602,7 +17189,7 @@ var ReactInjection = {
 
 module.exports = ReactInjection;
 
-},{"./DOMProperty":70,"./EventPluginHub":77,"./ReactBrowserEventEmitter":90,"./ReactComponent":92,"./ReactCompositeComponent":94,"./ReactEmptyComponent":114,"./ReactNativeComponent":126,"./ReactPerf":128,"./ReactRootIndex":135,"./ReactUpdates":139}],119:[function(require,module,exports){
+},{"./DOMProperty":73,"./EventPluginHub":80,"./ReactBrowserEventEmitter":93,"./ReactComponent":95,"./ReactCompositeComponent":97,"./ReactEmptyComponent":117,"./ReactNativeComponent":129,"./ReactPerf":131,"./ReactRootIndex":138,"./ReactUpdates":142}],122:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -17738,7 +17325,7 @@ var ReactInputSelection = {
 
 module.exports = ReactInputSelection;
 
-},{"./ReactDOMSelection":106,"./containsNode":161,"./focusNode":171,"./getActiveElement":173}],120:[function(require,module,exports){
+},{"./ReactDOMSelection":109,"./containsNode":164,"./focusNode":174,"./getActiveElement":176}],123:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -18073,7 +17660,7 @@ var ReactInstanceHandles = {
 module.exports = ReactInstanceHandles;
 
 }).call(this,require('_process'))
-},{"./ReactRootIndex":135,"./invariant":186,"_process":22}],121:[function(require,module,exports){
+},{"./ReactRootIndex":138,"./invariant":189,"_process":25}],124:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014, Facebook, Inc.
@@ -18320,7 +17907,7 @@ ReactLegacyElementFactory._isLegacyCallWarningEnabled = true;
 module.exports = ReactLegacyElementFactory;
 
 }).call(this,require('_process'))
-},{"./ReactCurrentOwner":96,"./invariant":186,"./monitorCodeUse":196,"./warning":205,"_process":22}],122:[function(require,module,exports){
+},{"./ReactCurrentOwner":99,"./invariant":189,"./monitorCodeUse":199,"./warning":208,"_process":25}],125:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -18368,7 +17955,7 @@ var ReactMarkupChecksum = {
 
 module.exports = ReactMarkupChecksum;
 
-},{"./adler32":158}],123:[function(require,module,exports){
+},{"./adler32":161}],126:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -19066,7 +18653,7 @@ ReactMount.renderComponent = deprecated(
 module.exports = ReactMount;
 
 }).call(this,require('_process'))
-},{"./DOMProperty":70,"./ReactBrowserEventEmitter":90,"./ReactCurrentOwner":96,"./ReactElement":112,"./ReactInstanceHandles":120,"./ReactLegacyElement":121,"./ReactPerf":128,"./containsNode":161,"./deprecated":166,"./getReactRootElementInContainer":180,"./instantiateReactComponent":185,"./invariant":186,"./shouldUpdateReactComponent":202,"./warning":205,"_process":22}],124:[function(require,module,exports){
+},{"./DOMProperty":73,"./ReactBrowserEventEmitter":93,"./ReactCurrentOwner":99,"./ReactElement":115,"./ReactInstanceHandles":123,"./ReactLegacyElement":124,"./ReactPerf":131,"./containsNode":164,"./deprecated":169,"./getReactRootElementInContainer":183,"./instantiateReactComponent":188,"./invariant":189,"./shouldUpdateReactComponent":205,"./warning":208,"_process":25}],127:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -19494,7 +19081,7 @@ var ReactMultiChild = {
 
 module.exports = ReactMultiChild;
 
-},{"./ReactComponent":92,"./ReactMultiChildUpdateTypes":125,"./flattenChildren":170,"./instantiateReactComponent":185,"./shouldUpdateReactComponent":202}],125:[function(require,module,exports){
+},{"./ReactComponent":95,"./ReactMultiChildUpdateTypes":128,"./flattenChildren":173,"./instantiateReactComponent":188,"./shouldUpdateReactComponent":205}],128:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -19527,7 +19114,7 @@ var ReactMultiChildUpdateTypes = keyMirror({
 
 module.exports = ReactMultiChildUpdateTypes;
 
-},{"./keyMirror":192}],126:[function(require,module,exports){
+},{"./keyMirror":195}],129:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014, Facebook, Inc.
@@ -19600,7 +19187,7 @@ var ReactNativeComponent = {
 module.exports = ReactNativeComponent;
 
 }).call(this,require('_process'))
-},{"./Object.assign":86,"./invariant":186,"_process":22}],127:[function(require,module,exports){
+},{"./Object.assign":89,"./invariant":189,"_process":25}],130:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -19756,7 +19343,7 @@ var ReactOwner = {
 module.exports = ReactOwner;
 
 }).call(this,require('_process'))
-},{"./emptyObject":168,"./invariant":186,"_process":22}],128:[function(require,module,exports){
+},{"./emptyObject":171,"./invariant":189,"_process":25}],131:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -19840,7 +19427,7 @@ function _noMeasure(objName, fnName, func) {
 module.exports = ReactPerf;
 
 }).call(this,require('_process'))
-},{"_process":22}],129:[function(require,module,exports){
+},{"_process":25}],132:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -20007,7 +19594,7 @@ var ReactPropTransferer = {
 module.exports = ReactPropTransferer;
 
 }).call(this,require('_process'))
-},{"./Object.assign":86,"./emptyFunction":167,"./invariant":186,"./joinClasses":191,"./warning":205,"_process":22}],130:[function(require,module,exports){
+},{"./Object.assign":89,"./emptyFunction":170,"./invariant":189,"./joinClasses":194,"./warning":208,"_process":25}],133:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -20035,7 +19622,7 @@ if ("production" !== process.env.NODE_ENV) {
 module.exports = ReactPropTypeLocationNames;
 
 }).call(this,require('_process'))
-},{"_process":22}],131:[function(require,module,exports){
+},{"_process":25}],134:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -20059,7 +19646,7 @@ var ReactPropTypeLocations = keyMirror({
 
 module.exports = ReactPropTypeLocations;
 
-},{"./keyMirror":192}],132:[function(require,module,exports){
+},{"./keyMirror":195}],135:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -20413,7 +20000,7 @@ function getPreciseType(propValue) {
 
 module.exports = ReactPropTypes;
 
-},{"./ReactElement":112,"./ReactPropTypeLocationNames":130,"./deprecated":166,"./emptyFunction":167}],133:[function(require,module,exports){
+},{"./ReactElement":115,"./ReactPropTypeLocationNames":133,"./deprecated":169,"./emptyFunction":170}],136:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -20469,7 +20056,7 @@ PooledClass.addPoolingTo(ReactPutListenerQueue);
 
 module.exports = ReactPutListenerQueue;
 
-},{"./Object.assign":86,"./PooledClass":87,"./ReactBrowserEventEmitter":90}],134:[function(require,module,exports){
+},{"./Object.assign":89,"./PooledClass":90,"./ReactBrowserEventEmitter":93}],137:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -20645,7 +20232,7 @@ PooledClass.addPoolingTo(ReactReconcileTransaction);
 
 module.exports = ReactReconcileTransaction;
 
-},{"./CallbackQueue":65,"./Object.assign":86,"./PooledClass":87,"./ReactBrowserEventEmitter":90,"./ReactInputSelection":119,"./ReactPutListenerQueue":133,"./Transaction":155}],135:[function(require,module,exports){
+},{"./CallbackQueue":68,"./Object.assign":89,"./PooledClass":90,"./ReactBrowserEventEmitter":93,"./ReactInputSelection":122,"./ReactPutListenerQueue":136,"./Transaction":158}],138:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -20676,7 +20263,7 @@ var ReactRootIndex = {
 
 module.exports = ReactRootIndex;
 
-},{}],136:[function(require,module,exports){
+},{}],139:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -20756,7 +20343,7 @@ module.exports = {
 };
 
 }).call(this,require('_process'))
-},{"./ReactElement":112,"./ReactInstanceHandles":120,"./ReactMarkupChecksum":122,"./ReactServerRenderingTransaction":137,"./instantiateReactComponent":185,"./invariant":186,"_process":22}],137:[function(require,module,exports){
+},{"./ReactElement":115,"./ReactInstanceHandles":123,"./ReactMarkupChecksum":125,"./ReactServerRenderingTransaction":140,"./instantiateReactComponent":188,"./invariant":189,"_process":25}],140:[function(require,module,exports){
 /**
  * Copyright 2014, Facebook, Inc.
  * All rights reserved.
@@ -20869,7 +20456,7 @@ PooledClass.addPoolingTo(ReactServerRenderingTransaction);
 
 module.exports = ReactServerRenderingTransaction;
 
-},{"./CallbackQueue":65,"./Object.assign":86,"./PooledClass":87,"./ReactPutListenerQueue":133,"./Transaction":155,"./emptyFunction":167}],138:[function(require,module,exports){
+},{"./CallbackQueue":68,"./Object.assign":89,"./PooledClass":90,"./ReactPutListenerQueue":136,"./Transaction":158,"./emptyFunction":170}],141:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -20975,7 +20562,7 @@ ReactTextComponentFactory.type = ReactTextComponent;
 
 module.exports = ReactTextComponentFactory;
 
-},{"./DOMPropertyOperations":71,"./Object.assign":86,"./ReactComponent":92,"./ReactElement":112,"./escapeTextForBrowser":169}],139:[function(require,module,exports){
+},{"./DOMPropertyOperations":74,"./Object.assign":89,"./ReactComponent":95,"./ReactElement":115,"./escapeTextForBrowser":172}],142:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -21265,7 +20852,7 @@ var ReactUpdates = {
 module.exports = ReactUpdates;
 
 }).call(this,require('_process'))
-},{"./CallbackQueue":65,"./Object.assign":86,"./PooledClass":87,"./ReactCurrentOwner":96,"./ReactPerf":128,"./Transaction":155,"./invariant":186,"./warning":205,"_process":22}],140:[function(require,module,exports){
+},{"./CallbackQueue":68,"./Object.assign":89,"./PooledClass":90,"./ReactCurrentOwner":99,"./ReactPerf":131,"./Transaction":158,"./invariant":189,"./warning":208,"_process":25}],143:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -21357,7 +20944,7 @@ var SVGDOMPropertyConfig = {
 
 module.exports = SVGDOMPropertyConfig;
 
-},{"./DOMProperty":70}],141:[function(require,module,exports){
+},{"./DOMProperty":73}],144:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -21552,7 +21139,7 @@ var SelectEventPlugin = {
 
 module.exports = SelectEventPlugin;
 
-},{"./EventConstants":75,"./EventPropagators":80,"./ReactInputSelection":119,"./SyntheticEvent":147,"./getActiveElement":173,"./isTextInputElement":189,"./keyOf":193,"./shallowEqual":201}],142:[function(require,module,exports){
+},{"./EventConstants":78,"./EventPropagators":83,"./ReactInputSelection":122,"./SyntheticEvent":150,"./getActiveElement":176,"./isTextInputElement":192,"./keyOf":196,"./shallowEqual":204}],145:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -21583,7 +21170,7 @@ var ServerReactRootIndex = {
 
 module.exports = ServerReactRootIndex;
 
-},{}],143:[function(require,module,exports){
+},{}],146:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -22011,7 +21598,7 @@ var SimpleEventPlugin = {
 module.exports = SimpleEventPlugin;
 
 }).call(this,require('_process'))
-},{"./EventConstants":75,"./EventPluginUtils":79,"./EventPropagators":80,"./SyntheticClipboardEvent":144,"./SyntheticDragEvent":146,"./SyntheticEvent":147,"./SyntheticFocusEvent":148,"./SyntheticKeyboardEvent":150,"./SyntheticMouseEvent":151,"./SyntheticTouchEvent":152,"./SyntheticUIEvent":153,"./SyntheticWheelEvent":154,"./getEventCharCode":174,"./invariant":186,"./keyOf":193,"./warning":205,"_process":22}],144:[function(require,module,exports){
+},{"./EventConstants":78,"./EventPluginUtils":82,"./EventPropagators":83,"./SyntheticClipboardEvent":147,"./SyntheticDragEvent":149,"./SyntheticEvent":150,"./SyntheticFocusEvent":151,"./SyntheticKeyboardEvent":153,"./SyntheticMouseEvent":154,"./SyntheticTouchEvent":155,"./SyntheticUIEvent":156,"./SyntheticWheelEvent":157,"./getEventCharCode":177,"./invariant":189,"./keyOf":196,"./warning":208,"_process":25}],147:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -22057,7 +21644,7 @@ SyntheticEvent.augmentClass(SyntheticClipboardEvent, ClipboardEventInterface);
 module.exports = SyntheticClipboardEvent;
 
 
-},{"./SyntheticEvent":147}],145:[function(require,module,exports){
+},{"./SyntheticEvent":150}],148:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -22103,7 +21690,7 @@ SyntheticEvent.augmentClass(
 module.exports = SyntheticCompositionEvent;
 
 
-},{"./SyntheticEvent":147}],146:[function(require,module,exports){
+},{"./SyntheticEvent":150}],149:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -22142,7 +21729,7 @@ SyntheticMouseEvent.augmentClass(SyntheticDragEvent, DragEventInterface);
 
 module.exports = SyntheticDragEvent;
 
-},{"./SyntheticMouseEvent":151}],147:[function(require,module,exports){
+},{"./SyntheticMouseEvent":154}],150:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -22300,7 +21887,7 @@ PooledClass.addPoolingTo(SyntheticEvent, PooledClass.threeArgumentPooler);
 
 module.exports = SyntheticEvent;
 
-},{"./Object.assign":86,"./PooledClass":87,"./emptyFunction":167,"./getEventTarget":177}],148:[function(require,module,exports){
+},{"./Object.assign":89,"./PooledClass":90,"./emptyFunction":170,"./getEventTarget":180}],151:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -22339,7 +21926,7 @@ SyntheticUIEvent.augmentClass(SyntheticFocusEvent, FocusEventInterface);
 
 module.exports = SyntheticFocusEvent;
 
-},{"./SyntheticUIEvent":153}],149:[function(require,module,exports){
+},{"./SyntheticUIEvent":156}],152:[function(require,module,exports){
 /**
  * Copyright 2013 Facebook, Inc.
  * All rights reserved.
@@ -22386,7 +21973,7 @@ SyntheticEvent.augmentClass(
 module.exports = SyntheticInputEvent;
 
 
-},{"./SyntheticEvent":147}],150:[function(require,module,exports){
+},{"./SyntheticEvent":150}],153:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -22473,7 +22060,7 @@ SyntheticUIEvent.augmentClass(SyntheticKeyboardEvent, KeyboardEventInterface);
 
 module.exports = SyntheticKeyboardEvent;
 
-},{"./SyntheticUIEvent":153,"./getEventCharCode":174,"./getEventKey":175,"./getEventModifierState":176}],151:[function(require,module,exports){
+},{"./SyntheticUIEvent":156,"./getEventCharCode":177,"./getEventKey":178,"./getEventModifierState":179}],154:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -22556,7 +22143,7 @@ SyntheticUIEvent.augmentClass(SyntheticMouseEvent, MouseEventInterface);
 
 module.exports = SyntheticMouseEvent;
 
-},{"./SyntheticUIEvent":153,"./ViewportMetrics":156,"./getEventModifierState":176}],152:[function(require,module,exports){
+},{"./SyntheticUIEvent":156,"./ViewportMetrics":159,"./getEventModifierState":179}],155:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -22604,7 +22191,7 @@ SyntheticUIEvent.augmentClass(SyntheticTouchEvent, TouchEventInterface);
 
 module.exports = SyntheticTouchEvent;
 
-},{"./SyntheticUIEvent":153,"./getEventModifierState":176}],153:[function(require,module,exports){
+},{"./SyntheticUIEvent":156,"./getEventModifierState":179}],156:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -22666,7 +22253,7 @@ SyntheticEvent.augmentClass(SyntheticUIEvent, UIEventInterface);
 
 module.exports = SyntheticUIEvent;
 
-},{"./SyntheticEvent":147,"./getEventTarget":177}],154:[function(require,module,exports){
+},{"./SyntheticEvent":150,"./getEventTarget":180}],157:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -22727,7 +22314,7 @@ SyntheticMouseEvent.augmentClass(SyntheticWheelEvent, WheelEventInterface);
 
 module.exports = SyntheticWheelEvent;
 
-},{"./SyntheticMouseEvent":151}],155:[function(require,module,exports){
+},{"./SyntheticMouseEvent":154}],158:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -22968,7 +22555,7 @@ var Transaction = {
 module.exports = Transaction;
 
 }).call(this,require('_process'))
-},{"./invariant":186,"_process":22}],156:[function(require,module,exports){
+},{"./invariant":189,"_process":25}],159:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -23000,7 +22587,7 @@ var ViewportMetrics = {
 
 module.exports = ViewportMetrics;
 
-},{"./getUnboundedScrollPosition":182}],157:[function(require,module,exports){
+},{"./getUnboundedScrollPosition":185}],160:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014, Facebook, Inc.
@@ -23066,7 +22653,7 @@ function accumulateInto(current, next) {
 module.exports = accumulateInto;
 
 }).call(this,require('_process'))
-},{"./invariant":186,"_process":22}],158:[function(require,module,exports){
+},{"./invariant":189,"_process":25}],161:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -23100,7 +22687,7 @@ function adler32(data) {
 
 module.exports = adler32;
 
-},{}],159:[function(require,module,exports){
+},{}],162:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -23132,7 +22719,7 @@ function camelize(string) {
 
 module.exports = camelize;
 
-},{}],160:[function(require,module,exports){
+},{}],163:[function(require,module,exports){
 /**
  * Copyright 2014, Facebook, Inc.
  * All rights reserved.
@@ -23174,7 +22761,7 @@ function camelizeStyleName(string) {
 
 module.exports = camelizeStyleName;
 
-},{"./camelize":159}],161:[function(require,module,exports){
+},{"./camelize":162}],164:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -23218,7 +22805,7 @@ function containsNode(outerNode, innerNode) {
 
 module.exports = containsNode;
 
-},{"./isTextNode":190}],162:[function(require,module,exports){
+},{"./isTextNode":193}],165:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -23304,7 +22891,7 @@ function createArrayFrom(obj) {
 
 module.exports = createArrayFrom;
 
-},{"./toArray":203}],163:[function(require,module,exports){
+},{"./toArray":206}],166:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -23365,7 +22952,7 @@ function createFullPageComponent(tag) {
 module.exports = createFullPageComponent;
 
 }).call(this,require('_process'))
-},{"./ReactCompositeComponent":94,"./ReactElement":112,"./invariant":186,"_process":22}],164:[function(require,module,exports){
+},{"./ReactCompositeComponent":97,"./ReactElement":115,"./invariant":189,"_process":25}],167:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -23455,7 +23042,7 @@ function createNodesFromMarkup(markup, handleScript) {
 module.exports = createNodesFromMarkup;
 
 }).call(this,require('_process'))
-},{"./ExecutionEnvironment":81,"./createArrayFrom":162,"./getMarkupWrap":178,"./invariant":186,"_process":22}],165:[function(require,module,exports){
+},{"./ExecutionEnvironment":84,"./createArrayFrom":165,"./getMarkupWrap":181,"./invariant":189,"_process":25}],168:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -23513,7 +23100,7 @@ function dangerousStyleValue(name, value) {
 
 module.exports = dangerousStyleValue;
 
-},{"./CSSProperty":63}],166:[function(require,module,exports){
+},{"./CSSProperty":66}],169:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -23564,7 +23151,7 @@ function deprecated(namespace, oldName, newName, ctx, fn) {
 module.exports = deprecated;
 
 }).call(this,require('_process'))
-},{"./Object.assign":86,"./warning":205,"_process":22}],167:[function(require,module,exports){
+},{"./Object.assign":89,"./warning":208,"_process":25}],170:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -23598,7 +23185,7 @@ emptyFunction.thatReturnsArgument = function(arg) { return arg; };
 
 module.exports = emptyFunction;
 
-},{}],168:[function(require,module,exports){
+},{}],171:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -23622,7 +23209,7 @@ if ("production" !== process.env.NODE_ENV) {
 module.exports = emptyObject;
 
 }).call(this,require('_process'))
-},{"_process":22}],169:[function(require,module,exports){
+},{"_process":25}],172:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -23663,7 +23250,7 @@ function escapeTextForBrowser(text) {
 
 module.exports = escapeTextForBrowser;
 
-},{}],170:[function(require,module,exports){
+},{}],173:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -23732,7 +23319,7 @@ function flattenChildren(children) {
 module.exports = flattenChildren;
 
 }).call(this,require('_process'))
-},{"./ReactTextComponent":138,"./traverseAllChildren":204,"./warning":205,"_process":22}],171:[function(require,module,exports){
+},{"./ReactTextComponent":141,"./traverseAllChildren":207,"./warning":208,"_process":25}],174:[function(require,module,exports){
 /**
  * Copyright 2014, Facebook, Inc.
  * All rights reserved.
@@ -23761,7 +23348,7 @@ function focusNode(node) {
 
 module.exports = focusNode;
 
-},{}],172:[function(require,module,exports){
+},{}],175:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -23792,7 +23379,7 @@ var forEachAccumulated = function(arr, cb, scope) {
 
 module.exports = forEachAccumulated;
 
-},{}],173:[function(require,module,exports){
+},{}],176:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -23821,7 +23408,7 @@ function getActiveElement() /*?DOMElement*/ {
 
 module.exports = getActiveElement;
 
-},{}],174:[function(require,module,exports){
+},{}],177:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -23873,7 +23460,7 @@ function getEventCharCode(nativeEvent) {
 
 module.exports = getEventCharCode;
 
-},{}],175:[function(require,module,exports){
+},{}],178:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -23978,7 +23565,7 @@ function getEventKey(nativeEvent) {
 
 module.exports = getEventKey;
 
-},{"./getEventCharCode":174}],176:[function(require,module,exports){
+},{"./getEventCharCode":177}],179:[function(require,module,exports){
 /**
  * Copyright 2013 Facebook, Inc.
  * All rights reserved.
@@ -24025,7 +23612,7 @@ function getEventModifierState(nativeEvent) {
 
 module.exports = getEventModifierState;
 
-},{}],177:[function(require,module,exports){
+},{}],180:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -24056,7 +23643,7 @@ function getEventTarget(nativeEvent) {
 
 module.exports = getEventTarget;
 
-},{}],178:[function(require,module,exports){
+},{}],181:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -24173,7 +23760,7 @@ function getMarkupWrap(nodeName) {
 module.exports = getMarkupWrap;
 
 }).call(this,require('_process'))
-},{"./ExecutionEnvironment":81,"./invariant":186,"_process":22}],179:[function(require,module,exports){
+},{"./ExecutionEnvironment":84,"./invariant":189,"_process":25}],182:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -24248,7 +23835,7 @@ function getNodeForCharacterOffset(root, offset) {
 
 module.exports = getNodeForCharacterOffset;
 
-},{}],180:[function(require,module,exports){
+},{}],183:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -24283,7 +23870,7 @@ function getReactRootElementInContainer(container) {
 
 module.exports = getReactRootElementInContainer;
 
-},{}],181:[function(require,module,exports){
+},{}],184:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -24320,7 +23907,7 @@ function getTextContentAccessor() {
 
 module.exports = getTextContentAccessor;
 
-},{"./ExecutionEnvironment":81}],182:[function(require,module,exports){
+},{"./ExecutionEnvironment":84}],185:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -24360,7 +23947,7 @@ function getUnboundedScrollPosition(scrollable) {
 
 module.exports = getUnboundedScrollPosition;
 
-},{}],183:[function(require,module,exports){
+},{}],186:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -24393,7 +23980,7 @@ function hyphenate(string) {
 
 module.exports = hyphenate;
 
-},{}],184:[function(require,module,exports){
+},{}],187:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -24434,7 +24021,7 @@ function hyphenateStyleName(string) {
 
 module.exports = hyphenateStyleName;
 
-},{"./hyphenate":183}],185:[function(require,module,exports){
+},{"./hyphenate":186}],188:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -24548,7 +24135,7 @@ function instantiateReactComponent(element, parentCompositeType) {
 module.exports = instantiateReactComponent;
 
 }).call(this,require('_process'))
-},{"./ReactElement":112,"./ReactEmptyComponent":114,"./ReactLegacyElement":121,"./ReactNativeComponent":126,"./warning":205,"_process":22}],186:[function(require,module,exports){
+},{"./ReactElement":115,"./ReactEmptyComponent":117,"./ReactLegacyElement":124,"./ReactNativeComponent":129,"./warning":208,"_process":25}],189:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -24605,7 +24192,7 @@ var invariant = function(condition, format, a, b, c, d, e, f) {
 module.exports = invariant;
 
 }).call(this,require('_process'))
-},{"_process":22}],187:[function(require,module,exports){
+},{"_process":25}],190:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -24670,7 +24257,7 @@ function isEventSupported(eventNameSuffix, capture) {
 
 module.exports = isEventSupported;
 
-},{"./ExecutionEnvironment":81}],188:[function(require,module,exports){
+},{"./ExecutionEnvironment":84}],191:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -24698,7 +24285,7 @@ function isNode(object) {
 
 module.exports = isNode;
 
-},{}],189:[function(require,module,exports){
+},{}],192:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -24742,7 +24329,7 @@ function isTextInputElement(elem) {
 
 module.exports = isTextInputElement;
 
-},{}],190:[function(require,module,exports){
+},{}],193:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -24767,7 +24354,7 @@ function isTextNode(object) {
 
 module.exports = isTextNode;
 
-},{"./isNode":188}],191:[function(require,module,exports){
+},{"./isNode":191}],194:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -24808,7 +24395,7 @@ function joinClasses(className/*, ... */) {
 
 module.exports = joinClasses;
 
-},{}],192:[function(require,module,exports){
+},{}],195:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -24863,7 +24450,7 @@ var keyMirror = function(obj) {
 module.exports = keyMirror;
 
 }).call(this,require('_process'))
-},{"./invariant":186,"_process":22}],193:[function(require,module,exports){
+},{"./invariant":189,"_process":25}],196:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -24899,7 +24486,7 @@ var keyOf = function(oneKeyObj) {
 
 module.exports = keyOf;
 
-},{}],194:[function(require,module,exports){
+},{}],197:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -24952,7 +24539,7 @@ function mapObject(object, callback, context) {
 
 module.exports = mapObject;
 
-},{}],195:[function(require,module,exports){
+},{}],198:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -24986,7 +24573,7 @@ function memoizeStringOnly(callback) {
 
 module.exports = memoizeStringOnly;
 
-},{}],196:[function(require,module,exports){
+},{}],199:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014, Facebook, Inc.
@@ -25020,7 +24607,7 @@ function monitorCodeUse(eventName, data) {
 module.exports = monitorCodeUse;
 
 }).call(this,require('_process'))
-},{"./invariant":186,"_process":22}],197:[function(require,module,exports){
+},{"./invariant":189,"_process":25}],200:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -25060,7 +24647,7 @@ function onlyChild(children) {
 module.exports = onlyChild;
 
 }).call(this,require('_process'))
-},{"./ReactElement":112,"./invariant":186,"_process":22}],198:[function(require,module,exports){
+},{"./ReactElement":115,"./invariant":189,"_process":25}],201:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -25088,7 +24675,7 @@ if (ExecutionEnvironment.canUseDOM) {
 
 module.exports = performance || {};
 
-},{"./ExecutionEnvironment":81}],199:[function(require,module,exports){
+},{"./ExecutionEnvironment":84}],202:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -25116,7 +24703,7 @@ var performanceNow = performance.now.bind(performance);
 
 module.exports = performanceNow;
 
-},{"./performance":198}],200:[function(require,module,exports){
+},{"./performance":201}],203:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -25194,7 +24781,7 @@ if (ExecutionEnvironment.canUseDOM) {
 
 module.exports = setInnerHTML;
 
-},{"./ExecutionEnvironment":81}],201:[function(require,module,exports){
+},{"./ExecutionEnvironment":84}],204:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -25238,7 +24825,7 @@ function shallowEqual(objA, objB) {
 
 module.exports = shallowEqual;
 
-},{}],202:[function(require,module,exports){
+},{}],205:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -25276,7 +24863,7 @@ function shouldUpdateReactComponent(prevElement, nextElement) {
 
 module.exports = shouldUpdateReactComponent;
 
-},{}],203:[function(require,module,exports){
+},{}],206:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014, Facebook, Inc.
@@ -25348,7 +24935,7 @@ function toArray(obj) {
 module.exports = toArray;
 
 }).call(this,require('_process'))
-},{"./invariant":186,"_process":22}],204:[function(require,module,exports){
+},{"./invariant":189,"_process":25}],207:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -25531,7 +25118,7 @@ function traverseAllChildren(children, callback, traverseContext) {
 module.exports = traverseAllChildren;
 
 }).call(this,require('_process'))
-},{"./ReactElement":112,"./ReactInstanceHandles":120,"./invariant":186,"_process":22}],205:[function(require,module,exports){
+},{"./ReactElement":115,"./ReactInstanceHandles":123,"./invariant":189,"_process":25}],208:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014, Facebook, Inc.
@@ -25576,7 +25163,7 @@ if ("production" !== process.env.NODE_ENV) {
 module.exports = warning;
 
 }).call(this,require('_process'))
-},{"./emptyFunction":167,"_process":22}],206:[function(require,module,exports){
+},{"./emptyFunction":170,"_process":25}],209:[function(require,module,exports){
 module.exports = require('./lib/React');
 
-},{"./lib/React":88}]},{},[21]);
+},{"./lib/React":91}]},{},[24]);

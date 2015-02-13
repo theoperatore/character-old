@@ -1,8 +1,8 @@
 var React = require('react');
-var ModalInfo = require('./modals/modal-info');
-var ModalProf = require('./modals/modal-proficiencies');
-var ModalTraits = require('./modals/modal-traits');
-var ModalLangs = require('./modals/modal-langs');
+var SettingsInfo = require('./settings/settings-info');
+var SettingsTraits = require('./settings/settings-traits');
+var SettingsProfs = require('./settings/settings-proficiencies');
+var SettingsLangs = require('./settings/settings-languages');
 
 var Accordion = require('react-bootstrap/Accordion');
 var Grid = require('react-bootstrap/Grid');
@@ -15,38 +15,8 @@ var OverlayMixin = require('react-bootstrap/OverlayMixin');
 
 var Info = React.createClass({
   displayName : "CharInfo",
-  mixins : [OverlayMixin],
-  getInitialState : function() {
-    return ({
-      infos : false,
-      traits : false,
-      profs : false,
-      langs : false
-    });
-  },
   handleToggle : function(cmp) {
-    var state = {};
-    state[cmp] = !this.state[cmp];
-    this.setState(state);
-  },
-  renderOverlay : function() {
-    if (this.state.infos) {
-      return (<ModalInfo character={this.props.character} edit={this.props.edit} close={this.handleToggle.bind(this, "infos")}/>);
-    }
-    
-    if (this.state.traits) {
-      return (<ModalTraits character={this.props.character} edit={this.props.edit} close={this.handleToggle.bind(this, "traits")} />);
-    }
-    
-    if (this.state.profs) {
-      return (<ModalProf character={this.props.character} edit={this.props.edit} close={this.handleToggle.bind(this, "profs")} />);
-    }
-    
-    if (this.state.langs) {
-      return (<ModalLangs character={this.props.character} edit={this.props.edit} close={this.handleToggle.bind(this, "langs")} />);
-    }
-    
-    return <span />;
+    this.refs[cmp].toggle();
   },
   render : function() {
 
@@ -73,7 +43,8 @@ var Info = React.createClass({
     // list everything else.
     return (
       <div className="container-fluid">
-        <h3>{"Info"} <Button className="no-border" onClick={this.handleToggle.bind(this, "infos")}><Glyphicon glyph="cog"/></Button></h3>
+        <h3>{"Info"} <Button className="no-border" onClick={this.handleToggle.bind(this, "settings-info")}><Glyphicon glyph="cog"/></Button></h3>
+        <SettingsInfo ref="settings-info" character={this.props.character}/>
         <Panel>
           <Grid fluid>
             <Row>
@@ -123,7 +94,8 @@ var Info = React.createClass({
           </Grid>
         </Panel>
 
-        <h3>{"Traits"} <Button className="no-border" onClick={this.handleToggle.bind(this, "traits")}><Glyphicon glyph="cog"/></Button></h3>
+        <h3>{"Traits"} <Button className="no-border" onClick={this.handleToggle.bind(this, "settings-traits")}><Glyphicon glyph="cog"/></Button></h3>
+        <SettingsTraits ref="settings-traits" character={this.props.character}/>
         <Accordion defaultActiveKey="">
           <Panel className="no-padding" bsStyle="warning" eventKey={0} header="Personality Traits">
             <p>{this.props.character['charTraits']['personalityTraits']}</p>  
@@ -142,12 +114,14 @@ var Info = React.createClass({
           </Panel>
         </Accordion>
 
-        <h3>{"Proficiencies"} <Button className="no-border" onClick={this.handleToggle.bind(this, "profs")}><Glyphicon glyph="cog"/></Button></h3>
+        <h3>{"Proficiencies"} <Button className="no-border" onClick={this.handleToggle.bind(this, "settings-proficiencies")}><Glyphicon glyph="cog"/></Button></h3>
+        <SettingsProfs ref="settings-proficiencies" character={this.props.character}/>
         <Accordion defaultActiveKey="">
           {proficiencies}
         </Accordion>
 
-        <h3>{"Languages"} <Button className="no-border" onClick={this.handleToggle.bind(this, "langs")}><Glyphicon glyph="cog"/></Button></h3>
+        <h3>{"Languages"} <Button className="no-border" onClick={this.handleToggle.bind(this, "settings-languages")}><Glyphicon glyph="cog"/></Button></h3>
+        <SettingsLangs ref="settings-languages" character={this.props.character}/>
         <Accordion defaultActiveKey="">
           {languages}
         </Accordion>

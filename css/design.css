@@ -166,7 +166,7 @@ html {
   border: 0 !important;
   box-shadow: none !important;
   margin: auto -15px;
-  padding: 0 15px;
+  padding:0 15px;
   background-color: rgba(51, 51, 51, 1);
   color: rgba(220, 220, 220, 1);
 
@@ -174,22 +174,23 @@ html {
   background-image:
     /* Top jagged */
     linear-gradient(
-        135deg,
-        rgba(255,255,255,1) 50%, rgba(255,255,255,0) 50%
+      135deg,
+      rgba(255,255,255,1) 50%, rgba(255,255,255,0) 50%
     ),
     linear-gradient(
-        -135deg,
-        rgba(255,255,255,1) 50%, rgba(255,255,255,0) 50%
+      -135deg,
+      rgba(255,255,255,1) 50%, rgba(255,255,255,0) 50%
     ),
     /* Bottom jagged */
     linear-gradient(
-        45deg,
-        rgba(255,255,255,1) 50%, rgba(255,255,255,0) 50%
+      45deg,
+      rgba(255,255,255,1) 50%, rgba(255,255,255,0) 50%
     ),
     linear-gradient(
-        -45deg,
-        rgba(255,255,255,1) 50%, rgba(255,255,255,0) 50%
+      -45deg,
+      rgba(255,255,255,1) 50%, rgba(255,255,255,0) 50%
     );
+
   background-position:
     /* Top jagged */
     top center, top center,
@@ -197,8 +198,15 @@ html {
     bottom center, bottom center;
   background-size:
     /* Top + bottom jagged */
-    0.75rem 0.75rem, 0.75rem 0.75rem,
-    0.75rem 0.75rem, 0.75rem 0.75rem;
+    2em 2em, 2em 2em,
+    2em 2em, 2em 2em;
   background-repeat: repeat-x;
+}
+
+.settings-tear>.panel-collapse>.panel-body {
+  padding-top:50px;
+  padding-bottom:50px;
+  padding-left: 0;
+  padding-right:0;
 }
 

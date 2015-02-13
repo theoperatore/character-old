@@ -1,4 +1,6 @@
 var React = require('react');
+var SettingsEquip = require('./settings/settings-equipment');
+
 var Glyphicon = require('react-bootstrap/Glyphicon');
 var Accordion = require('react-bootstrap/Accordion');
 var Panel = require('react-bootstrap/Panel');
@@ -10,12 +12,15 @@ var Col = require('react-bootstrap/Col');
 
 var Equipment = React.createClass({
   displayName : "CharEquipment",
+  toggle : function() {
+    this.refs.settings.toggle();
+  },
   render : function() {
 
     var equips = [];
     this.props.character['charEquipment']['otherEquipment'].forEach(function(equip, i) {
       equips.push(
-        <Panel eventKey={i} key={i} header={equip.name}>
+        <Panel bsStyle="warning" className="no-padding" eventKey={i} key={i} header={equip.name}>
             <p>{equip.desc}</p>
         </Panel>
       );
@@ -23,7 +28,8 @@ var Equipment = React.createClass({
 
     return (
       <div className="container-fluid">
-        <h3>{"Equipment"} <Button className="no-border"><Glyphicon glyph="cog"/></Button></h3>
+        <h3>{"Equipment"} <Button className="no-border" onClick={this.toggle}><Glyphicon glyph="cog"/></Button></h3>
+        <SettingsEquip ref="settings" character={this.props.character} />
         <Panel bsStyle="warning" header="Money">
           <Grid fluid className="text-center">
             <Row>

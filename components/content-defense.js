@@ -1,6 +1,7 @@
-
 var React = require('react');
 var HelpTooltip = require('./tooltips/help');
+var SettingsDefenses = require('./settings/settings-defenses');
+var SettingsThrows = require('./settings/settings-saving-throws');
 
 var Glyphicon = require('react-bootstrap/Glyphicon');
 var Accordion = require('react-bootstrap/Accordion');
@@ -22,6 +23,9 @@ var Defense = React.createClass({
       temp : "",
       dmg : ""
     });
+  },
+  toggle : function(cmp) {
+    this.refs[cmp].toggle();
   },
   toggleHP : function() {
     this.setState({ hpOpen : ((this.state.hpOpen === 0) ? 1 : 0) });
@@ -127,7 +131,7 @@ var Defense = React.createClass({
       <div className="container-fluid">
         <h3>
           {"Defenses"}
-          <Button className="no-border"><Glyphicon glyph="cog"/></Button>
+          <Button className="no-border" onClick={this.toggle.bind(this, "settings-defenses")}><Glyphicon glyph="cog"/></Button>
 
           <OverlayTrigger ref="help" placement="bottom" trigger="manual" overlay={
             <Tooltip>
@@ -141,6 +145,8 @@ var Defense = React.createClass({
             </Button>
           </OverlayTrigger>
         </h3>
+
+        <SettingsDefenses ref="settings-defenses" character={this.props.character} />
 
         <ProgressBar onClick={this.toggleHP}>
           <ProgressBar bsStyle="info" label={temp + " temp"} now={tempPercent} key={1}/>
@@ -224,7 +230,8 @@ var Defense = React.createClass({
         </Panel>
 
 
-        <h3>{"Saving Throws"} <Button className="no-border"><Glyphicon glyph="cog"/></Button></h3>
+        <h3>{"Saving Throws"} <Button className="no-border" onClick={this.toggle.bind(this, "settings-saving-throws")}><Glyphicon glyph="cog"/></Button></h3>
+        <SettingsThrows ref="settings-saving-throws" character={this.props.character} />
         <Panel className="text-center">
           <Grid fluid>
             <Row>

@@ -1,12 +1,4 @@
 var React = require('react');
-var Modal = require('react-bootstrap/Modal');
-var Input = require('react-bootstrap/Input');
-var Button = require('react-bootstrap/Button');
-var Alert = require('react-bootstrap/Alert');
-var Row = require('react-bootstrap/Row');
-var Col = require('react-bootstrap/Col');
-var TabbedArea = require('react-bootstrap/TabbedArea');
-var TabPane = require('react-bootstrap/TabPane');
 var Panel = require('react-bootstrap/Panel');
 var Accordion = require('react-bootstrap/Accordion');
 
@@ -23,7 +15,9 @@ var Settings = React.createClass({
     return (
       <Accordion activeKey={this.state.active}>
         <Panel eventKey={1} className="settings-tear">
-          {this.props.children}
+          <div className="settings-body">
+            {this.props.children}
+          </div>
         </Panel>
       </Accordion>
     );
