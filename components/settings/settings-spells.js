@@ -183,7 +183,7 @@ var SettingsSpells = React.createClass({
         tmp['charSpells'][oldLvl]['spells'][oldIdx].range = this.state.newRange;
         tmp['charSpells'][oldLvl]['spells'][oldIdx].cmp = this.state.newCmp;
         tmp['charSpells'][oldLvl]['spells'][oldIdx].cast = this.state.newCast;
-        tmp['charSpells'][oldLvl]['spells'][oldIdx].dur = this.state.newdur;
+        tmp['charSpells'][oldLvl]['spells'][oldIdx].dur = this.state.newDur;
       }
     }
 
