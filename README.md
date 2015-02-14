@@ -21,6 +21,21 @@ including, but not limited to:
 - Nail down data model
 - Work on custom parser?
 
+## Bugs
+
+- Class features : index mismatch when deleting a feature with class charges.
+- disabled drag for app settings
+- Traits / Info close on save
+- Ability Scores : entire thing
+- Add tent to Glyphicons?
+- Resistences in defenses pane under saving throws
+- hit dice -- figure out how they really work: roll + CON mod. 
+  - long rest gives _some_ hitdice. get up to half hitdice total.
+  - remaining / total 
+- spells slots be it's own block, not in spell list
+- prepared spell toggle
+- editing money
+
     
 ## License 
 

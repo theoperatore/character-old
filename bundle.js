@@ -2762,7 +2762,7 @@ var SettingsSpells = React.createClass({displayName: "SettingsSpells",
         spell.range = this.state.newRange;
         spell.cmp = this.state.newCmp;
         spell.cast = this.state.newCast;
-        spell.dur = this.state.newdur;
+        spell.dur = this.state.newDur;
 
         tmp['charSpells'][this.state.newLvl]['spells'].push(spell);
       }
