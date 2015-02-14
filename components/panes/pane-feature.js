@@ -1,6 +1,6 @@
 var React = require('react');
 
-var Settings = require('./settings/settings-features');
+var Settings = require('../settings/settings-features');
 
 var Glyphicon = require('react-bootstrap/Glyphicon');
 var Accordion = require('react-bootstrap/Accordion');
@@ -27,7 +27,7 @@ var Features = React.createClass({
     return (
       <div className="container-fluid">
         <h3>{"Features"} <Button className="no-border" onClick={this.handleToggle}><Glyphicon glyph="cog"/></Button></h3>
-        <Settings ref="settings" character={this.props.character}/>
+        <Settings ref="settings" character={this.props.character} edit={this.props.edit}/>
         <Accordion defaultActiveKey="">
           {feats}
         </Accordion>

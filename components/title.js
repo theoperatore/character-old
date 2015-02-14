@@ -6,7 +6,7 @@ var Title = React.createClass({
   render : function() {
     return (
       <div className="container-fluid">
-        <h2>{this.props.character['charName']}</h2>
+        <h2 onClick={this.props.toggleAppSettings}>{this.props.character['charName']}</h2>
       </div>
     );
   }

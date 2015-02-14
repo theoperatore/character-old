@@ -1,5 +1,5 @@
 module.exports = {
-  "charName" : "",
+  "charName" : "Loading...",
   "charInfo" : {
     "class" : "",
     "level" : 1,
@@ -14,7 +14,59 @@ module.exports = {
     "bonds" : "",
     "flaws" : ""
   },
-  "charClassSlots" : [],
+  "charClassCharges" : [],
+  "charSpells" : [
+    {
+      "name" : "Cantrips",
+      "slots" : 0,
+      "spells" : []
+    },
+    {
+      "name" : "1st",
+      "slots" : 0,
+      "spells" : []
+    },
+    {
+      "name" : "2nd",
+      "slots" : 0,
+      "spells" : []
+    },
+    {
+      "name" : "3rd",
+      "slots" : 0,
+      "spells" : []
+    },
+    {
+      "name" : "4th",
+      "slots" : 0,
+      "spells" : []
+    },
+    {
+      "name" : "5th",
+      "slots" : 0,
+      "spells" : []
+    },
+    {
+      "name" : "6th",
+      "slots" : 0,
+      "spells" : []
+    },
+    {
+      "name" : "7th",
+      "slots" : 0,
+      "spells" : []
+    },
+    {
+      "name" : "8th",
+      "slots" : 0,
+      "spells" : []
+    },
+    {
+      "name" : "9th",
+      "slots" : 0,
+      "spells" : []
+    }
+  ],
   "charAbilities" : {
     "str" : {
       "score" : 0,
@@ -44,26 +96,38 @@ module.exports = {
   "charSavingThrows" : {
     "str" : {
       "score" : 0,
+      "bonus" : 0,
+      "proficient" : false,
       "derivatives" : []
     },  
     "dex" : { 
       "score" : 0,
+      "bonus" : 0,
+      "proficient" : false,
       "derivatives" : []
     },
     "con" : {
       "score" : 0,
+      "bonus" : 0,
+      "proficient" : false,
       "derivatives" : []
     },
     "int" : {
       "score" : 0,
+      "bonus" : 0,
+      "proficient" : false,
       "derivatives" : []
     },
     "wis" : {
       "score" : 0,
+      "bonus" : 0,
+      "proficient" : false,
       "derivatives" : []
     },
     "cha" : {
       "score" : 0,
+      "bonus" : 0,
+      "proficient" : false,
       "derivatives" : []
     }
   },
@@ -84,14 +148,14 @@ module.exports = {
     "derivatives" : []
   },
   "charSpeed" : {
-    "score" : 0,
+    "score" : "0",
     "derivatives" : []
   },
   "charHitPoints" : {
     "current" : 0,
     "maximum" : 0,
     "temporary" : 0,
-    "hitDiceTotal" : "",
+    "hitDiceTotal" : "0",
     "deathSaves" : {
       "successes" : 0,
       "failures" : 0
@@ -104,7 +168,7 @@ module.exports = {
       "cp" : 0,
       "sp" : 0,
       "ep" : 0,
-      "gp" : 1337,
+      "gp" : 100,
       "pp" : 0
     },
     "otherEquipment" : []
@@ -115,7 +179,7 @@ module.exports = {
   },
   "charSkills" : {
     "Acrobatics" : {
-      "mod" : "dex", 
+      "mod" : "dex",  
       "trained" : false,
       "score" : 0,
       "derivatives" : []

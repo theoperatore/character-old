@@ -1,7 +1,7 @@
 var React = require('react');
-var HelpTooltip = require('./tooltips/help');
-var SettingsDefenses = require('./settings/settings-defenses');
-var SettingsThrows = require('./settings/settings-saving-throws');
+var HelpTooltip = require('../tooltips/help');
+var SettingsDefenses = require('../settings/settings-defenses');
+var SettingsThrows = require('../settings/settings-saving-throws');
 
 var Glyphicon = require('react-bootstrap/Glyphicon');
 var Accordion = require('react-bootstrap/Accordion');
@@ -146,7 +146,7 @@ var Defense = React.createClass({
           </OverlayTrigger>
         </h3>
 
-        <SettingsDefenses ref="settings-defenses" character={this.props.character} />
+        <SettingsDefenses ref="settings-defenses" character={this.props.character} edit={this.props.edit}/>
 
         <ProgressBar onClick={this.toggleHP}>
           <ProgressBar bsStyle="info" label={temp + " temp"} now={tempPercent} key={1}/>
@@ -231,7 +231,7 @@ var Defense = React.createClass({
 
 
         <h3>{"Saving Throws"} <Button className="no-border" onClick={this.toggle.bind(this, "settings-saving-throws")}><Glyphicon glyph="cog"/></Button></h3>
-        <SettingsThrows ref="settings-saving-throws" character={this.props.character} />
+        <SettingsThrows ref="settings-saving-throws" character={this.props.character} edit={this.props.edit}/>
         <Panel className="text-center">
           <Grid fluid>
             <Row>

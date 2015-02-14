@@ -1,5 +1,5 @@
 var React = require('react');
-var SettingsEquip = require('./settings/settings-equipment');
+var SettingsEquip = require('../settings/settings-equipment');
 
 var Glyphicon = require('react-bootstrap/Glyphicon');
 var Accordion = require('react-bootstrap/Accordion');
@@ -29,7 +29,7 @@ var Equipment = React.createClass({
     return (
       <div className="container-fluid">
         <h3>{"Equipment"} <Button className="no-border" onClick={this.toggle}><Glyphicon glyph="cog"/></Button></h3>
-        <SettingsEquip ref="settings" character={this.props.character} />
+        <SettingsEquip ref="settings" character={this.props.character} edit={this.props.edit}/>
         <Panel bsStyle="warning" header="Money">
           <Grid fluid className="text-center">
             <Row>

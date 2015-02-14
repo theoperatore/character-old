@@ -25,6 +25,18 @@ var SettingsTraits = React.createClass({
   toggle : function() {
     this.refs.settings.toggle();
   },
+  clearState : function() {
+    var state = {};
+
+    state.name = "";
+    state.desc = "";
+    //state.mode = 0;
+    state.newName = "";
+    state.newDesc = "";
+    state.idx = -1;
+
+    this.setState(state);
+  },
   handleModeChange : function(mode) {
     this.setState({ mode : mode });
   },
@@ -59,10 +71,40 @@ var SettingsTraits = React.createClass({
     path += "." + prof.name;
 
     // save and close
-    //this.props.edit({ path : path, character : tmp });
+    this.props.edit({ path : path, character : tmp });
+    this.clearState();
   },
   handleOk : function() {
+    var tmp = this.props.character;
+    var path = "charOtherProficiencies.proficiencies";
+    var data = {};
 
+    // adding new proficiency
+    if (this.state.mode === 0) {
+      if (this.state.name === "") return;
+
+      data.name = this.state.name;
+      data.desc = this.state.desc;
+
+      tmp['charOtherProficiencies']['proficiencies'].push(data);
+      path += ".add." + data.name;
+    }
+
+    // editing existing proficiency
+    else if (this.state.mode === 1) {
+      if (this.state.idx === -1) return;
+
+      // make the changes
+      tmp['charOtherProficiencies']['proficiencies'][this.state.idx].name = this.state.newName;
+      tmp['charOtherProficiencies']['proficiencies'][this.state.idx].desc = this.state.newDesc;
+
+      // log the changes made
+      path += ".edit." + tmp['charOtherProficiencies']['proficiencies'][this.state.idx].name;
+    }
+      
+    // save and close
+    this.props.edit({ path : path, character : tmp });
+    this.clearState();
   },
   renderAdd : function() {
     return (
@@ -73,7 +115,7 @@ var SettingsTraits = React.createClass({
         <Input placeholder="short description" value={this.state.desc} type="textarea" label="Proficiency Description" onChange={this.handleChange.bind(this, "desc")}/>
          <ButtonToolbar>
           <Button bsStyle="danger" onClick={this.toggle}>Close</Button>
-          <Button bsStyle="success">Save</Button>
+          <Button bsStyle="success" onClick={this.handleOk}>Save</Button>
         </ButtonToolbar>
       </div>
     );
@@ -95,7 +137,7 @@ var SettingsTraits = React.createClass({
         <Input>
           <Row>
             <Col xs={8}>
-              <Input type="select" onChange={this.handleSelect} defaultSelected={-1}>
+              <Input type="select" onChange={this.handleSelect} value={this.state.idx}>
                 <option value={-1}>{"Select a Proficiency"}</option>
                 {proficiencies}
               </Input>
@@ -109,7 +151,7 @@ var SettingsTraits = React.createClass({
         <Input disabled={(this.state.idx === -1) ? true : false} type="textarea" onChange={this.handleChange.bind(this, "newDesc")} placeholder={"prof desc"} value={this.state.newDesc} label={"New Proficiency Desc"}/>
         <ButtonToolbar>
           <Button bsStyle="danger" onClick={this.toggle}>Close</Button>
-          <Button bsStyle="success">Save</Button>
+          <Button bsStyle="success" onClick={this.handleOk}>Save</Button>
         </ButtonToolbar>
       </div>
     );

@@ -29,7 +29,30 @@ var SettingsTraits = React.createClass({
     this.setState(node);
   },
   handleOk : function() {
+    var tmp = this.props.character;
+    var path = "charTraits";
 
+    if (this.state.traits !== "") {
+      tmp['charTraits']['personalityTraits'] = this.state.traits;
+      path += ".personalityTraits." + this.state.traits;
+    } 
+
+    if (this.state.ideals !== "") {
+      tmp['charTraits']['ideals'] = this.state.ideals;
+      path += ".ideals." + this.state.ideals;
+    }
+
+    if (this.state.bonds !== "") {
+      tmp['charTraits']['bonds'] = this.state.bonds;
+      path += ".bonds." + this.state.bonds;
+    }
+
+    if (this.state.flaws !== "") {
+      tmp['charTraits']['flaws'] = this.state.flaws;
+      path += ".flaws." + this.state.flaws;
+    }
+
+    this.props.edit({ path : path, character : tmp});
   },
   render : function() {
     return (
@@ -42,7 +65,7 @@ var SettingsTraits = React.createClass({
         <Input type="textarea" onChange={this.handleChange.bind(this, "flaws")} label="Flaws" placeholder={this.props.character['charTraits']['flaws']} value={this.state.flaws} />
         <ButtonToolbar>
           <Button bsStyle="danger" onClick={this.toggle}>Close</Button>
-          <Button bsStyle="success">Save</Button>
+          <Button bsStyle="success" onClick={this.handleOk}>Save</Button>
         </ButtonToolbar>
       </Settings>
     );

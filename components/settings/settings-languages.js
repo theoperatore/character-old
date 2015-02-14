@@ -25,7 +25,20 @@ var SettingsTraits = React.createClass({
   toggle : function() {
     this.refs.settings.toggle();
   },
+  clearState : function() {
+    var state = {};
+
+    state.name = "";
+    state.desc = "";
+    //state.mode = 0;
+    state.newDesc = "";
+    state.newName = "";
+    state.idx = -1;
+
+    this.setState(state);
+  },
   handleModeChange : function(mode) {
+    this.clearState();
     this.setState({ mode : mode });
   },
   handleChange : function(cmp, e) {
@@ -56,14 +69,43 @@ var SettingsTraits = React.createClass({
     if (!confirm("Do you really want to get rid of\n '" + name + "'\n forever?")) return;
 
     langs = tmp['charOtherProficiencies']['languages'].splice(this.state.idx, 1);
-    path += "." + langs.name;
+    path += "." + langs[0].name;
 
     //save and close
-    //this.props.edit({ path : path, character : tmp });
-    //this.props.close();
+    this.props.edit({ path : path, character : tmp });
+    this.clearState();
   },
   handleOk : function() {
+    var tmp = this.props.character;
+    var path = "charOtherProficiencies.languages";
+    var data = {};
 
+    //adding new language
+    if (this.state.mode === 0) {
+      if (this.state.name === "") return;
+
+      data.name = this.state.name;
+      data.desc = this.state.desc;
+
+      tmp['charOtherProficiencies']['languages'].push(data);
+      path += ".add." + data.name;
+    }
+    
+    //edit existing language
+    else if (this.state.mode === 1) {
+      if (this.state.idx === -1) return;
+
+      // make the changes
+      tmp['charOtherProficiencies']['languages'][this.state.idx].name = this.state.newName;
+      tmp['charOtherProficiencies']['languages'][this.state.idx].desc = this.state.newDesc;
+
+      // log the changes made
+      path += ".edit." + tmp['charOtherProficiencies']['languages'][this.state.idx].name;
+    } 
+
+    // save and close
+    this.props.edit({ path : path, character : tmp });
+    this.clearState();
   },
   renderAdd : function() {
     return (
@@ -74,7 +116,7 @@ var SettingsTraits = React.createClass({
         <Input placeholder="short description" value={this.state.desc} type="textarea" label="Language Description" onChange={this.handleChange.bind(this, "desc")}/>
         <ButtonToolbar>
           <Button bsStyle="danger" onClick={this.toggle}>Close</Button>
-          <Button bsStyle="success">Save</Button>
+          <Button bsStyle="success" onClick={this.handleOk}>Save</Button>
         </ButtonToolbar>
       </div>
     );
@@ -96,7 +138,7 @@ var SettingsTraits = React.createClass({
         <Input>
           <Row>
             <Col xs={8}>
-              <Input type="select" onChange={this.handleSelect} defaultSelected={-1}>
+              <Input type="select" onChange={this.handleSelect} value={this.state.idx}>
                 <option value={-1}>{"Select a Language"}</option>
                 {languages}
               </Input>
@@ -110,7 +152,7 @@ var SettingsTraits = React.createClass({
         <Input disabled={(this.state.idx === -1) ? true : false} type="textarea" onChange={this.handleChange.bind(this, "newDesc")} placeholder={"langs desc"} value={this.state.newDesc} label={"New Language Description"}/>
         <ButtonToolbar>
           <Button bsStyle="danger" onClick={this.toggle}>Close</Button>
-          <Button bsStyle="success">Save</Button>
+          <Button bsStyle="success" onClick={this.handleOk}>Save</Button>
         </ButtonToolbar>
       </div>
     );

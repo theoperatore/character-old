@@ -1,5 +1,5 @@
 module.exports = {
-  "charName" : "Wan",
+  "charName" : "Tap Me! (or swipe right)",
   "charInfo" : {
     "class" : "Monk",
     "level" : 5,
@@ -127,31 +127,37 @@ module.exports = {
   "charSavingThrows" : {
     "str" : {
       "score" : 3,
+      "bonus" : 0,
       "proficient" : true,
       "derivatives" : []
     },  
     "dex" : { 
       "score" : 7,
+      "bonus" : 0,
       "proficient" : true,
       "derivatives" : []
     },
     "con" : {
       "score" : 2,
+      "bonus" : 0,
       "proficient" : false,
       "derivatives" : []
     },
     "int" : {
       "score" : 3,
+      "bonus" : 0,
       "proficient" : false,
       "derivatives" : []
     },
     "wis" : {
       "score" : 4,
+      "bonus" : 0,
       "proficient" : false,
       "derivatives" : []
     },
     "cha" : {
       "score" : 0,
+      "bonus" : 0,
       "proficient" : false,
       "derivatives" : []
     }
@@ -173,7 +179,7 @@ module.exports = {
     "derivatives" : []
   },
   "charSpeed" : {
-    "score" : 50,
+    "score" : "50",
     "derivatives" : []
   },
   "charHitPoints" : {

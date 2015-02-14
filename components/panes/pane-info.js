@@ -1,8 +1,8 @@
 var React = require('react');
-var SettingsInfo = require('./settings/settings-info');
-var SettingsTraits = require('./settings/settings-traits');
-var SettingsProfs = require('./settings/settings-proficiencies');
-var SettingsLangs = require('./settings/settings-languages');
+var SettingsInfo = require('../settings/settings-info');
+var SettingsTraits = require('../settings/settings-traits');
+var SettingsProfs = require('../settings/settings-proficiencies');
+var SettingsLangs = require('../settings/settings-languages');
 
 var Accordion = require('react-bootstrap/Accordion');
 var Grid = require('react-bootstrap/Grid');
@@ -39,12 +39,12 @@ var Info = React.createClass({
         </Panel>
       )
     });
-
+    
     // list everything else.
     return (
       <div className="container-fluid">
         <h3>{"Info"} <Button className="no-border" onClick={this.handleToggle.bind(this, "settings-info")}><Glyphicon glyph="cog"/></Button></h3>
-        <SettingsInfo ref="settings-info" character={this.props.character}/>
+        <SettingsInfo ref="settings-info" character={this.props.character} edit={this.props.edit}/>
         <Panel>
           <Grid fluid>
             <Row>
@@ -95,7 +95,7 @@ var Info = React.createClass({
         </Panel>
 
         <h3>{"Traits"} <Button className="no-border" onClick={this.handleToggle.bind(this, "settings-traits")}><Glyphicon glyph="cog"/></Button></h3>
-        <SettingsTraits ref="settings-traits" character={this.props.character}/>
+        <SettingsTraits ref="settings-traits" character={this.props.character} edit={this.props.edit}/>
         <Accordion defaultActiveKey="">
           <Panel className="no-padding" bsStyle="warning" eventKey={0} header="Personality Traits">
             <p>{this.props.character['charTraits']['personalityTraits']}</p>  
@@ -115,13 +115,13 @@ var Info = React.createClass({
         </Accordion>
 
         <h3>{"Proficiencies"} <Button className="no-border" onClick={this.handleToggle.bind(this, "settings-proficiencies")}><Glyphicon glyph="cog"/></Button></h3>
-        <SettingsProfs ref="settings-proficiencies" character={this.props.character}/>
+        <SettingsProfs ref="settings-proficiencies" character={this.props.character} edit={this.props.edit}/>
         <Accordion defaultActiveKey="">
           {proficiencies}
         </Accordion>
 
         <h3>{"Languages"} <Button className="no-border" onClick={this.handleToggle.bind(this, "settings-languages")}><Glyphicon glyph="cog"/></Button></h3>
-        <SettingsLangs ref="settings-languages" character={this.props.character}/>
+        <SettingsLangs ref="settings-languages" character={this.props.character} edit={this.props.edit}/>
         <Accordion defaultActiveKey="">
           {languages}
         </Accordion>

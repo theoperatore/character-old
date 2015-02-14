@@ -1,8 +1,8 @@
 var React = require('react');
 
-var SettingsAttack = require('./settings/settings-attacks');
-var AttackConfig = require('./popovers/attack-bonus');
-var HelpTooltip = require('./tooltips/help');
+var SettingsAttack = require('../settings/settings-attacks');
+var AttackConfig = require('../popovers/attack-bonus');
+var HelpTooltip = require('../tooltips/help');
 
 var Glyphicon = require('react-bootstrap/Glyphicon');
 var Accordion = require('react-bootstrap/Accordion');
@@ -117,7 +117,7 @@ var Attack = React.createClass({
             </Button>
           </OverlayTrigger>
         </h3>
-        <SettingsAttack ref="settings-attacks" character={this.props.character} />
+        <SettingsAttack ref="settings-attacks" character={this.props.character} edit={this.props.edit}/>
         <Panel>
           <Grid fluid>
             <Row>

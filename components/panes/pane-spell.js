@@ -1,10 +1,8 @@
 var React = require('react');
 
-var AttackConfig = require('./popovers/attack-bonus');
-var HelpTooltip = require('./tooltips/help');
-var SettingsSpells = require('./settings/settings-spells');
-
-var Settings = require('./settings/settings-tear');
+var AttackConfig = require('../popovers/attack-bonus');
+var HelpTooltip = require('../tooltips/help');
+var SettingsSpells = require('../settings/settings-spells');
 
 var Glyphicon = require('react-bootstrap/Glyphicon');
 var Accordion = require('react-bootstrap/Accordion');
@@ -49,7 +47,7 @@ var Spells = React.createClass({
     // build list of spells
     var spells = [];
     this.props.character['charSpells'].forEach(function(level, i) {
-      if (level.spells.length !== 0) {
+      if (level.spells.length !== 0 || level.slots !== 0) {
         // get spell slots
         var slots = [];
         for (var k = 0; k < level.slots; k++) {
@@ -169,7 +167,7 @@ var Spells = React.createClass({
           </OverlayTrigger>
         </h3>
 
-        <SettingsSpells ref="settings-spells" character={this.props.character} />
+        <SettingsSpells ref="settings-spells" character={this.props.character} edit={this.props.edit}/>
 
         <Panel>
           {spelldc}

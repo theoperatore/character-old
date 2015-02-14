@@ -4,6 +4,10 @@ html {
   touch-action: manipulation;
 }
 
+#content {
+  background-color: #fff;
+}
+
 .nav>li>a {
   padding: 10px 13px;
 }
@@ -135,11 +139,11 @@ html {
 /* For some reason, React-Bootstrap doesn't do the modal backdrop? */
 .modal {
   z-index: 1337;
+  background-color: rgba(0, 0, 0, 0.55);
 }
 .modal-backdrop.in {
   height: 100%;
   top:0;
-  left:0;
 }
 
 .no-border {
@@ -210,3 +214,11 @@ html {
   padding-right:0;
 }
 
+.inverse {
+  background-color: #333333;
+  color: #ddd;
+}
+
+.inverse h3 {
+  border-bottom: 2px solid #ddd;
+}
