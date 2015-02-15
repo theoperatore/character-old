@@ -1963,9 +1963,24 @@ var SettingsFeatures = React.createClass({displayName: "SettingsFeatures",
     path += "." + feat[0].name;
 
     // if this feat is tied to class charges remove them too
+    // need to update the indexes of other class charges though
     if (feat[0].idx !== undefined) {
       clsCrgs = tmp['charClassCharges'].splice(feat[0].idx, 1);
       path += ".clearClassCharges." + clsCrgs[0].charges;
+
+      // loop through all features and update
+      tmp['charFeatures'].forEach(function(feat,j) {
+        if (feat.idx) {
+          for (var i = 0; i < tmp['charClassCharges'].length; i++) {
+
+            if (tmp['charClassCharges'][i].name === feat.name) {
+              tmp['charFeatures'][j].idx = i;
+              break;
+            }
+          }
+        }
+      }.bind(this))
+
     }
 
     // save and close
