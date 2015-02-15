@@ -17,12 +17,30 @@ var SettingsAbilities = React.createClass({
     // default proficient
     Object.keys(this.props.character['charSkills']).forEach(function(skill,i) {
       var sk = this.props.character['charSkills'][skill]['trained'];
-      if (sk) {
+      if (sk === true) {
         state.profs.push(skill);
       }
-    }.bind(this))
+    }.bind(this));
+
+    console.log(state.profs);
 
     return (state);
+  },
+  componentDidMount: function () {
+    var state = {};
+
+    state.profs = [];
+    // default proficient
+    Object.keys(this.props.character['charSkills']).forEach(function(skill,i) {
+      var sk = this.props.character['charSkills'][skill]['trained'];
+      if (sk === true) {
+        state.profs.push(skill);
+      }
+    }.bind(this));
+
+    console.log(state.profs);   
+
+    this.setState(state);     
   },
   toggle : function() {
     this.refs.settings.toggle();
@@ -115,7 +133,7 @@ var SettingsAbilities = React.createClass({
         sel.push(e.target.options[i].value);
       }
     }
-
+    console.log(sel);
     this.setState({ profs : sel });
   },
   render : function() {
@@ -124,17 +142,22 @@ var SettingsAbilities = React.createClass({
 
     // loop through skills to make options
     var skillOptions = [];
+    var profs = [];
     Object.keys(this.props.character['charSkills']).forEach(function(skill, i) {
       skillOptions.push(
         <option key={i} value={skill}>{skill}</option>
       );
-    })
+
+      if (this.props.character['charSkills'][skill].trained) {
+        profs.push(skill);
+      }
+    }.bind(this))
 
     return (
       <Settings ref="settings">
         <h3>{"Edit Skills"}</h3>
         <p>{"Select which skills for which you are proficient."}</p>
-        <Input type="select" multiple value={this.state.profs} onChange={this.handleProfSelect}>
+        <Input type="select" multiple value={(this.state.profs.length === 0) ? profs : this.state.profs} onChange={this.handleProfSelect}>
           {skillOptions}
         </Input>
         <p>{"If you have any extra bonuses to add to any skill, or passive perception, select the relevant skill and type the bonus."}</p>
@@ -143,7 +166,7 @@ var SettingsAbilities = React.createClass({
           <option value={"passive"}>{"Passive Perception"}</option>
           {skillOptions}
         </Input>
-        <Input disabled={this.state.idx === -1 ? true : false} bsStyle={this.state.bonus === "" ? null : validbonus} type="text" placeholder={"Extra Bonus"} value={this.state.bonus} onChange={this.handleChange.bind(this, "bonus")} />
+        <Input disabled={this.state.idx === -1 ? true : false} bsStyle={this.state.bonus === "" ? null : validbonus} type="text" label={"Extra Bonus"} placeholder={"Extra Bonus"} value={this.state.bonus} onChange={this.handleChange.bind(this, "bonus")} />
         <ButtonToolbar>
           <Button bsStyle="danger" onClick={this.toggle}>Close</Button>
           <Button bsStyle="success" onClick={this.handleOk}>Save</Button>

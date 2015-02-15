@@ -162,7 +162,7 @@ var SettingsSavingThrows = React.createClass({
       <Settings ref="settings">
         <h3>{"Edit Saving Throws"}</h3>
         <p>{"Edit the saving throws with which you are proficient and add any modifiers you may also have for that saving throw."}</p>
-        <Input type="select" ref="profSelect" multiple label="Select Proficient Saving Throws" defaultValue={prof} onChange={this.handleProfSelect}>
+        <Input type="select" ref="profSelect" multiple label="Select Proficient Saving Throws" value={(this.state.profs.length === 0) ? prof : this.state.profs} onChange={this.handleProfSelect}>
           <option value="str">Strength</option>
           <option value="dex">Dexterity</option>
           <option value="con">Constitution</option>

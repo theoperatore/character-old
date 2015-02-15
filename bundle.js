@@ -2794,7 +2794,7 @@ var SettingsSavingThrows = React.createClass({displayName: "SettingsSavingThrows
       React.createElement(Settings, {ref: "settings"}, 
         React.createElement("h3", null, "Edit Saving Throws"), 
         React.createElement("p", null, "Edit the saving throws with which you are proficient and add any modifiers you may also have for that saving throw."), 
-        React.createElement(Input, {type: "select", ref: "profSelect", multiple: true, label: "Select Proficient Saving Throws", defaultValue: prof, onChange: this.handleProfSelect}, 
+        React.createElement(Input, {type: "select", ref: "profSelect", multiple: true, label: "Select Proficient Saving Throws", value: (this.state.profs.length === 0) ? prof : this.state.profs, onChange: this.handleProfSelect}, 
           React.createElement("option", {value: "str"}, "Strength"), 
           React.createElement("option", {value: "dex"}, "Dexterity"), 
           React.createElement("option", {value: "con"}, "Constitution"), 
@@ -2858,12 +2858,30 @@ var SettingsAbilities = React.createClass({displayName: "SettingsAbilities",
     // default proficient
     Object.keys(this.props.character['charSkills']).forEach(function(skill,i) {
       var sk = this.props.character['charSkills'][skill]['trained'];
-      if (sk) {
+      if (sk === true) {
         state.profs.push(skill);
       }
-    }.bind(this))
+    }.bind(this));
+
+    console.log(state.profs);
 
     return (state);
+  },
+  componentDidMount: function () {
+    var state = {};
+
+    state.profs = [];
+    // default proficient
+    Object.keys(this.props.character['charSkills']).forEach(function(skill,i) {
+      var sk = this.props.character['charSkills'][skill]['trained'];
+      if (sk === true) {
+        state.profs.push(skill);
+      }
+    }.bind(this));
+
+    console.log(state.profs);   
+
+    this.setState(state);     
   },
   toggle : function() {
     this.refs.settings.toggle();
@@ -2956,7 +2974,7 @@ var SettingsAbilities = React.createClass({displayName: "SettingsAbilities",
         sel.push(e.target.options[i].value);
       }
     }
-
+    console.log(sel);
     this.setState({ profs : sel });
   },
   render : function() {
@@ -2965,17 +2983,22 @@ var SettingsAbilities = React.createClass({displayName: "SettingsAbilities",
 
     // loop through skills to make options
     var skillOptions = [];
+    var profs = [];
     Object.keys(this.props.character['charSkills']).forEach(function(skill, i) {
       skillOptions.push(
         React.createElement("option", {key: i, value: skill}, skill)
       );
-    })
+
+      if (this.props.character['charSkills'][skill].trained) {
+        profs.push(skill);
+      }
+    }.bind(this))
 
     return (
       React.createElement(Settings, {ref: "settings"}, 
         React.createElement("h3", null, "Edit Skills"), 
         React.createElement("p", null, "Select which skills for which you are proficient."), 
-        React.createElement(Input, {type: "select", multiple: true, value: this.state.profs, onChange: this.handleProfSelect}, 
+        React.createElement(Input, {type: "select", multiple: true, value: (this.state.profs.length === 0) ? profs : this.state.profs, onChange: this.handleProfSelect}, 
           skillOptions
         ), 
         React.createElement("p", null, "If you have any extra bonuses to add to any skill, or passive perception, select the relevant skill and type the bonus."), 
@@ -2984,7 +3007,7 @@ var SettingsAbilities = React.createClass({displayName: "SettingsAbilities",
           React.createElement("option", {value: "passive"}, "Passive Perception"), 
           skillOptions
         ), 
-        React.createElement(Input, {disabled: this.state.idx === -1 ? true : false, bsStyle: this.state.bonus === "" ? null : validbonus, type: "text", placeholder: "Extra Bonus", value: this.state.bonus, onChange: this.handleChange.bind(this, "bonus")}), 
+        React.createElement(Input, {disabled: this.state.idx === -1 ? true : false, bsStyle: this.state.bonus === "" ? null : validbonus, type: "text", label: "Extra Bonus", placeholder: "Extra Bonus", value: this.state.bonus, onChange: this.handleChange.bind(this, "bonus")}), 
         React.createElement(ButtonToolbar, null, 
           React.createElement(Button, {bsStyle: "danger", onClick: this.toggle}, "Close"), 
           React.createElement(Button, {bsStyle: "success", onClick: this.handleOk}, "Save")
