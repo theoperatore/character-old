@@ -2867,22 +2867,6 @@ var SettingsAbilities = React.createClass({displayName: "SettingsAbilities",
 
     return (state);
   },
-  componentDidMount: function () {
-    var state = {};
-
-    state.profs = [];
-    // default proficient
-    Object.keys(this.props.character['charSkills']).forEach(function(skill,i) {
-      var sk = this.props.character['charSkills'][skill]['trained'];
-      if (sk === true) {
-        state.profs.push(skill);
-      }
-    }.bind(this));
-
-    console.log(state.profs);   
-
-    this.setState(state);     
-  },
   toggle : function() {
     this.refs.settings.toggle();
   },
