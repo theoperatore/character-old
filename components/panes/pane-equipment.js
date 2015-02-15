@@ -29,7 +29,8 @@ var Equipment = React.createClass({
     return (
       <div className="container-fluid">
         <h3>{"Equipment"} <Button className="no-border" onClick={this.toggle}><Glyphicon glyph="cog"/></Button></h3>
-        <SettingsEquip ref="settings" character={this.props.character} edit={this.props.edit}/>
+        <SettingsEquip ref="settings" character={this.props.character} edit={this.props.edit} />
+
         <Panel bsStyle="warning" header="Money">
           <Grid fluid className="text-center">
             <Row>
@@ -51,7 +52,6 @@ var Equipment = React.createClass({
         <Accordion defaultActiveKey="">
           {equips}
         </Accordion>
-
       </div>
     );
   }

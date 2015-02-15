@@ -25,7 +25,7 @@ including, but not limited to:
 
 - Class features : index mismatch when deleting a feature with class charges.
 - disabled drag for app settings
-- Traits / Info close on save
+- Traits / Info / Saving throws close on save
 - Ability Scores : entire thing
 - Add tent to Glyphicons?
 - Resistences in defenses pane under saving throws

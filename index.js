@@ -72,7 +72,8 @@ var Character = React.createClass({
   componentDidMount: function () {
     snap = new Snap({
       element : this.refs.content.getDOMNode(),
-      disable : "right"
+      disable : "right",
+      touchToDrag : false
     });
   },
   createNewCharacter : function() {

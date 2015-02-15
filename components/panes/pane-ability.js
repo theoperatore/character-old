@@ -1,4 +1,6 @@
 var React = require('react');
+var SettingsAbility = require('../settings/settings-abilities');
+
 var Glyphicon = require('react-bootstrap/Glyphicon');
 var Accordion = require('react-bootstrap/Accordion');
 var Panel = require('react-bootstrap/Panel');
@@ -12,6 +14,9 @@ var Button = require('react-bootstrap/Button');
 
 var Ability = React.createClass({
   displayName : "CharAbility",
+  toggleSettings : function(cmp) {
+    this.refs[cmp].toggle();
+  },
   render : function() {
 
     var skills = [];
@@ -42,8 +47,8 @@ var Ability = React.createClass({
 
     return (
       <div className="container-fluid">
-        <h3>{"Ability Scores"} <Button className="no-border"><Glyphicon glyph="cog"/></Button></h3>
-
+        <h3>{"Ability Scores"} <Button className="no-border" onClick={this.toggleSettings.bind(this, "settings-ability")}><Glyphicon glyph="cog"/></Button></h3>
+        <SettingsAbility ref="settings-ability" character={this.props.character} edit={this.props.edit} />
         <Panel>
           <Grid fluid className="text-center">
             <Row>

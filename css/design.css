@@ -222,3 +222,32 @@ html {
 .inverse h3 {
   border-bottom: 2px solid #ddd;
 }
+
+/***************************************** HATCH *****************************/
+.hatch-entryway {
+  position:absolute;
+  width: 100%;
+
+  background-color: black;
+  color: white;
+}
+.hatch-cover {
+  z-index: 5;
+  width: 100%;
+  height: 300px;
+
+  background-color: white;
+
+  -webkit-transform: translate3d(0, 0, 0);
+  -moz-transform: translate3d(0, 0, 0);
+  -ms-transform: translate3d(0, 0, 0);
+  -o-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+
+  -webkit-overflow-scrolling: touch;
+  -webkit-transition: all 0.3s ease;
+  -moz-transition: all 0.3s ease;
+  -ms-transition: all 0.3s ease;
+  -o-transition: all 0.3s ease;
+  transition: all 0.3s ease;
+}
