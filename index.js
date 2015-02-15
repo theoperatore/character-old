@@ -64,7 +64,7 @@ var Character = React.createClass({
         this.setState({ character : JSON.parse(snap.val().character) });
       }
       else {
-        blank['charName'] = "Tap Me! (swipe right)";
+        blank['charName'] = "Tap Me! To Create a new Character!";
         this.setState({ character : blank });
       }
     }.bind(this));

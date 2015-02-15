@@ -106,7 +106,7 @@ var ContentArea = React.createClass({
   },
   render : function() {
     return (
-      React.createElement(TabbedArea, {defaultActiveKey: 8}, 
+      React.createElement(TabbedArea, {defaultActiveKey: 1}, 
 
         React.createElement(TabPane, {eventKey: 1, tab: React.createElement(Glyphicon, {glyph: "info-sign"})}, 
           React.createElement(PaneInfo, {character: this.props.character, edit: this.props.edit})
@@ -146,48 +146,8 @@ var ContentArea = React.createClass({
 
         React.createElement(TabPane, {eventKey: 7, tab: React.createElement(Glyphicon, {glyph: "shopping-cart"})}, 
           React.createElement(PaneEquipment, {character: this.props.character, edit: this.props.edit})
-        ), 
-
-
-        React.createElement(TabPane, {eventKey: 8, tab: React.createElement(Glyphicon, {glyph: "floppy-save"})}, 
-          
-          React.createElement(Hatch, {ref: "hatch1", entryway: 
-            React.createElement("div", null, 
-              React.createElement("h1", null, "I'm below!"), 
-              React.createElement("p", null, "this is where settings should go"), 
-              React.createElement("p", null, "notice how smooth the scrolling is? This is how it should be for the Monster eating areas"), 
-              React.createElement("p", null, "notice how smooth the scrolling is? This is how it should be for the Monster eating areas"), 
-              React.createElement("p", null, "notice how smooth the scrolling is? This is how it should be for the Monster eating areas"), 
-              React.createElement("p", null, "notice how smooth the scrolling is? This is how it should be for the Monster eating areas"), 
-              React.createElement("p", null, "notice how smooth the scrolling is? This is how it should be for the Monster eating areas"), 
-              React.createElement("p", null, "notice how smooth the scrolling is? This is how it should be for the Monster eating areas"), 
-              React.createElement("p", null, "notice how smooth the scrolling is? This is how it should be for the Monster eating areas"), 
-              React.createElement("p", null, "notice how smooth the scrolling is? This is how it should be for the Monster eating areas"), 
-              React.createElement("p", null, "notice how smooth the scrolling is? This is how it should be for the Monster eating areas"), 
-              React.createElement("p", null, "notice how smooth the scrolling is? This is how it should be for the Monster eating areas")
-            )
-          }, 
-            React.createElement("h3", null, "Cover cover cover"), 
-            React.createElement("div", null, 
-              React.createElement(Button, {onClick: this.toggleHatch.bind(this, "hatch1")}, "Tap Me!"), 
-              React.createElement("p", null, "things that are part of the cover."), 
-              React.createElement("p", null, "this should be where all of the other content goes.")
-            ), 
-            React.createElement(Hatch, {ref: "hatch2", entryway: 
-              React.createElement("div", null, 
-                React.createElement("h1", null, "Part of the next hatch!"), 
-                React.createElement("p", null, "this is another settings area one hatch. at most, it seems that there is going to be a chain of these things...")
-              )
-            }, 
-              React.createElement("h3", null, "Cover cover cover"), 
-              React.createElement("div", null, 
-                React.createElement(Button, {onClick: this.toggleHatch.bind(this, "hatch2")}, "Tap Me!"), 
-                React.createElement("p", null, "More things that are part of the cover"), 
-                React.createElement("p", null, "this is the second hatch cover")
-              )
-            )
-          )
         )
+
       )
     )
   }
@@ -4351,7 +4311,7 @@ var Character = React.createClass({
         this.setState({ character : JSON.parse(snap.val().character) });
       }
       else {
-        blank['charName'] = "Tap Me! (swipe right)";
+        blank['charName'] = "Tap Me! To Create a new Character!";
         this.setState({ character : blank });
       }
     }.bind(this));

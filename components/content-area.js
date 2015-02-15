@@ -26,7 +26,7 @@ var ContentArea = React.createClass({
   },
   render : function() {
     return (
-      <TabbedArea defaultActiveKey={8}>
+      <TabbedArea defaultActiveKey={1}>
 
         <TabPane eventKey={1} tab={<Glyphicon glyph="info-sign" />}>
           <PaneInfo character={this.props.character} edit={this.props.edit} />          
@@ -68,46 +68,6 @@ var ContentArea = React.createClass({
           <PaneEquipment character={this.props.character} edit={this.props.edit} /> 
         </TabPane>
 
-
-        <TabPane eventKey={8} tab={<Glyphicon glyph="floppy-save" />}>
-          
-          <Hatch ref="hatch1" entryway={
-            <div>
-              <h1>{"I'm below!"}</h1>
-              <p>{"this is where settings should go"}</p>
-              <p>{"notice how smooth the scrolling is? This is how it should be for the Monster eating areas"}</p>
-              <p>{"notice how smooth the scrolling is? This is how it should be for the Monster eating areas"}</p>
-              <p>{"notice how smooth the scrolling is? This is how it should be for the Monster eating areas"}</p>
-              <p>{"notice how smooth the scrolling is? This is how it should be for the Monster eating areas"}</p>
-              <p>{"notice how smooth the scrolling is? This is how it should be for the Monster eating areas"}</p>
-              <p>{"notice how smooth the scrolling is? This is how it should be for the Monster eating areas"}</p>
-              <p>{"notice how smooth the scrolling is? This is how it should be for the Monster eating areas"}</p>
-              <p>{"notice how smooth the scrolling is? This is how it should be for the Monster eating areas"}</p>
-              <p>{"notice how smooth the scrolling is? This is how it should be for the Monster eating areas"}</p>
-              <p>{"notice how smooth the scrolling is? This is how it should be for the Monster eating areas"}</p>
-            </div>
-          }>
-            <h3>{"Cover cover cover"}</h3>
-            <div>
-              <Button onClick={this.toggleHatch.bind(this, "hatch1")}>{"Tap Me!"}</Button>
-              <p>{"things that are part of the cover."}</p>
-              <p>{"this should be where all of the other content goes."}</p>
-            </div>
-            <Hatch ref="hatch2" entryway={
-              <div>
-                <h1>{"Part of the next hatch!"}</h1>
-                <p>{"this is another settings area one hatch. at most, it seems that there is going to be a chain of these things..."}</p>
-              </div>
-            }>
-              <h3>{"Cover cover cover"}</h3>
-              <div>
-                <Button onClick={this.toggleHatch.bind(this, "hatch2")}>{"Tap Me!"}</Button>
-                <p>{"More things that are part of the cover"}</p>
-                <p>{"this is the second hatch cover"}</p>
-              </div>
-            </Hatch>
-          </Hatch>
-        </TabPane>
       </TabbedArea>
     )
   }
