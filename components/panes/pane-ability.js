@@ -1,5 +1,6 @@
 var React = require('react');
 var SettingsAbility = require('../settings/settings-abilities');
+var SettingsSkills = require('../settings/settings-skills');
 
 var Glyphicon = require('react-bootstrap/Glyphicon');
 var Accordion = require('react-bootstrap/Accordion');
@@ -119,7 +120,8 @@ var Ability = React.createClass({
           </Grid>
         </Panel>
 
-        <h3>{"Skills"} <Button className="no-border"><Glyphicon glyph="cog"/></Button></h3>
+        <h3>{"Skills"} <Button className="no-border" onClick={this.toggleSettings.bind(this, "settings-skills")}><Glyphicon glyph="cog"/></Button></h3>
+        <SettingsSkills ref="settings-skills" character={this.props.character} edit={this.props.edit} />
         <Panel>
           <Grid fluid>
             {skills}

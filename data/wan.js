@@ -168,6 +168,7 @@ module.exports = {
   },
   "charPassivePerception" : {
     "score" : 14,
+    "bonus" : 0,
     "derivatives" : []
   },
   "charArmorClass" : {
@@ -275,108 +276,126 @@ module.exports = {
   "charSkills" : {
     "Acrobatics" : {
       "mod" : "dex", 
+      "bonus" : 0,
       "trained" : true,
       "score" : 7,
       "derivatives" : []
     },
     "Animal Handling" : {
       "mod" : "wis",
+      "bonus" : 0,
       "trained" : false,
       "score" : 4,
       "derivatives" : []
     },
     "Arcana" : {
       "mod" : "int",
+      "bonus" : 0,
       "trained" : false,
       "score" : 3,
       "derivatives" : []
     },
     "Athletics" : {
       "mod" : "str",
+      "bonus" : 0,
       "trained" : false,
       "score" : 0,
       "derivatives" : []
     },
     "Deception" : {
       "mod" : "cha",
+      "bonus" : 0,
       "trained" : false,
       "score" : 0,
       "derivatives" : []
     },
     "History" : {
       "mod" : "int",
+      "bonus" : 0,
       "trained" : false,
       "score" : 3,
       "derivatives" : []
     },
     "Insight" : {
       "mod" : "wis",
+      "bonus" : 0,
       "trained" : true,
       "score" : 7,
       "derivatives" : []
     },
     "Intimidation" : {
       "mod" : "cha",
+      "bonus" : 0,
       "trained" : false,
       "score" : 0,
       "derivatives" : []
     },
     "Investigation" : {
       "mod" : "int",
+      "bonus" : 0,
       "trained" : false,
       "score" : 3,
       "derivatives" : []
     },
     "Medicine" : {
       "mod" : "wis",
+      "bonus" : 0,
       "trained" : true,
       "score" : 7,
       "derivatives" : []
     },
     "Nature" : {
       "mod" : "int",
+      "bonus" : 0,
       "trained" : true,
       "score" : 6,
       "derivatives" : []
     },
     "Perception" : {
       "mod" : "wis",
+      "bonus" : 0,
       "trained" : false,
       "score" : 4,
       "derivatives" : []
     },
     "Performance" : {
       "mod" : "cha",
+      "bonus" : 0,
       "trained" : false,
       "score" : 0,
       "derivatives" : []
     },
     "Persuasion" : {
       "mod" : "cha",
+      "bonus" : 0,
       "trained" : false,
       "score" : 0,
       "derivatives" : []
     },
     "Religion" : {
       "mod" : "int",
+      "bonus" : 0,
       "trained" : true,
       "score" : 6,
       "derivatives" : []
     },
     "Sleight of Hand" : {
       "mod" : "dex",
+      "bonus" : 0,
       "trained" : false,
       "score" : 4,
       "derivatives" : []
     },
     "Stealth" : {
       "mod" : "dex",
+      "bonus" : 0,
       "trained" : false,
       "score" : 4,
       "derivatives" : []
     },
     "Survival" : {
       "mod" : "wis",
+      "bonus" : 0,
       "trained" : false,
       "score" : 4,
       "derivatives" : []

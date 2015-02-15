@@ -24,9 +24,7 @@ including, but not limited to:
 ## Bugs
 
 - Class features : index mismatch when deleting a feature with class charges.
-- disabled drag for app settings
 - Traits / Info / Saving throws close on save
-- Ability Scores : entire thing
 - Add tent to Glyphicons?
 - Resistences in defenses pane under saving throws
 - hit dice -- figure out how they really work: roll + CON mod. 
@@ -35,6 +33,7 @@ including, but not limited to:
 - spells slots be it's own block, not in spell list
 - prepared spell toggle
 - editing money
+- Switch to computing all scores on state updates, don't use score (allow character updates to trigger true re-renders)
 
     
 ## License 
