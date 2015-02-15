@@ -51,6 +51,11 @@ var SettingsAbilities = React.createClass({
       err[cmp+"error"] = true;
       this.setState(err);
     }
+    else {
+      err = {};
+      err[cmp+"error"] = false;
+      this.setState(err);
+    }
 
     node[cmp] = isNaN(val) ? e.target.value : val;
     this.setState(node);
@@ -66,7 +71,7 @@ var SettingsAbilities = React.createClass({
       tmp['charPassivePerception']['bonus'] = 
         (this.state.bonus === "")
         ? tmp['charPassivePerception']['bonus']
-        : 0;
+        : this.state.bonus;
     }
     else if (this.state.idx !== -1) {
       if (this.state.bonuserror) return;
@@ -74,7 +79,7 @@ var SettingsAbilities = React.createClass({
       tmp['charSkills'][this.state.idx]['bonus'] = 
         (this.state.bonus === "")
         ? tmp['charSkills'][this.state.idx]['bonus']
-        : 0;
+        : this.state.bonus;
     }
 
     // handle proficient -- for right now, calculate new scores

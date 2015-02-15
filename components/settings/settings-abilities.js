@@ -63,6 +63,11 @@ var SettingsAbilities = React.createClass({
       err[cmp+"error"] = true;
       this.setState(err);
     }
+    else {
+      err = {};
+      err[cmp+"error"] = false;
+      this.setState(err);
+    }
 
     node[cmp] = isNaN(val) ? e.target.value : val;
     this.setState(node);
