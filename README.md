@@ -15,15 +15,10 @@ including, but not limited to:
 	- would resolve, if Dex mod was 3, to: "Adds 6 to AC"
 
 
-## TODO
+## TODO / Bugs
 
-- Test various layouts for best mobile use
-- Nail down data model
-- Work on custom parser?
+Fix / Do now:
 
-## Bugs
-
-- Class features : index mismatch when deleting a feature with class charges.
 - Traits / Info / Saving throws close on save
 - Add tent to Glyphicons?
 - Resistences in defenses pane under saving throws
@@ -34,6 +29,13 @@ including, but not limited to:
 - prepared spell toggle
 - editing money
 - Switch to computing all scores on state updates, don't use score (allow character updates to trigger true re-renders)
+- Switch to translate3d for settings menus
+
+Non-Important stuff:
+
+- Test various layouts for best mobile use
+- Nail down data model
+- Work on custom parser?
 
     
 ## License 
