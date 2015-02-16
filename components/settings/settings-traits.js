@@ -56,7 +56,7 @@ var SettingsTraits = React.createClass({
   },
   render : function() {
     return (
-      <Settings ref="settings" activeOpen={true}>
+      <div className="settings-tear" ref="settings" activeOpen={true}>
         <h3>{"Edit Character Traits"}</h3>
         <p>{"Enter new info for any Character Traits. If a field is left blank and no new values are entered, nothing will be changed"}</p>
         <Input type="textarea" onChange={this.handleChange.bind(this, "traits")} label="Personality Traits" placeholder={this.props.character['charTraits']['personalityTraits']} value={this.state.traits} />
@@ -67,7 +67,7 @@ var SettingsTraits = React.createClass({
           <Button bsStyle="danger" onClick={this.toggle}>Close</Button>
           <Button bsStyle="success" onClick={this.handleOk}>Save</Button>
         </ButtonToolbar>
-      </Settings>
+      </div>
     );
   }
 })

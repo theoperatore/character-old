@@ -58,16 +58,16 @@ var Character = React.createClass({
   },
   componentWillMount: function () {
     // parse address and try to get character
-    //var hash = document.location.hash.split("#")[1] || "blank";
-    //var character = chardb.child(hash).once("value", function(snap) {
-    //  if (snap.val()) {
-    //    this.setState({ character : JSON.parse(snap.val().character) });
-    //  }
-    //  else {
-    //    blank['charName'] = "Tap Me! To Create a new Character!";
-    //    this.setState({ character : blank });
-    //  }
-    //}.bind(this));
+    var hash = document.location.hash.split("#")[1] || "blank";
+    var character = chardb.child(hash).once("value", function(snap) {
+      if (snap.val()) {
+        this.setState({ character : JSON.parse(snap.val().character) });
+      }
+      else {
+        blank['charName'] = "Tap Me! To Create a new Character!";
+        this.setState({ character : blank });
+      }
+    }.bind(this));
   },
   componentDidMount: function () {
     snap = new Snap({

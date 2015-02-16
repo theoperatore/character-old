@@ -46,7 +46,9 @@ var Info = React.createClass({
     // list everything else.
     return (
         <HatchGroup ref="settings">
-          <h3>{"Info"} <Button className="no-border" onClick={this.handleToggle.bind(this, "settings", "0")}><Glyphicon glyph="cog"/></Button></h3>
+          <div className="hatch-cover">
+            <h3>{"Info"} <Button className="no-border" onClick={this.handleToggle.bind(this, "settings", "0")}><Glyphicon glyph="cog"/></Button></h3>
+          </div>
           <Hatch eventKey={"0"}>
             <SettingsInfo character={this.props.character} edit={this.props.edit}/>  
           </Hatch>

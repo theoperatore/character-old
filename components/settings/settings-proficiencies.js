@@ -1,5 +1,4 @@
 var React = require('react');
-var Settings = require('./settings-tear');
 
 var Input = require('react-bootstrap/Input');
 var ButtonToolbar = require('react-bootstrap/ButtonToolbar');
@@ -39,6 +38,10 @@ var SettingsTraits = React.createClass({
   },
   handleModeChange : function(mode) {
     this.setState({ mode : mode });
+  },
+  componentDidUpdate : function() {
+    // recalculate this 
+    this.props.recalculate();
   },
   handleChange : function(cmp, e) {
     var node = {};
@@ -109,7 +112,6 @@ var SettingsTraits = React.createClass({
   renderAdd : function() {
     return (
       <div>
-        <h3>{"Add New Proficiency"}</h3>
         <p>{"Enter the name of the proficiency (ex: Herbalism Kit) and an optional sort description."}</p>
         <Input placeholder="name" value={this.state.name} type="text" label="Proficiency Name" onChange={this.handleChange.bind(this, "name")}/>
         <Input placeholder="short description" value={this.state.desc} type="textarea" label="Proficiency Description" onChange={this.handleChange.bind(this, "desc")}/>
@@ -132,7 +134,6 @@ var SettingsTraits = React.createClass({
 
     return (
       <div>
-        <h3>{"Edit Proficiencies"}</h3>
         <p>{"Change the name or description of a proficiency by first selecting the proficiency to edit and then entering new values."}</p>
         <Input>
           <Row>
@@ -158,8 +159,9 @@ var SettingsTraits = React.createClass({
   },
   render : function() {
     return (
-      <Settings ref="settings" activeOpen={true}>
-        <TabbedArea activeKey={this.state.mode} onSelect={this.handleModeChange}>
+      <div className="settings-tear" ref="settings">
+        <h3>{"Add / Edit Proficiencies"}</h3>
+        <TabbedArea activeKey={this.state.mode} animation={false} onSelect={this.handleModeChange}>
           <TabPane eventKey={0} tab="new">
             {this.renderAdd()}
           </TabPane>
@@ -167,7 +169,7 @@ var SettingsTraits = React.createClass({
             {this.renderEdit()}
           </TabPane>
         </TabbedArea>
-      </Settings>
+      </div>
     );
   }
 })
