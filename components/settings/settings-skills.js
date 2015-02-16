@@ -70,6 +70,12 @@ var SettingsAbilities = React.createClass({
     if (this.state.idx === "passive") {
       if (this.state.bonuserror) return;
       
+      // to handle me editing the data model after it's been pushed to Firebase (i'm an idiot)
+      tmp['charPassivePerception']['bonus'] = 
+        (tmp['charPassivePerception']['bonus'] !== undefined)
+        ? tmp['charPassivePerception']['bonus']
+        : 0;
+
       tmp['charPassivePerception']['bonus'] = 
         (this.state.bonus === "")
         ? tmp['charPassivePerception']['bonus']
@@ -77,6 +83,12 @@ var SettingsAbilities = React.createClass({
     }
     else if (this.state.idx !== -1) {
       if (this.state.bonuserror) return;
+
+      // to handle me editing the data model after it's been pushed to Firebase (i'm an idiot)
+      tmp['charSkills'][this.state.idx]['bonus'] = 
+        (tmp['charSkills'][this.state.idx]['bonus'] !== undefined)
+        ? tmp['charSkills'][this.state.idx]['bonus']
+        : 0;
 
       tmp['charSkills'][this.state.idx]['bonus'] = 
         (this.state.bonus === "")

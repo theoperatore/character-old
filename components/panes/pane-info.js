@@ -13,6 +13,9 @@ var Button = require('react-bootstrap/Button');
 var Glyphicon = require('react-bootstrap/Glyphicon');
 var OverlayMixin = require('react-bootstrap/OverlayMixin');
 
+var Hatch = require('../hatch/Hatch');
+var HatchGroup = require('../hatch/HatchGroup');
+
 var Info = React.createClass({
   displayName : "CharInfo",
   handleToggle : function(cmp) {

@@ -32,6 +32,9 @@ var Hatch = React.createClass({
 
     this.setState({ isOpen : false });
   },
+  getCurrentState : function() {
+    return (this.state.isOpen);
+  },
   toggle : function() {
     if (this.state.isOpen) {
       this.close();
@@ -42,13 +45,8 @@ var Hatch = React.createClass({
   },
   render : function() {
     return (
-      <div className="hatch-container">
-        <div ref="entryway" className="hatch-entryway">
-          {this.props.entryway}
-        </div>
-        <div ref="cover" className="hatch-cover">
-          {this.props.children}
-        </div>
+      <div ref="entryway" id={this.props.eventKey} className="hatch-entryway">
+        {this.props.children}
       </div>
     );
   }
