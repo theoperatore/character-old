@@ -18,7 +18,6 @@ var Button = require('react-bootstrap/Button');
 var Tooltip = require('react-bootstrap/Tooltip');
 var TabbedArea = require('react-bootstrap/TabbedArea');
 var TabPane = require('react-bootstrap/TabPane');
-var Well = require('react-bootstrap/Well');
 
 var Spells = React.createClass({
   displayName : "CharSpell",
