@@ -6,7 +6,11 @@ var Settings = React.createClass({
   getInitialState : function() {
     return ({ active : 0 });
   },
-
+  componentWillMount: function () {
+    if (this.props.activeOpen) {
+      this.setState({ active : 1 });  
+    }
+  },
   toggle : function() {
     this.setState({ active : (this.state.active === 0) ? 1 : 0 });
   },

@@ -226,13 +226,14 @@ html {
 /***************************************** HATCH *****************************/
 .hatch-group-container {
   overflow: hidden;
+  position:relative;
 }
 .hatch-entryway {
   position:absolute;
   width: 100%;
-  padding: 12px;
-  background-color: black;
-  color: white;
+  z-index: 1;
+  padding:12px;
+  margin-top: -12px;
 
   -webkit-transition: all 0.3s ease;
   -moz-transition: all 0.3s ease;
@@ -243,8 +244,9 @@ html {
 .hatch-cover {
   position:relative;
   background-color: white;
-  padding: 12px;
   width: 100%;
+  z-index:2;
+  padding:12px;
 
   -webkit-transform: translate3d(0, 0, 0);
   -moz-transform: translate3d(0, 0, 0);

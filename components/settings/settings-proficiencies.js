@@ -158,7 +158,7 @@ var SettingsTraits = React.createClass({
   },
   render : function() {
     return (
-      <Settings ref="settings">
+      <Settings ref="settings" activeOpen={true}>
         <TabbedArea activeKey={this.state.mode} onSelect={this.handleModeChange}>
           <TabPane eventKey={0} tab="new">
             {this.renderAdd()}

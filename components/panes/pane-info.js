@@ -4,6 +4,9 @@ var SettingsTraits = require('../settings/settings-traits');
 var SettingsProfs = require('../settings/settings-proficiencies');
 var SettingsLangs = require('../settings/settings-languages');
 
+var HatchGroup = require('../hatch/HatchGroup');
+var Hatch = require('../hatch/Hatch');
+
 var Accordion = require('react-bootstrap/Accordion');
 var Grid = require('react-bootstrap/Grid');
 var Row = require('react-bootstrap/Row');
@@ -15,8 +18,8 @@ var OverlayMixin = require('react-bootstrap/OverlayMixin');
 
 var Info = React.createClass({
   displayName : "CharInfo",
-  handleToggle : function(cmp) {
-    this.refs[cmp].toggle();
+  handleToggle : function(cmp, idx) {
+    this.refs[cmp].toggle(idx);
   },
   render : function() {
 
@@ -42,90 +45,103 @@ var Info = React.createClass({
     
     // list everything else.
     return (
-      <div className="container-fluid">
-        <h3>{"Info"} <Button className="no-border" onClick={this.handleToggle.bind(this, "settings-info")}><Glyphicon glyph="cog"/></Button></h3>
-        <SettingsInfo ref="settings-info" character={this.props.character} edit={this.props.edit}/>
-        <Panel>
-          <Grid fluid>
-            <Row>
-              <Col xs={4}>
-                <div>
-                  <p>Class</p>
-                  <h4>{this.props.character['charInfo']['class']}</h4>
-                </div>
-              </Col>
-              <Col xs={4}>
-                <div>
-                  <p>Lvl</p>
-                  <h4>{this.props.character['charInfo']['level']}</h4>
-                </div>
-              </Col>
-              <Col xs={4}>
-                <div>
-                  <p>Xp</p>
-                  <h4>{this.props.character['charInfo']['xp']}</h4>
-                </div>
-              </Col>
-            </Row>
-          </Grid>
-        </Panel>
-        <Panel>
-          <Grid fluid>
-            <Row>
-              <Col xs={4}>
-                <div>
-                  <p>Bg</p>
-                  <h4>{this.props.character['charInfo']['background']}</h4>
-                </div>
-              </Col>
-              <Col xs={4}>
-                <div>
-                  <p>Race</p>
-                  <h4>{this.props.character['charInfo']['race']}</h4>
-                </div>
-              </Col>
-              <Col xs={4}>
-                <div>
-                  <p>Align</p>
-                  <h4>{this.props.character['charInfo']['alignment']}</h4>
-                </div>
-              </Col>
-            </Row>
-          </Grid>
-        </Panel>
+        <HatchGroup ref="settings">
+          <h3>{"Info"} <Button className="no-border" onClick={this.handleToggle.bind(this, "settings", "0")}><Glyphicon glyph="cog"/></Button></h3>
+          <Hatch eventKey={"0"}>
+            <SettingsInfo character={this.props.character} edit={this.props.edit}/>  
+          </Hatch>
+          <div className="hatch-cover">
+            <Panel>
+              <Grid fluid>
+                <Row>
+                  <Col xs={4}>
+                    <div>
+                      <p>Class</p>
+                      <h4>{this.props.character['charInfo']['class']}</h4>
+                    </div>
+                  </Col>
+                  <Col xs={4}>
+                    <div>
+                      <p>Lvl</p>
+                      <h4>{this.props.character['charInfo']['level']}</h4>
+                    </div>
+                  </Col>
+                  <Col xs={4}>
+                    <div>
+                      <p>Xp</p>
+                      <h4>{this.props.character['charInfo']['xp']}</h4>
+                    </div>
+                  </Col>
+                </Row>
+              </Grid>
+            </Panel>
+            <Panel>
+              <Grid fluid>
+                <Row>
+                  <Col xs={4}>
+                    <div>
+                      <p>Bg</p>
+                      <h4>{this.props.character['charInfo']['background']}</h4>
+                    </div>
+                  </Col>
+                  <Col xs={4}>
+                    <div>
+                      <p>Race</p>
+                      <h4>{this.props.character['charInfo']['race']}</h4>
+                    </div>
+                  </Col>
+                  <Col xs={4}>
+                    <div>
+                      <p>Align</p>
+                      <h4>{this.props.character['charInfo']['alignment']}</h4>
+                    </div>
+                  </Col>
+                </Row>
+              </Grid>
+            </Panel>
+            <h3>{"Traits"} <Button className="no-border" onClick={this.handleToggle.bind(this, "settings", "1")}><Glyphicon glyph="cog"/></Button></h3>
+          </div>
+          <Hatch eventKey={"1"}>
+            <SettingsTraits character={this.props.character} edit={this.props.edit}/>
+          </Hatch>
+          <div className="hatch-cover">
+            <Accordion defaultActiveKey="">
+              <Panel className="no-padding" bsStyle="warning" eventKey={0} header="Personality Traits">
+                <p>{this.props.character['charTraits']['personalityTraits']}</p>  
+              </Panel>
+              
+              <Panel className="no-padding" bsStyle="warning" eventKey={1} header="Ideals">
+                <p>{this.props.character['charTraits']['ideals']}</p>
+              </Panel>
 
-        <h3>{"Traits"} <Button className="no-border" onClick={this.handleToggle.bind(this, "settings-traits")}><Glyphicon glyph="cog"/></Button></h3>
-        <SettingsTraits ref="settings-traits" character={this.props.character} edit={this.props.edit}/>
-        <Accordion defaultActiveKey="">
-          <Panel className="no-padding" bsStyle="warning" eventKey={0} header="Personality Traits">
-            <p>{this.props.character['charTraits']['personalityTraits']}</p>  
-          </Panel>
-          
-          <Panel className="no-padding" bsStyle="warning" eventKey={1} header="Ideals">
-            <p>{this.props.character['charTraits']['ideals']}</p>
-          </Panel>
-
-          <Panel className="no-padding" bsStyle="warning" eventKey={2} header="Bonds">
-            <p>{this.props.character['charTraits']['bonds']}</p>
-          </Panel>        
-          
-          <Panel className="no-padding" bsStyle="warning" eventKey={3} header="Flaws">
-            <p>{this.props.character['charTraits']['flaws']}</p>
-          </Panel>
-        </Accordion>
-
-        <h3>{"Proficiencies"} <Button className="no-border" onClick={this.handleToggle.bind(this, "settings-proficiencies")}><Glyphicon glyph="cog"/></Button></h3>
-        <SettingsProfs ref="settings-proficiencies" character={this.props.character} edit={this.props.edit}/>
-        <Accordion defaultActiveKey="">
-          {proficiencies}
-        </Accordion>
-
-        <h3>{"Languages"} <Button className="no-border" onClick={this.handleToggle.bind(this, "settings-languages")}><Glyphicon glyph="cog"/></Button></h3>
-        <SettingsLangs ref="settings-languages" character={this.props.character} edit={this.props.edit}/>
-        <Accordion defaultActiveKey="">
-          {languages}
-        </Accordion>
-      </div>
+              <Panel className="no-padding" bsStyle="warning" eventKey={2} header="Bonds">
+                <p>{this.props.character['charTraits']['bonds']}</p>
+              </Panel>        
+              
+              <Panel className="no-padding" bsStyle="warning" eventKey={3} header="Flaws">
+                <p>{this.props.character['charTraits']['flaws']}</p>
+              </Panel>
+            </Accordion>
+            <h3>{"Proficiencies"} <Button className="no-border" onClick={this.handleToggle.bind(this, "settings", "2")}><Glyphicon glyph="cog"/></Button></h3>
+          </div>
+          <Hatch eventKey={"2"}>
+            <SettingsProfs character={this.props.character} edit={this.props.edit}/>
+          </Hatch>
+          <div className="hatch-cover">
+            <Accordion defaultActiveKey="">
+              {proficiencies}
+            </Accordion>
+            <h3>{"Languages"} <Button className="no-border" onClick={this.handleToggle.bind(this, "settings", "3")}><Glyphicon glyph="cog"/></Button></h3>
+          </div>
+          <Hatch eventKey={"3"}>
+            <SettingsLangs character={this.props.character} edit={this.props.edit}/>
+          </Hatch>
+          <div className="hatch-cover">
+            <Accordion defaultActiveKey="">
+              {languages}
+            </Accordion>
+          </div>
+        </HatchGroup>
     )
   }
 })

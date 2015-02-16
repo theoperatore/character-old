@@ -108,7 +108,7 @@ var SettingsInfo = React.createClass({
     var validxp = (this.state.xperror) ? "error" : "success";
 
     return (
-      <Settings ref="settings">
+      <Settings ref="settings" activeOpen={true}>
         <h3>{"Edit Character Info"}</h3>
         <p>{"Enter a new value for any Character Info. If a field is left blank and no new values are entered, nothing will be changed."}</p>
         <Input type="text" onChange={this.handleChange.bind(this, "cls")} label="Class" placeholder={this.props.character['charInfo']['class']} value={this.state.cls} />
