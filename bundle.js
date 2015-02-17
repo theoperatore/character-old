@@ -30,10 +30,6 @@ var PaneFeature = require('./panes/pane-feature');
 var PaneEquipment = require('./panes/pane-equipment');
 var PaneSpell = require('./panes/pane-spell');
 
-var Hatch = require('./hatch/Hatch');
-var HatchGroup = require('./hatch/HatchGroup');
-var Button = require('react-bootstrap/Button');
-
 // react-bootstrap stuff
 var TabbedArea = require('react-bootstrap/TabbedArea');
 var TabPane = require('react-bootstrap/TabPane');
@@ -48,7 +44,7 @@ var ContentArea = React.createClass({
   },
   render : function() {
     return (
-      React.createElement(TabbedArea, {defaultActiveKey: 8}, 
+      React.createElement(TabbedArea, {defaultActiveKey: 1}, 
 
         React.createElement(TabPane, {eventKey: 1, tab: React.createElement(Glyphicon, {glyph: "info-sign"})}, 
           React.createElement(PaneInfo, {character: this.props.character, edit: this.props.edit})
@@ -87,34 +83,6 @@ var ContentArea = React.createClass({
 
         React.createElement(TabPane, {eventKey: 7, tab: React.createElement(Glyphicon, {glyph: "shopping-cart"})}, 
           React.createElement(PaneEquipment, {character: this.props.character, edit: this.props.edit})
-        ), 
-
-        React.createElement(TabPane, {eventKey: 8, tab: React.createElement(Glyphicon, {glyph: "floppy-save"})}, 
-          React.createElement(HatchGroup, {ref: "hatchgroup"}, 
-            React.createElement(Hatch, {eventKey: "0"}, 
-              React.createElement("h1", null, "Entryway of the Hatch 1"), 
-              React.createElement("p", null, "Lorem ipsum dolor sit amet, consectetur adipiscing elit. In finibus risus ac rhoncus ultricies. Donec at risus interdum, ornare nisl quis, rhoncus odio. Integer pharetra neque nunc. Proin porttitor dapibus efficitur. Maecenas nec ante libero. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Morbi feugiat non justo vitae vehicula. Morbi arcu est, luctus vehicula mollis ut, finibus at eros. Sed vulputate blandit porta. Maecenas posuere elit ultrices diam consequat, eu fermentum turpis bibendum. Suspendisse eu augue quis nunc eleifend varius. Fusce ultrices dolor ut neque interdum, quis imperdiet sapien sagittis. Ut posuere sollicitudin ex sed suscipit. Nulla nec nunc vulputate odio finibus semper at ac neque. Morbi semper, magna malesuada laoreet feugiat, magna dui dictum ligula, ut cursus nisi nisl sed massa. Fusce tristique quam vel leo pulvinar, id egestas dolor molestie."), 
-              React.createElement("p", null, "Lorem ipsum dolor sit amet, consectetur adipiscing elit. In finibus risus ac rhoncus ultricies. Donec at risus interdum, ornare nisl quis, rhoncus odio. Integer pharetra neque nunc. Proin porttitor dapibus efficitur. Maecenas nec ante libero. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Morbi feugiat non justo vitae vehicula. Morbi arcu est, luctus vehicula mollis ut, finibus at eros. Sed vulputate blandit porta. Maecenas posuere elit ultrices diam consequat, eu fermentum turpis bibendum. Suspendisse eu augue quis nunc eleifend varius. Fusce ultrices dolor ut neque interdum, quis imperdiet sapien sagittis. Ut posuere sollicitudin ex sed suscipit. Nulla nec nunc vulputate odio finibus semper at ac neque. Morbi semper, magna malesuada laoreet feugiat, magna dui dictum ligula, ut cursus nisi nisl sed massa. Fusce tristique quam vel leo pulvinar, id egestas dolor molestie."), 
-              React.createElement("p", null, "Lorem ipsum dolor sit amet, consectetur adipiscing elit. In finibus risus ac rhoncus ultricies. Donec at risus interdum, ornare nisl quis, rhoncus odio. Integer pharetra neque nunc. Proin porttitor dapibus efficitur. Maecenas nec ante libero. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Morbi feugiat non justo vitae vehicula. Morbi arcu est, luctus vehicula mollis ut, finibus at eros. Sed vulputate blandit porta. Maecenas posuere elit ultrices diam consequat, eu fermentum turpis bibendum. Suspendisse eu augue quis nunc eleifend varius. Fusce ultrices dolor ut neque interdum, quis imperdiet sapien sagittis. Ut posuere sollicitudin ex sed suscipit. Nulla nec nunc vulputate odio finibus semper at ac neque. Morbi semper, magna malesuada laoreet feugiat, magna dui dictum ligula, ut cursus nisi nisl sed massa. Fusce tristique quam vel leo pulvinar, id egestas dolor molestie."), 
-              React.createElement("p", null, "Lorem ipsum dolor sit amet, consectetur adipiscing elit. In finibus risus ac rhoncus ultricies. Donec at risus interdum, ornare nisl quis, rhoncus odio. Integer pharetra neque nunc. Proin porttitor dapibus efficitur. Maecenas nec ante libero. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Morbi feugiat non justo vitae vehicula. Morbi arcu est, luctus vehicula mollis ut, finibus at eros. Sed vulputate blandit porta. Maecenas posuere elit ultrices diam consequat, eu fermentum turpis bibendum. Suspendisse eu augue quis nunc eleifend varius. Fusce ultrices dolor ut neque interdum, quis imperdiet sapien sagittis. Ut posuere sollicitudin ex sed suscipit. Nulla nec nunc vulputate odio finibus semper at ac neque. Morbi semper, magna malesuada laoreet feugiat, magna dui dictum ligula, ut cursus nisi nisl sed massa. Fusce tristique quam vel leo pulvinar, id egestas dolor molestie.")
-            ), 
-            React.createElement("div", {className: "hatch-cover"}, 
-              React.createElement("h1", null, "Normal Other content"), 
-              React.createElement(Button, {onClick: this.toggleHatch.bind(this, "0")}, "Toggle"), 
-              React.createElement("p", null, "Lorem ipsum dolor sit amet, consectetur adipiscing elit. In finibus risus ac rhoncus ultricies. Donec at risus interdum, ornare nisl quis, rhoncus odio. Integer pharetra neque nunc. Proin porttitor dapibus efficitur. Maecenas nec ante libero. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Morbi feugiat non justo vitae vehicula. Morbi arcu est, luctus vehicula mollis ut, finibus at eros. Sed vulputate blandit porta. Maecenas posuere elit ultrices diam consequat, eu fermentum turpis bibendum. Suspendisse eu augue quis nunc eleifend varius. Fusce ultrices dolor ut neque interdum, quis imperdiet sapien sagittis. Ut posuere sollicitudin ex sed suscipit. Nulla nec nunc vulputate odio finibus semper at ac neque. Morbi semper, magna malesuada laoreet feugiat, magna dui dictum ligula, ut cursus nisi nisl sed massa. Fusce tristique quam vel leo pulvinar, id egestas dolor molestie.")
-            ), 
-            React.createElement(Hatch, {eventKey: "1"}, 
-              React.createElement("h1", null, "Entryway of the Hatch 2"), 
-              React.createElement("p", null, "Lorem ipsum dolor sit amet, consectetur adipiscing elit. In finibus risus ac rhoncus ultricies. Donec at risus interdum, ornare nisl quis, rhoncus odio. Integer pharetra neque nunc. Proin porttitor dapibus efficitur. Maecenas nec ante libero. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Morbi feugiat non justo vitae vehicula. Morbi arcu est, luctus vehicula mollis ut, finibus at eros. Sed vulputate blandit porta. Maecenas posuere elit ultrices diam consequat, eu fermentum turpis bibendum. Suspendisse eu augue quis nunc eleifend varius. Fusce ultrices dolor ut neque interdum, quis imperdiet sapien sagittis. Ut posuere sollicitudin ex sed suscipit. Nulla nec nunc vulputate odio finibus semper at ac neque. Morbi semper, magna malesuada laoreet feugiat, magna dui dictum ligula, ut cursus nisi nisl sed massa. Fusce tristique quam vel leo pulvinar, id egestas dolor molestie.")
-            ), 
-            React.createElement("div", {className: "hatch-cover"}, 
-              React.createElement("h1", null, "Normal Other content"), 
-              React.createElement(Button, {onClick: this.toggleHatch.bind(this, "1")}, "Toggle"), 
-              React.createElement("p", null, "Lorem ipsum dolor sit amet, consectetur adipiscing elit. In finibus risus ac rhoncus ultricies. Donec at risus interdum, ornare nisl quis, rhoncus odio. Integer pharetra neque nunc. Proin porttitor dapibus efficitur. Maecenas nec ante libero. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Morbi feugiat non justo vitae vehicula. Morbi arcu est, luctus vehicula mollis ut, finibus at eros. Sed vulputate blandit porta. Maecenas posuere elit ultrices diam consequat, eu fermentum turpis bibendum. Suspendisse eu augue quis nunc eleifend varius. Fusce ultrices dolor ut neque interdum, quis imperdiet sapien sagittis. Ut posuere sollicitudin ex sed suscipit. Nulla nec nunc vulputate odio finibus semper at ac neque. Morbi semper, magna malesuada laoreet feugiat, magna dui dictum ligula, ut cursus nisi nisl sed massa. Fusce tristique quam vel leo pulvinar, id egestas dolor molestie."), 
-              React.createElement("p", null, "Lorem ipsum dolor sit amet, consectetur adipiscing elit. In finibus risus ac rhoncus ultricies. Donec at risus interdum, ornare nisl quis, rhoncus odio. Integer pharetra neque nunc. Proin porttitor dapibus efficitur. Maecenas nec ante libero. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Morbi feugiat non justo vitae vehicula. Morbi arcu est, luctus vehicula mollis ut, finibus at eros. Sed vulputate blandit porta. Maecenas posuere elit ultrices diam consequat, eu fermentum turpis bibendum. Suspendisse eu augue quis nunc eleifend varius. Fusce ultrices dolor ut neque interdum, quis imperdiet sapien sagittis. Ut posuere sollicitudin ex sed suscipit. Nulla nec nunc vulputate odio finibus semper at ac neque. Morbi semper, magna malesuada laoreet feugiat, magna dui dictum ligula, ut cursus nisi nisl sed massa. Fusce tristique quam vel leo pulvinar, id egestas dolor molestie."), 
-              React.createElement("p", null, "Lorem ipsum dolor sit amet, consectetur adipiscing elit. In finibus risus ac rhoncus ultricies. Donec at risus interdum, ornare nisl quis, rhoncus odio. Integer pharetra neque nunc. Proin porttitor dapibus efficitur. Maecenas nec ante libero. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Morbi feugiat non justo vitae vehicula. Morbi arcu est, luctus vehicula mollis ut, finibus at eros. Sed vulputate blandit porta. Maecenas posuere elit ultrices diam consequat, eu fermentum turpis bibendum. Suspendisse eu augue quis nunc eleifend varius. Fusce ultrices dolor ut neque interdum, quis imperdiet sapien sagittis. Ut posuere sollicitudin ex sed suscipit. Nulla nec nunc vulputate odio finibus semper at ac neque. Morbi semper, magna malesuada laoreet feugiat, magna dui dictum ligula, ut cursus nisi nisl sed massa. Fusce tristique quam vel leo pulvinar, id egestas dolor molestie.")
-            )
-          )
         )
 
       )
@@ -124,7 +92,7 @@ var ContentArea = React.createClass({
 
 module.exports = ContentArea;
 
-},{"./hatch/Hatch":3,"./hatch/HatchGroup":4,"./panes/pane-ability":5,"./panes/pane-attack":6,"./panes/pane-defense":7,"./panes/pane-equipment":8,"./panes/pane-feature":9,"./panes/pane-info":10,"./panes/pane-spell":11,"react":217,"react-bootstrap/Button":36,"react-bootstrap/Glyphicon":42,"react-bootstrap/TabPane":57,"react-bootstrap/TabbedArea":58}],3:[function(require,module,exports){
+},{"./panes/pane-ability":5,"./panes/pane-attack":6,"./panes/pane-defense":7,"./panes/pane-equipment":8,"./panes/pane-feature":9,"./panes/pane-info":10,"./panes/pane-spell":11,"react":217,"react-bootstrap/Glyphicon":42,"react-bootstrap/TabPane":57,"react-bootstrap/TabbedArea":58}],3:[function(require,module,exports){
 var React = require('react');
 
 var Hatch = React.createClass({displayName: "Hatch",
