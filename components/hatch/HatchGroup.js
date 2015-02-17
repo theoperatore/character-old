@@ -72,8 +72,16 @@ var HatchGroup = React.createClass({
         }
 
         currHeight -= height;
-        hatches[idx] = false;
-        root.style.height = currHeight + "px";
+
+        delete hatches[idx];
+
+        if (Object.keys(hatches).length === 0) {
+          root.style.height = "100%";
+        }
+        else {
+          root.style.height = currHeight + "px";
+        }
+
         this.setState({ hatches : hatches });
       }
     }
