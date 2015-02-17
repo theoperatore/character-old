@@ -4,11 +4,6 @@ var HatchGroup = React.createClass({
   getInitialState : function() {
     return ({ hatches : {} });
   },
-  componentWillMount : function() {
-    React.Children.forEach(this.props.children, function(child) {
-      child.props.recalculate = this.recalculate;
-    }.bind(this))
-  },
   open : function(idx) {
     var root = this.refs.root.getDOMNode();
     var hatches = this.state.hatches;
@@ -136,7 +131,7 @@ var HatchGroup = React.createClass({
   },
   renderChildren : function() {
     return React.Children.map(this.props.children, function(child) {
-      return React.addons.cloneWithProps(child, { recalculate : this.recalculate });
+      return React.addons.cloneWithProps(child, { recalculate : this.recalculate, toggle : this.toggle });
     }.bind(this))
   },
   render : function() {

@@ -5,10 +5,14 @@ var Hatch = React.createClass({
     this.props.recalculate(this.props.eventKey);
   },
 
+  toggle : function() {
+    this.props.toggle(this.props.eventKey);
+  },
+
   // this might not give the correct context to each child call of this.props.recalculate
   renderChildren : function() {
     return React.Children.map(this.props.children, function(child) {
-      return React.addons.cloneWithProps(child, { recalculate : this.recalculate });
+      return React.addons.cloneWithProps(child, { recalculate : this.recalculate, toggle : this.toggle });
     }.bind(this));
   },
   render : function() {

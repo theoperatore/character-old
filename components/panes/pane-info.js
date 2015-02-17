@@ -47,9 +47,9 @@ var Info = React.createClass({
     return (
         <HatchGroup ref="settings">
           <div className="hatch-cover">
-            <h3>{"Info"} <Button className="no-border" onClick={this.handleToggle.bind(this, "settings", "0")}><Glyphicon glyph="cog"/></Button></h3>
+            <h3>{"Info"} <Button className="no-border" onClick={this.handleToggle.bind(this, "settings", "info0")}><Glyphicon glyph="cog"/></Button></h3>
           </div>
-          <Hatch eventKey={"0"}>
+          <Hatch eventKey={"info0"}>
             <SettingsInfo character={this.props.character} edit={this.props.edit}/>  
           </Hatch>
           <div className="hatch-cover">
@@ -101,9 +101,9 @@ var Info = React.createClass({
                 </Row>
               </Grid>
             </Panel>
-            <h3>{"Traits"} <Button className="no-border" onClick={this.handleToggle.bind(this, "settings", "1")}><Glyphicon glyph="cog"/></Button></h3>
+            <h3>{"Traits"} <Button className="no-border" onClick={this.handleToggle.bind(this, "settings", "info1")}><Glyphicon glyph="cog"/></Button></h3>
           </div>
-          <Hatch eventKey={"1"}>
+          <Hatch eventKey={"info1"}>
             <SettingsTraits character={this.props.character} edit={this.props.edit}/>
           </Hatch>
           <div className="hatch-cover">
@@ -124,18 +124,18 @@ var Info = React.createClass({
                 <p>{this.props.character['charTraits']['flaws']}</p>
               </Panel>
             </Accordion>
-            <h3>{"Proficiencies"} <Button className="no-border" onClick={this.handleToggle.bind(this, "settings", "2")}><Glyphicon glyph="cog"/></Button></h3>
+            <h3>{"Proficiencies"} <Button className="no-border" onClick={this.handleToggle.bind(this, "settings", "info2")}><Glyphicon glyph="cog"/></Button></h3>
           </div>
-          <Hatch eventKey={"2"}>
+          <Hatch eventKey={"info2"}>
             <SettingsProfs character={this.props.character} edit={this.props.edit}/>
           </Hatch>
           <div className="hatch-cover">
             <Accordion defaultActiveKey="">
               {proficiencies}
             </Accordion>
-            <h3>{"Languages"} <Button className="no-border" onClick={this.handleToggle.bind(this, "settings", "3")}><Glyphicon glyph="cog"/></Button></h3>
+            <h3>{"Languages"} <Button className="no-border" onClick={this.handleToggle.bind(this, "settings", "info3")}><Glyphicon glyph="cog"/></Button></h3>
           </div>
-          <Hatch eventKey={"3"}>
+          <Hatch eventKey={"info3"}>
             <SettingsLangs character={this.props.character} edit={this.props.edit}/>
           </Hatch>
           <div className="hatch-cover">

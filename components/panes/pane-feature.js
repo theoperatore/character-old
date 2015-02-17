@@ -1,6 +1,8 @@
 var React = require('react');
 
 var Settings = require('../settings/settings-features');
+var HatchGroup = require('../hatch/HatchGroup');
+var Hatch = require('../hatch/Hatch');
 
 var Glyphicon = require('react-bootstrap/Glyphicon');
 var Accordion = require('react-bootstrap/Accordion');
@@ -10,8 +12,8 @@ var Button = require('react-bootstrap/Button');
 
 var Features = React.createClass({
   displayName : "CharFeatures",
-  handleToggle : function() {
-    this.refs.settings.toggle();
+  handleToggle : function(idx) {
+    this.refs.settings.toggle(idx);
   },
   render : function() {
 
@@ -25,13 +27,19 @@ var Features = React.createClass({
     });
 
     return (
-      <div className="container-fluid">
-        <h3>{"Features"} <Button className="no-border" onClick={this.handleToggle}><Glyphicon glyph="cog"/></Button></h3>
-        <Settings ref="settings" character={this.props.character} edit={this.props.edit}/>
-        <Accordion defaultActiveKey="">
-          {feats}
-        </Accordion>
-      </div>
+      <HatchGroup ref="settings">
+        <div className="hatch-cover">
+          <h3>{"Features"} <Button className="no-border" onClick={this.handleToggle.bind(this, "feat0")}><Glyphicon glyph="cog"/></Button></h3>
+        </div>
+        <Hatch eventKey={"feat0"}>
+          <Settings character={this.props.character} edit={this.props.edit}/>
+        </Hatch>
+        <div className="hatch-cover">
+          <Accordion defaultActiveKey="">
+            {feats}
+          </Accordion>
+        </div>
+      </HatchGroup>
     );
   }
 })

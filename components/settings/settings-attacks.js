@@ -1,5 +1,4 @@
 var React = require('react');
-var Settings = require('./settings-tear');
 
 var Input = require('react-bootstrap/Input');
 var ButtonToolbar = require('react-bootstrap/ButtonToolbar');
@@ -23,7 +22,11 @@ var SettingsAttacks = React.createClass({
     return (state);
   },
   toggle : function() {
-    this.refs.settings.toggle();
+    this.props.toggle();
+  },
+  componentDidUpdate : function() {
+    // recalculate this 
+    this.props.recalculate();
   },
   clearState : function() {
     var state = {};
@@ -107,7 +110,6 @@ var SettingsAttacks = React.createClass({
   renderAdd : function() {
     return (
       <div>
-        <h3>{"Add New Attack"}</h3>
         <p>{"Do the attack name and short description dance!"}</p>
         <Input placeholder="name" value={this.state.name} type="text" label="Attack Name" onChange={this.handleChange.bind(this, "name")}/>
         <Input placeholder="short description" value={this.state.desc} type="textarea" label="Attack Description" onChange={this.handleChange.bind(this, "desc")}/>
@@ -130,7 +132,6 @@ var SettingsAttacks = React.createClass({
 
     return (
       <div>
-        <h3>{"Edit Attacks"}</h3>
         <p>{"Change the name or description of an attack by first selecting the attack to edit and then entering new values."}</p>
         <Input>
           <Row>
@@ -156,8 +157,9 @@ var SettingsAttacks = React.createClass({
   },
   render : function() {
     return (
-      <Settings ref="settings">
-        <TabbedArea activeKey={this.state.mode} onSelect={this.handleModeChange}>
+      <div className="settings-tear">
+        <h3>{"Add / Edit Attacks"}</h3>
+        <TabbedArea activeKey={this.state.mode} animation={false} onSelect={this.handleModeChange}>
           <TabPane eventKey={0} tab="new">
             {this.renderAdd()}
           </TabPane>
@@ -165,7 +167,7 @@ var SettingsAttacks = React.createClass({
             {this.renderEdit()}
           </TabPane>
         </TabbedArea>
-      </Settings>
+      </div>
     );
   }
 })

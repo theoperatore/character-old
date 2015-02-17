@@ -1,5 +1,4 @@
 var React = require('react');
-var Settings = require('./settings-tear');
 
 var Input = require('react-bootstrap/Input');
 var ButtonToolbar = require('react-bootstrap/ButtonToolbar');
@@ -23,7 +22,11 @@ var SettingsEquip = React.createClass({
     return (state);
   },
   toggle : function() {
-    this.refs.settings.toggle();
+    this.props.toggle();
+  },
+  componentDidUpdate : function() {
+    // recalculate this 
+    this.props.recalculate();
   },
   clearState : function() {
     var state = {};
@@ -105,7 +108,6 @@ var SettingsEquip = React.createClass({
   renderAdd : function() {
     return (
       <div>
-        <h3>{"Add New Equipment"}</h3>
         <p>{"Enter the name and a short description of a new equipment!"}</p>
         <Input placeholder="name" value={this.state.name} type="text" label="Equipment Name" onChange={this.handleChange.bind(this, "name")}/>
         <Input placeholder="short description" value={this.state.desc} type="textarea" label="Equipment Description" onChange={this.handleChange.bind(this, "desc")}/>
@@ -128,7 +130,6 @@ var SettingsEquip = React.createClass({
 
     return (
       <div>
-        <h3>{"Edit Equipment"}</h3>
         <p>{"Change something you definitely don't like about equipment pieces..."}</p>
         <Input>
           <Row>
@@ -154,8 +155,9 @@ var SettingsEquip = React.createClass({
   },
   render : function() {
     return (
-      <Settings ref="settings">
-        <TabbedArea activeKey={this.state.mode} onSelect={this.handleModeChange}>
+      <div className="settings-tear">
+        <h3>{"Add / Edit Equipments"}</h3>
+        <TabbedArea activeKey={this.state.mode} animation={false} onSelect={this.handleModeChange}>
           <TabPane eventKey={0} tab="new">
             {this.renderAdd()}
           </TabPane>
@@ -163,7 +165,7 @@ var SettingsEquip = React.createClass({
             {this.renderEdit()}
           </TabPane>
         </TabbedArea>
-      </Settings>
+      </div>
     );
   }
 })

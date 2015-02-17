@@ -21,7 +21,7 @@ var SettingsInfo = React.createClass({
     return (state);
   },
   toggle : function() {
-    this.refs.settings.toggle();
+    this.props.toggle();
   },
   clearState : function() {
     var state = {};
