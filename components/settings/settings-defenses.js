@@ -1,5 +1,4 @@
 var React = require('react');
-var Settings = require('./settings-tear');
 
 var Input = require('react-bootstrap/Input');
 var ButtonToolbar = require('react-bootstrap/ButtonToolbar');
@@ -22,7 +21,7 @@ var SettingsDefenses = React.createClass({
     return (state);
   },
   toggle : function() {
-    this.refs.settings.toggle();
+    this.props.toggle();
   },
   clearState : function() {
     var state = {};
@@ -104,7 +103,7 @@ var SettingsDefenses = React.createClass({
     var validinit = (this.state.initerror) ? "error" : "success";
 
     return (
-      <Settings ref="settings">
+      <div className="settings-tear">
         <h3>{"Edit Defenses"}</h3>
         <p>{"Edit the values for your character's maximum hit points, hit dice, initiative, speed, and armor class."}</p>
         <Input type="text" bsStyle={(this.state.hp === "") ? null : validhp} onChange={this.handleChange.bind(this, "hp")} label="Maximum Hit Points" placeholder={this.props.character['charHitPoints']['maximum']} value={this.state.hp} />
@@ -116,7 +115,7 @@ var SettingsDefenses = React.createClass({
           <Button bsStyle="danger" onClick={this.toggle}>Close</Button>
           <Button bsStyle="success" onClick={this.handleOk}>Save</Button>
         </ButtonToolbar>
-      </Settings>
+      </div>
     );
   }
 })

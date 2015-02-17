@@ -1,5 +1,4 @@
 var React = require('react');
-var Settings = require('./settings-tear');
 
 var TabbedArea = require('react-bootstrap/TabbedArea');
 var TabPane = require('react-bootstrap/TabPane');
@@ -30,7 +29,11 @@ var SettingsFeatures = React.createClass({
     return (state);
   },
   toggle : function() {
-    this.refs.settings.toggle();
+    this.props.toggle();
+  },
+  componentDidUpdate : function() {
+    // recalculate this 
+    this.props.recalculate();
   },
   clearState : function() {
     var state = {};
@@ -196,7 +199,6 @@ var SettingsFeatures = React.createClass({
 
     return (
       <div>
-        <h3>{"Add New Feature"}</h3>
         <p>{"Here you can add a class feature when you receive it. You can also specify if the class feature you are adding gives your character class charges (ex: Rages, Sorcery Points, Ki, etc)."}</p>
         <Input placeholder="name" value={this.state.name} type="text" label="Feature Name" onChange={this.handleChange.bind(this, "name")}/>
         <Input placeholder="short description" value={this.state.desc} type="textarea" label="Feature Description" onChange={this.handleChange.bind(this, "desc")}/>
@@ -223,7 +225,6 @@ var SettingsFeatures = React.createClass({
 
     return (
       <div>
-        <h3>{"Edit Features"}</h3>
         <p>{"Do the things with the editing, for making changes to features."}</p>
         <Input>
           <Row>
@@ -250,8 +251,9 @@ var SettingsFeatures = React.createClass({
   },
   render : function() {
     return (
-      <Settings ref="settings">
-        <TabbedArea activeKey={this.state.mode} onSelect={this.handleMode}>
+      <div className="settings-tear">
+        <h3>{"Add / Edit Features"}</h3>
+        <TabbedArea activeKey={this.state.mode} animation={false} onSelect={this.handleMode}>
           <TabPane eventKey={0} tab="new">
             {this.renderAdd()}
           </TabPane>
@@ -259,7 +261,7 @@ var SettingsFeatures = React.createClass({
             {this.renderEdit()}
           </TabPane>
         </TabbedArea>
-      </Settings>
+      </div>
     );
   }
 })

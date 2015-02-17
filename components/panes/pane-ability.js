@@ -2,6 +2,9 @@ var React = require('react');
 var SettingsAbility = require('../settings/settings-abilities');
 var SettingsSkills = require('../settings/settings-skills');
 
+var HatchGroup = require('../hatch/HatchGroup');
+var Hatch = require('../hatch/Hatch');
+
 var Glyphicon = require('react-bootstrap/Glyphicon');
 var Accordion = require('react-bootstrap/Accordion');
 var Panel = require('react-bootstrap/Panel');
@@ -15,8 +18,8 @@ var Button = require('react-bootstrap/Button');
 
 var Ability = React.createClass({
   displayName : "CharAbility",
-  toggleSettings : function(cmp) {
-    this.refs[cmp].toggle();
+  toggleSettings : function(idx) {
+    this.refs.settings.toggle(idx);
   },
   render : function() {
 
@@ -47,87 +50,97 @@ var Ability = React.createClass({
     }
 
     return (
-      <div className="container-fluid">
-        <h3>{"Ability Scores"} <Button className="no-border" onClick={this.toggleSettings.bind(this, "settings-ability")}><Glyphicon glyph="cog"/></Button></h3>
-        <SettingsAbility ref="settings-ability" character={this.props.character} edit={this.props.edit} />
-        <Panel>
-          <Grid fluid className="text-center">
-            <Row>
-              <Col xs={4}>
-                <div className="card">
-                  <p>STR</p>
-                  <h3 className="bg-success">{this.props.character['charAbilities']['str']['mod']}</h3>
-                  <p>{this.props.character['charAbilities']['str']['score']}</p>
-                </div>
-              </Col>
-              <Col xs={4}>
-                <div className="card">
-                  <p>DEX</p>
-                  <h3 className="bg-success">{this.props.character['charAbilities']['dex']['mod']}</h3>
-                  <p>{this.props.character['charAbilities']['dex']['score']}</p>
-                </div>
-              </Col>
-              <Col xs={4}>
-                <div className="card">
-                  <p>CON</p>
-                  <h3 className="bg-success">{this.props.character['charAbilities']['con']['mod']}</h3>
-                  <p>{this.props.character['charAbilities']['con']['score']}</p>
-                </div>
-              </Col>
-            </Row>
-            <Row>
-              <Col xs={4}>
-                <div className="card">
-                  <p>INT</p>
-                  <h3 className="bg-success">{this.props.character['charAbilities']['int']['mod']}</h3>
-                  <p>{this.props.character['charAbilities']['int']['score']}</p>
-                </div>
-              </Col>
-              <Col xs={4}>
-                <div className="card">
-                  <p>WIS</p>
-                  <h3 className="bg-success">{this.props.character['charAbilities']['wis']['mod']}</h3>
-                  <p>{this.props.character['charAbilities']['wis']['score']}</p>
-                </div>
-              </Col>
-              <Col xs={4}>
-                <div className="card">
-                  <p>CHA</p>
-                  <h3 className="bg-success">{this.props.character['charAbilities']['cha']['mod']}</h3>
-                  <p>{this.props.character['charAbilities']['cha']['score']}</p>
-                </div>
-              </Col>
-            </Row>
-          </Grid>
-        </Panel>
+      <HatchGroup ref="settings">
+        <div className="hatch-cover">
+          <h3>{"Ability Scores"} <Button className="no-border" onClick={this.toggleSettings.bind(this, "abil0")}><Glyphicon glyph="cog"/></Button></h3>
+        </div>
+        <Hatch eventKey={"abil0"}>
+          <SettingsAbility character={this.props.character} edit={this.props.edit} />
+        </Hatch>
+        <div className="hatch-cover">
+          <Panel>
+            <Grid fluid className="text-center">
+              <Row>
+                <Col xs={4}>
+                  <div className="card">
+                    <p>STR</p>
+                    <h3 className="bg-success">{this.props.character['charAbilities']['str']['mod']}</h3>
+                    <p>{this.props.character['charAbilities']['str']['score']}</p>
+                  </div>
+                </Col>
+                <Col xs={4}>
+                  <div className="card">
+                    <p>DEX</p>
+                    <h3 className="bg-success">{this.props.character['charAbilities']['dex']['mod']}</h3>
+                    <p>{this.props.character['charAbilities']['dex']['score']}</p>
+                  </div>
+                </Col>
+                <Col xs={4}>
+                  <div className="card">
+                    <p>CON</p>
+                    <h3 className="bg-success">{this.props.character['charAbilities']['con']['mod']}</h3>
+                    <p>{this.props.character['charAbilities']['con']['score']}</p>
+                  </div>
+                </Col>
+              </Row>
+              <Row>
+                <Col xs={4}>
+                  <div className="card">
+                    <p>INT</p>
+                    <h3 className="bg-success">{this.props.character['charAbilities']['int']['mod']}</h3>
+                    <p>{this.props.character['charAbilities']['int']['score']}</p>
+                  </div>
+                </Col>
+                <Col xs={4}>
+                  <div className="card">
+                    <p>WIS</p>
+                    <h3 className="bg-success">{this.props.character['charAbilities']['wis']['mod']}</h3>
+                    <p>{this.props.character['charAbilities']['wis']['score']}</p>
+                  </div>
+                </Col>
+                <Col xs={4}>
+                  <div className="card">
+                    <p>CHA</p>
+                    <h3 className="bg-success">{this.props.character['charAbilities']['cha']['mod']}</h3>
+                    <p>{this.props.character['charAbilities']['cha']['score']}</p>
+                  </div>
+                </Col>
+              </Row>
+            </Grid>
+          </Panel>
 
-        <Panel>
-          <Grid fluid className="text-center">
-            <Row> 
-              <Col xs={6}>
-                <div className="card">
-                  <p>Proficiency Bonus</p>
-                  <h3 className="trained">{this.props.character['charProficiencyBonus']['score']}</h3>
-                </div>
-              </Col>
-              <Col xs={6}>
-                <div className="card">
-                  <p>Passive Perception</p>
-                  <h3>{this.props.character['charPassivePerception']['score']}</h3>
-                </div>
-              </Col>
-            </Row>
-          </Grid>
-        </Panel>
+          <Panel>
+            <Grid fluid className="text-center">
+              <Row> 
+                <Col xs={6}>
+                  <div className="card">
+                    <p>Proficiency Bonus</p>
+                    <h3 className="trained">{this.props.character['charProficiencyBonus']['score']}</h3>
+                  </div>
+                </Col>
+                <Col xs={6}>
+                  <div className="card">
+                    <p>Passive Perception</p>
+                    <h3>{this.props.character['charPassivePerception']['score']}</h3>
+                  </div>
+                </Col>
+              </Row>
+            </Grid>
+          </Panel>
 
-        <h3>{"Skills"} <Button className="no-border" onClick={this.toggleSettings.bind(this, "settings-skills")}><Glyphicon glyph="cog"/></Button></h3>
-        <SettingsSkills ref="settings-skills" character={this.props.character} edit={this.props.edit} />
-        <Panel>
-          <Grid fluid>
-            {skills}
-          </Grid>
-        </Panel>
-      </div>
+          <h3>{"Skills"} <Button className="no-border" onClick={this.toggleSettings.bind(this, "abil1")}><Glyphicon glyph="cog"/></Button></h3>
+        </div>
+        <Hatch eventKey={"abil1"}>
+          <SettingsSkills character={this.props.character} edit={this.props.edit} />
+        </Hatch>
+        <div className="hatch-cover">
+          <Panel>
+            <Grid fluid>
+              {skills}
+            </Grid>
+          </Panel>
+        </div>
+      </HatchGroup>
     );
   }
 })

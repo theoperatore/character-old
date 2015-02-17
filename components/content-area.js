@@ -9,6 +9,10 @@ var PaneFeature = require('./panes/pane-feature');
 var PaneEquipment = require('./panes/pane-equipment');
 var PaneSpell = require('./panes/pane-spell');
 
+var Hatch = require('./hatch/Hatch');
+var HatchGroup = require('./hatch/HatchGroup');
+var Button = require('react-bootstrap/Button');
+
 // react-bootstrap stuff
 var TabbedArea = require('react-bootstrap/TabbedArea');
 var TabPane = require('react-bootstrap/TabPane');
@@ -18,6 +22,9 @@ var Glyphicon = require('react-bootstrap/Glyphicon');
 // the thing!
 var ContentArea = React.createClass({
   displayName : "ContentArea",
+  toggleHatch : function(idx) {
+    this.refs.hatchgroup.toggle(idx);
+  },
   render : function() {
     return (
       <TabbedArea defaultActiveKey={1}>

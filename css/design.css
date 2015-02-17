@@ -163,6 +163,17 @@ html {
   padding: 0 !important;
 }
 
+.panel-group {
+  margin-bottom: 0;
+}
+
+.hatch-cover {
+  padding:15px;
+}
+.hatch-group-container>.hatch-cover>h3 {
+  margin-bottom: 0;
+}
+
 /* 
 * Main CSS for settings-tearing
 */
@@ -170,7 +181,8 @@ html {
   border: 0 !important;
   box-shadow: none !important;
   margin: auto -15px;
-  padding:0 15px;
+  padding:30px;
+  padding-bottom: 60px;
   background-color: rgba(51, 51, 51, 1);
   color: rgba(220, 220, 220, 1);
 
@@ -207,13 +219,6 @@ html {
   background-repeat: repeat-x;
 }
 
-.settings-tear>.panel-collapse>.panel-body {
-  padding-top:50px;
-  padding-bottom:50px;
-  padding-left: 0;
-  padding-right:0;
-}
-
 .inverse {
   background-color: #333333;
   color: #ddd;
@@ -226,13 +231,12 @@ html {
 /***************************************** HATCH *****************************/
 .hatch-group-container {
   overflow: hidden;
+  position:relative;
 }
 .hatch-entryway {
   position:absolute;
   width: 100%;
-  padding: 12px;
-  background-color: black;
-  color: white;
+  z-index: 1;
 
   -webkit-transition: all 0.3s ease;
   -moz-transition: all 0.3s ease;
@@ -242,9 +246,10 @@ html {
 }
 .hatch-cover {
   position:relative;
-  background-color: white;
-  padding: 12px;
   width: 100%;
+  z-index:2;
+
+  background-color: white;
 
   -webkit-transform: translate3d(0, 0, 0);
   -moz-transform: translate3d(0, 0, 0);
