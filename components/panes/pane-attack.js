@@ -3,6 +3,9 @@ var React = require('react');
 var SettingsAttack = require('../settings/settings-attacks');
 var AttackConfig = require('../popovers/attack-bonus');
 var HelpTooltip = require('../tooltips/help');
+var HatchGroup = require('../hatch/HatchGroup');
+var Hatch = require('../hatch/Hatch');
+var Panel3d = require('../hatch/Panel3d');
 
 var Glyphicon = require('react-bootstrap/Glyphicon');
 var Accordion = require('react-bootstrap/Accordion');
@@ -17,8 +20,8 @@ var Button = require('react-bootstrap/Button');
 
 var Attack = React.createClass({
   displayName : "CharAttack",
-  handleToggle : function(cmp) {
-    this.refs[cmp].toggle();
+  handleToggle : function(idx) {
+    this.refs.settings.toggle(idx);
   },
 
   handleConfigToggle : function(ref) {
@@ -39,9 +42,9 @@ var Attack = React.createClass({
     // compile list of attacks
     charAttacks.forEach(function(attack, i) {
       attacks.push(
-        <Panel className="no-padding" bsStyle="warning" key={i} header={attack.name} eventKey={i}>
+        <Panel3d className="list-header" key={i} title={attack.name}>
             <p>{attack.desc}</p>
-        </Panel>
+        </Panel3d>
       );
     }.bind(this));
 
@@ -100,38 +103,40 @@ var Attack = React.createClass({
 
     // render the component
     return (
-      <div className="container-fluid">
-        <h3>
-          {"Attacks"} 
-          <Button className="no-border" onClick={this.handleToggle.bind(this, "settings-attacks")}><Glyphicon glyph="cog"/></Button>
-          <OverlayTrigger ref="help" placement="bottom" trigger="manual" overlay={
-            <Tooltip>
-              <HelpTooltip close={this.handleHelpToggle}>
-                <p>{"Class points like 'Ki', 'Rage', or 'Sorcery' can be modified in 'Features' ("} <Glyphicon glyph="flash" /> {")"}</p>
-                <p>{"Tap 'Attack Bonus' to configure the ability score it uses and if you have proficiency"}</p>
-              </HelpTooltip>
-            </Tooltip>
-          }>
-            <Button className="no-border" onClick={this.handleHelpToggle}>
-              <Glyphicon glyph="question-sign"/>
-            </Button>
-          </OverlayTrigger>
-        </h3>
-        <SettingsAttack ref="settings-attacks" character={this.props.character} edit={this.props.edit}/>
-        <Panel>
-          <Grid fluid>
-            <Row>
-              {bubbles}
-            </Row>
-          </Grid>
-        </Panel>
-
-        {charges}
-
-        <Accordion defaultActiveKey="">
+      <HatchGroup ref="settings">
+        <div className="hatch-cover">
+          <h3>
+            {"Attacks"} 
+            <Button className="no-border" onClick={this.handleToggle.bind(this, "atk0")}><Glyphicon glyph="cog"/></Button>
+            <OverlayTrigger ref="help" placement="bottom" trigger="manual" overlay={
+              <Tooltip>
+                <HelpTooltip close={this.handleHelpToggle}>
+                  <p>{"Class points like 'Ki', 'Rage', or 'Sorcery' can be modified in 'Features' ("} <Glyphicon glyph="flash" /> {")"}</p>
+                  <p>{"Tap 'Attack Bonus' to configure the ability score it uses and if you have proficiency"}</p>
+                </HelpTooltip>
+              </Tooltip>
+            }>
+              <Button className="no-border" onClick={this.handleHelpToggle}>
+                <Glyphicon glyph="question-sign"/>
+              </Button>
+            </OverlayTrigger>
+          </h3>
+        </div>
+        <Hatch eventKey={"atk0"}>
+          <SettingsAttack character={this.props.character} edit={this.props.edit}/>
+        </Hatch>
+        <div className="hatch-cover">
+          <Panel>
+            <Grid fluid>
+              <Row>
+                {bubbles}
+              </Row>
+            </Grid>
+          </Panel>
+          {charges}
           {attacks}
-        </Accordion>
-      </div>
+        </div>
+      </HatchGroup>
     )
   }
 })

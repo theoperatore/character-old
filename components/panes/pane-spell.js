@@ -3,6 +3,9 @@ var React = require('react');
 var AttackConfig = require('../popovers/attack-bonus');
 var HelpTooltip = require('../tooltips/help');
 var SettingsSpells = require('../settings/settings-spells');
+var HatchGroup = require('../hatch/HatchGroup');
+var Hatch = require('../hatch/Hatch');
+var Panel3d = require('../hatch/Panel3d');
 
 var Glyphicon = require('react-bootstrap/Glyphicon');
 var Accordion = require('react-bootstrap/Accordion');
@@ -18,7 +21,6 @@ var Button = require('react-bootstrap/Button');
 var Tooltip = require('react-bootstrap/Tooltip');
 var TabbedArea = require('react-bootstrap/TabbedArea');
 var TabPane = require('react-bootstrap/TabPane');
-var Well = require('react-bootstrap/Well');
 
 var Spells = React.createClass({
   displayName : "CharSpell",
@@ -38,8 +40,8 @@ var Spells = React.createClass({
   handleHelpToggle : function() {
     this.refs.help.toggle();
   },
-  handleToggle : function(cmp) {
-    this.refs[cmp].toggle();
+  handleToggle : function(idx) {
+    this.refs.settings.toggle(idx);
   },
   render : function() {
     var prof = this.props.character['charProficiencyBonus']['score'];
@@ -73,24 +75,22 @@ var Spells = React.createClass({
         var sps = [];
         level.spells.forEach(function(spell, j) {
           sps.push(
-            <Panel key={j} eventKey={j} header={spell['name']}>
+            <Panel3d key={j} className="list-header" title={spell['name']}>
               <p><strong>{"CT:"}</strong>  {spell['cast']}</p>
               <p><strong>{"R:"}</strong>   {spell['range']}</p>
               <p><strong>{"CMP:"}</strong> {spell['cmp']}</p>
               <p><strong>{"DUR:"}</strong> {spell['dur']}</p>
               <p>{spell['desc']}</p>
-            </Panel>
+            </Panel3d>
           );
         });
 
         // put it all together
         spells.push(
-          <Panel bsStyle="warning" className="no-padding" key={i} eventKey={i} header={level['name'] + ((i !== 0) ?  " Level" : "")}>
+          <Panel3d key={i} title={level['name'] + ((i !== 0) ?  " Level" : "")}>
             {slotsArea}
-            <Accordion defaultActiveKey="">
-              {sps}
-            </Accordion>
-          </Panel>
+            {sps}
+          </Panel3d>
         );
       }
     });
@@ -150,34 +150,35 @@ var Spells = React.createClass({
 
 
     return (
-      <div className="container-fluid">
-        <h3>{"Spells"} 
-          <Button className="no-border" onClick={this.handleToggle.bind(this, "settings-spells")}><Glyphicon glyph="cog"/></Button>
-          <OverlayTrigger ref="help" placement="bottom" trigger="manual" overlay={
-            <Tooltip>
-              <HelpTooltip close={this.handleHelpToggle}>
-                <p>{"Tap the number to configure the ability score, if you have proficiency, and the name of the attack bonus and spell save dc"}</p>
-                <p>{"To edit spells and number of spell slots, tap the settings cog ("}<Glyphicon glyph="cog"/> {") next to 'Spells'"}</p>
-              </HelpTooltip>
-            </Tooltip>
-          }>
-            <Button className="no-border" onClick={this.handleHelpToggle}>
-              <Glyphicon glyph="question-sign"/>
-            </Button>
-          </OverlayTrigger>
-        </h3>
-
-        <SettingsSpells ref="settings-spells" character={this.props.character} edit={this.props.edit}/>
-
-        <Panel>
-          {spelldc}
-          {bubbles}
-        </Panel>
-
-        <Accordion defaultActiveKey="">
+      <HatchGroup ref="settings">
+        <div className="hatch-cover">
+          <h3>{"Spells"} 
+            <Button className="no-border" onClick={this.handleToggle.bind(this, "spell0")}><Glyphicon glyph="cog"/></Button>
+            <OverlayTrigger ref="help" placement="bottom" trigger="manual" overlay={
+              <Tooltip>
+                <HelpTooltip close={this.handleHelpToggle}>
+                  <p>{"Tap the number to configure the ability score, if you have proficiency, and the name of the attack bonus and spell save dc"}</p>
+                  <p>{"To edit spells and number of spell slots, tap the settings cog ("}<Glyphicon glyph="cog"/> {") next to 'Spells'"}</p>
+                </HelpTooltip>
+              </Tooltip>
+            }>
+              <Button className="no-border" onClick={this.handleHelpToggle}>
+                <Glyphicon glyph="question-sign"/>
+              </Button>
+            </OverlayTrigger>
+          </h3>
+        </div>
+        <Hatch eventKey={"spell0"}>
+          <SettingsSpells character={this.props.character} edit={this.props.edit}/>
+        </Hatch>
+        <div className="hatch-cover">
+          <Panel>
+            {spelldc}
+            {bubbles}
+          </Panel>
           {spells}
-        </Accordion>
-      </div>
+        </div>
+      </HatchGroup>
     );
   }
 })

@@ -1,10 +1,9 @@
 html, body {
-  font-family: sans-serif;
   margin: 0;
   padding: 0;
   width: 100%;
   height: 100%;
-  overflow: hidden;
+  /*overflow: hidden;*/
 }
 
 .snap-content {
@@ -16,8 +15,7 @@ html, body {
   width: auto;
   height: auto;
   z-index: 2;
-  overflow: auto;
-  -webkit-overflow-scrolling: touch;
+  /*overflow: auto;*/
   -webkit-transform: translate3d(0, 0, 0);
      -moz-transform: translate3d(0, 0, 0);
       -ms-transform: translate3d(0, 0, 0);
@@ -44,7 +42,6 @@ html, body {
   width: 265px;
   height: auto;
   overflow: auto;
-  -webkit-overflow-scrolling: touch;
   -webkit-transition: width 0.3s ease;
      -moz-transition: width 0.3s ease;
       -ms-transition: width 0.3s ease;

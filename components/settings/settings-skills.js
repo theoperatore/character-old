@@ -1,5 +1,4 @@
 var React = require('react');
-var Settings = require('./settings-tear');
 
 var Input = require('react-bootstrap/Input');
 var ButtonToolbar = require('react-bootstrap/ButtonToolbar');
@@ -22,12 +21,10 @@ var SettingsAbilities = React.createClass({
       }
     }.bind(this));
 
-    console.log(state.profs);
-
     return (state);
   },
   toggle : function() {
-    this.refs.settings.toggle();
+    this.props.toggle();
   },
   clearState : function() {
     var state = {};
@@ -150,7 +147,7 @@ var SettingsAbilities = React.createClass({
     }.bind(this))
 
     return (
-      <Settings ref="settings">
+      <div className="settings-tear">
         <h3>{"Edit Skills"}</h3>
         <p>{"Select which skills for which you are proficient."}</p>
         <Input type="select" multiple value={(this.state.profs.length === 0) ? profs : this.state.profs} onChange={this.handleProfSelect}>
@@ -167,7 +164,7 @@ var SettingsAbilities = React.createClass({
           <Button bsStyle="danger" onClick={this.toggle}>Close</Button>
           <Button bsStyle="success" onClick={this.handleOk}>Save</Button>
         </ButtonToolbar>
-      </Settings>
+      </div>
     );
   }
 })

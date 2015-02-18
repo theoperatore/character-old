@@ -1,5 +1,4 @@
 var React = require('react');
-var Settings = require('./settings-tear');
 
 var Input = require('react-bootstrap/Input');
 var ButtonToolbar = require('react-bootstrap/ButtonToolbar');
@@ -22,7 +21,7 @@ var SettingsInfo = React.createClass({
     return (state);
   },
   toggle : function() {
-    this.refs.settings.toggle();
+    this.props.toggle();
   },
   clearState : function() {
     var state = {};
@@ -108,7 +107,7 @@ var SettingsInfo = React.createClass({
     var validxp = (this.state.xperror) ? "error" : "success";
 
     return (
-      <Settings ref="settings">
+      <div className="settings-tear">
         <h3>{"Edit Character Info"}</h3>
         <p>{"Enter a new value for any Character Info. If a field is left blank and no new values are entered, nothing will be changed."}</p>
         <Input type="text" onChange={this.handleChange.bind(this, "cls")} label="Class" placeholder={this.props.character['charInfo']['class']} value={this.state.cls} />
@@ -121,7 +120,7 @@ var SettingsInfo = React.createClass({
           <Button bsStyle="danger" onClick={this.toggle}>Close</Button>
           <Button bsStyle="success" onClick={this.handleOk}>Save</Button>
         </ButtonToolbar>
-      </Settings>
+      </div>
     );
   }
 })

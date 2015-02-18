@@ -1,5 +1,4 @@
 var React = require('react');
-var Settings = require('./settings-tear');
 
 var Input = require('react-bootstrap/Input');
 var ButtonToolbar = require('react-bootstrap/ButtonToolbar');
@@ -28,7 +27,7 @@ var SettingsAbilities = React.createClass({
     return (state);
   },
   toggle : function() {
-    this.refs.settings.toggle();
+    this.props.toggle();
   },
   clearState : function() {
     var state = {};
@@ -138,7 +137,7 @@ var SettingsAbilities = React.createClass({
     var validprof = (this.state.proferror) ? "error" : "success";
 
     return (
-      <Settings ref="settings">
+      <div className="settings-tear">
         <h3>{"Edit Ability Scores"}</h3>
         <p>{"Enter the values of each ability score. The relevant modifiers are calculated automatically."}</p>
         <Input bsStyle={this.state['str'] === "" ? null : validstr} type="text" label="Strength" value={this.state['str']} onChange={this.handleChange.bind(this, "str")} placeholder={this.props.character['charAbilities']['str']['score']}/>
@@ -152,7 +151,7 @@ var SettingsAbilities = React.createClass({
           <Button bsStyle="danger" onClick={this.toggle}>Close</Button>
           <Button bsStyle="success" onClick={this.handleOk}>Save</Button>
         </ButtonToolbar>
-      </Settings>
+      </div>
     );
   }
 })

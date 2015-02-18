@@ -2,6 +2,8 @@ var React = require('react');
 var HelpTooltip = require('../tooltips/help');
 var SettingsDefenses = require('../settings/settings-defenses');
 var SettingsThrows = require('../settings/settings-saving-throws');
+var HatchGroup = require('../hatch/HatchGroup');
+var Hatch = require('../hatch/Hatch');
 
 var Glyphicon = require('react-bootstrap/Glyphicon');
 var Accordion = require('react-bootstrap/Accordion');
@@ -24,8 +26,8 @@ var Defense = React.createClass({
       dmg : ""
     });
   },
-  toggle : function(cmp) {
-    this.refs[cmp].toggle();
+  toggle : function(idx) {
+    this.refs.settings.toggle(idx);
   },
   toggleHP : function() {
     this.setState({ hpOpen : ((this.state.hpOpen === 0) ? 1 : 0) });
@@ -128,155 +130,163 @@ var Defense = React.createClass({
     );
 
     return (
-      <div className="container-fluid">
-        <h3>
-          {"Defenses"}
-          <Button className="no-border" onClick={this.toggle.bind(this, "settings-defenses")}><Glyphicon glyph="cog"/></Button>
+      <HatchGroup ref="settings">
+        <div className="hatch-cover">
+          <h3>
+            {"Defenses"}
+            <Button className="no-border" onClick={this.toggle.bind(this, "def0")}><Glyphicon glyph="cog"/></Button>
 
-          <OverlayTrigger ref="help" placement="bottom" trigger="manual" overlay={
-            <Tooltip>
-              <HelpTooltip close={this.handleHelpToggle}>
-                <p>{"Tap on the health bar to change current, maximum, and temporary values."}</p>
-              </HelpTooltip>
-            </Tooltip>
-          }>
-            <Button className="no-border" onClick={this.handleHelpToggle}>
-              <Glyphicon glyph="question-sign"/>
-            </Button>
-          </OverlayTrigger>
-        </h3>
+            <OverlayTrigger ref="help" placement="bottom" trigger="manual" overlay={
+              <Tooltip>
+                <HelpTooltip close={this.handleHelpToggle}>
+                  <p>{"Tap on the health bar to change current, maximum, and temporary values."}</p>
+                </HelpTooltip>
+              </Tooltip>
+            }>
+              <Button className="no-border" onClick={this.handleHelpToggle}>
+                <Glyphicon glyph="question-sign"/>
+              </Button>
+            </OverlayTrigger>
+          </h3>
+        </div>
+        <Hatch eventKey={"def0"}>
+          <SettingsDefenses character={this.props.character} edit={this.props.edit}/>
+        </Hatch>
+        <div className="hatch-cover">
+          <ProgressBar onClick={this.toggleHP}>
+            <ProgressBar bsStyle="info" label={temp + " temp"} now={tempPercent} key={1}/>
+            <ProgressBar bsStyle={hpStyle} label={curr + " / " + max} now={hpPercent} key={2}/>
+          </ProgressBar>
+          
+          <Accordion activeKey={this.state.hpOpen}>
+            <Panel className="no-padding" eventKey={1}>
+              <Input type="text" value={this.state.dmg} placeholder="damage taken / hp healed" onChange={this.handleHPInput.bind(this, "dmg")} buttonBefore={dmg} buttonAfter={heal}/>
+              <Input type="text" value={this.state.temp} placeholder="temporary hps" onChange={this.handleHPInput.bind(this, "temp")} buttonBefore={clear} buttonAfter={tempHeal} />
+            </Panel>
+          </Accordion>
 
-        <SettingsDefenses ref="settings-defenses" character={this.props.character} edit={this.props.edit}/>
-
-        <ProgressBar onClick={this.toggleHP}>
-          <ProgressBar bsStyle="info" label={temp + " temp"} now={tempPercent} key={1}/>
-          <ProgressBar bsStyle={hpStyle} label={curr + " / " + max} now={hpPercent} key={2}/>
-        </ProgressBar>
-        
-        <Accordion activeKey={this.state.hpOpen}>
-          <Panel className="no-padding" eventKey={1}>
-            <Input type="text" value={this.state.dmg} placeholder="damage taken / hp healed" onChange={this.handleHPInput.bind(this, "dmg")} buttonBefore={dmg} buttonAfter={heal}/>
-            <Input type="text" value={this.state.temp} placeholder="temporary hps" onChange={this.handleHPInput.bind(this, "temp")} buttonBefore={clear} buttonAfter={tempHeal} />
+          <Panel className="text-center">
+            <Grid fluid>
+              <Row>
+                <Col xs={12}>
+                  <div className="card">
+                    <p>Armor Class</p>
+                    <h3 className="shield">{this.props.character['charArmorClass']['score']}</h3>
+                  </div>
+                </Col>
+              </Row>
+              <Row>
+                <Col xs={4}>
+                  <div className="card">
+                    <p>Initiative</p>
+                    <h3>{this.props.character['charInitiative']['score']}</h3>
+                  </div>
+                </Col>
+                <Col xs={4}><div></div></Col>
+                <Col xs={4}>
+                  <div className="card">
+                    <p>Speed</p>
+                    <h3>{this.props.character['charSpeed']['score']}</h3>
+                  </div>
+                </Col>
+              </Row>
+              <Row>
+                <Col xs={12}>
+                  <div>
+                    <p>Hit Dice</p>
+                    <h3>{this.props.character['charHitPoints']['hitDiceTotal']}</h3>
+                  </div>
+                </Col>
+              </Row>
+            </Grid>
           </Panel>
-        </Accordion>
 
-        <Panel className="text-center">
-          <Grid fluid>
-            <Row>
-              <Col xs={12}>
-                <div className="card">
-                  <p>Armor Class</p>
-                  <h3 className="shield">{this.props.character['charArmorClass']['score']}</h3>
-                </div>
-              </Col>
-            </Row>
-            <Row>
-              <Col xs={4}>
-                <div className="card">
-                  <p>Initiative</p>
-                  <h3>{this.props.character['charInitiative']['score']}</h3>
-                </div>
-              </Col>
-              <Col xs={4}><div></div></Col>
-              <Col xs={4}>
-                <div className="card">
-                  <p>Speed</p>
-                  <h3>{this.props.character['charSpeed']['score']}</h3>
-                </div>
-              </Col>
-            </Row>
-            <Row>
-              <Col xs={12}>
-                <div>
-                  <p>Hit Dice</p>
-                  <h3>{this.props.character['charHitPoints']['hitDiceTotal']}</h3>
-                </div>
-              </Col>
-            </Row>
-          </Grid>
-        </Panel>
-
-        <Panel>
-          <Grid fluid>
-            <Row className="text-center">
-              <Col xs={6}>
-                <p><strong>successes</strong></p>
-              </Col>
-              <Col xs={6}>
-                <p><strong>failures</strong></p>
-              </Col>
-            </Row>
-            <Row>
-              <Col xs={6}>
-                <Grid fluid>
-                  <Row className="no-padding">
-                    <Col xs={4}><input className="chkbox-lg" type="checkbox" /></Col>
-                    <Col xs={4}><input className="chkbox-lg" type="checkbox" /></Col>
-                    <Col xs={4}><input className="chkbox-lg" type="checkbox" /></Col>
-                  </Row>
-                </Grid>
-              </Col>
-              <Col xs={6}>
-                <Grid fluid>
-                  <Row className="no-padding">
-                    <Col xs={4}><input className="chkbox-lg" type="checkbox" /></Col>
-                    <Col xs={4}><input className="chkbox-lg" type="checkbox" /></Col>
-                    <Col xs={4}><input className="chkbox-lg" type="checkbox" /></Col>
-                  </Row>
-                </Grid>
-              </Col>
-            </Row>
-          </Grid>
-        </Panel>
+          <Panel>
+            <Grid fluid>
+              <Row className="text-center">
+                <Col xs={6}>
+                  <p><strong>successes</strong></p>
+                </Col>
+                <Col xs={6}>
+                  <p><strong>failures</strong></p>
+                </Col>
+              </Row>
+              <Row>
+                <Col xs={6}>
+                  <Grid fluid>
+                    <Row className="no-padding">
+                      <Col xs={4}><input className="chkbox-lg" type="checkbox" /></Col>
+                      <Col xs={4}><input className="chkbox-lg" type="checkbox" /></Col>
+                      <Col xs={4}><input className="chkbox-lg" type="checkbox" /></Col>
+                    </Row>
+                  </Grid>
+                </Col>
+                <Col xs={6}>
+                  <Grid fluid>
+                    <Row className="no-padding">
+                      <Col xs={4}><input className="chkbox-lg" type="checkbox" /></Col>
+                      <Col xs={4}><input className="chkbox-lg" type="checkbox" /></Col>
+                      <Col xs={4}><input className="chkbox-lg" type="checkbox" /></Col>
+                    </Row>
+                  </Grid>
+                </Col>
+              </Row>
+            </Grid>
+          </Panel>
 
 
-        <h3>{"Saving Throws"} <Button className="no-border" onClick={this.toggle.bind(this, "settings-saving-throws")}><Glyphicon glyph="cog"/></Button></h3>
-        <SettingsThrows ref="settings-saving-throws" character={this.props.character} edit={this.props.edit}/>
-        <Panel className="text-center">
-          <Grid fluid>
-            <Row>
-              <Col xs={4}>
-                <div className="card">
-                  <p>STR</p>
-                  <h3 className={(this.props.character['charSavingThrows']['str']['proficient'] === true) ? "trained" : ""}>{this.props.character['charSavingThrows']['str']['score']}</h3>
-                </div>
-              </Col>
-              <Col xs={4}>
-                <div className="card">
-                  <p>DEX</p>
-                  <h3 className={(this.props.character['charSavingThrows']['dex']['proficient'] === true) ? "trained" : ""}>{this.props.character['charSavingThrows']['dex']['score']}</h3>
-                </div>
-              </Col>
-              <Col xs={4}>
-                <div className="card">
-                  <p>CON</p>
-                  <h3 className={(this.props.character['charSavingThrows']['con']['proficient'] === true) ? "trained" : ""}>{this.props.character['charSavingThrows']['con']['score']}</h3>
-                </div>
-              </Col>
-            </Row>
-            <Row>
-              <Col xs={4}>
-                <div className="card">
-                  <p>INT</p>
-                  <h3 className={(this.props.character['charSavingThrows']['int']['proficient'] === true) ? "trained" : ""}>{this.props.character['charSavingThrows']['int']['score']}</h3>
-                </div>
-              </Col>
-              <Col xs={4}>
-                <div className="card">
-                  <p>WIS</p>
-                  <h3 className={(this.props.character['charSavingThrows']['wis']['proficient'] === true) ? "trained" : ""}>{this.props.character['charSavingThrows']['wis']['score']}</h3>
-                </div>
-              </Col>
-              <Col xs={4}>
-                <div className="card">
-                  <p>CHA</p>
-                  <h3 className={(this.props.character['charSavingThrows']['cha']['proficient'] === true) ? "trained" : ""}>{this.props.character['charSavingThrows']['cha']['score']}</h3>
-                </div>
-              </Col>
-            </Row>
-          </Grid>
-        </Panel>
-      </div>
+          <h3>{"Saving Throws"} <Button className="no-border" onClick={this.toggle.bind(this, "def1")}><Glyphicon glyph="cog"/></Button></h3>
+        </div>
+        <Hatch eventKey={"def1"}>
+          <SettingsThrows character={this.props.character} edit={this.props.edit}/>
+        </Hatch>
+        <div className="hatch-cover">
+          <Panel className="text-center">
+            <Grid fluid>
+              <Row>
+                <Col xs={4}>
+                  <div className="card">
+                    <p>STR</p>
+                    <h3 className={(this.props.character['charSavingThrows']['str']['proficient'] === true) ? "trained" : ""}>{this.props.character['charSavingThrows']['str']['score']}</h3>
+                  </div>
+                </Col>
+                <Col xs={4}>
+                  <div className="card">
+                    <p>DEX</p>
+                    <h3 className={(this.props.character['charSavingThrows']['dex']['proficient'] === true) ? "trained" : ""}>{this.props.character['charSavingThrows']['dex']['score']}</h3>
+                  </div>
+                </Col>
+                <Col xs={4}>
+                  <div className="card">
+                    <p>CON</p>
+                    <h3 className={(this.props.character['charSavingThrows']['con']['proficient'] === true) ? "trained" : ""}>{this.props.character['charSavingThrows']['con']['score']}</h3>
+                  </div>
+                </Col>
+              </Row>
+              <Row>
+                <Col xs={4}>
+                  <div className="card">
+                    <p>INT</p>
+                    <h3 className={(this.props.character['charSavingThrows']['int']['proficient'] === true) ? "trained" : ""}>{this.props.character['charSavingThrows']['int']['score']}</h3>
+                  </div>
+                </Col>
+                <Col xs={4}>
+                  <div className="card">
+                    <p>WIS</p>
+                    <h3 className={(this.props.character['charSavingThrows']['wis']['proficient'] === true) ? "trained" : ""}>{this.props.character['charSavingThrows']['wis']['score']}</h3>
+                  </div>
+                </Col>
+                <Col xs={4}>
+                  <div className="card">
+                    <p>CHA</p>
+                    <h3 className={(this.props.character['charSavingThrows']['cha']['proficient'] === true) ? "trained" : ""}>{this.props.character['charSavingThrows']['cha']['score']}</h3>
+                  </div>
+                </Col>
+              </Row>
+            </Grid>
+          </Panel>
+        </div>
+      </HatchGroup>
     );
   }
 })

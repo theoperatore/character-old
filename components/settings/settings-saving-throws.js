@@ -1,5 +1,4 @@
 var React = require('react');
-var Settings = require('./settings-tear');
 
 var Input = require('react-bootstrap/Input');
 var ButtonToolbar = require('react-bootstrap/ButtonToolbar');
@@ -54,7 +53,7 @@ var SettingsSavingThrows = React.createClass({
     this.setState(state);
   },
   toggle : function() {
-    this.refs.settings.toggle();
+    this.props.toggle();
   },
   handleChange : function(cmp, e) {
     var val = (e.target.value === "" ) ? "" : parseInt(e.target.value, 10);
@@ -159,7 +158,7 @@ var SettingsSavingThrows = React.createClass({
     }.bind(this));
 
     return (
-      <Settings ref="settings">
+      <div className="settings-tear">
         <h3>{"Edit Saving Throws"}</h3>
         <p>{"Edit the saving throws with which you are proficient and add any modifiers you may also have for that saving throw."}</p>
         <Input type="select" ref="profSelect" multiple label="Select Proficient Saving Throws" value={(this.state.profs.length === 0) ? prof : this.state.profs} onChange={this.handleProfSelect}>
@@ -199,7 +198,7 @@ var SettingsSavingThrows = React.createClass({
           <Button bsStyle="danger" onClick={this.toggle}>Close</Button>
           <Button bsStyle="success" onClick={this.handleOk}>Save</Button>
         </ButtonToolbar>
-      </Settings>
+      </div>
     );
   }
 })

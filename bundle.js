@@ -18,7 +18,7 @@ var AppSettings = React.createClass({displayName: "AppSettings",
 
 module.exports = AppSettings;
 
-},{"react":217,"react-bootstrap/Button":36,"react-bootstrap/ButtonGroup":37}],2:[function(require,module,exports){
+},{"react":232,"react-bootstrap/Button":36,"react-bootstrap/ButtonGroup":37}],2:[function(require,module,exports){
 var React = require('react');
 
 // components
@@ -73,7 +73,6 @@ var ContentArea = React.createClass({
           )
         ), 
 
-
         React.createElement(TabPane, {eventKey: 6, tab: React.createElement(Glyphicon, {glyph: "book"})}, 
           React.createElement(PaneSpell, {
             character: this.props.character, edit: this.props.edit, 
@@ -92,44 +91,342 @@ var ContentArea = React.createClass({
 
 module.exports = ContentArea;
 
-},{"./panes/pane-ability":5,"./panes/pane-attack":6,"./panes/pane-defense":7,"./panes/pane-equipment":8,"./panes/pane-feature":9,"./panes/pane-info":10,"./panes/pane-spell":11,"react":217,"react-bootstrap/Glyphicon":42,"react-bootstrap/TabPane":57,"react-bootstrap/TabbedArea":58}],3:[function(require,module,exports){
+},{"./hatch/Hatch":3,"./hatch/HatchGroup":4,"./panes/pane-ability":6,"./panes/pane-attack":7,"./panes/pane-defense":8,"./panes/pane-equipment":9,"./panes/pane-feature":10,"./panes/pane-info":11,"./panes/pane-spell":12,"react":232,"react-bootstrap/Button":36,"react-bootstrap/Glyphicon":42,"react-bootstrap/TabPane":57,"react-bootstrap/TabbedArea":58}],3:[function(require,module,exports){
+
 var React = require('react');
 
 var Hatch = React.createClass({displayName: "Hatch",
+  recalculate : function() {
+    this.props.recalculate(this.props.eventKey);
+  },
+
+  toggle : function() {
+    this.props.toggle(this.props.eventKey);
+  },
+
+  // this might not give the correct context to each child call of this.props.recalculate
+  renderChildren : function() {
+    return React.Children.map(this.props.children, function(child) {
+      return React.addons.cloneWithProps(child, { recalculate : this.recalculate, toggle : this.toggle });
+    }.bind(this));
+  },
+  render : function() {
+    return (
+      React.createElement("div", {ref: "entryway", id: this.props.eventKey || "", className: "hatch-entryway"}, 
+        this.renderChildren()
+      )
+    );
+  }
+})
+
+module.exports = Hatch;
+
+},{"react":232}],4:[function(require,module,exports){
+var React = require('react/addons');
+
+var HatchGroup = React.createClass({displayName: "HatchGroup",
+  getInitialState : function() {
+    return ({ hatches : {} });
+  },
+  open : function(idx) {
+    var root = this.refs.root.getDOMNode();
+    var hatches = this.state.hatches;
+    var currHeight = root.getBoundingClientRect().height;
+    var hatch = document.getElementById(idx);
+    var height;
+    var node;
+
+    if (!hatch) {
+      console.error("cannot find node to open :", idx);
+      return;
+    }
+
+    height = hatch.getBoundingClientRect().height;
+    hatch.__prevHeight = height;
+
+    hatch.classList.add("hatch-group-open");
+
+    // for sibling nodes, translate them
+    node = hatch.nextElementSibling;
+
+    while(node) {
+      node.__translateHeight = (node.__translateHeight)
+        ? (node.__translateHeight + height) : height;
+
+      console.log("opening...", node.__translateHeight);
+
+      node.style.webkitTransform = "translate3d(0," + node.__translateHeight + "px,0)";
+      node.style.MozTransform    = "translate3d(0," + node.__translateHeight + "px,0)";
+      node.style.msTransform     = "translate3d(0," + node.__translateHeight + "px,0)";
+      node.style.OTransform      = "translate3d(0," + node.__translateHeight + "px,0)";
+      node.style.transform       = "translate3d(0," + node.__translateHeight + "px,0)";
+
+      node = node.nextElementSibling;
+    }
+
+    currHeight += height;
+    hatches[idx] = true;
+    //root.style.height = currHeight + "px";
+
+    this.setState({ hatches : hatches });
+  },
+  close : function(idx) {
+    var root = this.refs.root.getDOMNode();
+    var hatches = this.state.hatches;
+    var currHeight = root.getBoundingClientRect().height;
+    var child = document.getElementById(idx);
+    var height;
+    var node;
+
+    if (!child) {
+      console.error("cannot find node to close :", idx);
+      return;
+    }
+
+    height = child.getBoundingClientRect().height;
+    child.__prevHeight = height;
+
+    child.classList.remove("hatch-group-open");
+
+    // for sibling nodes, translate them
+    node = child.nextElementSibling;
+
+    while(node) {
+
+      node.__translateHeight = (node.__translateHeight)
+        ? (node.__translateHeight - height) : height;
+
+      console.log("closing...", node.__translateHeight);
+
+      node.style.webkitTransform = "translate3d(0," + node.__translateHeight + "px,0)";
+      node.style.MozTransform    = "translate3d(0," + node.__translateHeight + "px,0)";
+      node.style.msTransform     = "translate3d(0," + node.__translateHeight + "px,0)";
+      node.style.OTransform      = "translate3d(0," + node.__translateHeight + "px,0)";
+      node.style.transform       = "translate3d(0," + node.__translateHeight + "px,0)";
+
+      node = node.nextElementSibling;
+    }
+
+    currHeight -= height;
+    hatches[idx] = false;
+    //root.style.height = currHeight + "px";
+
+    this.setState({ hatches : hatches });
+  },
+  recalculate : function(idx) {
+    var root;
+    var currHeight;
+    var child;
+    var height;
+    var diff;
+    var node;
+
+    if (!this.state.hatches[idx] || this.state.hatches[idx] === false) return;
+
+    console.log("recalculating hatch:", idx);
+
+    root = this.refs.root.getDOMNode();
+    currHeight = root.getBoundingClientRect().height;
+    child = document.getElementById(idx);
+
+    if (!child) {
+      console.error("cannot find node to recalculate : ", idx);
+      return;
+    }
+
+    height = child.getBoundingClientRect().height;
+    diff = height - child.__prevHeight;
+    child.__prevHeight = height;
+
+    // for sibling nodes, translate them
+    node = child.nextElementSibling;
+
+    while(node) {
+      node.__translateHeight = node.__translateHeight || height;
+      node.__translateHeight += diff;
+
+      node.style.webkitTransform = "translate3d(0," + node.__translateHeight + "px,0)";
+      node.style.MozTransform    = "translate3d(0," + node.__translateHeight + "px,0)";
+      node.style.msTransform     = "translate3d(0," + node.__translateHeight + "px,0)";
+      node.style.OTransform      = "translate3d(0," + node.__translateHeight + "px,0)";
+      node.style.transform       = "translate3d(0," + node.__translateHeight + "px,0)";
+
+      node = node.nextElementSibling;
+    }
+
+    currHeight += diff;
+    //root.style.height = currHeight + "px";
+  },
+  toggle : function(idx) {
+    console.log("toggle", idx);
+    if (this.state.hatches[idx] === true) {
+      this.close(idx);
+    }
+    else {
+      this.open(idx);  
+    }
+  },
+  renderChildren : function() {
+    return React.Children.map(this.props.children, function(child) {
+      return React.addons.cloneWithProps(child, { recalculate : this.recalculate, toggle : this.toggle });
+    }.bind(this))
+  },
+  render : function() {
+    return (
+      React.createElement("div", {ref: "root", className: "hatch-group-container"}, 
+        this.renderChildren()
+      )
+    );
+  }
+})
+
+module.exports = HatchGroup;
+
+},{"react/addons":71}],5:[function(require,module,exports){
+var React = require('react/addons');
+
+// a component to simulate the behavior of a collapsing bootstrap panel,
+// but instead of transitioning the height, use translate3d and update
+// the height of the container for continued page scrolling.
+var Panel3d = React.createClass({displayName: "Panel3d",
   getInitialState : function() {
     var state = {};
 
     state.isOpen = false;
+    state.heightHeader = 0;
+    state.heightContent = 0;
+    state.isDirty = true;
 
     return (state);
   },
-  open : function() {
-    var node = this.refs.cover.getDOMNode();
-    var height = this.refs.entryway.getDOMNode().clientHeight;
-    
-    node.style.webkitTransform = "translate3d(0," + height + "px,0)";
-    node.style.MozTransform    = "translate3d(0," + height + "px,0)";
-    node.style.msTransform     = "translate3d(0," + height + "px,0)";
-    node.style.OTransform      = "translate3d(0," + height + "px,0)";
-    node.style.transform       = "translate3d(0," + height + "px,0)";
 
-    console.log("running", height);
+  // cache height of sliding component and set height of container
+  // to be the height of the header (comp is closed)
+  componentDidMount: function () {
+    var container = this.refs.container.getDOMNode();
+    var header = this.refs.header.getDOMNode();
+    var content = this.refs.content.getDOMNode();
+    var state = {};
+
+    // cache the height of the header and content
+    state.heightHeader  = header.getBoundingClientRect().height;
+    state.heightContent = content.getBoundingClientRect().height;
+
+    // set the initial height of the component to closed
+    // problem if this component mounts, but is not displayed.
+    // the height will be 0 and the component will not be shown
+    // container.style.height = state.heightHeader + "px";
+
+    // setup event listener for transitionend?
+    content.addEventListener("webkitTransitionEnd", function(el) {
+      if (el.target.classList.contains("closing")) {
+        var height = this.state.heightHeader;
+
+        if (this.state.isDirty) {
+          height = this.refs.header.getDOMNode().getBoundingClientRect().height + "px";
+        }
+
+        el.target.classList.remove("closing");
+        this.refs.container.getDOMNode().style.height = height + "px";
+
+        // if this Panel is in another panel, tell the parent to recalculate
+        if (this.props.panelRecalculate) this.props.panelRecalculate();
+        return;
+      }
+
+    }.bind(this))
+
+    this.setState(state);
+  },
+
+  // open this component
+  open : function() {
+    var container = this.refs.container.getDOMNode();
+    var header = this.refs.header.getDOMNode();
+    var content = this.refs.content.getDOMNode();
+
+    // use cached values
+    var heightHeader = this.state.heightHeader;
+    var heightContent = this.state.heightContent;
+
+    // force a recalculation if dirty
+    if (this.state.isDirty) {
+      var state = {};
+
+      heightHeader = header.getBoundingClientRect().height;
+      heightContent = content.getBoundingClientRect().height;
+
+      state.heightHeader = heightHeader;
+      state.heightContent = heightContent;
+      state.isDirty = false;
+
+      this.setState(state);
+    }
+
+    // add some classes
+    content.classList.add("open");
+    header.classList.add("open");
+
+    // apply the translate3d to the content
+    content.style.webkitTransform = "translate3d(0," + heightHeader + "px,0)";
+    content.style.MozTransform    = "translate3d(0," + heightHeader + "px,0)";
+    content.style.msTransform     = "translate3d(0," + heightHeader + "px,0)";
+    content.style.OTransform      = "translate3d(0," + heightHeader + "px,0)";
+    content.style.transform       = "translate3d(0," + heightHeader + "px,0)";
+
+    // apply open height to container
+    container.style.height = heightHeader + heightContent + "px";
+
+    // if this Panel is in another panel, tell the parent to recalculate
+    if (this.props.panelRecalculate) this.props.panelRecalculate();
+
+    // keep track of state
     this.setState({ isOpen : true });
   },
+
+  // close this component
   close : function() {
-    var node = this.refs.cover.getDOMNode();
-    
-    node.style.webkitTransform = "translate3d(0,0,0)";
-    node.style.MozTransform    = "translate3d(0,0,0)";
-    node.style.msTransform     = "translate3d(0,0,0)";
-    node.style.OTransform      = "translate3d(0,0,0)";
-    node.style.transform       = "translate3d(0,0,0)";
+    var container = this.refs.container.getDOMNode();
+    var header = this.refs.header.getDOMNode();
+    var content = this.refs.content.getDOMNode();
+
+    // use cached values
+    var heightHeader = this.state.heightHeader;
+    var heightContent = this.state.heightContent;
+
+    // force a recalculation if dirty
+    if (this.state.isDirty) {
+      var state = {};
+
+      heightHeader = header.getBoundingClientRect().height;
+      heightContent = content.getBoundingClientRect().height;
+
+      state.heightHeader = heightHeader;
+      state.heightContent = heightContent;
+      state.isDirty = false;
+
+      this.setState(state);
+    }
+
+    // do a little css styling
+    header.classList.remove("open");
+    content.classList.remove("open");
+    content.classList.add("closing");
+
+    // apply the translate3d to the content
+    content.style.webkitTransform = "translate3d(0,0,0)";
+    content.style.MozTransform    = "translate3d(0,0,0)";
+    content.style.msTransform     = "translate3d(0,0,0)";
+    content.style.OTransform      = "translate3d(0,0,0)";
+    content.style.transform       = "translate3d(0,0,0)";
+
+    // apply height to container -- this happens in the transitionend event handler
+    //container.style.height = heightHeader + "px";
 
     this.setState({ isOpen : false });
   },
-  getCurrentState : function() {
-    return (this.state.isOpen);
-  },
+
+  // toggle this component open or closed
   toggle : function() {
     if (this.state.isOpen) {
       this.close();
@@ -138,129 +435,83 @@ var Hatch = React.createClass({displayName: "Hatch",
       this.open();
     }
   },
-  render : function() {
-    return (
-      React.createElement("div", {ref: "entryway", id: this.props.eventKey, className: "hatch-entryway"}, 
-        this.props.children
-      )
-    );
-  }
-})
 
-module.exports = Hatch;
-
-},{"react":217}],4:[function(require,module,exports){
-var React = require('react');
-
-// need to apply the translate to each node after the Hatch to open.
-var HatchGroup = React.createClass({displayName: "HatchGroup",
-  getInitialState : function() {
-    return ({
-      hatches : {},
-      bodyHeight : 0,
-      totalHeight : 0
-    })
-  },
-  componentDidMount: function () {
+  // function to recalculate cached heights of header and content
+  recalculate : function() {
+    var container = this.refs.container.getDOMNode();
+    var header = this.refs.header.getDOMNode();
+    var content = this.refs.content.getDOMNode();
     var state = {};
-    var root = this.refs.root.getDOMNode();
 
-    state.bodyHeight = root.getBoundingClientRect().height;
-    state.totalHeight = root.getBoundingClientRect().height;
+    console.log("recalculating...");
 
+    // new heights
+    state.heightHeader = header.getBoundingClientRect().height;
+    state.heightContent = content.getBoundingClientRect().height;
+
+    // translate to new height if open
+    // and set the new container height
+    if (this.state.isOpen) {
+      content.style.webkitTransform = "translate3d(0," + state.heightHeader + "px,0)";
+      content.style.MozTransform    = "translate3d(0," + state.heightHeader + "px,0)";
+      content.style.msTransform     = "translate3d(0," + state.heightHeader + "px,0)";
+      content.style.OTransform      = "translate3d(0," + state.heightHeader + "px,0)";
+      content.style.transform       = "translate3d(0," + state.heightHeader + "px,0)";
+
+      container.style.height = state.heightHeader + state.heightContent + "px";
+    }
+    else {
+      container.style.height = state.heightHeader + "px";
+    }
+
+    // cache new heights
     this.setState(state);
   },
 
-  open : function(idx) {
-    var root = this.refs.root.getDOMNode();
-    var hatches = this.state.hatches;
-    var totalHeight = this.state.totalHeight;
+  // render the header in a div with a particular class
+  // allows the render function to be a little cleaner
+  renderHeader : function() {
+    return (
+      React.createElement("div", {ref: "header", className: "panel3d-header " + this.props.className, onClick: this.toggle}, 
+        this.props.title || ""
+      )
+    );
 
-    for (var i = 0; i < root.childNodes.length; i++) {
-      var child = root.childNodes[i];
+  },
 
-      if (child.id === idx) {
-        var height = child.getBoundingClientRect().height;
-
-        for (var j = i+1; j < root.childNodes.length; j++) {
-          var node = root.childNodes[j];
-
-          node.__translateHeight = 
-            (node.__translateHeight) ? 
-            node.__translateHeight + height : height;
-
-          node.style.webkitTransform = "translate3d(0," + node.__translateHeight + "px,0)";
-          node.style.MozTransform    = "translate3d(0," + node.__translateHeight + "px,0)";
-          node.style.msTransform     = "translate3d(0," + node.__translateHeight + "px,0)";
-          node.style.OTransform      = "translate3d(0," + node.__translateHeight + "px,0)";
-          node.style.transform       = "translate3d(0," + node.__translateHeight + "px,0)";
-
-        }
-
-        totalHeight += height;
-        hatches[idx] = true;
-        root.style.height = totalHeight + "px";
-
-        this.setState({ hatches : hatches, totalHeight : totalHeight });
+  // give children toggle and recalculate functions as props
+  renderChildren : function() {
+    return React.Children.map(this.props.children, function(child) {
+      if (child && (child.type === Panel3d.type)) {
+        console.log("adding props", child);
+        return React.addons.cloneWithProps(child, { panelRecalculate : this.recalculate , panelToggle : this.toggle });
       }
-    }
+      return child;
+    }.bind(this))
   },
-  close : function(idx) {
-    var root = this.refs.root.getDOMNode();
-    var hatches = this.state.hatches;
-    var totalHeight = this.state.totalHeight;
 
-    for (var i = 0; i < root.childNodes.length; i++) {
-      var child = root.childNodes[i];
-
-      if (child.id === idx) {
-        var height = child.getBoundingClientRect().height;
-
-        for (var j = i+1; j < root.childNodes.length; j++) {
-          var node = root.childNodes[j];
-
-          node.__translateHeight = 
-            (node.__translateHeight) ?
-            node.__translateHeight - height : 0;
-
-          node.style.webkitTransform = "translate3d(0," + node.__translateHeight + "px,0)";
-          node.style.MozTransform    = "translate3d(0," + node.__translateHeight + "px,0)";
-          node.style.msTransform     = "translate3d(0," + node.__translateHeight + "px,0)";
-          node.style.OTransform      = "translate3d(0," + node.__translateHeight + "px,0)";
-          node.style.transform       = "translate3d(0," + node.__translateHeight + "px,0)";
-        }
-
-        totalHeight -= height;
-        hatches[idx] = false;
-        root.style.height = totalHeight + "px";
-
-        this.setState({ hatches : hatches, totalHeight : totalHeight });
-      }
-    }
-  },
-  toggle : function(idx) {
-    if (this.state.hatches[idx] === true) {
-      this.close(idx);
-    }
-    else {
-      this.open(idx);  
-    }
-  },
+  // render everything
   render : function() {
     return (
-      React.createElement("div", {ref: "root", className: "hatch-group-container"}, 
-        this.props.children
+      React.createElement("div", {ref: "container", className: "panel3d-container"}, 
+        React.createElement("div", {ref: "content", className: "panel3d-content"}, 
+          this.renderChildren()
+        ), 
+        this.renderHeader()
       )
     );
   }
 })
 
-module.exports = HatchGroup;
+module.exports = Panel3d;
 
-},{"react":217}],5:[function(require,module,exports){
+},{"react/addons":71}],6:[function(require,module,exports){
 var React = require('react');
 var SettingsAbility = require('../settings/settings-abilities');
 var SettingsSkills = require('../settings/settings-skills');
+
+var HatchGroup = require('../hatch/HatchGroup');
+var Hatch = require('../hatch/Hatch');
 
 var Glyphicon = require('react-bootstrap/Glyphicon');
 var Accordion = require('react-bootstrap/Accordion');
@@ -275,8 +526,8 @@ var Button = require('react-bootstrap/Button');
 
 var Ability = React.createClass({
   displayName : "CharAbility",
-  toggleSettings : function(cmp) {
-    this.refs[cmp].toggle();
+  toggleSettings : function(idx) {
+    this.refs.settings.toggle(idx);
   },
   render : function() {
 
@@ -307,84 +558,94 @@ var Ability = React.createClass({
     }
 
     return (
-      React.createElement("div", {className: "container-fluid"}, 
-        React.createElement("h3", null, "Ability Scores", " ", React.createElement(Button, {className: "no-border", onClick: this.toggleSettings.bind(this, "settings-ability")}, React.createElement(Glyphicon, {glyph: "cog"}))), 
-        React.createElement(SettingsAbility, {ref: "settings-ability", character: this.props.character, edit: this.props.edit}), 
-        React.createElement(Panel, null, 
-          React.createElement(Grid, {fluid: true, className: "text-center"}, 
-            React.createElement(Row, null, 
-              React.createElement(Col, {xs: 4}, 
-                React.createElement("div", {className: "card"}, 
-                  React.createElement("p", null, "STR"), 
-                  React.createElement("h3", {className: "bg-success"}, this.props.character['charAbilities']['str']['mod']), 
-                  React.createElement("p", null, this.props.character['charAbilities']['str']['score'])
+      React.createElement(HatchGroup, {ref: "settings"}, 
+        React.createElement("div", {className: "hatch-cover"}, 
+          React.createElement("h3", null, "Ability Scores", " ", React.createElement(Button, {className: "no-border", onClick: this.toggleSettings.bind(this, "abil0")}, React.createElement(Glyphicon, {glyph: "cog"})))
+        ), 
+        React.createElement(Hatch, {eventKey: "abil0"}, 
+          React.createElement(SettingsAbility, {character: this.props.character, edit: this.props.edit})
+        ), 
+        React.createElement("div", {className: "hatch-cover"}, 
+          React.createElement(Panel, null, 
+            React.createElement(Grid, {fluid: true, className: "text-center"}, 
+              React.createElement(Row, null, 
+                React.createElement(Col, {xs: 4}, 
+                  React.createElement("div", {className: "card"}, 
+                    React.createElement("p", null, "STR"), 
+                    React.createElement("h3", {className: "bg-success"}, this.props.character['charAbilities']['str']['mod']), 
+                    React.createElement("p", null, this.props.character['charAbilities']['str']['score'])
+                  )
+                ), 
+                React.createElement(Col, {xs: 4}, 
+                  React.createElement("div", {className: "card"}, 
+                    React.createElement("p", null, "DEX"), 
+                    React.createElement("h3", {className: "bg-success"}, this.props.character['charAbilities']['dex']['mod']), 
+                    React.createElement("p", null, this.props.character['charAbilities']['dex']['score'])
+                  )
+                ), 
+                React.createElement(Col, {xs: 4}, 
+                  React.createElement("div", {className: "card"}, 
+                    React.createElement("p", null, "CON"), 
+                    React.createElement("h3", {className: "bg-success"}, this.props.character['charAbilities']['con']['mod']), 
+                    React.createElement("p", null, this.props.character['charAbilities']['con']['score'])
+                  )
                 )
               ), 
-              React.createElement(Col, {xs: 4}, 
-                React.createElement("div", {className: "card"}, 
-                  React.createElement("p", null, "DEX"), 
-                  React.createElement("h3", {className: "bg-success"}, this.props.character['charAbilities']['dex']['mod']), 
-                  React.createElement("p", null, this.props.character['charAbilities']['dex']['score'])
-                )
-              ), 
-              React.createElement(Col, {xs: 4}, 
-                React.createElement("div", {className: "card"}, 
-                  React.createElement("p", null, "CON"), 
-                  React.createElement("h3", {className: "bg-success"}, this.props.character['charAbilities']['con']['mod']), 
-                  React.createElement("p", null, this.props.character['charAbilities']['con']['score'])
-                )
-              )
-            ), 
-            React.createElement(Row, null, 
-              React.createElement(Col, {xs: 4}, 
-                React.createElement("div", {className: "card"}, 
-                  React.createElement("p", null, "INT"), 
-                  React.createElement("h3", {className: "bg-success"}, this.props.character['charAbilities']['int']['mod']), 
-                  React.createElement("p", null, this.props.character['charAbilities']['int']['score'])
-                )
-              ), 
-              React.createElement(Col, {xs: 4}, 
-                React.createElement("div", {className: "card"}, 
-                  React.createElement("p", null, "WIS"), 
-                  React.createElement("h3", {className: "bg-success"}, this.props.character['charAbilities']['wis']['mod']), 
-                  React.createElement("p", null, this.props.character['charAbilities']['wis']['score'])
-                )
-              ), 
-              React.createElement(Col, {xs: 4}, 
-                React.createElement("div", {className: "card"}, 
-                  React.createElement("p", null, "CHA"), 
-                  React.createElement("h3", {className: "bg-success"}, this.props.character['charAbilities']['cha']['mod']), 
-                  React.createElement("p", null, this.props.character['charAbilities']['cha']['score'])
+              React.createElement(Row, null, 
+                React.createElement(Col, {xs: 4}, 
+                  React.createElement("div", {className: "card"}, 
+                    React.createElement("p", null, "INT"), 
+                    React.createElement("h3", {className: "bg-success"}, this.props.character['charAbilities']['int']['mod']), 
+                    React.createElement("p", null, this.props.character['charAbilities']['int']['score'])
+                  )
+                ), 
+                React.createElement(Col, {xs: 4}, 
+                  React.createElement("div", {className: "card"}, 
+                    React.createElement("p", null, "WIS"), 
+                    React.createElement("h3", {className: "bg-success"}, this.props.character['charAbilities']['wis']['mod']), 
+                    React.createElement("p", null, this.props.character['charAbilities']['wis']['score'])
+                  )
+                ), 
+                React.createElement(Col, {xs: 4}, 
+                  React.createElement("div", {className: "card"}, 
+                    React.createElement("p", null, "CHA"), 
+                    React.createElement("h3", {className: "bg-success"}, this.props.character['charAbilities']['cha']['mod']), 
+                    React.createElement("p", null, this.props.character['charAbilities']['cha']['score'])
+                  )
                 )
               )
             )
-          )
-        ), 
+          ), 
 
-        React.createElement(Panel, null, 
-          React.createElement(Grid, {fluid: true, className: "text-center"}, 
-            React.createElement(Row, null, 
-              React.createElement(Col, {xs: 6}, 
-                React.createElement("div", {className: "card"}, 
-                  React.createElement("p", null, "Proficiency Bonus"), 
-                  React.createElement("h3", {className: "trained"}, this.props.character['charProficiencyBonus']['score'])
-                )
-              ), 
-              React.createElement(Col, {xs: 6}, 
-                React.createElement("div", {className: "card"}, 
-                  React.createElement("p", null, "Passive Perception"), 
-                  React.createElement("h3", null, this.props.character['charPassivePerception']['score'])
+          React.createElement(Panel, null, 
+            React.createElement(Grid, {fluid: true, className: "text-center"}, 
+              React.createElement(Row, null, 
+                React.createElement(Col, {xs: 6}, 
+                  React.createElement("div", {className: "card"}, 
+                    React.createElement("p", null, "Proficiency Bonus"), 
+                    React.createElement("h3", {className: "trained"}, this.props.character['charProficiencyBonus']['score'])
+                  )
+                ), 
+                React.createElement(Col, {xs: 6}, 
+                  React.createElement("div", {className: "card"}, 
+                    React.createElement("p", null, "Passive Perception"), 
+                    React.createElement("h3", null, this.props.character['charPassivePerception']['score'])
+                  )
                 )
               )
             )
-          )
-        ), 
+          ), 
 
-        React.createElement("h3", null, "Skills", " ", React.createElement(Button, {className: "no-border", onClick: this.toggleSettings.bind(this, "settings-skills")}, React.createElement(Glyphicon, {glyph: "cog"}))), 
-        React.createElement(SettingsSkills, {ref: "settings-skills", character: this.props.character, edit: this.props.edit}), 
-        React.createElement(Panel, null, 
-          React.createElement(Grid, {fluid: true}, 
-            skills
+          React.createElement("h3", null, "Skills", " ", React.createElement(Button, {className: "no-border", onClick: this.toggleSettings.bind(this, "abil1")}, React.createElement(Glyphicon, {glyph: "cog"})))
+        ), 
+        React.createElement(Hatch, {eventKey: "abil1"}, 
+          React.createElement(SettingsSkills, {character: this.props.character, edit: this.props.edit})
+        ), 
+        React.createElement("div", {className: "hatch-cover"}, 
+          React.createElement(Panel, null, 
+            React.createElement(Grid, {fluid: true}, 
+              skills
+            )
           )
         )
       )
@@ -394,12 +655,15 @@ var Ability = React.createClass({
 
 module.exports = Ability;
 
-},{"../settings/settings-abilities":13,"../settings/settings-skills":22,"react":217,"react-bootstrap/Accordion":34,"react-bootstrap/Button":36,"react-bootstrap/Col":39,"react-bootstrap/Glyphicon":42,"react-bootstrap/Grid":43,"react-bootstrap/Input":44,"react-bootstrap/Modal":46,"react-bootstrap/Panel":52,"react-bootstrap/Popover":54,"react-bootstrap/Row":56}],6:[function(require,module,exports){
+},{"../hatch/Hatch":3,"../hatch/HatchGroup":4,"../settings/settings-abilities":14,"../settings/settings-skills":23,"react":232,"react-bootstrap/Accordion":34,"react-bootstrap/Button":36,"react-bootstrap/Col":39,"react-bootstrap/Glyphicon":42,"react-bootstrap/Grid":43,"react-bootstrap/Input":44,"react-bootstrap/Modal":46,"react-bootstrap/Panel":52,"react-bootstrap/Popover":54,"react-bootstrap/Row":56}],7:[function(require,module,exports){
 var React = require('react');
 
 var SettingsAttack = require('../settings/settings-attacks');
 var AttackConfig = require('../popovers/attack-bonus');
 var HelpTooltip = require('../tooltips/help');
+var HatchGroup = require('../hatch/HatchGroup');
+var Hatch = require('../hatch/Hatch');
+var Panel3d = require('../hatch/Panel3d');
 
 var Glyphicon = require('react-bootstrap/Glyphicon');
 var Accordion = require('react-bootstrap/Accordion');
@@ -414,8 +678,8 @@ var Button = require('react-bootstrap/Button');
 
 var Attack = React.createClass({
   displayName : "CharAttack",
-  handleToggle : function(cmp) {
-    this.refs[cmp].toggle();
+  handleToggle : function(idx) {
+    this.refs.settings.toggle(idx);
   },
 
   handleConfigToggle : function(ref) {
@@ -436,7 +700,7 @@ var Attack = React.createClass({
     // compile list of attacks
     charAttacks.forEach(function(attack, i) {
       attacks.push(
-        React.createElement(Panel, {className: "no-padding", bsStyle: "warning", key: i, header: attack.name, eventKey: i}, 
+        React.createElement(Panel3d, {className: "list-header", key: i, title: attack.name}, 
             React.createElement("p", null, attack.desc)
         )
       );
@@ -497,35 +761,37 @@ var Attack = React.createClass({
 
     // render the component
     return (
-      React.createElement("div", {className: "container-fluid"}, 
-        React.createElement("h3", null, 
-          "Attacks", 
-          React.createElement(Button, {className: "no-border", onClick: this.handleToggle.bind(this, "settings-attacks")}, React.createElement(Glyphicon, {glyph: "cog"})), 
-          React.createElement(OverlayTrigger, {ref: "help", placement: "bottom", trigger: "manual", overlay: 
-            React.createElement(Tooltip, null, 
-              React.createElement(HelpTooltip, {close: this.handleHelpToggle}, 
-                React.createElement("p", null, "Class points like 'Ki', 'Rage', or 'Sorcery' can be modified in 'Features' (", " ", React.createElement(Glyphicon, {glyph: "flash"}), " ", ")"), 
-                React.createElement("p", null, "Tap 'Attack Bonus' to configure the ability score it uses and if you have proficiency")
+      React.createElement(HatchGroup, {ref: "settings"}, 
+        React.createElement("div", {className: "hatch-cover"}, 
+          React.createElement("h3", null, 
+            "Attacks", 
+            React.createElement(Button, {className: "no-border", onClick: this.handleToggle.bind(this, "atk0")}, React.createElement(Glyphicon, {glyph: "cog"})), 
+            React.createElement(OverlayTrigger, {ref: "help", placement: "bottom", trigger: "manual", overlay: 
+              React.createElement(Tooltip, null, 
+                React.createElement(HelpTooltip, {close: this.handleHelpToggle}, 
+                  React.createElement("p", null, "Class points like 'Ki', 'Rage', or 'Sorcery' can be modified in 'Features' (", " ", React.createElement(Glyphicon, {glyph: "flash"}), " ", ")"), 
+                  React.createElement("p", null, "Tap 'Attack Bonus' to configure the ability score it uses and if you have proficiency")
+                )
+              )
+            }, 
+              React.createElement(Button, {className: "no-border", onClick: this.handleHelpToggle}, 
+                React.createElement(Glyphicon, {glyph: "question-sign"})
               )
             )
-          }, 
-            React.createElement(Button, {className: "no-border", onClick: this.handleHelpToggle}, 
-              React.createElement(Glyphicon, {glyph: "question-sign"})
-            )
           )
         ), 
-        React.createElement(SettingsAttack, {ref: "settings-attacks", character: this.props.character, edit: this.props.edit}), 
-        React.createElement(Panel, null, 
-          React.createElement(Grid, {fluid: true}, 
-            React.createElement(Row, null, 
-              bubbles
-            )
-          )
+        React.createElement(Hatch, {eventKey: "atk0"}, 
+          React.createElement(SettingsAttack, {character: this.props.character, edit: this.props.edit})
         ), 
-
-        charges, 
-
-        React.createElement(Accordion, {defaultActiveKey: ""}, 
+        React.createElement("div", {className: "hatch-cover"}, 
+          React.createElement(Panel, null, 
+            React.createElement(Grid, {fluid: true}, 
+              React.createElement(Row, null, 
+                bubbles
+              )
+            )
+          ), 
+          charges, 
           attacks
         )
       )
@@ -535,11 +801,13 @@ var Attack = React.createClass({
 
 module.exports = Attack;
 
-},{"../popovers/attack-bonus":12,"../settings/settings-attacks":14,"../tooltips/help":27,"react":217,"react-bootstrap/Accordion":34,"react-bootstrap/Button":36,"react-bootstrap/Col":39,"react-bootstrap/Glyphicon":42,"react-bootstrap/Grid":43,"react-bootstrap/OverlayTrigger":50,"react-bootstrap/Panel":52,"react-bootstrap/Popover":54,"react-bootstrap/Row":56,"react-bootstrap/Tooltip":59}],7:[function(require,module,exports){
+},{"../hatch/Hatch":3,"../hatch/HatchGroup":4,"../hatch/Panel3d":5,"../popovers/attack-bonus":13,"../settings/settings-attacks":15,"../tooltips/help":27,"react":232,"react-bootstrap/Accordion":34,"react-bootstrap/Button":36,"react-bootstrap/Col":39,"react-bootstrap/Glyphicon":42,"react-bootstrap/Grid":43,"react-bootstrap/OverlayTrigger":50,"react-bootstrap/Panel":52,"react-bootstrap/Popover":54,"react-bootstrap/Row":56,"react-bootstrap/Tooltip":59}],8:[function(require,module,exports){
 var React = require('react');
 var HelpTooltip = require('../tooltips/help');
 var SettingsDefenses = require('../settings/settings-defenses');
 var SettingsThrows = require('../settings/settings-saving-throws');
+var HatchGroup = require('../hatch/HatchGroup');
+var Hatch = require('../hatch/Hatch');
 
 var Glyphicon = require('react-bootstrap/Glyphicon');
 var Accordion = require('react-bootstrap/Accordion');
@@ -562,8 +830,8 @@ var Defense = React.createClass({
       dmg : ""
     });
   },
-  toggle : function(cmp) {
-    this.refs[cmp].toggle();
+  toggle : function(idx) {
+    this.refs.settings.toggle(idx);
   },
   toggleHP : function() {
     this.setState({ hpOpen : ((this.state.hpOpen === 0) ? 1 : 0) });
@@ -666,149 +934,157 @@ var Defense = React.createClass({
     );
 
     return (
-      React.createElement("div", {className: "container-fluid"}, 
-        React.createElement("h3", null, 
-          "Defenses", 
-          React.createElement(Button, {className: "no-border", onClick: this.toggle.bind(this, "settings-defenses")}, React.createElement(Glyphicon, {glyph: "cog"})), 
+      React.createElement(HatchGroup, {ref: "settings"}, 
+        React.createElement("div", {className: "hatch-cover"}, 
+          React.createElement("h3", null, 
+            "Defenses", 
+            React.createElement(Button, {className: "no-border", onClick: this.toggle.bind(this, "def0")}, React.createElement(Glyphicon, {glyph: "cog"})), 
 
-          React.createElement(OverlayTrigger, {ref: "help", placement: "bottom", trigger: "manual", overlay: 
-            React.createElement(Tooltip, null, 
-              React.createElement(HelpTooltip, {close: this.handleHelpToggle}, 
-                React.createElement("p", null, "Tap on the health bar to change current, maximum, and temporary values.")
-              )
-            )
-          }, 
-            React.createElement(Button, {className: "no-border", onClick: this.handleHelpToggle}, 
-              React.createElement(Glyphicon, {glyph: "question-sign"})
-            )
-          )
-        ), 
-
-        React.createElement(SettingsDefenses, {ref: "settings-defenses", character: this.props.character, edit: this.props.edit}), 
-
-        React.createElement(ProgressBar, {onClick: this.toggleHP}, 
-          React.createElement(ProgressBar, {bsStyle: "info", label: temp + " temp", now: tempPercent, key: 1}), 
-          React.createElement(ProgressBar, {bsStyle: hpStyle, label: curr + " / " + max, now: hpPercent, key: 2})
-        ), 
-        
-        React.createElement(Accordion, {activeKey: this.state.hpOpen}, 
-          React.createElement(Panel, {className: "no-padding", eventKey: 1}, 
-            React.createElement(Input, {type: "text", value: this.state.dmg, placeholder: "damage taken / hp healed", onChange: this.handleHPInput.bind(this, "dmg"), buttonBefore: dmg, buttonAfter: heal}), 
-            React.createElement(Input, {type: "text", value: this.state.temp, placeholder: "temporary hps", onChange: this.handleHPInput.bind(this, "temp"), buttonBefore: clear, buttonAfter: tempHeal})
-          )
-        ), 
-
-        React.createElement(Panel, {className: "text-center"}, 
-          React.createElement(Grid, {fluid: true}, 
-            React.createElement(Row, null, 
-              React.createElement(Col, {xs: 12}, 
-                React.createElement("div", {className: "card"}, 
-                  React.createElement("p", null, "Armor Class"), 
-                  React.createElement("h3", {className: "shield"}, this.props.character['charArmorClass']['score'])
+            React.createElement(OverlayTrigger, {ref: "help", placement: "bottom", trigger: "manual", overlay: 
+              React.createElement(Tooltip, null, 
+                React.createElement(HelpTooltip, {close: this.handleHelpToggle}, 
+                  React.createElement("p", null, "Tap on the health bar to change current, maximum, and temporary values.")
                 )
               )
-            ), 
-            React.createElement(Row, null, 
-              React.createElement(Col, {xs: 4}, 
-                React.createElement("div", {className: "card"}, 
-                  React.createElement("p", null, "Initiative"), 
-                  React.createElement("h3", null, this.props.character['charInitiative']['score'])
-                )
-              ), 
-              React.createElement(Col, {xs: 4}, React.createElement("div", null)), 
-              React.createElement(Col, {xs: 4}, 
-                React.createElement("div", {className: "card"}, 
-                  React.createElement("p", null, "Speed"), 
-                  React.createElement("h3", null, this.props.character['charSpeed']['score'])
-                )
-              )
-            ), 
-            React.createElement(Row, null, 
-              React.createElement(Col, {xs: 12}, 
-                React.createElement("div", null, 
-                  React.createElement("p", null, "Hit Dice"), 
-                  React.createElement("h3", null, this.props.character['charHitPoints']['hitDiceTotal'])
-                )
+            }, 
+              React.createElement(Button, {className: "no-border", onClick: this.handleHelpToggle}, 
+                React.createElement(Glyphicon, {glyph: "question-sign"})
               )
             )
           )
         ), 
+        React.createElement(Hatch, {eventKey: "def0"}, 
+          React.createElement(SettingsDefenses, {character: this.props.character, edit: this.props.edit})
+        ), 
+        React.createElement("div", {className: "hatch-cover"}, 
+          React.createElement(ProgressBar, {onClick: this.toggleHP}, 
+            React.createElement(ProgressBar, {bsStyle: "info", label: temp + " temp", now: tempPercent, key: 1}), 
+            React.createElement(ProgressBar, {bsStyle: hpStyle, label: curr + " / " + max, now: hpPercent, key: 2})
+          ), 
+          
+          React.createElement(Accordion, {activeKey: this.state.hpOpen}, 
+            React.createElement(Panel, {className: "no-padding", eventKey: 1}, 
+              React.createElement(Input, {type: "text", value: this.state.dmg, placeholder: "damage taken / hp healed", onChange: this.handleHPInput.bind(this, "dmg"), buttonBefore: dmg, buttonAfter: heal}), 
+              React.createElement(Input, {type: "text", value: this.state.temp, placeholder: "temporary hps", onChange: this.handleHPInput.bind(this, "temp"), buttonBefore: clear, buttonAfter: tempHeal})
+            )
+          ), 
 
-        React.createElement(Panel, null, 
-          React.createElement(Grid, {fluid: true}, 
-            React.createElement(Row, {className: "text-center"}, 
-              React.createElement(Col, {xs: 6}, 
-                React.createElement("p", null, React.createElement("strong", null, "successes"))
-              ), 
-              React.createElement(Col, {xs: 6}, 
-                React.createElement("p", null, React.createElement("strong", null, "failures"))
-              )
-            ), 
-            React.createElement(Row, null, 
-              React.createElement(Col, {xs: 6}, 
-                React.createElement(Grid, {fluid: true}, 
-                  React.createElement(Row, {className: "no-padding"}, 
-                    React.createElement(Col, {xs: 4}, React.createElement("input", {className: "chkbox-lg", type: "checkbox"})), 
-                    React.createElement(Col, {xs: 4}, React.createElement("input", {className: "chkbox-lg", type: "checkbox"})), 
-                    React.createElement(Col, {xs: 4}, React.createElement("input", {className: "chkbox-lg", type: "checkbox"}))
+          React.createElement(Panel, {className: "text-center"}, 
+            React.createElement(Grid, {fluid: true}, 
+              React.createElement(Row, null, 
+                React.createElement(Col, {xs: 12}, 
+                  React.createElement("div", {className: "card"}, 
+                    React.createElement("p", null, "Armor Class"), 
+                    React.createElement("h3", {className: "shield"}, this.props.character['charArmorClass']['score'])
                   )
                 )
               ), 
-              React.createElement(Col, {xs: 6}, 
-                React.createElement(Grid, {fluid: true}, 
-                  React.createElement(Row, {className: "no-padding"}, 
-                    React.createElement(Col, {xs: 4}, React.createElement("input", {className: "chkbox-lg", type: "checkbox"})), 
-                    React.createElement(Col, {xs: 4}, React.createElement("input", {className: "chkbox-lg", type: "checkbox"})), 
-                    React.createElement(Col, {xs: 4}, React.createElement("input", {className: "chkbox-lg", type: "checkbox"}))
+              React.createElement(Row, null, 
+                React.createElement(Col, {xs: 4}, 
+                  React.createElement("div", {className: "card"}, 
+                    React.createElement("p", null, "Initiative"), 
+                    React.createElement("h3", null, this.props.character['charInitiative']['score'])
+                  )
+                ), 
+                React.createElement(Col, {xs: 4}, React.createElement("div", null)), 
+                React.createElement(Col, {xs: 4}, 
+                  React.createElement("div", {className: "card"}, 
+                    React.createElement("p", null, "Speed"), 
+                    React.createElement("h3", null, this.props.character['charSpeed']['score'])
+                  )
+                )
+              ), 
+              React.createElement(Row, null, 
+                React.createElement(Col, {xs: 12}, 
+                  React.createElement("div", null, 
+                    React.createElement("p", null, "Hit Dice"), 
+                    React.createElement("h3", null, this.props.character['charHitPoints']['hitDiceTotal'])
                   )
                 )
               )
             )
-          )
-        ), 
+          ), 
 
-
-        React.createElement("h3", null, "Saving Throws", " ", React.createElement(Button, {className: "no-border", onClick: this.toggle.bind(this, "settings-saving-throws")}, React.createElement(Glyphicon, {glyph: "cog"}))), 
-        React.createElement(SettingsThrows, {ref: "settings-saving-throws", character: this.props.character, edit: this.props.edit}), 
-        React.createElement(Panel, {className: "text-center"}, 
-          React.createElement(Grid, {fluid: true}, 
-            React.createElement(Row, null, 
-              React.createElement(Col, {xs: 4}, 
-                React.createElement("div", {className: "card"}, 
-                  React.createElement("p", null, "STR"), 
-                  React.createElement("h3", {className: (this.props.character['charSavingThrows']['str']['proficient'] === true) ? "trained" : ""}, this.props.character['charSavingThrows']['str']['score'])
+          React.createElement(Panel, null, 
+            React.createElement(Grid, {fluid: true}, 
+              React.createElement(Row, {className: "text-center"}, 
+                React.createElement(Col, {xs: 6}, 
+                  React.createElement("p", null, React.createElement("strong", null, "successes"))
+                ), 
+                React.createElement(Col, {xs: 6}, 
+                  React.createElement("p", null, React.createElement("strong", null, "failures"))
                 )
               ), 
-              React.createElement(Col, {xs: 4}, 
-                React.createElement("div", {className: "card"}, 
-                  React.createElement("p", null, "DEX"), 
-                  React.createElement("h3", {className: (this.props.character['charSavingThrows']['dex']['proficient'] === true) ? "trained" : ""}, this.props.character['charSavingThrows']['dex']['score'])
-                )
-              ), 
-              React.createElement(Col, {xs: 4}, 
-                React.createElement("div", {className: "card"}, 
-                  React.createElement("p", null, "CON"), 
-                  React.createElement("h3", {className: (this.props.character['charSavingThrows']['con']['proficient'] === true) ? "trained" : ""}, this.props.character['charSavingThrows']['con']['score'])
+              React.createElement(Row, null, 
+                React.createElement(Col, {xs: 6}, 
+                  React.createElement(Grid, {fluid: true}, 
+                    React.createElement(Row, {className: "no-padding"}, 
+                      React.createElement(Col, {xs: 4}, React.createElement("input", {className: "chkbox-lg", type: "checkbox"})), 
+                      React.createElement(Col, {xs: 4}, React.createElement("input", {className: "chkbox-lg", type: "checkbox"})), 
+                      React.createElement(Col, {xs: 4}, React.createElement("input", {className: "chkbox-lg", type: "checkbox"}))
+                    )
+                  )
+                ), 
+                React.createElement(Col, {xs: 6}, 
+                  React.createElement(Grid, {fluid: true}, 
+                    React.createElement(Row, {className: "no-padding"}, 
+                      React.createElement(Col, {xs: 4}, React.createElement("input", {className: "chkbox-lg", type: "checkbox"})), 
+                      React.createElement(Col, {xs: 4}, React.createElement("input", {className: "chkbox-lg", type: "checkbox"})), 
+                      React.createElement(Col, {xs: 4}, React.createElement("input", {className: "chkbox-lg", type: "checkbox"}))
+                    )
+                  )
                 )
               )
-            ), 
-            React.createElement(Row, null, 
-              React.createElement(Col, {xs: 4}, 
-                React.createElement("div", {className: "card"}, 
-                  React.createElement("p", null, "INT"), 
-                  React.createElement("h3", {className: (this.props.character['charSavingThrows']['int']['proficient'] === true) ? "trained" : ""}, this.props.character['charSavingThrows']['int']['score'])
+            )
+          ), 
+
+
+          React.createElement("h3", null, "Saving Throws", " ", React.createElement(Button, {className: "no-border", onClick: this.toggle.bind(this, "def1")}, React.createElement(Glyphicon, {glyph: "cog"})))
+        ), 
+        React.createElement(Hatch, {eventKey: "def1"}, 
+          React.createElement(SettingsThrows, {character: this.props.character, edit: this.props.edit})
+        ), 
+        React.createElement("div", {className: "hatch-cover"}, 
+          React.createElement(Panel, {className: "text-center"}, 
+            React.createElement(Grid, {fluid: true}, 
+              React.createElement(Row, null, 
+                React.createElement(Col, {xs: 4}, 
+                  React.createElement("div", {className: "card"}, 
+                    React.createElement("p", null, "STR"), 
+                    React.createElement("h3", {className: (this.props.character['charSavingThrows']['str']['proficient'] === true) ? "trained" : ""}, this.props.character['charSavingThrows']['str']['score'])
+                  )
+                ), 
+                React.createElement(Col, {xs: 4}, 
+                  React.createElement("div", {className: "card"}, 
+                    React.createElement("p", null, "DEX"), 
+                    React.createElement("h3", {className: (this.props.character['charSavingThrows']['dex']['proficient'] === true) ? "trained" : ""}, this.props.character['charSavingThrows']['dex']['score'])
+                  )
+                ), 
+                React.createElement(Col, {xs: 4}, 
+                  React.createElement("div", {className: "card"}, 
+                    React.createElement("p", null, "CON"), 
+                    React.createElement("h3", {className: (this.props.character['charSavingThrows']['con']['proficient'] === true) ? "trained" : ""}, this.props.character['charSavingThrows']['con']['score'])
+                  )
                 )
               ), 
-              React.createElement(Col, {xs: 4}, 
-                React.createElement("div", {className: "card"}, 
-                  React.createElement("p", null, "WIS"), 
-                  React.createElement("h3", {className: (this.props.character['charSavingThrows']['wis']['proficient'] === true) ? "trained" : ""}, this.props.character['charSavingThrows']['wis']['score'])
-                )
-              ), 
-              React.createElement(Col, {xs: 4}, 
-                React.createElement("div", {className: "card"}, 
-                  React.createElement("p", null, "CHA"), 
-                  React.createElement("h3", {className: (this.props.character['charSavingThrows']['cha']['proficient'] === true) ? "trained" : ""}, this.props.character['charSavingThrows']['cha']['score'])
+              React.createElement(Row, null, 
+                React.createElement(Col, {xs: 4}, 
+                  React.createElement("div", {className: "card"}, 
+                    React.createElement("p", null, "INT"), 
+                    React.createElement("h3", {className: (this.props.character['charSavingThrows']['int']['proficient'] === true) ? "trained" : ""}, this.props.character['charSavingThrows']['int']['score'])
+                  )
+                ), 
+                React.createElement(Col, {xs: 4}, 
+                  React.createElement("div", {className: "card"}, 
+                    React.createElement("p", null, "WIS"), 
+                    React.createElement("h3", {className: (this.props.character['charSavingThrows']['wis']['proficient'] === true) ? "trained" : ""}, this.props.character['charSavingThrows']['wis']['score'])
+                  )
+                ), 
+                React.createElement(Col, {xs: 4}, 
+                  React.createElement("div", {className: "card"}, 
+                    React.createElement("p", null, "CHA"), 
+                    React.createElement("h3", {className: (this.props.character['charSavingThrows']['cha']['proficient'] === true) ? "trained" : ""}, this.props.character['charSavingThrows']['cha']['score'])
+                  )
                 )
               )
             )
@@ -821,9 +1097,12 @@ var Defense = React.createClass({
 
 module.exports = Defense;
 
-},{"../settings/settings-defenses":15,"../settings/settings-saving-throws":21,"../tooltips/help":27,"react":217,"react-bootstrap/Accordion":34,"react-bootstrap/Button":36,"react-bootstrap/Col":39,"react-bootstrap/Glyphicon":42,"react-bootstrap/Grid":43,"react-bootstrap/Input":44,"react-bootstrap/OverlayTrigger":50,"react-bootstrap/Panel":52,"react-bootstrap/ProgressBar":55,"react-bootstrap/Row":56,"react-bootstrap/Tooltip":59}],8:[function(require,module,exports){
+},{"../hatch/Hatch":3,"../hatch/HatchGroup":4,"../settings/settings-defenses":16,"../settings/settings-saving-throws":22,"../tooltips/help":27,"react":232,"react-bootstrap/Accordion":34,"react-bootstrap/Button":36,"react-bootstrap/Col":39,"react-bootstrap/Glyphicon":42,"react-bootstrap/Grid":43,"react-bootstrap/Input":44,"react-bootstrap/OverlayTrigger":50,"react-bootstrap/Panel":52,"react-bootstrap/ProgressBar":55,"react-bootstrap/Row":56,"react-bootstrap/Tooltip":59}],9:[function(require,module,exports){
 var React = require('react');
 var SettingsEquip = require('../settings/settings-equipment');
+var HatchGroup = require('../hatch/HatchGroup');
+var Hatch = require('../hatch/Hatch');
+var Panel3d = require('../hatch/Panel3d');
 
 var Glyphicon = require('react-bootstrap/Glyphicon');
 var Accordion = require('react-bootstrap/Accordion');
@@ -836,44 +1115,47 @@ var Col = require('react-bootstrap/Col');
 
 var Equipment = React.createClass({
   displayName : "CharEquipment",
-  toggle : function() {
-    this.refs.settings.toggle();
+  toggle : function(cmp, idx, dir) {
+    this.refs[cmp].toggle(idx,dir);
   },
   render : function() {
 
     var equips = [];
     this.props.character['charEquipment']['otherEquipment'].forEach(function(equip, i) {
       equips.push(
-        React.createElement(Panel, {bsStyle: "warning", className: "no-padding", eventKey: i, key: i, header: equip.name}, 
-            React.createElement("p", null, equip.desc)
+        React.createElement(Panel3d, {title: equip.name, key: "equipItem" + i, className: "list-header"}, 
+          React.createElement("p", null, equip.desc)
         )
       );
-    });
+    }.bind(this));
 
     return (
-      React.createElement("div", {className: "container-fluid"}, 
-        React.createElement("h3", null, "Equipment", " ", React.createElement(Button, {className: "no-border", onClick: this.toggle}, React.createElement(Glyphicon, {glyph: "cog"}))), 
-        React.createElement(SettingsEquip, {ref: "settings", character: this.props.character, edit: this.props.edit}), 
-
-        React.createElement(Panel, {bsStyle: "warning", header: "Money"}, 
-          React.createElement(Grid, {fluid: true, className: "text-center"}, 
-            React.createElement(Row, null, 
-              React.createElement(Col, {xs: 2}, React.createElement("p", null, "cp")), 
-              React.createElement(Col, {xs: 2}, React.createElement("p", null, "sp")), 
-              React.createElement(Col, {xs: 4}, React.createElement("p", null, "ep")), 
-              React.createElement(Col, {xs: 2}, React.createElement("p", null, "gp")), 
-              React.createElement(Col, {xs: 2}, React.createElement("p", null, "pp"))
-            ), 
-            React.createElement(Row, null, 
-              React.createElement(Col, {xs: 2}, React.createElement("p", null, this.props.character['charEquipment']['money']['cp'])), 
-              React.createElement(Col, {xs: 2}, React.createElement("p", null, this.props.character['charEquipment']['money']['sp'])), 
-              React.createElement(Col, {xs: 4}, React.createElement("p", null, this.props.character['charEquipment']['money']['ep'])), 
-              React.createElement(Col, {xs: 2}, React.createElement("p", null, this.props.character['charEquipment']['money']['gp'])), 
-              React.createElement(Col, {xs: 2}, React.createElement("p", null, this.props.character['charEquipment']['money']['pp']))
-            )
-          )
+      React.createElement(HatchGroup, {ref: "settings"}, 
+        React.createElement("div", {className: "hatch-cover"}, 
+          React.createElement("h3", null, "Equipment", " ", React.createElement(Button, {className: "no-border", onClick: this.toggle.bind(this, "settings", "equipment0")}, React.createElement(Glyphicon, {glyph: "cog"})))
         ), 
-        React.createElement(Accordion, {defaultActiveKey: ""}, 
+        React.createElement(Hatch, {eventKey: "equipment0"}, 
+          React.createElement(SettingsEquip, {character: this.props.character, edit: this.props.edit})
+        ), 
+        React.createElement("div", {className: "hatch-cover"}, 
+          React.createElement(Panel, {bsStyle: "warning", header: "Money"}, 
+            React.createElement(Grid, {fluid: true, className: "text-center"}, 
+              React.createElement(Row, null, 
+                React.createElement(Col, {xs: 2}, React.createElement("p", null, "cp")), 
+                React.createElement(Col, {xs: 2}, React.createElement("p", null, "sp")), 
+                React.createElement(Col, {xs: 4}, React.createElement("p", null, "ep")), 
+                React.createElement(Col, {xs: 2}, React.createElement("p", null, "gp")), 
+                React.createElement(Col, {xs: 2}, React.createElement("p", null, "pp"))
+              ), 
+              React.createElement(Row, null, 
+                React.createElement(Col, {xs: 2}, React.createElement("p", null, this.props.character['charEquipment']['money']['cp'])), 
+                React.createElement(Col, {xs: 2}, React.createElement("p", null, this.props.character['charEquipment']['money']['sp'])), 
+                React.createElement(Col, {xs: 4}, React.createElement("p", null, this.props.character['charEquipment']['money']['ep'])), 
+                React.createElement(Col, {xs: 2}, React.createElement("p", null, this.props.character['charEquipment']['money']['gp'])), 
+                React.createElement(Col, {xs: 2}, React.createElement("p", null, this.props.character['charEquipment']['money']['pp']))
+              )
+            )
+          ), 
           equips
         )
       )
@@ -883,10 +1165,13 @@ var Equipment = React.createClass({
 
 module.exports = Equipment;
 
-},{"../settings/settings-equipment":16,"react":217,"react-bootstrap/Accordion":34,"react-bootstrap/Button":36,"react-bootstrap/Col":39,"react-bootstrap/Glyphicon":42,"react-bootstrap/Grid":43,"react-bootstrap/Input":44,"react-bootstrap/Panel":52,"react-bootstrap/Row":56}],9:[function(require,module,exports){
+},{"../hatch/Hatch":3,"../hatch/HatchGroup":4,"../hatch/Panel3d":5,"../settings/settings-equipment":17,"react":232,"react-bootstrap/Accordion":34,"react-bootstrap/Button":36,"react-bootstrap/Col":39,"react-bootstrap/Glyphicon":42,"react-bootstrap/Grid":43,"react-bootstrap/Input":44,"react-bootstrap/Panel":52,"react-bootstrap/Row":56}],10:[function(require,module,exports){
 var React = require('react');
 
 var Settings = require('../settings/settings-features');
+var HatchGroup = require('../hatch/HatchGroup');
+var Hatch = require('../hatch/Hatch');
+var Panel3d = require('../hatch/Panel3d');
 
 var Glyphicon = require('react-bootstrap/Glyphicon');
 var Accordion = require('react-bootstrap/Accordion');
@@ -896,25 +1181,29 @@ var Button = require('react-bootstrap/Button');
 
 var Features = React.createClass({
   displayName : "CharFeatures",
-  handleToggle : function() {
-    this.refs.settings.toggle();
+  handleToggle : function(idx) {
+    this.refs.settings.toggle(idx);
   },
   render : function() {
 
     var feats = [];
     this.props.character['charFeatures'].forEach(function(feat, i) {
       feats.push(
-        React.createElement(Panel, {className: "no-padding", bsStyle: "warning", key: i, header: feat.name, eventKey: i}, 
-            React.createElement("p", null, feat.desc)
+        React.createElement(Panel3d, {title: feat.name, key: "feat" + i, className: "list-header"}, 
+          React.createElement("p", null, feat.desc)
         )
       );
     });
 
     return (
-      React.createElement("div", {className: "container-fluid"}, 
-        React.createElement("h3", null, "Features", " ", React.createElement(Button, {className: "no-border", onClick: this.handleToggle}, React.createElement(Glyphicon, {glyph: "cog"}))), 
-        React.createElement(Settings, {ref: "settings", character: this.props.character, edit: this.props.edit}), 
-        React.createElement(Accordion, {defaultActiveKey: ""}, 
+      React.createElement(HatchGroup, {ref: "settings"}, 
+        React.createElement("div", {className: "hatch-cover"}, 
+          React.createElement("h3", null, "Features", " ", React.createElement(Button, {className: "no-border", onClick: this.handleToggle.bind(this, "feat0")}, React.createElement(Glyphicon, {glyph: "cog"})))
+        ), 
+        React.createElement(Hatch, {eventKey: "feat0"}, 
+          React.createElement(Settings, {character: this.props.character, edit: this.props.edit})
+        ), 
+        React.createElement("div", {className: "hatch-cover"}, 
           feats
         )
       )
@@ -924,14 +1213,17 @@ var Features = React.createClass({
 
 module.exports = Features;
 
-},{"../settings/settings-features":17,"react":217,"react-bootstrap/Accordion":34,"react-bootstrap/Button":36,"react-bootstrap/Glyphicon":42,"react-bootstrap/Input":44,"react-bootstrap/Panel":52}],10:[function(require,module,exports){
+},{"../hatch/Hatch":3,"../hatch/HatchGroup":4,"../hatch/Panel3d":5,"../settings/settings-features":18,"react":232,"react-bootstrap/Accordion":34,"react-bootstrap/Button":36,"react-bootstrap/Glyphicon":42,"react-bootstrap/Input":44,"react-bootstrap/Panel":52}],11:[function(require,module,exports){
 var React = require('react');
 var SettingsInfo = require('../settings/settings-info');
 var SettingsTraits = require('../settings/settings-traits');
 var SettingsProfs = require('../settings/settings-proficiencies');
 var SettingsLangs = require('../settings/settings-languages');
 
-var Accordion = require('react-bootstrap/Accordion');
+var HatchGroup = require('../hatch/HatchGroup');
+var Hatch = require('../hatch/Hatch');
+var Panel3d = require('../hatch/Panel3d');
+
 var Grid = require('react-bootstrap/Grid');
 var Row = require('react-bootstrap/Row');
 var Col = require('react-bootstrap/Col');
@@ -940,13 +1232,10 @@ var Button = require('react-bootstrap/Button');
 var Glyphicon = require('react-bootstrap/Glyphicon');
 var OverlayMixin = require('react-bootstrap/OverlayMixin');
 
-var Hatch = require('../hatch/Hatch');
-var HatchGroup = require('../hatch/HatchGroup');
-
 var Info = React.createClass({
   displayName : "CharInfo",
-  handleToggle : function(cmp) {
-    this.refs[cmp].toggle();
+  handleToggle : function(cmp, idx) {
+    this.refs[cmp].toggle(idx);
   },
   render : function() {
 
@@ -954,7 +1243,7 @@ var Info = React.createClass({
     var languages = [];
     this.props.character["charOtherProficiencies"]["languages"].forEach(function(lan, i) {
       languages.push(
-        React.createElement(Panel, {className: "no-padding", bsStyle: "warning", key: i, header: lan.name, eventKey: i}, 
+        React.createElement(Panel3d, {className: "list-header", key: i, title: lan.name}, 
           React.createElement("p", null, lan.desc)
         )
       )
@@ -964,7 +1253,7 @@ var Info = React.createClass({
     var proficiencies = [];
     this.props.character["charOtherProficiencies"]["proficiencies"].forEach(function(prof, i) {
       proficiencies.push(
-        React.createElement(Panel, {className: "no-padding", bsStyle: "warning", key: i, header: prof.name, eventKey: i}, 
+        React.createElement(Panel3d, {className: "list-header", key: i, title: prof.name}, 
           React.createElement("p", null, prof.desc)
         )
       )
@@ -972,102 +1261,114 @@ var Info = React.createClass({
     
     // list everything else.
     return (
-      React.createElement("div", {className: "container-fluid"}, 
-        React.createElement("h3", null, "Info", " ", React.createElement(Button, {className: "no-border", onClick: this.handleToggle.bind(this, "settings-info")}, React.createElement(Glyphicon, {glyph: "cog"}))), 
-        React.createElement(SettingsInfo, {ref: "settings-info", character: this.props.character, edit: this.props.edit}), 
-        React.createElement(Panel, null, 
-          React.createElement(Grid, {fluid: true}, 
-            React.createElement(Row, null, 
-              React.createElement(Col, {xs: 4}, 
-                React.createElement("div", null, 
-                  React.createElement("p", null, "Class"), 
-                  React.createElement("h4", null, this.props.character['charInfo']['class'])
-                )
-              ), 
-              React.createElement(Col, {xs: 4}, 
-                React.createElement("div", null, 
-                  React.createElement("p", null, "Lvl"), 
-                  React.createElement("h4", null, this.props.character['charInfo']['level'])
-                )
-              ), 
-              React.createElement(Col, {xs: 4}, 
-                React.createElement("div", null, 
-                  React.createElement("p", null, "Xp"), 
-                  React.createElement("h4", null, this.props.character['charInfo']['xp'])
+        React.createElement(HatchGroup, {ref: "settings"}, 
+          React.createElement("div", {className: "hatch-cover"}, 
+            React.createElement("h3", null, "Info", " ", React.createElement(Button, {className: "no-border", onClick: this.handleToggle.bind(this, "settings", "info0")}, React.createElement(Glyphicon, {glyph: "cog"})))
+          ), 
+          React.createElement(Hatch, {eventKey: "info0"}, 
+            React.createElement(SettingsInfo, {character: this.props.character, edit: this.props.edit})
+          ), 
+          React.createElement("div", {className: "hatch-cover"}, 
+            React.createElement(Panel, null, 
+              React.createElement(Grid, {fluid: true}, 
+                React.createElement(Row, null, 
+                  React.createElement(Col, {xs: 4}, 
+                    React.createElement("div", null, 
+                      React.createElement("p", null, "Class"), 
+                      React.createElement("h4", null, this.props.character['charInfo']['class'])
+                    )
+                  ), 
+                  React.createElement(Col, {xs: 4}, 
+                    React.createElement("div", null, 
+                      React.createElement("p", null, "Lvl"), 
+                      React.createElement("h4", null, this.props.character['charInfo']['level'])
+                    )
+                  ), 
+                  React.createElement(Col, {xs: 4}, 
+                    React.createElement("div", null, 
+                      React.createElement("p", null, "Xp"), 
+                      React.createElement("h4", null, this.props.character['charInfo']['xp'])
+                    )
+                  )
                 )
               )
-            )
-          )
-        ), 
-        React.createElement(Panel, null, 
-          React.createElement(Grid, {fluid: true}, 
-            React.createElement(Row, null, 
-              React.createElement(Col, {xs: 4}, 
-                React.createElement("div", null, 
-                  React.createElement("p", null, "Bg"), 
-                  React.createElement("h4", null, this.props.character['charInfo']['background'])
-                )
-              ), 
-              React.createElement(Col, {xs: 4}, 
-                React.createElement("div", null, 
-                  React.createElement("p", null, "Race"), 
-                  React.createElement("h4", null, this.props.character['charInfo']['race'])
-                )
-              ), 
-              React.createElement(Col, {xs: 4}, 
-                React.createElement("div", null, 
-                  React.createElement("p", null, "Align"), 
-                  React.createElement("h4", null, this.props.character['charInfo']['alignment'])
+            ), 
+            React.createElement(Panel, null, 
+              React.createElement(Grid, {fluid: true}, 
+                React.createElement(Row, null, 
+                  React.createElement(Col, {xs: 4}, 
+                    React.createElement("div", null, 
+                      React.createElement("p", null, "Bg"), 
+                      React.createElement("h4", null, this.props.character['charInfo']['background'])
+                    )
+                  ), 
+                  React.createElement(Col, {xs: 4}, 
+                    React.createElement("div", null, 
+                      React.createElement("p", null, "Race"), 
+                      React.createElement("h4", null, this.props.character['charInfo']['race'])
+                    )
+                  ), 
+                  React.createElement(Col, {xs: 4}, 
+                    React.createElement("div", null, 
+                      React.createElement("p", null, "Align"), 
+                      React.createElement("h4", null, this.props.character['charInfo']['alignment'])
+                    )
+                  )
                 )
               )
-            )
+            ), 
+            React.createElement("h3", null, "Traits", " ", React.createElement(Button, {className: "no-border", onClick: this.handleToggle.bind(this, "settings", "info1")}, React.createElement(Glyphicon, {glyph: "cog"})))
+          ), 
+          React.createElement(Hatch, {eventKey: "info1"}, 
+            React.createElement(SettingsTraits, {character: this.props.character, edit: this.props.edit})
+          ), 
+          React.createElement("div", {className: "hatch-cover"}, 
+            React.createElement(Panel3d, {className: "list-header", title: "Personality Traits"}, 
+              React.createElement("p", null, this.props.character['charTraits']['personalityTraits'])
+            ), 
+            
+            React.createElement(Panel3d, {className: "list-header", title: "Ideals"}, 
+              React.createElement("p", null, this.props.character['charTraits']['ideals'])
+            ), 
+
+            React.createElement(Panel3d, {className: "list-header", title: "Bonds"}, 
+              React.createElement("p", null, this.props.character['charTraits']['bonds'])
+            ), 
+            
+            React.createElement(Panel3d, {className: "list-header", title: "Flaws"}, 
+              React.createElement("p", null, this.props.character['charTraits']['flaws'])
+            ), 
+            React.createElement("h3", null, "Proficiencies", " ", React.createElement(Button, {className: "no-border", onClick: this.handleToggle.bind(this, "settings", "info2")}, React.createElement(Glyphicon, {glyph: "cog"})))
+          ), 
+          React.createElement(Hatch, {eventKey: "info2"}, 
+            React.createElement(SettingsProfs, {character: this.props.character, edit: this.props.edit})
+          ), 
+          React.createElement("div", {className: "hatch-cover"}, 
+            proficiencies, 
+            React.createElement("h3", null, "Languages", " ", React.createElement(Button, {className: "no-border", onClick: this.handleToggle.bind(this, "settings", "info3")}, React.createElement(Glyphicon, {glyph: "cog"})))
+          ), 
+          React.createElement(Hatch, {eventKey: "info3"}, 
+            React.createElement(SettingsLangs, {character: this.props.character, edit: this.props.edit})
+          ), 
+          React.createElement("div", {className: "hatch-cover"}, 
+            languages
           )
-        ), 
-
-        React.createElement("h3", null, "Traits", " ", React.createElement(Button, {className: "no-border", onClick: this.handleToggle.bind(this, "settings-traits")}, React.createElement(Glyphicon, {glyph: "cog"}))), 
-        React.createElement(SettingsTraits, {ref: "settings-traits", character: this.props.character, edit: this.props.edit}), 
-        React.createElement(Accordion, {defaultActiveKey: ""}, 
-          React.createElement(Panel, {className: "no-padding", bsStyle: "warning", eventKey: 0, header: "Personality Traits"}, 
-            React.createElement("p", null, this.props.character['charTraits']['personalityTraits'])
-          ), 
-          
-          React.createElement(Panel, {className: "no-padding", bsStyle: "warning", eventKey: 1, header: "Ideals"}, 
-            React.createElement("p", null, this.props.character['charTraits']['ideals'])
-          ), 
-
-          React.createElement(Panel, {className: "no-padding", bsStyle: "warning", eventKey: 2, header: "Bonds"}, 
-            React.createElement("p", null, this.props.character['charTraits']['bonds'])
-          ), 
-          
-          React.createElement(Panel, {className: "no-padding", bsStyle: "warning", eventKey: 3, header: "Flaws"}, 
-            React.createElement("p", null, this.props.character['charTraits']['flaws'])
-          )
-        ), 
-
-        React.createElement("h3", null, "Proficiencies", " ", React.createElement(Button, {className: "no-border", onClick: this.handleToggle.bind(this, "settings-proficiencies")}, React.createElement(Glyphicon, {glyph: "cog"}))), 
-        React.createElement(SettingsProfs, {ref: "settings-proficiencies", character: this.props.character, edit: this.props.edit}), 
-        React.createElement(Accordion, {defaultActiveKey: ""}, 
-          proficiencies
-        ), 
-
-        React.createElement("h3", null, "Languages", " ", React.createElement(Button, {className: "no-border", onClick: this.handleToggle.bind(this, "settings-languages")}, React.createElement(Glyphicon, {glyph: "cog"}))), 
-        React.createElement(SettingsLangs, {ref: "settings-languages", character: this.props.character, edit: this.props.edit}), 
-        React.createElement(Accordion, {defaultActiveKey: ""}, 
-          languages
         )
-      )
     )
   }
 })
 
 module.exports = Info;
 
-},{"../hatch/Hatch":3,"../hatch/HatchGroup":4,"../settings/settings-info":18,"../settings/settings-languages":19,"../settings/settings-proficiencies":20,"../settings/settings-traits":25,"react":217,"react-bootstrap/Accordion":34,"react-bootstrap/Button":36,"react-bootstrap/Col":39,"react-bootstrap/Glyphicon":42,"react-bootstrap/Grid":43,"react-bootstrap/OverlayMixin":49,"react-bootstrap/Panel":52,"react-bootstrap/Row":56}],11:[function(require,module,exports){
+},{"../hatch/Hatch":3,"../hatch/HatchGroup":4,"../hatch/Panel3d":5,"../settings/settings-info":19,"../settings/settings-languages":20,"../settings/settings-proficiencies":21,"../settings/settings-traits":25,"react":232,"react-bootstrap/Button":36,"react-bootstrap/Col":39,"react-bootstrap/Glyphicon":42,"react-bootstrap/Grid":43,"react-bootstrap/OverlayMixin":49,"react-bootstrap/Panel":52,"react-bootstrap/Row":56}],12:[function(require,module,exports){
 var React = require('react');
 
 var AttackConfig = require('../popovers/attack-bonus');
 var HelpTooltip = require('../tooltips/help');
 var SettingsSpells = require('../settings/settings-spells');
+var HatchGroup = require('../hatch/HatchGroup');
+var Hatch = require('../hatch/Hatch');
+var Panel3d = require('../hatch/Panel3d');
 
 var Glyphicon = require('react-bootstrap/Glyphicon');
 var Accordion = require('react-bootstrap/Accordion');
@@ -1083,7 +1384,6 @@ var Button = require('react-bootstrap/Button');
 var Tooltip = require('react-bootstrap/Tooltip');
 var TabbedArea = require('react-bootstrap/TabbedArea');
 var TabPane = require('react-bootstrap/TabPane');
-var Well = require('react-bootstrap/Well');
 
 var Spells = React.createClass({
   displayName : "CharSpell",
@@ -1103,8 +1403,8 @@ var Spells = React.createClass({
   handleHelpToggle : function() {
     this.refs.help.toggle();
   },
-  handleToggle : function(cmp) {
-    this.refs[cmp].toggle();
+  handleToggle : function(idx) {
+    this.refs.settings.toggle(idx);
   },
   render : function() {
     var prof = this.props.character['charProficiencyBonus']['score'];
@@ -1138,7 +1438,7 @@ var Spells = React.createClass({
         var sps = [];
         level.spells.forEach(function(spell, j) {
           sps.push(
-            React.createElement(Panel, {key: j, eventKey: j, header: spell['name']}, 
+            React.createElement(Panel3d, {key: j, className: "list-header", title: spell['name']}, 
               React.createElement("p", null, React.createElement("strong", null, "CT:"), "  ", spell['cast']), 
               React.createElement("p", null, React.createElement("strong", null, "R:"), "   ", spell['range']), 
               React.createElement("p", null, React.createElement("strong", null, "CMP:"), " ", spell['cmp']), 
@@ -1150,11 +1450,9 @@ var Spells = React.createClass({
 
         // put it all together
         spells.push(
-          React.createElement(Panel, {bsStyle: "warning", className: "no-padding", key: i, eventKey: i, header: level['name'] + ((i !== 0) ?  " Level" : "")}, 
+          React.createElement(Panel3d, {key: i, title: level['name'] + ((i !== 0) ?  " Level" : "")}, 
             slotsArea, 
-            React.createElement(Accordion, {defaultActiveKey: ""}, 
-              sps
-            )
+            sps
           )
         );
       }
@@ -1215,31 +1513,32 @@ var Spells = React.createClass({
 
 
     return (
-      React.createElement("div", {className: "container-fluid"}, 
-        React.createElement("h3", null, "Spells", 
-          React.createElement(Button, {className: "no-border", onClick: this.handleToggle.bind(this, "settings-spells")}, React.createElement(Glyphicon, {glyph: "cog"})), 
-          React.createElement(OverlayTrigger, {ref: "help", placement: "bottom", trigger: "manual", overlay: 
-            React.createElement(Tooltip, null, 
-              React.createElement(HelpTooltip, {close: this.handleHelpToggle}, 
-                React.createElement("p", null, "Tap the number to configure the ability score, if you have proficiency, and the name of the attack bonus and spell save dc"), 
-                React.createElement("p", null, "To edit spells and number of spell slots, tap the settings cog (", React.createElement(Glyphicon, {glyph: "cog"}), " ", ") next to 'Spells'")
+      React.createElement(HatchGroup, {ref: "settings"}, 
+        React.createElement("div", {className: "hatch-cover"}, 
+          React.createElement("h3", null, "Spells", 
+            React.createElement(Button, {className: "no-border", onClick: this.handleToggle.bind(this, "spell0")}, React.createElement(Glyphicon, {glyph: "cog"})), 
+            React.createElement(OverlayTrigger, {ref: "help", placement: "bottom", trigger: "manual", overlay: 
+              React.createElement(Tooltip, null, 
+                React.createElement(HelpTooltip, {close: this.handleHelpToggle}, 
+                  React.createElement("p", null, "Tap the number to configure the ability score, if you have proficiency, and the name of the attack bonus and spell save dc"), 
+                  React.createElement("p", null, "To edit spells and number of spell slots, tap the settings cog (", React.createElement(Glyphicon, {glyph: "cog"}), " ", ") next to 'Spells'")
+                )
               )
-            )
-          }, 
-            React.createElement(Button, {className: "no-border", onClick: this.handleHelpToggle}, 
-              React.createElement(Glyphicon, {glyph: "question-sign"})
+            }, 
+              React.createElement(Button, {className: "no-border", onClick: this.handleHelpToggle}, 
+                React.createElement(Glyphicon, {glyph: "question-sign"})
+              )
             )
           )
         ), 
-
-        React.createElement(SettingsSpells, {ref: "settings-spells", character: this.props.character, edit: this.props.edit}), 
-
-        React.createElement(Panel, null, 
-          spelldc, 
-          bubbles
+        React.createElement(Hatch, {eventKey: "spell0"}, 
+          React.createElement(SettingsSpells, {character: this.props.character, edit: this.props.edit})
         ), 
-
-        React.createElement(Accordion, {defaultActiveKey: ""}, 
+        React.createElement("div", {className: "hatch-cover"}, 
+          React.createElement(Panel, null, 
+            spelldc, 
+            bubbles
+          ), 
           spells
         )
       )
@@ -1249,7 +1548,7 @@ var Spells = React.createClass({
 
 module.exports = Spells;
 
-},{"../popovers/attack-bonus":12,"../settings/settings-spells":23,"../tooltips/help":27,"react":217,"react-bootstrap/Accordion":34,"react-bootstrap/Button":36,"react-bootstrap/Col":39,"react-bootstrap/Glyphicon":42,"react-bootstrap/Grid":43,"react-bootstrap/Input":44,"react-bootstrap/Modal":46,"react-bootstrap/OverlayTrigger":50,"react-bootstrap/Panel":52,"react-bootstrap/Popover":54,"react-bootstrap/Row":56,"react-bootstrap/TabPane":57,"react-bootstrap/TabbedArea":58,"react-bootstrap/Tooltip":59,"react-bootstrap/Well":60}],12:[function(require,module,exports){
+},{"../hatch/Hatch":3,"../hatch/HatchGroup":4,"../hatch/Panel3d":5,"../popovers/attack-bonus":13,"../settings/settings-spells":24,"../tooltips/help":27,"react":232,"react-bootstrap/Accordion":34,"react-bootstrap/Button":36,"react-bootstrap/Col":39,"react-bootstrap/Glyphicon":42,"react-bootstrap/Grid":43,"react-bootstrap/Input":44,"react-bootstrap/Modal":46,"react-bootstrap/OverlayTrigger":50,"react-bootstrap/Panel":52,"react-bootstrap/Popover":54,"react-bootstrap/Row":56,"react-bootstrap/TabPane":57,"react-bootstrap/TabbedArea":58,"react-bootstrap/Tooltip":59}],13:[function(require,module,exports){
 var React = require('react');
 var EventListener = require('react-bootstrap/utils/EventListener');
 var Input = require('react-bootstrap/Input');
@@ -1343,9 +1642,8 @@ var Bubble = React.createClass({displayName: "Bubble",
 
 module.exports = Bubble;
 
-},{"react":217,"react-bootstrap/Button":36,"react-bootstrap/Glyphicon":42,"react-bootstrap/Input":44,"react-bootstrap/utils/EventListener":63}],13:[function(require,module,exports){
+},{"react":232,"react-bootstrap/Button":36,"react-bootstrap/Glyphicon":42,"react-bootstrap/Input":44,"react-bootstrap/utils/EventListener":62}],14:[function(require,module,exports){
 var React = require('react');
-var Settings = require('./settings-tear');
 
 var Input = require('react-bootstrap/Input');
 var ButtonToolbar = require('react-bootstrap/ButtonToolbar');
@@ -1374,7 +1672,7 @@ var SettingsAbilities = React.createClass({displayName: "SettingsAbilities",
     return (state);
   },
   toggle : function() {
-    this.refs.settings.toggle();
+    this.props.toggle();
   },
   clearState : function() {
     var state = {};
@@ -1484,7 +1782,7 @@ var SettingsAbilities = React.createClass({displayName: "SettingsAbilities",
     var validprof = (this.state.proferror) ? "error" : "success";
 
     return (
-      React.createElement(Settings, {ref: "settings"}, 
+      React.createElement("div", {className: "settings-tear"}, 
         React.createElement("h3", null, "Edit Ability Scores"), 
         React.createElement("p", null, "Enter the values of each ability score. The relevant modifiers are calculated automatically."), 
         React.createElement(Input, {bsStyle: this.state['str'] === "" ? null : validstr, type: "text", label: "Strength", value: this.state['str'], onChange: this.handleChange.bind(this, "str"), placeholder: this.props.character['charAbilities']['str']['score']}), 
@@ -1505,9 +1803,8 @@ var SettingsAbilities = React.createClass({displayName: "SettingsAbilities",
 
 module.exports = SettingsAbilities;
 
-},{"./settings-tear":24,"react":217,"react-bootstrap/Button":36,"react-bootstrap/ButtonToolbar":38,"react-bootstrap/Input":44}],14:[function(require,module,exports){
+},{"react":232,"react-bootstrap/Button":36,"react-bootstrap/ButtonToolbar":38,"react-bootstrap/Input":44}],15:[function(require,module,exports){
 var React = require('react');
-var Settings = require('./settings-tear');
 
 var Input = require('react-bootstrap/Input');
 var ButtonToolbar = require('react-bootstrap/ButtonToolbar');
@@ -1531,7 +1828,11 @@ var SettingsAttacks = React.createClass({displayName: "SettingsAttacks",
     return (state);
   },
   toggle : function() {
-    this.refs.settings.toggle();
+    this.props.toggle();
+  },
+  componentDidUpdate : function() {
+    // recalculate this 
+    this.props.recalculate();
   },
   clearState : function() {
     var state = {};
@@ -1615,7 +1916,6 @@ var SettingsAttacks = React.createClass({displayName: "SettingsAttacks",
   renderAdd : function() {
     return (
       React.createElement("div", null, 
-        React.createElement("h3", null, "Add New Attack"), 
         React.createElement("p", null, "Do the attack name and short description dance!"), 
         React.createElement(Input, {placeholder: "name", value: this.state.name, type: "text", label: "Attack Name", onChange: this.handleChange.bind(this, "name")}), 
         React.createElement(Input, {placeholder: "short description", value: this.state.desc, type: "textarea", label: "Attack Description", onChange: this.handleChange.bind(this, "desc")}), 
@@ -1638,7 +1938,6 @@ var SettingsAttacks = React.createClass({displayName: "SettingsAttacks",
 
     return (
       React.createElement("div", null, 
-        React.createElement("h3", null, "Edit Attacks"), 
         React.createElement("p", null, "Change the name or description of an attack by first selecting the attack to edit and then entering new values."), 
         React.createElement(Input, null, 
           React.createElement(Row, null, 
@@ -1664,8 +1963,9 @@ var SettingsAttacks = React.createClass({displayName: "SettingsAttacks",
   },
   render : function() {
     return (
-      React.createElement(Settings, {ref: "settings"}, 
-        React.createElement(TabbedArea, {activeKey: this.state.mode, onSelect: this.handleModeChange}, 
+      React.createElement("div", {className: "settings-tear"}, 
+        React.createElement("h3", null, "Add / Edit Attacks"), 
+        React.createElement(TabbedArea, {activeKey: this.state.mode, animation: false, onSelect: this.handleModeChange}, 
           React.createElement(TabPane, {eventKey: 0, tab: "new"}, 
             this.renderAdd()
           ), 
@@ -1680,9 +1980,8 @@ var SettingsAttacks = React.createClass({displayName: "SettingsAttacks",
 
 module.exports = SettingsAttacks;
 
-},{"./settings-tear":24,"react":217,"react-bootstrap/Button":36,"react-bootstrap/ButtonToolbar":38,"react-bootstrap/Col":39,"react-bootstrap/Input":44,"react-bootstrap/Row":56,"react-bootstrap/TabPane":57,"react-bootstrap/TabbedArea":58}],15:[function(require,module,exports){
+},{"react":232,"react-bootstrap/Button":36,"react-bootstrap/ButtonToolbar":38,"react-bootstrap/Col":39,"react-bootstrap/Input":44,"react-bootstrap/Row":56,"react-bootstrap/TabPane":57,"react-bootstrap/TabbedArea":58}],16:[function(require,module,exports){
 var React = require('react');
-var Settings = require('./settings-tear');
 
 var Input = require('react-bootstrap/Input');
 var ButtonToolbar = require('react-bootstrap/ButtonToolbar');
@@ -1705,7 +2004,7 @@ var SettingsDefenses = React.createClass({displayName: "SettingsDefenses",
     return (state);
   },
   toggle : function() {
-    this.refs.settings.toggle();
+    this.props.toggle();
   },
   clearState : function() {
     var state = {};
@@ -1787,7 +2086,7 @@ var SettingsDefenses = React.createClass({displayName: "SettingsDefenses",
     var validinit = (this.state.initerror) ? "error" : "success";
 
     return (
-      React.createElement(Settings, {ref: "settings"}, 
+      React.createElement("div", {className: "settings-tear"}, 
         React.createElement("h3", null, "Edit Defenses"), 
         React.createElement("p", null, "Edit the values for your character's maximum hit points, hit dice, initiative, speed, and armor class."), 
         React.createElement(Input, {type: "text", bsStyle: (this.state.hp === "") ? null : validhp, onChange: this.handleChange.bind(this, "hp"), label: "Maximum Hit Points", placeholder: this.props.character['charHitPoints']['maximum'], value: this.state.hp}), 
@@ -1806,9 +2105,8 @@ var SettingsDefenses = React.createClass({displayName: "SettingsDefenses",
 
 module.exports = SettingsDefenses;
 
-},{"./settings-tear":24,"react":217,"react-bootstrap/Button":36,"react-bootstrap/ButtonToolbar":38,"react-bootstrap/Input":44}],16:[function(require,module,exports){
+},{"react":232,"react-bootstrap/Button":36,"react-bootstrap/ButtonToolbar":38,"react-bootstrap/Input":44}],17:[function(require,module,exports){
 var React = require('react');
-var Settings = require('./settings-tear');
 
 var Input = require('react-bootstrap/Input');
 var ButtonToolbar = require('react-bootstrap/ButtonToolbar');
@@ -1832,7 +2130,11 @@ var SettingsEquip = React.createClass({displayName: "SettingsEquip",
     return (state);
   },
   toggle : function() {
-    this.refs.settings.toggle();
+    this.props.toggle();
+  },
+  componentDidUpdate : function() {
+    // recalculate this 
+    this.props.recalculate();
   },
   clearState : function() {
     var state = {};
@@ -1914,7 +2216,6 @@ var SettingsEquip = React.createClass({displayName: "SettingsEquip",
   renderAdd : function() {
     return (
       React.createElement("div", null, 
-        React.createElement("h3", null, "Add New Equipment"), 
         React.createElement("p", null, "Enter the name and a short description of a new equipment!"), 
         React.createElement(Input, {placeholder: "name", value: this.state.name, type: "text", label: "Equipment Name", onChange: this.handleChange.bind(this, "name")}), 
         React.createElement(Input, {placeholder: "short description", value: this.state.desc, type: "textarea", label: "Equipment Description", onChange: this.handleChange.bind(this, "desc")}), 
@@ -1937,7 +2238,6 @@ var SettingsEquip = React.createClass({displayName: "SettingsEquip",
 
     return (
       React.createElement("div", null, 
-        React.createElement("h3", null, "Edit Equipment"), 
         React.createElement("p", null, "Change something you definitely don't like about equipment pieces..."), 
         React.createElement(Input, null, 
           React.createElement(Row, null, 
@@ -1963,8 +2263,9 @@ var SettingsEquip = React.createClass({displayName: "SettingsEquip",
   },
   render : function() {
     return (
-      React.createElement(Settings, {ref: "settings"}, 
-        React.createElement(TabbedArea, {activeKey: this.state.mode, onSelect: this.handleModeChange}, 
+      React.createElement("div", {className: "settings-tear"}, 
+        React.createElement("h3", null, "Add / Edit Equipments"), 
+        React.createElement(TabbedArea, {activeKey: this.state.mode, animation: false, onSelect: this.handleModeChange}, 
           React.createElement(TabPane, {eventKey: 0, tab: "new"}, 
             this.renderAdd()
           ), 
@@ -1979,9 +2280,8 @@ var SettingsEquip = React.createClass({displayName: "SettingsEquip",
 
 module.exports = SettingsEquip;
 
-},{"./settings-tear":24,"react":217,"react-bootstrap/Button":36,"react-bootstrap/ButtonToolbar":38,"react-bootstrap/Col":39,"react-bootstrap/Input":44,"react-bootstrap/Row":56,"react-bootstrap/TabPane":57,"react-bootstrap/TabbedArea":58}],17:[function(require,module,exports){
+},{"react":232,"react-bootstrap/Button":36,"react-bootstrap/ButtonToolbar":38,"react-bootstrap/Col":39,"react-bootstrap/Input":44,"react-bootstrap/Row":56,"react-bootstrap/TabPane":57,"react-bootstrap/TabbedArea":58}],18:[function(require,module,exports){
 var React = require('react');
-var Settings = require('./settings-tear');
 
 var TabbedArea = require('react-bootstrap/TabbedArea');
 var TabPane = require('react-bootstrap/TabPane');
@@ -2012,7 +2312,11 @@ var SettingsFeatures = React.createClass({displayName: "SettingsFeatures",
     return (state);
   },
   toggle : function() {
-    this.refs.settings.toggle();
+    this.props.toggle();
+  },
+  componentDidUpdate : function() {
+    // recalculate this 
+    this.props.recalculate();
   },
   clearState : function() {
     var state = {};
@@ -2178,7 +2482,6 @@ var SettingsFeatures = React.createClass({displayName: "SettingsFeatures",
 
     return (
       React.createElement("div", null, 
-        React.createElement("h3", null, "Add New Feature"), 
         React.createElement("p", null, "Here you can add a class feature when you receive it. You can also specify if the class feature you are adding gives your character class charges (ex: Rages, Sorcery Points, Ki, etc)."), 
         React.createElement(Input, {placeholder: "name", value: this.state.name, type: "text", label: "Feature Name", onChange: this.handleChange.bind(this, "name")}), 
         React.createElement(Input, {placeholder: "short description", value: this.state.desc, type: "textarea", label: "Feature Description", onChange: this.handleChange.bind(this, "desc")}), 
@@ -2205,7 +2508,6 @@ var SettingsFeatures = React.createClass({displayName: "SettingsFeatures",
 
     return (
       React.createElement("div", null, 
-        React.createElement("h3", null, "Edit Features"), 
         React.createElement("p", null, "Do the things with the editing, for making changes to features."), 
         React.createElement(Input, null, 
           React.createElement(Row, null, 
@@ -2232,8 +2534,9 @@ var SettingsFeatures = React.createClass({displayName: "SettingsFeatures",
   },
   render : function() {
     return (
-      React.createElement(Settings, {ref: "settings"}, 
-        React.createElement(TabbedArea, {activeKey: this.state.mode, onSelect: this.handleMode}, 
+      React.createElement("div", {className: "settings-tear"}, 
+        React.createElement("h3", null, "Add / Edit Features"), 
+        React.createElement(TabbedArea, {activeKey: this.state.mode, animation: false, onSelect: this.handleMode}, 
           React.createElement(TabPane, {eventKey: 0, tab: "new"}, 
             this.renderAdd()
           ), 
@@ -2248,9 +2551,8 @@ var SettingsFeatures = React.createClass({displayName: "SettingsFeatures",
 
 module.exports = SettingsFeatures;
 
-},{"./settings-tear":24,"react":217,"react-bootstrap/Button":36,"react-bootstrap/ButtonToolbar":38,"react-bootstrap/Col":39,"react-bootstrap/Input":44,"react-bootstrap/Row":56,"react-bootstrap/TabPane":57,"react-bootstrap/TabbedArea":58}],18:[function(require,module,exports){
+},{"react":232,"react-bootstrap/Button":36,"react-bootstrap/ButtonToolbar":38,"react-bootstrap/Col":39,"react-bootstrap/Input":44,"react-bootstrap/Row":56,"react-bootstrap/TabPane":57,"react-bootstrap/TabbedArea":58}],19:[function(require,module,exports){
 var React = require('react');
-var Settings = require('./settings-tear');
 
 var Input = require('react-bootstrap/Input');
 var ButtonToolbar = require('react-bootstrap/ButtonToolbar');
@@ -2273,7 +2575,7 @@ var SettingsInfo = React.createClass({displayName: "SettingsInfo",
     return (state);
   },
   toggle : function() {
-    this.refs.settings.toggle();
+    this.props.toggle();
   },
   clearState : function() {
     var state = {};
@@ -2359,7 +2661,7 @@ var SettingsInfo = React.createClass({displayName: "SettingsInfo",
     var validxp = (this.state.xperror) ? "error" : "success";
 
     return (
-      React.createElement(Settings, {ref: "settings"}, 
+      React.createElement("div", {className: "settings-tear"}, 
         React.createElement("h3", null, "Edit Character Info"), 
         React.createElement("p", null, "Enter a new value for any Character Info. If a field is left blank and no new values are entered, nothing will be changed."), 
         React.createElement(Input, {type: "text", onChange: this.handleChange.bind(this, "cls"), label: "Class", placeholder: this.props.character['charInfo']['class'], value: this.state.cls}), 
@@ -2379,9 +2681,8 @@ var SettingsInfo = React.createClass({displayName: "SettingsInfo",
 
 module.exports = SettingsInfo;
 
-},{"./settings-tear":24,"react":217,"react-bootstrap/Button":36,"react-bootstrap/ButtonToolbar":38,"react-bootstrap/Input":44}],19:[function(require,module,exports){
+},{"react":232,"react-bootstrap/Button":36,"react-bootstrap/ButtonToolbar":38,"react-bootstrap/Input":44}],20:[function(require,module,exports){
 var React = require('react');
-var Settings = require('./settings-tear');
 
 var Input = require('react-bootstrap/Input');
 var ButtonToolbar = require('react-bootstrap/ButtonToolbar');
@@ -2405,7 +2706,7 @@ var SettingsTraits = React.createClass({displayName: "SettingsTraits",
     return (state);
   },
   toggle : function() {
-    this.refs.settings.toggle();
+    this.props.toggle();
   },
   clearState : function() {
     var state = {};
@@ -2422,6 +2723,11 @@ var SettingsTraits = React.createClass({displayName: "SettingsTraits",
   handleModeChange : function(mode) {
     this.clearState();
     this.setState({ mode : mode });
+
+  },
+  componentDidUpdate : function() {
+    // recalculate this 
+    this.props.recalculate();
   },
   handleChange : function(cmp, e) {
     var node = {};
@@ -2492,7 +2798,6 @@ var SettingsTraits = React.createClass({displayName: "SettingsTraits",
   renderAdd : function() {
     return (
       React.createElement("div", null, 
-        React.createElement("h3", null, "Add New Language"), 
         React.createElement("p", null, "Enter the name of the language (ex: Draconic) and an optional sort description."), 
         React.createElement(Input, {placeholder: "name", value: this.state.name, type: "text", label: "Language Name", onChange: this.handleChange.bind(this, "name")}), 
         React.createElement(Input, {placeholder: "short description", value: this.state.desc, type: "textarea", label: "Language Description", onChange: this.handleChange.bind(this, "desc")}), 
@@ -2515,7 +2820,6 @@ var SettingsTraits = React.createClass({displayName: "SettingsTraits",
 
     return (
       React.createElement("div", null, 
-        React.createElement("h3", null, "Edit Languages"), 
         React.createElement("p", null, "Change the name or description of a language by first selecting the language to edit and then entering new values."), 
         React.createElement(Input, null, 
           React.createElement(Row, null, 
@@ -2541,8 +2845,9 @@ var SettingsTraits = React.createClass({displayName: "SettingsTraits",
   },
   render : function() {
     return (
-      React.createElement(Settings, {ref: "settings"}, 
-        React.createElement(TabbedArea, {activeKey: this.state.mode, onSelect: this.handleModeChange}, 
+      React.createElement("div", {className: "settings-tear", ref: "settings"}, 
+        React.createElement("h3", null, "Add / Edit Languages"), 
+        React.createElement(TabbedArea, {activeKey: this.state.mode, animation: false, onSelect: this.handleModeChange}, 
           React.createElement(TabPane, {eventKey: 0, tab: "new"}, 
             this.renderAdd()
           ), 
@@ -2557,9 +2862,8 @@ var SettingsTraits = React.createClass({displayName: "SettingsTraits",
 
 module.exports = SettingsTraits;
 
-},{"./settings-tear":24,"react":217,"react-bootstrap/Button":36,"react-bootstrap/ButtonToolbar":38,"react-bootstrap/Col":39,"react-bootstrap/Input":44,"react-bootstrap/Row":56,"react-bootstrap/TabPane":57,"react-bootstrap/TabbedArea":58}],20:[function(require,module,exports){
+},{"react":232,"react-bootstrap/Button":36,"react-bootstrap/ButtonToolbar":38,"react-bootstrap/Col":39,"react-bootstrap/Input":44,"react-bootstrap/Row":56,"react-bootstrap/TabPane":57,"react-bootstrap/TabbedArea":58}],21:[function(require,module,exports){
 var React = require('react');
-var Settings = require('./settings-tear');
 
 var Input = require('react-bootstrap/Input');
 var ButtonToolbar = require('react-bootstrap/ButtonToolbar');
@@ -2583,7 +2887,7 @@ var SettingsTraits = React.createClass({displayName: "SettingsTraits",
     return (state);
   },
   toggle : function() {
-    this.refs.settings.toggle();
+    this.props.toggle();
   },
   clearState : function() {
     var state = {};
@@ -2599,6 +2903,10 @@ var SettingsTraits = React.createClass({displayName: "SettingsTraits",
   },
   handleModeChange : function(mode) {
     this.setState({ mode : mode });
+  },
+  componentDidUpdate : function() {
+    // recalculate this 
+    this.props.recalculate();
   },
   handleChange : function(cmp, e) {
     var node = {};
@@ -2669,7 +2977,6 @@ var SettingsTraits = React.createClass({displayName: "SettingsTraits",
   renderAdd : function() {
     return (
       React.createElement("div", null, 
-        React.createElement("h3", null, "Add New Proficiency"), 
         React.createElement("p", null, "Enter the name of the proficiency (ex: Herbalism Kit) and an optional sort description."), 
         React.createElement(Input, {placeholder: "name", value: this.state.name, type: "text", label: "Proficiency Name", onChange: this.handleChange.bind(this, "name")}), 
         React.createElement(Input, {placeholder: "short description", value: this.state.desc, type: "textarea", label: "Proficiency Description", onChange: this.handleChange.bind(this, "desc")}), 
@@ -2692,7 +2999,6 @@ var SettingsTraits = React.createClass({displayName: "SettingsTraits",
 
     return (
       React.createElement("div", null, 
-        React.createElement("h3", null, "Edit Proficiencies"), 
         React.createElement("p", null, "Change the name or description of a proficiency by first selecting the proficiency to edit and then entering new values."), 
         React.createElement(Input, null, 
           React.createElement(Row, null, 
@@ -2718,8 +3024,9 @@ var SettingsTraits = React.createClass({displayName: "SettingsTraits",
   },
   render : function() {
     return (
-      React.createElement(Settings, {ref: "settings"}, 
-        React.createElement(TabbedArea, {activeKey: this.state.mode, onSelect: this.handleModeChange}, 
+      React.createElement("div", {className: "settings-tear", ref: "settings"}, 
+        React.createElement("h3", null, "Add / Edit Proficiencies"), 
+        React.createElement(TabbedArea, {activeKey: this.state.mode, animation: false, onSelect: this.handleModeChange}, 
           React.createElement(TabPane, {eventKey: 0, tab: "new"}, 
             this.renderAdd()
           ), 
@@ -2734,9 +3041,8 @@ var SettingsTraits = React.createClass({displayName: "SettingsTraits",
 
 module.exports = SettingsTraits;
 
-},{"./settings-tear":24,"react":217,"react-bootstrap/Button":36,"react-bootstrap/ButtonToolbar":38,"react-bootstrap/Col":39,"react-bootstrap/Input":44,"react-bootstrap/Row":56,"react-bootstrap/TabPane":57,"react-bootstrap/TabbedArea":58}],21:[function(require,module,exports){
+},{"react":232,"react-bootstrap/Button":36,"react-bootstrap/ButtonToolbar":38,"react-bootstrap/Col":39,"react-bootstrap/Input":44,"react-bootstrap/Row":56,"react-bootstrap/TabPane":57,"react-bootstrap/TabbedArea":58}],22:[function(require,module,exports){
 var React = require('react');
-var Settings = require('./settings-tear');
 
 var Input = require('react-bootstrap/Input');
 var ButtonToolbar = require('react-bootstrap/ButtonToolbar');
@@ -2791,7 +3097,7 @@ var SettingsSavingThrows = React.createClass({displayName: "SettingsSavingThrows
     this.setState(state);
   },
   toggle : function() {
-    this.refs.settings.toggle();
+    this.props.toggle();
   },
   handleChange : function(cmp, e) {
     var val = (e.target.value === "" ) ? "" : parseInt(e.target.value, 10);
@@ -2896,7 +3202,7 @@ var SettingsSavingThrows = React.createClass({displayName: "SettingsSavingThrows
     }.bind(this));
 
     return (
-      React.createElement(Settings, {ref: "settings"}, 
+      React.createElement("div", {className: "settings-tear"}, 
         React.createElement("h3", null, "Edit Saving Throws"), 
         React.createElement("p", null, "Edit the saving throws with which you are proficient and add any modifiers you may also have for that saving throw."), 
         React.createElement(Input, {type: "select", ref: "profSelect", multiple: true, label: "Select Proficient Saving Throws", value: (this.state.profs.length === 0) ? prof : this.state.profs, onChange: this.handleProfSelect}, 
@@ -2943,9 +3249,8 @@ var SettingsSavingThrows = React.createClass({displayName: "SettingsSavingThrows
 
 module.exports = SettingsSavingThrows;
 
-},{"./settings-tear":24,"react":217,"react-bootstrap/Button":36,"react-bootstrap/ButtonToolbar":38,"react-bootstrap/Col":39,"react-bootstrap/Input":44,"react-bootstrap/Row":56}],22:[function(require,module,exports){
+},{"react":232,"react-bootstrap/Button":36,"react-bootstrap/ButtonToolbar":38,"react-bootstrap/Col":39,"react-bootstrap/Input":44,"react-bootstrap/Row":56}],23:[function(require,module,exports){
 var React = require('react');
-var Settings = require('./settings-tear');
 
 var Input = require('react-bootstrap/Input');
 var ButtonToolbar = require('react-bootstrap/ButtonToolbar');
@@ -2968,12 +3273,10 @@ var SettingsAbilities = React.createClass({displayName: "SettingsAbilities",
       }
     }.bind(this));
 
-    console.log(state.profs);
-
     return (state);
   },
   toggle : function() {
-    this.refs.settings.toggle();
+    this.props.toggle();
   },
   clearState : function() {
     var state = {};
@@ -3096,7 +3399,7 @@ var SettingsAbilities = React.createClass({displayName: "SettingsAbilities",
     }.bind(this))
 
     return (
-      React.createElement(Settings, {ref: "settings"}, 
+      React.createElement("div", {className: "settings-tear"}, 
         React.createElement("h3", null, "Edit Skills"), 
         React.createElement("p", null, "Select which skills for which you are proficient."), 
         React.createElement(Input, {type: "select", multiple: true, value: (this.state.profs.length === 0) ? profs : this.state.profs, onChange: this.handleProfSelect}, 
@@ -3120,9 +3423,8 @@ var SettingsAbilities = React.createClass({displayName: "SettingsAbilities",
 
 module.exports = SettingsAbilities;
 
-},{"./settings-tear":24,"react":217,"react-bootstrap/Button":36,"react-bootstrap/ButtonToolbar":38,"react-bootstrap/Input":44}],23:[function(require,module,exports){
+},{"react":232,"react-bootstrap/Button":36,"react-bootstrap/ButtonToolbar":38,"react-bootstrap/Input":44}],24:[function(require,module,exports){
 var React = require('react');
-var Settings = require('./settings-tear');
 
 var Input = require('react-bootstrap/Input');
 var ButtonToolbar = require('react-bootstrap/ButtonToolbar');
@@ -3164,7 +3466,11 @@ var SettingsSpells = React.createClass({displayName: "SettingsSpells",
     return (state);
   },
   toggle : function() {
-    this.refs.settings.toggle();
+    this.props.toggle();
+  },
+  componentDidUpdate : function() {
+    // recalculate this 
+    this.props.recalculate();
   },
   clearState : function() {
     var state = {};
@@ -3325,7 +3631,6 @@ var SettingsSpells = React.createClass({displayName: "SettingsSpells",
   renderAdd : function() {
     return (
       React.createElement("div", null, 
-        React.createElement("h3", null, "Add new spell"), 
         React.createElement("p", null, "Enter the info for each spell. The only required information is spell level and name--all other fields are optional."), 
         React.createElement(Input, {type: "text", label: "Name", value: this.state.name, onChange: this.handleChange.bind(this, "name")}), 
         React.createElement(Input, {type: "select", label: "Spell Level", value: this.state.lvl, onChange: this.handleSelect}, 
@@ -3374,7 +3679,6 @@ var SettingsSpells = React.createClass({displayName: "SettingsSpells",
 
     return (
       React.createElement("div", null, 
-        React.createElement("h3", null, "Edit Spells"), 
         React.createElement("p", null, "Select a spell to edit any detail. Be as thorough as possible."), 
         React.createElement(Input, null, 
           React.createElement(Row, null, 
@@ -3418,7 +3722,6 @@ var SettingsSpells = React.createClass({displayName: "SettingsSpells",
   renderSpellSlots : function() {
     return (
       React.createElement("div", null, 
-        React.createElement("h3", null, "Edit spell slots"), 
         React.createElement("p", null, "Select a spell level and enter how many spell slots your character has for that level."), 
         React.createElement(Input, {type: "select", label: "Spell Level", value: this.state.slotLvl, onChange: this.handleSelect}, 
           React.createElement("option", {value: -1}, "Spell Level"), 
@@ -3442,8 +3745,9 @@ var SettingsSpells = React.createClass({displayName: "SettingsSpells",
   },
   render : function() {
     return (
-      React.createElement(Settings, {ref: "settings"}, 
-        React.createElement(TabbedArea, {activeKey: this.state.mode, onSelect: this.handleModeChange}, 
+      React.createElement("div", {className: "settings-tear"}, 
+        React.createElement("h3", null, "Add / Edit spells and slots"), 
+        React.createElement(TabbedArea, {activeKey: this.state.mode, animation: false, onSelect: this.handleModeChange}, 
           React.createElement(TabPane, {eventKey: 0, tab: "new"}, 
             this.renderAdd()
           ), 
@@ -3461,38 +3765,8 @@ var SettingsSpells = React.createClass({displayName: "SettingsSpells",
 
 module.exports = SettingsSpells;
 
-},{"./settings-tear":24,"react":217,"react-bootstrap/Button":36,"react-bootstrap/ButtonToolbar":38,"react-bootstrap/Col":39,"react-bootstrap/Input":44,"react-bootstrap/Row":56,"react-bootstrap/TabPane":57,"react-bootstrap/TabbedArea":58}],24:[function(require,module,exports){
+},{"react":232,"react-bootstrap/Button":36,"react-bootstrap/ButtonToolbar":38,"react-bootstrap/Col":39,"react-bootstrap/Input":44,"react-bootstrap/Row":56,"react-bootstrap/TabPane":57,"react-bootstrap/TabbedArea":58}],25:[function(require,module,exports){
 var React = require('react');
-var Panel = require('react-bootstrap/Panel');
-var Accordion = require('react-bootstrap/Accordion');
-
-var Settings = React.createClass({displayName: "Settings",
-  getInitialState : function() {
-    return ({ active : 0 });
-  },
-
-  toggle : function() {
-    this.setState({ active : (this.state.active === 0) ? 1 : 0 });
-  },
-
-  render : function() {
-    return (
-      React.createElement(Accordion, {activeKey: this.state.active}, 
-        React.createElement(Panel, {eventKey: 1, className: "settings-tear"}, 
-          React.createElement("div", {className: "settings-body"}, 
-            this.props.children
-          )
-        )
-      )
-    );
-  }
-})
-
-module.exports = Settings;
-
-},{"react":217,"react-bootstrap/Accordion":34,"react-bootstrap/Panel":52}],25:[function(require,module,exports){
-var React = require('react');
-var Settings = require('./settings-tear');
 
 var Input = require('react-bootstrap/Input');
 var ButtonToolbar = require('react-bootstrap/ButtonToolbar');
@@ -3514,7 +3788,7 @@ var SettingsTraits = React.createClass({displayName: "SettingsTraits",
     return (state);
   },
   toggle : function() {
-    this.refs.settings.toggle();
+    this.props.toggle();
   },
   handleChange : function(cmp, e) {
     var node = {};
@@ -3549,7 +3823,7 @@ var SettingsTraits = React.createClass({displayName: "SettingsTraits",
   },
   render : function() {
     return (
-      React.createElement(Settings, {ref: "settings"}, 
+      React.createElement("div", {className: "settings-tear", ref: "settings", activeOpen: true}, 
         React.createElement("h3", null, "Edit Character Traits"), 
         React.createElement("p", null, "Enter new info for any Character Traits. If a field is left blank and no new values are entered, nothing will be changed"), 
         React.createElement(Input, {type: "textarea", onChange: this.handleChange.bind(this, "traits"), label: "Personality Traits", placeholder: this.props.character['charTraits']['personalityTraits'], value: this.state.traits}), 
@@ -3567,7 +3841,7 @@ var SettingsTraits = React.createClass({displayName: "SettingsTraits",
 
 module.exports = SettingsTraits;
 
-},{"./settings-tear":24,"react":217,"react-bootstrap/Button":36,"react-bootstrap/ButtonToolbar":38,"react-bootstrap/Input":44}],26:[function(require,module,exports){
+},{"react":232,"react-bootstrap/Button":36,"react-bootstrap/ButtonToolbar":38,"react-bootstrap/Input":44}],26:[function(require,module,exports){
 var React = require('react');
 var PageHeader = require('react-bootstrap/PageHeader');
 
@@ -3585,7 +3859,7 @@ var Title = React.createClass({
 // return component
 module.exports = Title;
 
-},{"react":217,"react-bootstrap/PageHeader":51}],27:[function(require,module,exports){
+},{"react":232,"react-bootstrap/PageHeader":51}],27:[function(require,module,exports){
 var React = require('react');
 var EventListener = require('react-bootstrap/utils/EventListener');
 
@@ -3628,7 +3902,7 @@ var HelpTooltip = React.createClass({displayName: "HelpTooltip",
 
 module.exports = HelpTooltip;
 
-},{"react":217,"react-bootstrap/utils/EventListener":63}],28:[function(require,module,exports){
+},{"react":232,"react-bootstrap/utils/EventListener":62}],28:[function(require,module,exports){
 module.exports = {
   "charName" : "Loading...",
   "charInfo" : {
@@ -4577,7 +4851,7 @@ var Character = React.createClass({
 // render Character
 React.render(React.createElement(Character, null), document.body);
 
-},{"./components/app-settings":1,"./components/content-area":2,"./components/title":26,"./data/blank":28,"./data/wan":29,"fastclick":32,"firebase":33,"react":217,"react-bootstrap/Button":36,"react-bootstrap/Input":44,"react-bootstrap/Modal":46,"react-bootstrap/OverlayMixin":49}],31:[function(require,module,exports){
+},{"./components/app-settings":1,"./components/content-area":2,"./components/title":26,"./data/blank":28,"./data/wan":29,"fastclick":32,"firebase":33,"react":232,"react-bootstrap/Button":36,"react-bootstrap/Input":44,"react-bootstrap/Modal":46,"react-bootstrap/OverlayMixin":49}],31:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -5745,7 +6019,7 @@ var Accordion = React.createClass({displayName: "Accordion",
 });
 
 module.exports = Accordion;
-},{"./PanelGroup":53,"react":217}],35:[function(require,module,exports){
+},{"./PanelGroup":53,"react":232}],35:[function(require,module,exports){
 var React = require('react');
 var constants = require('./constants');
 
@@ -5781,7 +6055,7 @@ var BootstrapMixin = {
 };
 
 module.exports = BootstrapMixin;
-},{"./constants":61,"react":217}],36:[function(require,module,exports){
+},{"./constants":60,"react":232}],36:[function(require,module,exports){
 var React = require('react');
 var joinClasses = require('./utils/joinClasses');
 var classSet = require('./utils/classSet');
@@ -5870,7 +6144,7 @@ var Button = React.createClass({displayName: "Button",
 
 module.exports = Button;
 
-},{"./BootstrapMixin":35,"./utils/classSet":67,"./utils/joinClasses":71,"react":217}],37:[function(require,module,exports){
+},{"./BootstrapMixin":35,"./utils/classSet":66,"./utils/joinClasses":70,"react":232}],37:[function(require,module,exports){
 var React = require('react');
 var joinClasses = require('./utils/joinClasses');
 var classSet = require('./utils/classSet');
@@ -5908,7 +6182,7 @@ var ButtonGroup = React.createClass({displayName: "ButtonGroup",
 });
 
 module.exports = ButtonGroup;
-},{"./BootstrapMixin":35,"./Button":36,"./utils/classSet":67,"./utils/joinClasses":71,"react":217}],38:[function(require,module,exports){
+},{"./BootstrapMixin":35,"./Button":36,"./utils/classSet":66,"./utils/joinClasses":70,"react":232}],38:[function(require,module,exports){
 var React = require('react');
 var joinClasses = require('./utils/joinClasses');
 var classSet = require('./utils/classSet');
@@ -5939,7 +6213,7 @@ var ButtonToolbar = React.createClass({displayName: "ButtonToolbar",
 });
 
 module.exports = ButtonToolbar;
-},{"./BootstrapMixin":35,"./Button":36,"./utils/classSet":67,"./utils/joinClasses":71,"react":217}],39:[function(require,module,exports){
+},{"./BootstrapMixin":35,"./Button":36,"./utils/classSet":66,"./utils/joinClasses":70,"react":232}],39:[function(require,module,exports){
 var React = require('react');
 var joinClasses = require('./utils/joinClasses');
 var classSet = require('./utils/classSet');
@@ -6014,7 +6288,7 @@ var Col = React.createClass({displayName: "Col",
 });
 
 module.exports = Col;
-},{"./constants":61,"./utils/classSet":67,"./utils/joinClasses":71,"react":217}],40:[function(require,module,exports){
+},{"./constants":60,"./utils/classSet":66,"./utils/joinClasses":70,"react":232}],40:[function(require,module,exports){
 var React = require('react');
 var TransitionEvents = require('./utils/TransitionEvents');
 
@@ -6136,7 +6410,7 @@ var CollapsableMixin = {
 
 module.exports = CollapsableMixin;
 
-},{"./utils/TransitionEvents":65,"react":217}],41:[function(require,module,exports){
+},{"./utils/TransitionEvents":64,"react":232}],41:[function(require,module,exports){
 /*global document */
 // TODO: listen for onTransitionEnd to remove el
 function getElementsAndSelf (root, classes){
@@ -6241,7 +6515,7 @@ var Glyphicon = React.createClass({displayName: "Glyphicon",
 });
 
 module.exports = Glyphicon;
-},{"./BootstrapMixin":35,"./constants":61,"./utils/classSet":67,"./utils/joinClasses":71,"react":217}],43:[function(require,module,exports){
+},{"./BootstrapMixin":35,"./constants":60,"./utils/classSet":66,"./utils/joinClasses":70,"react":232}],43:[function(require,module,exports){
 var React = require('react');
 var joinClasses = require('./utils/joinClasses');
 
@@ -6272,7 +6546,7 @@ var Grid = React.createClass({displayName: "Grid",
 });
 
 module.exports = Grid;
-},{"./utils/joinClasses":71,"react":217}],44:[function(require,module,exports){
+},{"./utils/joinClasses":70,"react":232}],44:[function(require,module,exports){
 var React = require('react');
 var joinClasses = require('./utils/joinClasses');
 var classSet = require('./utils/classSet');
@@ -6509,7 +6783,7 @@ var Input = React.createClass({displayName: "Input",
 
 module.exports = Input;
 
-},{"./Button":36,"./utils/classSet":67,"./utils/joinClasses":71,"react":217}],45:[function(require,module,exports){
+},{"./Button":36,"./utils/classSet":66,"./utils/joinClasses":70,"react":232}],45:[function(require,module,exports){
 // https://www.npmjs.org/package/react-interpolate-component
 'use strict';
 
@@ -6593,7 +6867,7 @@ var Interpolate = React.createClass({
 
 module.exports = Interpolate;
 
-},{"./utils/Object.assign":64,"./utils/ValidComponentChildren":66,"react":217}],46:[function(require,module,exports){
+},{"./utils/Object.assign":63,"./utils/ValidComponentChildren":65,"react":232}],46:[function(require,module,exports){
 /* global document:false */
 
 var React = require('react');
@@ -6757,7 +7031,7 @@ var Modal = React.createClass({displayName: "Modal",
 
 module.exports = Modal;
 
-},{"./BootstrapMixin":35,"./FadeMixin":41,"./utils/EventListener":63,"./utils/classSet":67,"./utils/joinClasses":71,"react":217}],47:[function(require,module,exports){
+},{"./BootstrapMixin":35,"./FadeMixin":41,"./utils/EventListener":62,"./utils/classSet":66,"./utils/joinClasses":70,"react":232}],47:[function(require,module,exports){
 var React = require('react');
 var joinClasses = require('./utils/joinClasses');
 var BootstrapMixin = require('./BootstrapMixin');
@@ -6871,7 +7145,7 @@ var Nav = React.createClass({displayName: "Nav",
 
 module.exports = Nav;
 
-},{"./BootstrapMixin":35,"./CollapsableMixin":40,"./utils/ValidComponentChildren":66,"./utils/classSet":67,"./utils/cloneWithProps":68,"./utils/createChainedFunction":69,"./utils/domUtils":70,"./utils/joinClasses":71,"react":217}],48:[function(require,module,exports){
+},{"./BootstrapMixin":35,"./CollapsableMixin":40,"./utils/ValidComponentChildren":65,"./utils/classSet":66,"./utils/cloneWithProps":67,"./utils/createChainedFunction":68,"./utils/domUtils":69,"./utils/joinClasses":70,"react":232}],48:[function(require,module,exports){
 var React = require('react');
 var joinClasses = require('./utils/joinClasses');
 var classSet = require('./utils/classSet');
@@ -6936,7 +7210,7 @@ var NavItem = React.createClass({displayName: "NavItem",
 });
 
 module.exports = NavItem;
-},{"./BootstrapMixin":35,"./utils/classSet":67,"./utils/joinClasses":71,"react":217}],49:[function(require,module,exports){
+},{"./BootstrapMixin":35,"./utils/classSet":66,"./utils/joinClasses":70,"react":232}],49:[function(require,module,exports){
 var React = require('react');
 var CustomPropTypes = require('./utils/CustomPropTypes');
 
@@ -7022,7 +7296,7 @@ module.exports = {
   }
 };
 
-},{"./utils/CustomPropTypes":62,"react":217}],50:[function(require,module,exports){
+},{"./utils/CustomPropTypes":61,"react":232}],50:[function(require,module,exports){
 var React = require('react');
 var OverlayMixin = require('./OverlayMixin');
 var domUtils = require('./utils/domUtils');
@@ -7250,7 +7524,7 @@ var OverlayTrigger = React.createClass({displayName: "OverlayTrigger",
 });
 
 module.exports = OverlayTrigger;
-},{"./OverlayMixin":49,"./utils/Object.assign":64,"./utils/cloneWithProps":68,"./utils/createChainedFunction":69,"./utils/domUtils":70,"react":217}],51:[function(require,module,exports){
+},{"./OverlayMixin":49,"./utils/Object.assign":63,"./utils/cloneWithProps":67,"./utils/createChainedFunction":68,"./utils/domUtils":69,"react":232}],51:[function(require,module,exports){
 var React = require('react');
 var joinClasses = require('./utils/joinClasses');
 
@@ -7266,7 +7540,7 @@ var PageHeader = React.createClass({displayName: "PageHeader",
 });
 
 module.exports = PageHeader;
-},{"./utils/joinClasses":71,"react":217}],52:[function(require,module,exports){
+},{"./utils/joinClasses":70,"react":232}],52:[function(require,module,exports){
 var React = require('react');
 var joinClasses = require('./utils/joinClasses');
 var classSet = require('./utils/classSet');
@@ -7413,7 +7687,7 @@ var Panel = React.createClass({displayName: "Panel",
 });
 
 module.exports = Panel;
-},{"./BootstrapMixin":35,"./CollapsableMixin":40,"./utils/classSet":67,"./utils/cloneWithProps":68,"./utils/joinClasses":71,"react":217}],53:[function(require,module,exports){
+},{"./BootstrapMixin":35,"./CollapsableMixin":40,"./utils/classSet":66,"./utils/cloneWithProps":67,"./utils/joinClasses":70,"react":232}],53:[function(require,module,exports){
 var React = require('react');
 var joinClasses = require('./utils/joinClasses');
 var classSet = require('./utils/classSet');
@@ -7500,7 +7774,7 @@ var PanelGroup = React.createClass({displayName: "PanelGroup",
 });
 
 module.exports = PanelGroup;
-},{"./BootstrapMixin":35,"./utils/ValidComponentChildren":66,"./utils/classSet":67,"./utils/cloneWithProps":68,"./utils/joinClasses":71,"react":217}],54:[function(require,module,exports){
+},{"./BootstrapMixin":35,"./utils/ValidComponentChildren":65,"./utils/classSet":66,"./utils/cloneWithProps":67,"./utils/joinClasses":70,"react":232}],54:[function(require,module,exports){
 var React = require('react');
 var joinClasses = require('./utils/joinClasses');
 var classSet = require('./utils/classSet');
@@ -7559,7 +7833,7 @@ var Popover = React.createClass({displayName: "Popover",
 });
 
 module.exports = Popover;
-},{"./BootstrapMixin":35,"./utils/classSet":67,"./utils/joinClasses":71,"react":217}],55:[function(require,module,exports){
+},{"./BootstrapMixin":35,"./utils/classSet":66,"./utils/joinClasses":70,"react":232}],55:[function(require,module,exports){
 var React = require('react');
 var joinClasses = require('./utils/joinClasses');
 var Interpolate = require('./Interpolate');
@@ -7694,7 +7968,7 @@ var ProgressBar = React.createClass({displayName: "ProgressBar",
 
 module.exports = ProgressBar;
 
-},{"./BootstrapMixin":35,"./Interpolate":45,"./utils/ValidComponentChildren":66,"./utils/classSet":67,"./utils/cloneWithProps":68,"./utils/joinClasses":71,"react":217}],56:[function(require,module,exports){
+},{"./BootstrapMixin":35,"./Interpolate":45,"./utils/ValidComponentChildren":65,"./utils/classSet":66,"./utils/cloneWithProps":67,"./utils/joinClasses":70,"react":232}],56:[function(require,module,exports){
 var React = require('react');
 var joinClasses = require('./utils/joinClasses');
 
@@ -7721,7 +7995,7 @@ var Row = React.createClass({displayName: "Row",
 });
 
 module.exports = Row;
-},{"./utils/joinClasses":71,"react":217}],57:[function(require,module,exports){
+},{"./utils/joinClasses":70,"react":232}],57:[function(require,module,exports){
 var React = require('react');
 var joinClasses = require('./utils/joinClasses');
 var classSet = require('./utils/classSet');
@@ -7804,7 +8078,7 @@ var TabPane = React.createClass({displayName: "TabPane",
 });
 
 module.exports = TabPane;
-},{"./utils/TransitionEvents":65,"./utils/classSet":67,"./utils/joinClasses":71,"react":217}],58:[function(require,module,exports){
+},{"./utils/TransitionEvents":64,"./utils/classSet":66,"./utils/joinClasses":70,"react":232}],58:[function(require,module,exports){
 var React = require('react');
 var BootstrapMixin = require('./BootstrapMixin');
 var cloneWithProps = require('./utils/cloneWithProps');
@@ -7944,7 +8218,7 @@ var TabbedArea = React.createClass({displayName: "TabbedArea",
 });
 
 module.exports = TabbedArea;
-},{"./BootstrapMixin":35,"./Nav":47,"./NavItem":48,"./utils/ValidComponentChildren":66,"./utils/cloneWithProps":68,"react":217}],59:[function(require,module,exports){
+},{"./BootstrapMixin":35,"./Nav":47,"./NavItem":48,"./utils/ValidComponentChildren":65,"./utils/cloneWithProps":67,"react":232}],59:[function(require,module,exports){
 var React = require('react');
 var joinClasses = require('./utils/joinClasses');
 var classSet = require('./utils/classSet');
@@ -7994,34 +8268,7 @@ var Tooltip = React.createClass({displayName: "Tooltip",
 });
 
 module.exports = Tooltip;
-},{"./BootstrapMixin":35,"./utils/classSet":67,"./utils/joinClasses":71,"react":217}],60:[function(require,module,exports){
-var React = require('react');
-var joinClasses = require('./utils/joinClasses');
-var classSet = require('./utils/classSet');
-var BootstrapMixin = require('./BootstrapMixin');
-
-var Well = React.createClass({displayName: "Well",
-  mixins: [BootstrapMixin],
-
-  getDefaultProps: function () {
-    return {
-      bsClass: 'well'
-    };
-  },
-
-  render: function () {
-    var classes = this.getBsClassSet();
-
-    return (
-      React.createElement("div", React.__spread({},  this.props, {className: joinClasses(this.props.className, classSet(classes))}), 
-        this.props.children
-      )
-    );
-  }
-});
-
-module.exports = Well;
-},{"./BootstrapMixin":35,"./utils/classSet":67,"./utils/joinClasses":71,"react":217}],61:[function(require,module,exports){
+},{"./BootstrapMixin":35,"./utils/classSet":66,"./utils/joinClasses":70,"react":232}],60:[function(require,module,exports){
 module.exports = {
   CLASSES: {
     'alert': 'alert',
@@ -8265,7 +8512,7 @@ module.exports = {
   ]
 };
 
-},{}],62:[function(require,module,exports){
+},{}],61:[function(require,module,exports){
 var React = require('react');
 
 var ANONYMOUS = '<<anonymous>>';
@@ -8328,7 +8575,7 @@ function createMountableChecker() {
 }
 
 module.exports = CustomPropTypes;
-},{"react":217}],63:[function(require,module,exports){
+},{"react":232}],62:[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -8384,7 +8631,7 @@ var EventListener = {
 
 module.exports = EventListener;
 
-},{}],64:[function(require,module,exports){
+},{}],63:[function(require,module,exports){
 /**
  * Copyright 2014, Facebook, Inc.
  * All rights reserved.
@@ -8433,7 +8680,7 @@ function assign(target, sources) {
 
 module.exports = assign;
 
-},{}],65:[function(require,module,exports){
+},{}],64:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -8548,7 +8795,7 @@ var ReactTransitionEvents = {
 
 module.exports = ReactTransitionEvents;
 
-},{}],66:[function(require,module,exports){
+},{}],65:[function(require,module,exports){
 var React = require('react');
 
 /**
@@ -8639,7 +8886,7 @@ module.exports = {
   numberOf: numberOfValidComponents,
   hasValidComponent: hasValidComponent
 };
-},{"react":217}],67:[function(require,module,exports){
+},{"react":232}],66:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -8679,7 +8926,7 @@ function cx(classNames) {
 }
 
 module.exports = cx;
-},{}],68:[function(require,module,exports){
+},{}],67:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -8823,7 +9070,7 @@ function cloneWithProps(child, props) {
 }
 
 module.exports = cloneWithProps;
-},{"./Object.assign":64,"./joinClasses":71,"react":217}],69:[function(require,module,exports){
+},{"./Object.assign":63,"./joinClasses":70,"react":232}],68:[function(require,module,exports){
 /**
  * Safe chained function
  *
@@ -8849,7 +9096,7 @@ function createChainedFunction(one, two) {
 }
 
 module.exports = createChainedFunction;
-},{}],70:[function(require,module,exports){
+},{}],69:[function(require,module,exports){
 
 /**
  * Shortcut to compute element style
@@ -8959,7 +9206,7 @@ module.exports = {
   getPosition: getPosition,
   offsetParent: offsetParent
 };
-},{}],71:[function(require,module,exports){
+},{}],70:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -9001,7 +9248,10 @@ function joinClasses(className/*, ... */) {
 
 module.exports = joinClasses;
 
-},{}],72:[function(require,module,exports){
+},{}],71:[function(require,module,exports){
+module.exports = require('./lib/ReactWithAddons');
+
+},{"./lib/ReactWithAddons":162}],72:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -9028,7 +9278,7 @@ var AutoFocusMixin = {
 
 module.exports = AutoFocusMixin;
 
-},{"./focusNode":182}],73:[function(require,module,exports){
+},{"./focusNode":196}],73:[function(require,module,exports){
 /**
  * Copyright 2013 Facebook, Inc.
  * All rights reserved.
@@ -9250,7 +9500,119 @@ var BeforeInputEventPlugin = {
 
 module.exports = BeforeInputEventPlugin;
 
-},{"./EventConstants":86,"./EventPropagators":91,"./ExecutionEnvironment":92,"./SyntheticInputEvent":160,"./keyOf":204}],74:[function(require,module,exports){
+},{"./EventConstants":87,"./EventPropagators":92,"./ExecutionEnvironment":93,"./SyntheticInputEvent":172,"./keyOf":218}],74:[function(require,module,exports){
+(function (process){
+/**
+ * Copyright 2013-2014, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule CSSCore
+ * @typechecks
+ */
+
+var invariant = require("./invariant");
+
+/**
+ * The CSSCore module specifies the API (and implements most of the methods)
+ * that should be used when dealing with the display of elements (via their
+ * CSS classes and visibility on screen. It is an API focused on mutating the
+ * display and not reading it as no logical state should be encoded in the
+ * display of elements.
+ */
+
+var CSSCore = {
+
+  /**
+   * Adds the class passed in to the element if it doesn't already have it.
+   *
+   * @param {DOMElement} element the element to set the class on
+   * @param {string} className the CSS className
+   * @return {DOMElement} the element passed in
+   */
+  addClass: function(element, className) {
+    ("production" !== process.env.NODE_ENV ? invariant(
+      !/\s/.test(className),
+      'CSSCore.addClass takes only a single class name. "%s" contains ' +
+      'multiple classes.', className
+    ) : invariant(!/\s/.test(className)));
+
+    if (className) {
+      if (element.classList) {
+        element.classList.add(className);
+      } else if (!CSSCore.hasClass(element, className)) {
+        element.className = element.className + ' ' + className;
+      }
+    }
+    return element;
+  },
+
+  /**
+   * Removes the class passed in from the element
+   *
+   * @param {DOMElement} element the element to set the class on
+   * @param {string} className the CSS className
+   * @return {DOMElement} the element passed in
+   */
+  removeClass: function(element, className) {
+    ("production" !== process.env.NODE_ENV ? invariant(
+      !/\s/.test(className),
+      'CSSCore.removeClass takes only a single class name. "%s" contains ' +
+      'multiple classes.', className
+    ) : invariant(!/\s/.test(className)));
+
+    if (className) {
+      if (element.classList) {
+        element.classList.remove(className);
+      } else if (CSSCore.hasClass(element, className)) {
+        element.className = element.className
+          .replace(new RegExp('(^|\\s)' + className + '(?:\\s|$)', 'g'), '$1')
+          .replace(/\s+/g, ' ') // multiple spaces to one
+          .replace(/^\s*|\s*$/g, ''); // trim the ends
+      }
+    }
+    return element;
+  },
+
+  /**
+   * Helper to add or remove a class from an element based on a condition.
+   *
+   * @param {DOMElement} element the element to set the class on
+   * @param {string} className the CSS className
+   * @param {*} bool condition to whether to add or remove the class
+   * @return {DOMElement} the element passed in
+   */
+  conditionClass: function(element, className, bool) {
+    return (bool ? CSSCore.addClass : CSSCore.removeClass)(element, className);
+  },
+
+  /**
+   * Tests whether the element has the class specified.
+   *
+   * @param {DOMNode|DOMWindow} element the element to set the class on
+   * @param {string} className the CSS className
+   * @return {boolean} true if the element has the class, false if not
+   */
+  hasClass: function(element, className) {
+    ("production" !== process.env.NODE_ENV ? invariant(
+      !/\s/.test(className),
+      'CSS.hasClass takes only a single class name.'
+    ) : invariant(!/\s/.test(className)));
+    if (element.classList) {
+      return !!className && element.classList.contains(className);
+    }
+    return (' ' + element.className + ' ').indexOf(' ' + className + ' ') > -1;
+  }
+
+};
+
+module.exports = CSSCore;
+
+}).call(this,require('_process'))
+},{"./invariant":211,"_process":31}],75:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -9369,7 +9731,7 @@ var CSSProperty = {
 
 module.exports = CSSProperty;
 
-},{}],75:[function(require,module,exports){
+},{}],76:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -9504,7 +9866,7 @@ var CSSPropertyOperations = {
 module.exports = CSSPropertyOperations;
 
 }).call(this,require('_process'))
-},{"./CSSProperty":74,"./ExecutionEnvironment":92,"./camelizeStyleName":171,"./dangerousStyleValue":176,"./hyphenateStyleName":195,"./memoizeStringOnly":206,"./warning":216,"_process":31}],76:[function(require,module,exports){
+},{"./CSSProperty":75,"./ExecutionEnvironment":93,"./camelizeStyleName":183,"./dangerousStyleValue":190,"./hyphenateStyleName":209,"./memoizeStringOnly":220,"./warning":231,"_process":31}],77:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -9604,7 +9966,7 @@ PooledClass.addPoolingTo(CallbackQueue);
 module.exports = CallbackQueue;
 
 }).call(this,require('_process'))
-},{"./Object.assign":97,"./PooledClass":98,"./invariant":197,"_process":31}],77:[function(require,module,exports){
+},{"./Object.assign":99,"./PooledClass":100,"./invariant":211,"_process":31}],78:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -9986,7 +10348,7 @@ var ChangeEventPlugin = {
 
 module.exports = ChangeEventPlugin;
 
-},{"./EventConstants":86,"./EventPluginHub":88,"./EventPropagators":91,"./ExecutionEnvironment":92,"./ReactUpdates":150,"./SyntheticEvent":158,"./isEventSupported":198,"./isTextInputElement":200,"./keyOf":204}],78:[function(require,module,exports){
+},{"./EventConstants":87,"./EventPluginHub":89,"./EventPropagators":92,"./ExecutionEnvironment":93,"./ReactUpdates":161,"./SyntheticEvent":170,"./isEventSupported":212,"./isTextInputElement":214,"./keyOf":218}],79:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -10011,7 +10373,7 @@ var ClientReactRootIndex = {
 
 module.exports = ClientReactRootIndex;
 
-},{}],79:[function(require,module,exports){
+},{}],80:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -10270,7 +10632,7 @@ var CompositionEventPlugin = {
 
 module.exports = CompositionEventPlugin;
 
-},{"./EventConstants":86,"./EventPropagators":91,"./ExecutionEnvironment":92,"./ReactInputSelection":130,"./SyntheticCompositionEvent":156,"./getTextContentAccessor":192,"./keyOf":204}],80:[function(require,module,exports){
+},{"./EventConstants":87,"./EventPropagators":92,"./ExecutionEnvironment":93,"./ReactInputSelection":135,"./SyntheticCompositionEvent":168,"./getTextContentAccessor":206,"./keyOf":218}],81:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -10445,7 +10807,7 @@ var DOMChildrenOperations = {
 module.exports = DOMChildrenOperations;
 
 }).call(this,require('_process'))
-},{"./Danger":83,"./ReactMultiChildUpdateTypes":136,"./getTextContentAccessor":192,"./invariant":197,"_process":31}],81:[function(require,module,exports){
+},{"./Danger":84,"./ReactMultiChildUpdateTypes":142,"./getTextContentAccessor":206,"./invariant":211,"_process":31}],82:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -10744,7 +11106,7 @@ var DOMProperty = {
 module.exports = DOMProperty;
 
 }).call(this,require('_process'))
-},{"./invariant":197,"_process":31}],82:[function(require,module,exports){
+},{"./invariant":211,"_process":31}],83:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -10941,7 +11303,7 @@ var DOMPropertyOperations = {
 module.exports = DOMPropertyOperations;
 
 }).call(this,require('_process'))
-},{"./DOMProperty":81,"./escapeTextForBrowser":180,"./memoizeStringOnly":206,"./warning":216,"_process":31}],83:[function(require,module,exports){
+},{"./DOMProperty":82,"./escapeTextForBrowser":194,"./memoizeStringOnly":220,"./warning":231,"_process":31}],84:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -11127,7 +11489,7 @@ var Danger = {
 module.exports = Danger;
 
 }).call(this,require('_process'))
-},{"./ExecutionEnvironment":92,"./createNodesFromMarkup":175,"./emptyFunction":178,"./getMarkupWrap":189,"./invariant":197,"_process":31}],84:[function(require,module,exports){
+},{"./ExecutionEnvironment":93,"./createNodesFromMarkup":188,"./emptyFunction":192,"./getMarkupWrap":203,"./invariant":211,"_process":31}],85:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -11167,7 +11529,7 @@ var DefaultEventPluginOrder = [
 
 module.exports = DefaultEventPluginOrder;
 
-},{"./keyOf":204}],85:[function(require,module,exports){
+},{"./keyOf":218}],86:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -11307,7 +11669,7 @@ var EnterLeaveEventPlugin = {
 
 module.exports = EnterLeaveEventPlugin;
 
-},{"./EventConstants":86,"./EventPropagators":91,"./ReactMount":134,"./SyntheticMouseEvent":162,"./keyOf":204}],86:[function(require,module,exports){
+},{"./EventConstants":87,"./EventPropagators":92,"./ReactMount":140,"./SyntheticMouseEvent":174,"./keyOf":218}],87:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -11379,7 +11741,7 @@ var EventConstants = {
 
 module.exports = EventConstants;
 
-},{"./keyMirror":203}],87:[function(require,module,exports){
+},{"./keyMirror":217}],88:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -11469,7 +11831,7 @@ var EventListener = {
 module.exports = EventListener;
 
 }).call(this,require('_process'))
-},{"./emptyFunction":178,"_process":31}],88:[function(require,module,exports){
+},{"./emptyFunction":192,"_process":31}],89:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -11745,7 +12107,7 @@ var EventPluginHub = {
 module.exports = EventPluginHub;
 
 }).call(this,require('_process'))
-},{"./EventPluginRegistry":89,"./EventPluginUtils":90,"./accumulateInto":168,"./forEachAccumulated":183,"./invariant":197,"_process":31}],89:[function(require,module,exports){
+},{"./EventPluginRegistry":90,"./EventPluginUtils":91,"./accumulateInto":180,"./forEachAccumulated":197,"./invariant":211,"_process":31}],90:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -12025,7 +12387,7 @@ var EventPluginRegistry = {
 module.exports = EventPluginRegistry;
 
 }).call(this,require('_process'))
-},{"./invariant":197,"_process":31}],90:[function(require,module,exports){
+},{"./invariant":211,"_process":31}],91:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -12246,7 +12608,7 @@ var EventPluginUtils = {
 module.exports = EventPluginUtils;
 
 }).call(this,require('_process'))
-},{"./EventConstants":86,"./invariant":197,"_process":31}],91:[function(require,module,exports){
+},{"./EventConstants":87,"./invariant":211,"_process":31}],92:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -12388,7 +12750,7 @@ var EventPropagators = {
 module.exports = EventPropagators;
 
 }).call(this,require('_process'))
-},{"./EventConstants":86,"./EventPluginHub":88,"./accumulateInto":168,"./forEachAccumulated":183,"_process":31}],92:[function(require,module,exports){
+},{"./EventConstants":87,"./EventPluginHub":89,"./accumulateInto":180,"./forEachAccumulated":197,"_process":31}],93:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -12433,7 +12795,7 @@ var ExecutionEnvironment = {
 
 module.exports = ExecutionEnvironment;
 
-},{}],93:[function(require,module,exports){
+},{}],94:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -12625,7 +12987,48 @@ var HTMLDOMPropertyConfig = {
 
 module.exports = HTMLDOMPropertyConfig;
 
-},{"./DOMProperty":81,"./ExecutionEnvironment":92}],94:[function(require,module,exports){
+},{"./DOMProperty":82,"./ExecutionEnvironment":93}],95:[function(require,module,exports){
+/**
+ * Copyright 2013-2014, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule LinkedStateMixin
+ * @typechecks static-only
+ */
+
+"use strict";
+
+var ReactLink = require("./ReactLink");
+var ReactStateSetters = require("./ReactStateSetters");
+
+/**
+ * A simple mixin around ReactLink.forState().
+ */
+var LinkedStateMixin = {
+  /**
+   * Create a ReactLink that's linked to part of this component's state. The
+   * ReactLink will have the current value of this.state[key] and will call
+   * setState() when a change is requested.
+   *
+   * @param {string} key state key to update. Note: you may want to use keyOf()
+   * if you're using Google Closure Compiler advanced mode.
+   * @return {ReactLink} ReactLink instance linking to the state.
+   */
+  linkState: function(key) {
+    return new ReactLink(
+      this.state[key],
+      ReactStateSetters.createStateKeySetter(this, key)
+    );
+  }
+};
+
+module.exports = LinkedStateMixin;
+
+},{"./ReactLink":138,"./ReactStateSetters":155}],96:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -12781,7 +13184,7 @@ var LinkedValueUtils = {
 module.exports = LinkedValueUtils;
 
 }).call(this,require('_process'))
-},{"./ReactPropTypes":143,"./invariant":197,"_process":31}],95:[function(require,module,exports){
+},{"./ReactPropTypes":149,"./invariant":211,"_process":31}],97:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014, Facebook, Inc.
@@ -12831,7 +13234,7 @@ var LocalEventTrapMixin = {
 module.exports = LocalEventTrapMixin;
 
 }).call(this,require('_process'))
-},{"./ReactBrowserEventEmitter":101,"./accumulateInto":168,"./forEachAccumulated":183,"./invariant":197,"_process":31}],96:[function(require,module,exports){
+},{"./ReactBrowserEventEmitter":103,"./accumulateInto":180,"./forEachAccumulated":197,"./invariant":211,"_process":31}],98:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -12889,7 +13292,7 @@ var MobileSafariClickEventPlugin = {
 
 module.exports = MobileSafariClickEventPlugin;
 
-},{"./EventConstants":86,"./emptyFunction":178}],97:[function(require,module,exports){
+},{"./EventConstants":87,"./emptyFunction":192}],99:[function(require,module,exports){
 /**
  * Copyright 2014, Facebook, Inc.
  * All rights reserved.
@@ -12936,7 +13339,7 @@ function assign(target, sources) {
 
 module.exports = assign;
 
-},{}],98:[function(require,module,exports){
+},{}],100:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -13052,7 +13455,7 @@ var PooledClass = {
 module.exports = PooledClass;
 
 }).call(this,require('_process'))
-},{"./invariant":197,"_process":31}],99:[function(require,module,exports){
+},{"./invariant":211,"_process":31}],101:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -13240,7 +13643,7 @@ React.version = '0.12.2';
 module.exports = React;
 
 }).call(this,require('_process'))
-},{"./DOMPropertyOperations":82,"./EventPluginUtils":90,"./ExecutionEnvironment":92,"./Object.assign":97,"./ReactChildren":102,"./ReactComponent":103,"./ReactCompositeComponent":105,"./ReactContext":106,"./ReactCurrentOwner":107,"./ReactDOM":108,"./ReactDOMComponent":110,"./ReactDefaultInjection":120,"./ReactElement":123,"./ReactElementValidator":124,"./ReactInstanceHandles":131,"./ReactLegacyElement":132,"./ReactMount":134,"./ReactMultiChild":135,"./ReactPerf":139,"./ReactPropTypes":143,"./ReactServerRendering":147,"./ReactTextComponent":149,"./deprecated":177,"./onlyChild":208,"_process":31}],100:[function(require,module,exports){
+},{"./DOMPropertyOperations":83,"./EventPluginUtils":91,"./ExecutionEnvironment":93,"./Object.assign":99,"./ReactChildren":106,"./ReactComponent":107,"./ReactCompositeComponent":110,"./ReactContext":111,"./ReactCurrentOwner":112,"./ReactDOM":113,"./ReactDOMComponent":115,"./ReactDefaultInjection":125,"./ReactElement":128,"./ReactElementValidator":129,"./ReactInstanceHandles":136,"./ReactLegacyElement":137,"./ReactMount":140,"./ReactMultiChild":141,"./ReactPerf":145,"./ReactPropTypes":149,"./ReactServerRendering":153,"./ReactTextComponent":157,"./deprecated":191,"./onlyChild":222,"_process":31}],102:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -13283,7 +13686,7 @@ var ReactBrowserComponentMixin = {
 module.exports = ReactBrowserComponentMixin;
 
 }).call(this,require('_process'))
-},{"./ReactEmptyComponent":125,"./ReactMount":134,"./invariant":197,"_process":31}],101:[function(require,module,exports){
+},{"./ReactEmptyComponent":130,"./ReactMount":140,"./invariant":211,"_process":31}],103:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -13638,7 +14041,209 @@ var ReactBrowserEventEmitter = assign({}, ReactEventEmitterMixin, {
 
 module.exports = ReactBrowserEventEmitter;
 
-},{"./EventConstants":86,"./EventPluginHub":88,"./EventPluginRegistry":89,"./Object.assign":97,"./ReactEventEmitterMixin":127,"./ViewportMetrics":167,"./isEventSupported":198}],102:[function(require,module,exports){
+},{"./EventConstants":87,"./EventPluginHub":89,"./EventPluginRegistry":90,"./Object.assign":99,"./ReactEventEmitterMixin":132,"./ViewportMetrics":179,"./isEventSupported":212}],104:[function(require,module,exports){
+/**
+ * Copyright 2013-2014, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @typechecks
+ * @providesModule ReactCSSTransitionGroup
+ */
+
+"use strict";
+
+var React = require("./React");
+
+var assign = require("./Object.assign");
+
+var ReactTransitionGroup = React.createFactory(
+  require("./ReactTransitionGroup")
+);
+var ReactCSSTransitionGroupChild = React.createFactory(
+  require("./ReactCSSTransitionGroupChild")
+);
+
+var ReactCSSTransitionGroup = React.createClass({
+  displayName: 'ReactCSSTransitionGroup',
+
+  propTypes: {
+    transitionName: React.PropTypes.string.isRequired,
+    transitionEnter: React.PropTypes.bool,
+    transitionLeave: React.PropTypes.bool
+  },
+
+  getDefaultProps: function() {
+    return {
+      transitionEnter: true,
+      transitionLeave: true
+    };
+  },
+
+  _wrapChild: function(child) {
+    // We need to provide this childFactory so that
+    // ReactCSSTransitionGroupChild can receive updates to name, enter, and
+    // leave while it is leaving.
+    return ReactCSSTransitionGroupChild(
+      {
+        name: this.props.transitionName,
+        enter: this.props.transitionEnter,
+        leave: this.props.transitionLeave
+      },
+      child
+    );
+  },
+
+  render: function() {
+    return (
+      ReactTransitionGroup(
+        assign({}, this.props, {childFactory: this._wrapChild})
+      )
+    );
+  }
+});
+
+module.exports = ReactCSSTransitionGroup;
+
+},{"./Object.assign":99,"./React":101,"./ReactCSSTransitionGroupChild":105,"./ReactTransitionGroup":160}],105:[function(require,module,exports){
+(function (process){
+/**
+ * Copyright 2013-2014, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @typechecks
+ * @providesModule ReactCSSTransitionGroupChild
+ */
+
+"use strict";
+
+var React = require("./React");
+
+var CSSCore = require("./CSSCore");
+var ReactTransitionEvents = require("./ReactTransitionEvents");
+
+var onlyChild = require("./onlyChild");
+
+// We don't remove the element from the DOM until we receive an animationend or
+// transitionend event. If the user screws up and forgets to add an animation
+// their node will be stuck in the DOM forever, so we detect if an animation
+// does not start and if it doesn't, we just call the end listener immediately.
+var TICK = 17;
+var NO_EVENT_TIMEOUT = 5000;
+
+var noEventListener = null;
+
+
+if ("production" !== process.env.NODE_ENV) {
+  noEventListener = function() {
+    console.warn(
+      'transition(): tried to perform an animation without ' +
+      'an animationend or transitionend event after timeout (' +
+      NO_EVENT_TIMEOUT + 'ms). You should either disable this ' +
+      'transition in JS or add a CSS animation/transition.'
+    );
+  };
+}
+
+var ReactCSSTransitionGroupChild = React.createClass({
+  displayName: 'ReactCSSTransitionGroupChild',
+
+  transition: function(animationType, finishCallback) {
+    var node = this.getDOMNode();
+    var className = this.props.name + '-' + animationType;
+    var activeClassName = className + '-active';
+    var noEventTimeout = null;
+
+    var endListener = function(e) {
+      if (e && e.target !== node) {
+        return;
+      }
+      if ("production" !== process.env.NODE_ENV) {
+        clearTimeout(noEventTimeout);
+      }
+
+      CSSCore.removeClass(node, className);
+      CSSCore.removeClass(node, activeClassName);
+
+      ReactTransitionEvents.removeEndEventListener(node, endListener);
+
+      // Usually this optional callback is used for informing an owner of
+      // a leave animation and telling it to remove the child.
+      finishCallback && finishCallback();
+    };
+
+    ReactTransitionEvents.addEndEventListener(node, endListener);
+
+    CSSCore.addClass(node, className);
+
+    // Need to do this to actually trigger a transition.
+    this.queueClass(activeClassName);
+
+    if ("production" !== process.env.NODE_ENV) {
+      noEventTimeout = setTimeout(noEventListener, NO_EVENT_TIMEOUT);
+    }
+  },
+
+  queueClass: function(className) {
+    this.classNameQueue.push(className);
+
+    if (!this.timeout) {
+      this.timeout = setTimeout(this.flushClassNameQueue, TICK);
+    }
+  },
+
+  flushClassNameQueue: function() {
+    if (this.isMounted()) {
+      this.classNameQueue.forEach(
+        CSSCore.addClass.bind(CSSCore, this.getDOMNode())
+      );
+    }
+    this.classNameQueue.length = 0;
+    this.timeout = null;
+  },
+
+  componentWillMount: function() {
+    this.classNameQueue = [];
+  },
+
+  componentWillUnmount: function() {
+    if (this.timeout) {
+      clearTimeout(this.timeout);
+    }
+  },
+
+  componentWillEnter: function(done) {
+    if (this.props.enter) {
+      this.transition('enter', done);
+    } else {
+      done();
+    }
+  },
+
+  componentWillLeave: function(done) {
+    if (this.props.leave) {
+      this.transition('leave', done);
+    } else {
+      done();
+    }
+  },
+
+  render: function() {
+    return onlyChild(this.props.children);
+  }
+});
+
+module.exports = ReactCSSTransitionGroupChild;
+
+}).call(this,require('_process'))
+},{"./CSSCore":74,"./React":101,"./ReactTransitionEvents":159,"./onlyChild":222,"_process":31}],106:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -13788,7 +14393,7 @@ var ReactChildren = {
 module.exports = ReactChildren;
 
 }).call(this,require('_process'))
-},{"./PooledClass":98,"./traverseAllChildren":215,"./warning":216,"_process":31}],103:[function(require,module,exports){
+},{"./PooledClass":100,"./traverseAllChildren":229,"./warning":231,"_process":31}],107:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -14231,7 +14836,7 @@ var ReactComponent = {
 module.exports = ReactComponent;
 
 }).call(this,require('_process'))
-},{"./Object.assign":97,"./ReactElement":123,"./ReactOwner":138,"./ReactUpdates":150,"./invariant":197,"./keyMirror":203,"_process":31}],104:[function(require,module,exports){
+},{"./Object.assign":99,"./ReactElement":128,"./ReactOwner":144,"./ReactUpdates":161,"./invariant":211,"./keyMirror":217,"_process":31}],108:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -14353,7 +14958,56 @@ var ReactComponentBrowserEnvironment = {
 module.exports = ReactComponentBrowserEnvironment;
 
 }).call(this,require('_process'))
-},{"./ReactDOMIDOperations":112,"./ReactMarkupChecksum":133,"./ReactMount":134,"./ReactPerf":139,"./ReactReconcileTransaction":145,"./getReactRootElementInContainer":191,"./invariant":197,"./setInnerHTML":211,"_process":31}],105:[function(require,module,exports){
+},{"./ReactDOMIDOperations":117,"./ReactMarkupChecksum":139,"./ReactMount":140,"./ReactPerf":145,"./ReactReconcileTransaction":151,"./getReactRootElementInContainer":205,"./invariant":211,"./setInnerHTML":225,"_process":31}],109:[function(require,module,exports){
+/**
+ * Copyright 2013-2014, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+* @providesModule ReactComponentWithPureRenderMixin
+*/
+
+"use strict";
+
+var shallowEqual = require("./shallowEqual");
+
+/**
+ * If your React component's render function is "pure", e.g. it will render the
+ * same result given the same props and state, provide this Mixin for a
+ * considerable performance boost.
+ *
+ * Most React components have pure render functions.
+ *
+ * Example:
+ *
+ *   var ReactComponentWithPureRenderMixin =
+ *     require('ReactComponentWithPureRenderMixin');
+ *   React.createClass({
+ *     mixins: [ReactComponentWithPureRenderMixin],
+ *
+ *     render: function() {
+ *       return <div className={this.props.className}>foo</div>;
+ *     }
+ *   });
+ *
+ * Note: This only checks shallow equality for props and state. If these contain
+ * complex data structures this mixin may have false-negatives for deeper
+ * differences. Only mixin to components which have simple props and state, or
+ * use `forceUpdate()` when you know deep data structures have changed.
+ */
+var ReactComponentWithPureRenderMixin = {
+  shouldComponentUpdate: function(nextProps, nextState) {
+    return !shallowEqual(this.props, nextProps) ||
+           !shallowEqual(this.state, nextState);
+  }
+};
+
+module.exports = ReactComponentWithPureRenderMixin;
+
+},{"./shallowEqual":226}],110:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -15793,7 +16447,7 @@ var ReactCompositeComponent = {
 module.exports = ReactCompositeComponent;
 
 }).call(this,require('_process'))
-},{"./Object.assign":97,"./ReactComponent":103,"./ReactContext":106,"./ReactCurrentOwner":107,"./ReactElement":123,"./ReactElementValidator":124,"./ReactEmptyComponent":125,"./ReactErrorUtils":126,"./ReactLegacyElement":132,"./ReactOwner":138,"./ReactPerf":139,"./ReactPropTransferer":140,"./ReactPropTypeLocationNames":141,"./ReactPropTypeLocations":142,"./ReactUpdates":150,"./instantiateReactComponent":196,"./invariant":197,"./keyMirror":203,"./keyOf":204,"./mapObject":205,"./monitorCodeUse":207,"./shouldUpdateReactComponent":213,"./warning":216,"_process":31}],106:[function(require,module,exports){
+},{"./Object.assign":99,"./ReactComponent":107,"./ReactContext":111,"./ReactCurrentOwner":112,"./ReactElement":128,"./ReactElementValidator":129,"./ReactEmptyComponent":130,"./ReactErrorUtils":131,"./ReactLegacyElement":137,"./ReactOwner":144,"./ReactPerf":145,"./ReactPropTransferer":146,"./ReactPropTypeLocationNames":147,"./ReactPropTypeLocations":148,"./ReactUpdates":161,"./instantiateReactComponent":210,"./invariant":211,"./keyMirror":217,"./keyOf":218,"./mapObject":219,"./monitorCodeUse":221,"./shouldUpdateReactComponent":227,"./warning":231,"_process":31}],111:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -15855,7 +16509,7 @@ var ReactContext = {
 
 module.exports = ReactContext;
 
-},{"./Object.assign":97}],107:[function(require,module,exports){
+},{"./Object.assign":99}],112:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -15889,7 +16543,7 @@ var ReactCurrentOwner = {
 
 module.exports = ReactCurrentOwner;
 
-},{}],108:[function(require,module,exports){
+},{}],113:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -16072,7 +16726,7 @@ var ReactDOM = mapObject({
 module.exports = ReactDOM;
 
 }).call(this,require('_process'))
-},{"./ReactElement":123,"./ReactElementValidator":124,"./ReactLegacyElement":132,"./mapObject":205,"_process":31}],109:[function(require,module,exports){
+},{"./ReactElement":128,"./ReactElementValidator":129,"./ReactLegacyElement":137,"./mapObject":219,"_process":31}],114:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -16137,7 +16791,7 @@ var ReactDOMButton = ReactCompositeComponent.createClass({
 
 module.exports = ReactDOMButton;
 
-},{"./AutoFocusMixin":72,"./ReactBrowserComponentMixin":100,"./ReactCompositeComponent":105,"./ReactDOM":108,"./ReactElement":123,"./keyMirror":203}],110:[function(require,module,exports){
+},{"./AutoFocusMixin":72,"./ReactBrowserComponentMixin":102,"./ReactCompositeComponent":110,"./ReactDOM":113,"./ReactElement":128,"./keyMirror":217}],115:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -16624,7 +17278,7 @@ assign(
 module.exports = ReactDOMComponent;
 
 }).call(this,require('_process'))
-},{"./CSSPropertyOperations":75,"./DOMProperty":81,"./DOMPropertyOperations":82,"./Object.assign":97,"./ReactBrowserComponentMixin":100,"./ReactBrowserEventEmitter":101,"./ReactComponent":103,"./ReactMount":134,"./ReactMultiChild":135,"./ReactPerf":139,"./escapeTextForBrowser":180,"./invariant":197,"./isEventSupported":198,"./keyOf":204,"./monitorCodeUse":207,"_process":31}],111:[function(require,module,exports){
+},{"./CSSPropertyOperations":76,"./DOMProperty":82,"./DOMPropertyOperations":83,"./Object.assign":99,"./ReactBrowserComponentMixin":102,"./ReactBrowserEventEmitter":103,"./ReactComponent":107,"./ReactMount":140,"./ReactMultiChild":141,"./ReactPerf":145,"./escapeTextForBrowser":194,"./invariant":211,"./isEventSupported":212,"./keyOf":218,"./monitorCodeUse":221,"_process":31}],116:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -16674,7 +17328,7 @@ var ReactDOMForm = ReactCompositeComponent.createClass({
 
 module.exports = ReactDOMForm;
 
-},{"./EventConstants":86,"./LocalEventTrapMixin":95,"./ReactBrowserComponentMixin":100,"./ReactCompositeComponent":105,"./ReactDOM":108,"./ReactElement":123}],112:[function(require,module,exports){
+},{"./EventConstants":87,"./LocalEventTrapMixin":97,"./ReactBrowserComponentMixin":102,"./ReactCompositeComponent":110,"./ReactDOM":113,"./ReactElement":128}],117:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -16860,7 +17514,7 @@ var ReactDOMIDOperations = {
 module.exports = ReactDOMIDOperations;
 
 }).call(this,require('_process'))
-},{"./CSSPropertyOperations":75,"./DOMChildrenOperations":80,"./DOMPropertyOperations":82,"./ReactMount":134,"./ReactPerf":139,"./invariant":197,"./setInnerHTML":211,"_process":31}],113:[function(require,module,exports){
+},{"./CSSPropertyOperations":76,"./DOMChildrenOperations":81,"./DOMPropertyOperations":83,"./ReactMount":140,"./ReactPerf":145,"./invariant":211,"./setInnerHTML":225,"_process":31}],118:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -16908,7 +17562,7 @@ var ReactDOMImg = ReactCompositeComponent.createClass({
 
 module.exports = ReactDOMImg;
 
-},{"./EventConstants":86,"./LocalEventTrapMixin":95,"./ReactBrowserComponentMixin":100,"./ReactCompositeComponent":105,"./ReactDOM":108,"./ReactElement":123}],114:[function(require,module,exports){
+},{"./EventConstants":87,"./LocalEventTrapMixin":97,"./ReactBrowserComponentMixin":102,"./ReactCompositeComponent":110,"./ReactDOM":113,"./ReactElement":128}],119:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -17086,7 +17740,7 @@ var ReactDOMInput = ReactCompositeComponent.createClass({
 module.exports = ReactDOMInput;
 
 }).call(this,require('_process'))
-},{"./AutoFocusMixin":72,"./DOMPropertyOperations":82,"./LinkedValueUtils":94,"./Object.assign":97,"./ReactBrowserComponentMixin":100,"./ReactCompositeComponent":105,"./ReactDOM":108,"./ReactElement":123,"./ReactMount":134,"./ReactUpdates":150,"./invariant":197,"_process":31}],115:[function(require,module,exports){
+},{"./AutoFocusMixin":72,"./DOMPropertyOperations":83,"./LinkedValueUtils":96,"./Object.assign":99,"./ReactBrowserComponentMixin":102,"./ReactCompositeComponent":110,"./ReactDOM":113,"./ReactElement":128,"./ReactMount":140,"./ReactUpdates":161,"./invariant":211,"_process":31}],120:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -17139,7 +17793,7 @@ var ReactDOMOption = ReactCompositeComponent.createClass({
 module.exports = ReactDOMOption;
 
 }).call(this,require('_process'))
-},{"./ReactBrowserComponentMixin":100,"./ReactCompositeComponent":105,"./ReactDOM":108,"./ReactElement":123,"./warning":216,"_process":31}],116:[function(require,module,exports){
+},{"./ReactBrowserComponentMixin":102,"./ReactCompositeComponent":110,"./ReactDOM":113,"./ReactElement":128,"./warning":231,"_process":31}],121:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -17323,7 +17977,7 @@ var ReactDOMSelect = ReactCompositeComponent.createClass({
 
 module.exports = ReactDOMSelect;
 
-},{"./AutoFocusMixin":72,"./LinkedValueUtils":94,"./Object.assign":97,"./ReactBrowserComponentMixin":100,"./ReactCompositeComponent":105,"./ReactDOM":108,"./ReactElement":123,"./ReactUpdates":150}],117:[function(require,module,exports){
+},{"./AutoFocusMixin":72,"./LinkedValueUtils":96,"./Object.assign":99,"./ReactBrowserComponentMixin":102,"./ReactCompositeComponent":110,"./ReactDOM":113,"./ReactElement":128,"./ReactUpdates":161}],122:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -17532,7 +18186,7 @@ var ReactDOMSelection = {
 
 module.exports = ReactDOMSelection;
 
-},{"./ExecutionEnvironment":92,"./getNodeForCharacterOffset":190,"./getTextContentAccessor":192}],118:[function(require,module,exports){
+},{"./ExecutionEnvironment":93,"./getNodeForCharacterOffset":204,"./getTextContentAccessor":206}],123:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -17673,7 +18327,7 @@ var ReactDOMTextarea = ReactCompositeComponent.createClass({
 module.exports = ReactDOMTextarea;
 
 }).call(this,require('_process'))
-},{"./AutoFocusMixin":72,"./DOMPropertyOperations":82,"./LinkedValueUtils":94,"./Object.assign":97,"./ReactBrowserComponentMixin":100,"./ReactCompositeComponent":105,"./ReactDOM":108,"./ReactElement":123,"./ReactUpdates":150,"./invariant":197,"./warning":216,"_process":31}],119:[function(require,module,exports){
+},{"./AutoFocusMixin":72,"./DOMPropertyOperations":83,"./LinkedValueUtils":96,"./Object.assign":99,"./ReactBrowserComponentMixin":102,"./ReactCompositeComponent":110,"./ReactDOM":113,"./ReactElement":128,"./ReactUpdates":161,"./invariant":211,"./warning":231,"_process":31}],124:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -17746,7 +18400,7 @@ var ReactDefaultBatchingStrategy = {
 
 module.exports = ReactDefaultBatchingStrategy;
 
-},{"./Object.assign":97,"./ReactUpdates":150,"./Transaction":166,"./emptyFunction":178}],120:[function(require,module,exports){
+},{"./Object.assign":99,"./ReactUpdates":161,"./Transaction":178,"./emptyFunction":192}],125:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -17875,7 +18529,7 @@ module.exports = {
 };
 
 }).call(this,require('_process'))
-},{"./BeforeInputEventPlugin":73,"./ChangeEventPlugin":77,"./ClientReactRootIndex":78,"./CompositionEventPlugin":79,"./DefaultEventPluginOrder":84,"./EnterLeaveEventPlugin":85,"./ExecutionEnvironment":92,"./HTMLDOMPropertyConfig":93,"./MobileSafariClickEventPlugin":96,"./ReactBrowserComponentMixin":100,"./ReactComponentBrowserEnvironment":104,"./ReactDOMButton":109,"./ReactDOMComponent":110,"./ReactDOMForm":111,"./ReactDOMImg":113,"./ReactDOMInput":114,"./ReactDOMOption":115,"./ReactDOMSelect":116,"./ReactDOMTextarea":118,"./ReactDefaultBatchingStrategy":119,"./ReactDefaultPerf":121,"./ReactEventListener":128,"./ReactInjection":129,"./ReactInstanceHandles":131,"./ReactMount":134,"./SVGDOMPropertyConfig":151,"./SelectEventPlugin":152,"./ServerReactRootIndex":153,"./SimpleEventPlugin":154,"./createFullPageComponent":174,"_process":31}],121:[function(require,module,exports){
+},{"./BeforeInputEventPlugin":73,"./ChangeEventPlugin":78,"./ClientReactRootIndex":79,"./CompositionEventPlugin":80,"./DefaultEventPluginOrder":85,"./EnterLeaveEventPlugin":86,"./ExecutionEnvironment":93,"./HTMLDOMPropertyConfig":94,"./MobileSafariClickEventPlugin":98,"./ReactBrowserComponentMixin":102,"./ReactComponentBrowserEnvironment":108,"./ReactDOMButton":114,"./ReactDOMComponent":115,"./ReactDOMForm":116,"./ReactDOMImg":118,"./ReactDOMInput":119,"./ReactDOMOption":120,"./ReactDOMSelect":121,"./ReactDOMTextarea":123,"./ReactDefaultBatchingStrategy":124,"./ReactDefaultPerf":126,"./ReactEventListener":133,"./ReactInjection":134,"./ReactInstanceHandles":136,"./ReactMount":140,"./SVGDOMPropertyConfig":163,"./SelectEventPlugin":164,"./ServerReactRootIndex":165,"./SimpleEventPlugin":166,"./createFullPageComponent":187,"_process":31}],126:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -18135,7 +18789,7 @@ var ReactDefaultPerf = {
 
 module.exports = ReactDefaultPerf;
 
-},{"./DOMProperty":81,"./ReactDefaultPerfAnalysis":122,"./ReactMount":134,"./ReactPerf":139,"./performanceNow":210}],122:[function(require,module,exports){
+},{"./DOMProperty":82,"./ReactDefaultPerfAnalysis":127,"./ReactMount":140,"./ReactPerf":145,"./performanceNow":224}],127:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -18341,7 +18995,7 @@ var ReactDefaultPerfAnalysis = {
 
 module.exports = ReactDefaultPerfAnalysis;
 
-},{"./Object.assign":97}],123:[function(require,module,exports){
+},{"./Object.assign":99}],128:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014, Facebook, Inc.
@@ -18587,7 +19241,7 @@ ReactElement.isValidElement = function(object) {
 module.exports = ReactElement;
 
 }).call(this,require('_process'))
-},{"./ReactContext":106,"./ReactCurrentOwner":107,"./warning":216,"_process":31}],124:[function(require,module,exports){
+},{"./ReactContext":111,"./ReactCurrentOwner":112,"./warning":231,"_process":31}],129:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014, Facebook, Inc.
@@ -18869,7 +19523,7 @@ var ReactElementValidator = {
 module.exports = ReactElementValidator;
 
 }).call(this,require('_process'))
-},{"./ReactCurrentOwner":107,"./ReactElement":123,"./ReactPropTypeLocations":142,"./monitorCodeUse":207,"./warning":216,"_process":31}],125:[function(require,module,exports){
+},{"./ReactCurrentOwner":112,"./ReactElement":128,"./ReactPropTypeLocations":148,"./monitorCodeUse":221,"./warning":231,"_process":31}],130:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014, Facebook, Inc.
@@ -18946,7 +19600,7 @@ var ReactEmptyComponent = {
 module.exports = ReactEmptyComponent;
 
 }).call(this,require('_process'))
-},{"./ReactElement":123,"./invariant":197,"_process":31}],126:[function(require,module,exports){
+},{"./ReactElement":128,"./invariant":211,"_process":31}],131:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -18978,7 +19632,7 @@ var ReactErrorUtils = {
 
 module.exports = ReactErrorUtils;
 
-},{}],127:[function(require,module,exports){
+},{}],132:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -19028,7 +19682,7 @@ var ReactEventEmitterMixin = {
 
 module.exports = ReactEventEmitterMixin;
 
-},{"./EventPluginHub":88}],128:[function(require,module,exports){
+},{"./EventPluginHub":89}],133:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -19212,7 +19866,7 @@ var ReactEventListener = {
 
 module.exports = ReactEventListener;
 
-},{"./EventListener":87,"./ExecutionEnvironment":92,"./Object.assign":97,"./PooledClass":98,"./ReactInstanceHandles":131,"./ReactMount":134,"./ReactUpdates":150,"./getEventTarget":188,"./getUnboundedScrollPosition":193}],129:[function(require,module,exports){
+},{"./EventListener":88,"./ExecutionEnvironment":93,"./Object.assign":99,"./PooledClass":100,"./ReactInstanceHandles":136,"./ReactMount":140,"./ReactUpdates":161,"./getEventTarget":202,"./getUnboundedScrollPosition":207}],134:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -19252,7 +19906,7 @@ var ReactInjection = {
 
 module.exports = ReactInjection;
 
-},{"./DOMProperty":81,"./EventPluginHub":88,"./ReactBrowserEventEmitter":101,"./ReactComponent":103,"./ReactCompositeComponent":105,"./ReactEmptyComponent":125,"./ReactNativeComponent":137,"./ReactPerf":139,"./ReactRootIndex":146,"./ReactUpdates":150}],130:[function(require,module,exports){
+},{"./DOMProperty":82,"./EventPluginHub":89,"./ReactBrowserEventEmitter":103,"./ReactComponent":107,"./ReactCompositeComponent":110,"./ReactEmptyComponent":130,"./ReactNativeComponent":143,"./ReactPerf":145,"./ReactRootIndex":152,"./ReactUpdates":161}],135:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -19388,7 +20042,7 @@ var ReactInputSelection = {
 
 module.exports = ReactInputSelection;
 
-},{"./ReactDOMSelection":117,"./containsNode":172,"./focusNode":182,"./getActiveElement":184}],131:[function(require,module,exports){
+},{"./ReactDOMSelection":122,"./containsNode":185,"./focusNode":196,"./getActiveElement":198}],136:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -19723,7 +20377,7 @@ var ReactInstanceHandles = {
 module.exports = ReactInstanceHandles;
 
 }).call(this,require('_process'))
-},{"./ReactRootIndex":146,"./invariant":197,"_process":31}],132:[function(require,module,exports){
+},{"./ReactRootIndex":152,"./invariant":211,"_process":31}],137:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014, Facebook, Inc.
@@ -19970,7 +20624,80 @@ ReactLegacyElementFactory._isLegacyCallWarningEnabled = true;
 module.exports = ReactLegacyElementFactory;
 
 }).call(this,require('_process'))
-},{"./ReactCurrentOwner":107,"./invariant":197,"./monitorCodeUse":207,"./warning":216,"_process":31}],133:[function(require,module,exports){
+},{"./ReactCurrentOwner":112,"./invariant":211,"./monitorCodeUse":221,"./warning":231,"_process":31}],138:[function(require,module,exports){
+/**
+ * Copyright 2013-2014, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule ReactLink
+ * @typechecks static-only
+ */
+
+"use strict";
+
+/**
+ * ReactLink encapsulates a common pattern in which a component wants to modify
+ * a prop received from its parent. ReactLink allows the parent to pass down a
+ * value coupled with a callback that, when invoked, expresses an intent to
+ * modify that value. For example:
+ *
+ * React.createClass({
+ *   getInitialState: function() {
+ *     return {value: ''};
+ *   },
+ *   render: function() {
+ *     var valueLink = new ReactLink(this.state.value, this._handleValueChange);
+ *     return <input valueLink={valueLink} />;
+ *   },
+ *   this._handleValueChange: function(newValue) {
+ *     this.setState({value: newValue});
+ *   }
+ * });
+ *
+ * We have provided some sugary mixins to make the creation and
+ * consumption of ReactLink easier; see LinkedValueUtils and LinkedStateMixin.
+ */
+
+var React = require("./React");
+
+/**
+ * @param {*} value current value of the link
+ * @param {function} requestChange callback to request a change
+ */
+function ReactLink(value, requestChange) {
+  this.value = value;
+  this.requestChange = requestChange;
+}
+
+/**
+ * Creates a PropType that enforces the ReactLink API and optionally checks the
+ * type of the value being passed inside the link. Example:
+ *
+ * MyComponent.propTypes = {
+ *   tabIndexLink: ReactLink.PropTypes.link(React.PropTypes.number)
+ * }
+ */
+function createLinkTypeChecker(linkType) {
+  var shapes = {
+    value: typeof linkType === 'undefined' ?
+      React.PropTypes.any.isRequired :
+      linkType.isRequired,
+    requestChange: React.PropTypes.func.isRequired
+  };
+  return React.PropTypes.shape(shapes);
+}
+
+ReactLink.PropTypes = {
+  link: createLinkTypeChecker
+};
+
+module.exports = ReactLink;
+
+},{"./React":101}],139:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -20018,7 +20745,7 @@ var ReactMarkupChecksum = {
 
 module.exports = ReactMarkupChecksum;
 
-},{"./adler32":169}],134:[function(require,module,exports){
+},{"./adler32":181}],140:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -20716,7 +21443,7 @@ ReactMount.renderComponent = deprecated(
 module.exports = ReactMount;
 
 }).call(this,require('_process'))
-},{"./DOMProperty":81,"./ReactBrowserEventEmitter":101,"./ReactCurrentOwner":107,"./ReactElement":123,"./ReactInstanceHandles":131,"./ReactLegacyElement":132,"./ReactPerf":139,"./containsNode":172,"./deprecated":177,"./getReactRootElementInContainer":191,"./instantiateReactComponent":196,"./invariant":197,"./shouldUpdateReactComponent":213,"./warning":216,"_process":31}],135:[function(require,module,exports){
+},{"./DOMProperty":82,"./ReactBrowserEventEmitter":103,"./ReactCurrentOwner":112,"./ReactElement":128,"./ReactInstanceHandles":136,"./ReactLegacyElement":137,"./ReactPerf":145,"./containsNode":185,"./deprecated":191,"./getReactRootElementInContainer":205,"./instantiateReactComponent":210,"./invariant":211,"./shouldUpdateReactComponent":227,"./warning":231,"_process":31}],141:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -21144,7 +21871,7 @@ var ReactMultiChild = {
 
 module.exports = ReactMultiChild;
 
-},{"./ReactComponent":103,"./ReactMultiChildUpdateTypes":136,"./flattenChildren":181,"./instantiateReactComponent":196,"./shouldUpdateReactComponent":213}],136:[function(require,module,exports){
+},{"./ReactComponent":107,"./ReactMultiChildUpdateTypes":142,"./flattenChildren":195,"./instantiateReactComponent":210,"./shouldUpdateReactComponent":227}],142:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -21177,7 +21904,7 @@ var ReactMultiChildUpdateTypes = keyMirror({
 
 module.exports = ReactMultiChildUpdateTypes;
 
-},{"./keyMirror":203}],137:[function(require,module,exports){
+},{"./keyMirror":217}],143:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014, Facebook, Inc.
@@ -21250,7 +21977,7 @@ var ReactNativeComponent = {
 module.exports = ReactNativeComponent;
 
 }).call(this,require('_process'))
-},{"./Object.assign":97,"./invariant":197,"_process":31}],138:[function(require,module,exports){
+},{"./Object.assign":99,"./invariant":211,"_process":31}],144:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -21406,7 +22133,7 @@ var ReactOwner = {
 module.exports = ReactOwner;
 
 }).call(this,require('_process'))
-},{"./emptyObject":179,"./invariant":197,"_process":31}],139:[function(require,module,exports){
+},{"./emptyObject":193,"./invariant":211,"_process":31}],145:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -21490,7 +22217,7 @@ function _noMeasure(objName, fnName, func) {
 module.exports = ReactPerf;
 
 }).call(this,require('_process'))
-},{"_process":31}],140:[function(require,module,exports){
+},{"_process":31}],146:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -21657,7 +22384,7 @@ var ReactPropTransferer = {
 module.exports = ReactPropTransferer;
 
 }).call(this,require('_process'))
-},{"./Object.assign":97,"./emptyFunction":178,"./invariant":197,"./joinClasses":202,"./warning":216,"_process":31}],141:[function(require,module,exports){
+},{"./Object.assign":99,"./emptyFunction":192,"./invariant":211,"./joinClasses":216,"./warning":231,"_process":31}],147:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -21685,7 +22412,7 @@ if ("production" !== process.env.NODE_ENV) {
 module.exports = ReactPropTypeLocationNames;
 
 }).call(this,require('_process'))
-},{"_process":31}],142:[function(require,module,exports){
+},{"_process":31}],148:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -21709,7 +22436,7 @@ var ReactPropTypeLocations = keyMirror({
 
 module.exports = ReactPropTypeLocations;
 
-},{"./keyMirror":203}],143:[function(require,module,exports){
+},{"./keyMirror":217}],149:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -22063,7 +22790,7 @@ function getPreciseType(propValue) {
 
 module.exports = ReactPropTypes;
 
-},{"./ReactElement":123,"./ReactPropTypeLocationNames":141,"./deprecated":177,"./emptyFunction":178}],144:[function(require,module,exports){
+},{"./ReactElement":128,"./ReactPropTypeLocationNames":147,"./deprecated":191,"./emptyFunction":192}],150:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -22119,7 +22846,7 @@ PooledClass.addPoolingTo(ReactPutListenerQueue);
 
 module.exports = ReactPutListenerQueue;
 
-},{"./Object.assign":97,"./PooledClass":98,"./ReactBrowserEventEmitter":101}],145:[function(require,module,exports){
+},{"./Object.assign":99,"./PooledClass":100,"./ReactBrowserEventEmitter":103}],151:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -22295,7 +23022,7 @@ PooledClass.addPoolingTo(ReactReconcileTransaction);
 
 module.exports = ReactReconcileTransaction;
 
-},{"./CallbackQueue":76,"./Object.assign":97,"./PooledClass":98,"./ReactBrowserEventEmitter":101,"./ReactInputSelection":130,"./ReactPutListenerQueue":144,"./Transaction":166}],146:[function(require,module,exports){
+},{"./CallbackQueue":77,"./Object.assign":99,"./PooledClass":100,"./ReactBrowserEventEmitter":103,"./ReactInputSelection":135,"./ReactPutListenerQueue":150,"./Transaction":178}],152:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -22326,7 +23053,7 @@ var ReactRootIndex = {
 
 module.exports = ReactRootIndex;
 
-},{}],147:[function(require,module,exports){
+},{}],153:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -22406,7 +23133,7 @@ module.exports = {
 };
 
 }).call(this,require('_process'))
-},{"./ReactElement":123,"./ReactInstanceHandles":131,"./ReactMarkupChecksum":133,"./ReactServerRenderingTransaction":148,"./instantiateReactComponent":196,"./invariant":197,"_process":31}],148:[function(require,module,exports){
+},{"./ReactElement":128,"./ReactInstanceHandles":136,"./ReactMarkupChecksum":139,"./ReactServerRenderingTransaction":154,"./instantiateReactComponent":210,"./invariant":211,"_process":31}],154:[function(require,module,exports){
 /**
  * Copyright 2014, Facebook, Inc.
  * All rights reserved.
@@ -22519,7 +23246,525 @@ PooledClass.addPoolingTo(ReactServerRenderingTransaction);
 
 module.exports = ReactServerRenderingTransaction;
 
-},{"./CallbackQueue":76,"./Object.assign":97,"./PooledClass":98,"./ReactPutListenerQueue":144,"./Transaction":166,"./emptyFunction":178}],149:[function(require,module,exports){
+},{"./CallbackQueue":77,"./Object.assign":99,"./PooledClass":100,"./ReactPutListenerQueue":150,"./Transaction":178,"./emptyFunction":192}],155:[function(require,module,exports){
+/**
+ * Copyright 2013-2014, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule ReactStateSetters
+ */
+
+"use strict";
+
+var ReactStateSetters = {
+  /**
+   * Returns a function that calls the provided function, and uses the result
+   * of that to set the component's state.
+   *
+   * @param {ReactCompositeComponent} component
+   * @param {function} funcReturningState Returned callback uses this to
+   *                                      determine how to update state.
+   * @return {function} callback that when invoked uses funcReturningState to
+   *                    determined the object literal to setState.
+   */
+  createStateSetter: function(component, funcReturningState) {
+    return function(a, b, c, d, e, f) {
+      var partialState = funcReturningState.call(component, a, b, c, d, e, f);
+      if (partialState) {
+        component.setState(partialState);
+      }
+    };
+  },
+
+  /**
+   * Returns a single-argument callback that can be used to update a single
+   * key in the component's state.
+   *
+   * Note: this is memoized function, which makes it inexpensive to call.
+   *
+   * @param {ReactCompositeComponent} component
+   * @param {string} key The key in the state that you should update.
+   * @return {function} callback of 1 argument which calls setState() with
+   *                    the provided keyName and callback argument.
+   */
+  createStateKeySetter: function(component, key) {
+    // Memoize the setters.
+    var cache = component.__keySetters || (component.__keySetters = {});
+    return cache[key] || (cache[key] = createStateKeySetter(component, key));
+  }
+};
+
+function createStateKeySetter(component, key) {
+  // Partial state is allocated outside of the function closure so it can be
+  // reused with every call, avoiding memory allocation when this function
+  // is called.
+  var partialState = {};
+  return function stateKeySetter(value) {
+    partialState[key] = value;
+    component.setState(partialState);
+  };
+}
+
+ReactStateSetters.Mixin = {
+  /**
+   * Returns a function that calls the provided function, and uses the result
+   * of that to set the component's state.
+   *
+   * For example, these statements are equivalent:
+   *
+   *   this.setState({x: 1});
+   *   this.createStateSetter(function(xValue) {
+   *     return {x: xValue};
+   *   })(1);
+   *
+   * @param {function} funcReturningState Returned callback uses this to
+   *                                      determine how to update state.
+   * @return {function} callback that when invoked uses funcReturningState to
+   *                    determined the object literal to setState.
+   */
+  createStateSetter: function(funcReturningState) {
+    return ReactStateSetters.createStateSetter(this, funcReturningState);
+  },
+
+  /**
+   * Returns a single-argument callback that can be used to update a single
+   * key in the component's state.
+   *
+   * For example, these statements are equivalent:
+   *
+   *   this.setState({x: 1});
+   *   this.createStateKeySetter('x')(1);
+   *
+   * Note: this is memoized function, which makes it inexpensive to call.
+   *
+   * @param {string} key The key in the state that you should update.
+   * @return {function} callback of 1 argument which calls setState() with
+   *                    the provided keyName and callback argument.
+   */
+  createStateKeySetter: function(key) {
+    return ReactStateSetters.createStateKeySetter(this, key);
+  }
+};
+
+module.exports = ReactStateSetters;
+
+},{}],156:[function(require,module,exports){
+/**
+ * Copyright 2013-2014, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule ReactTestUtils
+ */
+
+"use strict";
+
+var EventConstants = require("./EventConstants");
+var EventPluginHub = require("./EventPluginHub");
+var EventPropagators = require("./EventPropagators");
+var React = require("./React");
+var ReactElement = require("./ReactElement");
+var ReactBrowserEventEmitter = require("./ReactBrowserEventEmitter");
+var ReactMount = require("./ReactMount");
+var ReactTextComponent = require("./ReactTextComponent");
+var ReactUpdates = require("./ReactUpdates");
+var SyntheticEvent = require("./SyntheticEvent");
+
+var assign = require("./Object.assign");
+
+var topLevelTypes = EventConstants.topLevelTypes;
+
+function Event(suffix) {}
+
+/**
+ * @class ReactTestUtils
+ */
+
+/**
+ * Todo: Support the entire DOM.scry query syntax. For now, these simple
+ * utilities will suffice for testing purposes.
+ * @lends ReactTestUtils
+ */
+var ReactTestUtils = {
+  renderIntoDocument: function(instance) {
+    var div = document.createElement('div');
+    // None of our tests actually require attaching the container to the
+    // DOM, and doing so creates a mess that we rely on test isolation to
+    // clean up, so we're going to stop honoring the name of this method
+    // (and probably rename it eventually) if no problems arise.
+    // document.documentElement.appendChild(div);
+    return React.render(instance, div);
+  },
+
+  isElement: function(element) {
+    return ReactElement.isValidElement(element);
+  },
+
+  isElementOfType: function(inst, convenienceConstructor) {
+    return (
+      ReactElement.isValidElement(inst) &&
+      inst.type === convenienceConstructor.type
+    );
+  },
+
+  isDOMComponent: function(inst) {
+    return !!(inst && inst.mountComponent && inst.tagName);
+  },
+
+  isDOMComponentElement: function(inst) {
+    return !!(inst &&
+              ReactElement.isValidElement(inst) &&
+              !!inst.tagName);
+  },
+
+  isCompositeComponent: function(inst) {
+    return typeof inst.render === 'function' &&
+           typeof inst.setState === 'function';
+  },
+
+  isCompositeComponentWithType: function(inst, type) {
+    return !!(ReactTestUtils.isCompositeComponent(inst) &&
+             (inst.constructor === type.type));
+  },
+
+  isCompositeComponentElement: function(inst) {
+    if (!ReactElement.isValidElement(inst)) {
+      return false;
+    }
+    // We check the prototype of the type that will get mounted, not the
+    // instance itself. This is a future proof way of duck typing.
+    var prototype = inst.type.prototype;
+    return (
+      typeof prototype.render === 'function' &&
+      typeof prototype.setState === 'function'
+    );
+  },
+
+  isCompositeComponentElementWithType: function(inst, type) {
+    return !!(ReactTestUtils.isCompositeComponentElement(inst) &&
+             (inst.constructor === type));
+  },
+
+  isTextComponent: function(inst) {
+    return inst instanceof ReactTextComponent.type;
+  },
+
+  findAllInRenderedTree: function(inst, test) {
+    if (!inst) {
+      return [];
+    }
+    var ret = test(inst) ? [inst] : [];
+    if (ReactTestUtils.isDOMComponent(inst)) {
+      var renderedChildren = inst._renderedChildren;
+      var key;
+      for (key in renderedChildren) {
+        if (!renderedChildren.hasOwnProperty(key)) {
+          continue;
+        }
+        ret = ret.concat(
+          ReactTestUtils.findAllInRenderedTree(renderedChildren[key], test)
+        );
+      }
+    } else if (ReactTestUtils.isCompositeComponent(inst)) {
+      ret = ret.concat(
+        ReactTestUtils.findAllInRenderedTree(inst._renderedComponent, test)
+      );
+    }
+    return ret;
+  },
+
+  /**
+   * Finds all instance of components in the rendered tree that are DOM
+   * components with the class name matching `className`.
+   * @return an array of all the matches.
+   */
+  scryRenderedDOMComponentsWithClass: function(root, className) {
+    return ReactTestUtils.findAllInRenderedTree(root, function(inst) {
+      var instClassName = inst.props.className;
+      return ReactTestUtils.isDOMComponent(inst) && (
+        instClassName &&
+        (' ' + instClassName + ' ').indexOf(' ' + className + ' ') !== -1
+      );
+    });
+  },
+
+  /**
+   * Like scryRenderedDOMComponentsWithClass but expects there to be one result,
+   * and returns that one result, or throws exception if there is any other
+   * number of matches besides one.
+   * @return {!ReactDOMComponent} The one match.
+   */
+  findRenderedDOMComponentWithClass: function(root, className) {
+    var all =
+      ReactTestUtils.scryRenderedDOMComponentsWithClass(root, className);
+    if (all.length !== 1) {
+      throw new Error('Did not find exactly one match for class:' + className);
+    }
+    return all[0];
+  },
+
+
+  /**
+   * Finds all instance of components in the rendered tree that are DOM
+   * components with the tag name matching `tagName`.
+   * @return an array of all the matches.
+   */
+  scryRenderedDOMComponentsWithTag: function(root, tagName) {
+    return ReactTestUtils.findAllInRenderedTree(root, function(inst) {
+      return ReactTestUtils.isDOMComponent(inst) &&
+            inst.tagName === tagName.toUpperCase();
+    });
+  },
+
+  /**
+   * Like scryRenderedDOMComponentsWithTag but expects there to be one result,
+   * and returns that one result, or throws exception if there is any other
+   * number of matches besides one.
+   * @return {!ReactDOMComponent} The one match.
+   */
+  findRenderedDOMComponentWithTag: function(root, tagName) {
+    var all = ReactTestUtils.scryRenderedDOMComponentsWithTag(root, tagName);
+    if (all.length !== 1) {
+      throw new Error('Did not find exactly one match for tag:' + tagName);
+    }
+    return all[0];
+  },
+
+
+  /**
+   * Finds all instances of components with type equal to `componentType`.
+   * @return an array of all the matches.
+   */
+  scryRenderedComponentsWithType: function(root, componentType) {
+    return ReactTestUtils.findAllInRenderedTree(root, function(inst) {
+      return ReactTestUtils.isCompositeComponentWithType(
+        inst,
+        componentType
+      );
+    });
+  },
+
+  /**
+   * Same as `scryRenderedComponentsWithType` but expects there to be one result
+   * and returns that one result, or throws exception if there is any other
+   * number of matches besides one.
+   * @return {!ReactComponent} The one match.
+   */
+  findRenderedComponentWithType: function(root, componentType) {
+    var all = ReactTestUtils.scryRenderedComponentsWithType(
+      root,
+      componentType
+    );
+    if (all.length !== 1) {
+      throw new Error(
+        'Did not find exactly one match for componentType:' + componentType
+      );
+    }
+    return all[0];
+  },
+
+  /**
+   * Pass a mocked component module to this method to augment it with
+   * useful methods that allow it to be used as a dummy React component.
+   * Instead of rendering as usual, the component will become a simple
+   * <div> containing any provided children.
+   *
+   * @param {object} module the mock function object exported from a
+   *                        module that defines the component to be mocked
+   * @param {?string} mockTagName optional dummy root tag name to return
+   *                              from render method (overrides
+   *                              module.mockTagName if provided)
+   * @return {object} the ReactTestUtils object (for chaining)
+   */
+  mockComponent: function(module, mockTagName) {
+    mockTagName = mockTagName || module.mockTagName || "div";
+
+    var ConvenienceConstructor = React.createClass({displayName: "ConvenienceConstructor",
+      render: function() {
+        return React.createElement(
+          mockTagName,
+          null,
+          this.props.children
+        );
+      }
+    });
+
+    module.mockImplementation(ConvenienceConstructor);
+
+    module.type = ConvenienceConstructor.type;
+    module.isReactLegacyFactory = true;
+
+    return this;
+  },
+
+  /**
+   * Simulates a top level event being dispatched from a raw event that occured
+   * on an `Element` node.
+   * @param topLevelType {Object} A type from `EventConstants.topLevelTypes`
+   * @param {!Element} node The dom to simulate an event occurring on.
+   * @param {?Event} fakeNativeEvent Fake native event to use in SyntheticEvent.
+   */
+  simulateNativeEventOnNode: function(topLevelType, node, fakeNativeEvent) {
+    fakeNativeEvent.target = node;
+    ReactBrowserEventEmitter.ReactEventListener.dispatchEvent(
+      topLevelType,
+      fakeNativeEvent
+    );
+  },
+
+  /**
+   * Simulates a top level event being dispatched from a raw event that occured
+   * on the `ReactDOMComponent` `comp`.
+   * @param topLevelType {Object} A type from `EventConstants.topLevelTypes`.
+   * @param comp {!ReactDOMComponent}
+   * @param {?Event} fakeNativeEvent Fake native event to use in SyntheticEvent.
+   */
+  simulateNativeEventOnDOMComponent: function(
+      topLevelType,
+      comp,
+      fakeNativeEvent) {
+    ReactTestUtils.simulateNativeEventOnNode(
+      topLevelType,
+      comp.getDOMNode(),
+      fakeNativeEvent
+    );
+  },
+
+  nativeTouchData: function(x, y) {
+    return {
+      touches: [
+        {pageX: x, pageY: y}
+      ]
+    };
+  },
+
+  Simulate: null,
+  SimulateNative: {}
+};
+
+/**
+ * Exports:
+ *
+ * - `ReactTestUtils.Simulate.click(Element/ReactDOMComponent)`
+ * - `ReactTestUtils.Simulate.mouseMove(Element/ReactDOMComponent)`
+ * - `ReactTestUtils.Simulate.change(Element/ReactDOMComponent)`
+ * - ... (All keys from event plugin `eventTypes` objects)
+ */
+function makeSimulator(eventType) {
+  return function(domComponentOrNode, eventData) {
+    var node;
+    if (ReactTestUtils.isDOMComponent(domComponentOrNode)) {
+      node = domComponentOrNode.getDOMNode();
+    } else if (domComponentOrNode.tagName) {
+      node = domComponentOrNode;
+    }
+
+    var fakeNativeEvent = new Event();
+    fakeNativeEvent.target = node;
+    // We don't use SyntheticEvent.getPooled in order to not have to worry about
+    // properly destroying any properties assigned from `eventData` upon release
+    var event = new SyntheticEvent(
+      ReactBrowserEventEmitter.eventNameDispatchConfigs[eventType],
+      ReactMount.getID(node),
+      fakeNativeEvent
+    );
+    assign(event, eventData);
+    EventPropagators.accumulateTwoPhaseDispatches(event);
+
+    ReactUpdates.batchedUpdates(function() {
+      EventPluginHub.enqueueEvents(event);
+      EventPluginHub.processEventQueue();
+    });
+  };
+}
+
+function buildSimulators() {
+  ReactTestUtils.Simulate = {};
+
+  var eventType;
+  for (eventType in ReactBrowserEventEmitter.eventNameDispatchConfigs) {
+    /**
+     * @param {!Element || ReactDOMComponent} domComponentOrNode
+     * @param {?object} eventData Fake event data to use in SyntheticEvent.
+     */
+    ReactTestUtils.Simulate[eventType] = makeSimulator(eventType);
+  }
+}
+
+// Rebuild ReactTestUtils.Simulate whenever event plugins are injected
+var oldInjectEventPluginOrder = EventPluginHub.injection.injectEventPluginOrder;
+EventPluginHub.injection.injectEventPluginOrder = function() {
+  oldInjectEventPluginOrder.apply(this, arguments);
+  buildSimulators();
+};
+var oldInjectEventPlugins = EventPluginHub.injection.injectEventPluginsByName;
+EventPluginHub.injection.injectEventPluginsByName = function() {
+  oldInjectEventPlugins.apply(this, arguments);
+  buildSimulators();
+};
+
+buildSimulators();
+
+/**
+ * Exports:
+ *
+ * - `ReactTestUtils.SimulateNative.click(Element/ReactDOMComponent)`
+ * - `ReactTestUtils.SimulateNative.mouseMove(Element/ReactDOMComponent)`
+ * - `ReactTestUtils.SimulateNative.mouseIn/ReactDOMComponent)`
+ * - `ReactTestUtils.SimulateNative.mouseOut(Element/ReactDOMComponent)`
+ * - ... (All keys from `EventConstants.topLevelTypes`)
+ *
+ * Note: Top level event types are a subset of the entire set of handler types
+ * (which include a broader set of "synthetic" events). For example, onDragDone
+ * is a synthetic event. Except when testing an event plugin or React's event
+ * handling code specifically, you probably want to use ReactTestUtils.Simulate
+ * to dispatch synthetic events.
+ */
+
+function makeNativeSimulator(eventType) {
+  return function(domComponentOrNode, nativeEventData) {
+    var fakeNativeEvent = new Event(eventType);
+    assign(fakeNativeEvent, nativeEventData);
+    if (ReactTestUtils.isDOMComponent(domComponentOrNode)) {
+      ReactTestUtils.simulateNativeEventOnDOMComponent(
+        eventType,
+        domComponentOrNode,
+        fakeNativeEvent
+      );
+    } else if (!!domComponentOrNode.tagName) {
+      // Will allow on actual dom nodes.
+      ReactTestUtils.simulateNativeEventOnNode(
+        eventType,
+        domComponentOrNode,
+        fakeNativeEvent
+      );
+    }
+  };
+}
+
+var eventType;
+for (eventType in topLevelTypes) {
+  // Event type is stored as 'topClick' - we transform that to 'click'
+  var convenienceName = eventType.indexOf('top') === 0 ?
+    eventType.charAt(3).toLowerCase() + eventType.substr(4) : eventType;
+  /**
+   * @param {!Element || ReactDOMComponent} domComponentOrNode
+   * @param {?Event} nativeEventData Fake native event to use in SyntheticEvent.
+   */
+  ReactTestUtils.SimulateNative[convenienceName] =
+    makeNativeSimulator(eventType);
+}
+
+module.exports = ReactTestUtils;
+
+},{"./EventConstants":87,"./EventPluginHub":89,"./EventPropagators":92,"./Object.assign":99,"./React":101,"./ReactBrowserEventEmitter":103,"./ReactElement":128,"./ReactMount":140,"./ReactTextComponent":157,"./ReactUpdates":161,"./SyntheticEvent":170}],157:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -22625,7 +23870,408 @@ ReactTextComponentFactory.type = ReactTextComponent;
 
 module.exports = ReactTextComponentFactory;
 
-},{"./DOMPropertyOperations":82,"./Object.assign":97,"./ReactComponent":103,"./ReactElement":123,"./escapeTextForBrowser":180}],150:[function(require,module,exports){
+},{"./DOMPropertyOperations":83,"./Object.assign":99,"./ReactComponent":107,"./ReactElement":128,"./escapeTextForBrowser":194}],158:[function(require,module,exports){
+/**
+ * Copyright 2013-2014, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @typechecks static-only
+ * @providesModule ReactTransitionChildMapping
+ */
+
+"use strict";
+
+var ReactChildren = require("./ReactChildren");
+
+var ReactTransitionChildMapping = {
+  /**
+   * Given `this.props.children`, return an object mapping key to child. Just
+   * simple syntactic sugar around ReactChildren.map().
+   *
+   * @param {*} children `this.props.children`
+   * @return {object} Mapping of key to child
+   */
+  getChildMapping: function(children) {
+    return ReactChildren.map(children, function(child) {
+      return child;
+    });
+  },
+
+  /**
+   * When you're adding or removing children some may be added or removed in the
+   * same render pass. We want to show *both* since we want to simultaneously
+   * animate elements in and out. This function takes a previous set of keys
+   * and a new set of keys and merges them with its best guess of the correct
+   * ordering. In the future we may expose some of the utilities in
+   * ReactMultiChild to make this easy, but for now React itself does not
+   * directly have this concept of the union of prevChildren and nextChildren
+   * so we implement it here.
+   *
+   * @param {object} prev prev children as returned from
+   * `ReactTransitionChildMapping.getChildMapping()`.
+   * @param {object} next next children as returned from
+   * `ReactTransitionChildMapping.getChildMapping()`.
+   * @return {object} a key set that contains all keys in `prev` and all keys
+   * in `next` in a reasonable order.
+   */
+  mergeChildMappings: function(prev, next) {
+    prev = prev || {};
+    next = next || {};
+
+    function getValueForKey(key) {
+      if (next.hasOwnProperty(key)) {
+        return next[key];
+      } else {
+        return prev[key];
+      }
+    }
+
+    // For each key of `next`, the list of keys to insert before that key in
+    // the combined list
+    var nextKeysPending = {};
+
+    var pendingKeys = [];
+    for (var prevKey in prev) {
+      if (next.hasOwnProperty(prevKey)) {
+        if (pendingKeys.length) {
+          nextKeysPending[prevKey] = pendingKeys;
+          pendingKeys = [];
+        }
+      } else {
+        pendingKeys.push(prevKey);
+      }
+    }
+
+    var i;
+    var childMapping = {};
+    for (var nextKey in next) {
+      if (nextKeysPending.hasOwnProperty(nextKey)) {
+        for (i = 0; i < nextKeysPending[nextKey].length; i++) {
+          var pendingNextKey = nextKeysPending[nextKey][i];
+          childMapping[nextKeysPending[nextKey][i]] = getValueForKey(
+            pendingNextKey
+          );
+        }
+      }
+      childMapping[nextKey] = getValueForKey(nextKey);
+    }
+
+    // Finally, add the keys which didn't appear before any key in `next`
+    for (i = 0; i < pendingKeys.length; i++) {
+      childMapping[pendingKeys[i]] = getValueForKey(pendingKeys[i]);
+    }
+
+    return childMapping;
+  }
+};
+
+module.exports = ReactTransitionChildMapping;
+
+},{"./ReactChildren":106}],159:[function(require,module,exports){
+/**
+ * Copyright 2013-2014, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule ReactTransitionEvents
+ */
+
+"use strict";
+
+var ExecutionEnvironment = require("./ExecutionEnvironment");
+
+/**
+ * EVENT_NAME_MAP is used to determine which event fired when a
+ * transition/animation ends, based on the style property used to
+ * define that event.
+ */
+var EVENT_NAME_MAP = {
+  transitionend: {
+    'transition': 'transitionend',
+    'WebkitTransition': 'webkitTransitionEnd',
+    'MozTransition': 'mozTransitionEnd',
+    'OTransition': 'oTransitionEnd',
+    'msTransition': 'MSTransitionEnd'
+  },
+
+  animationend: {
+    'animation': 'animationend',
+    'WebkitAnimation': 'webkitAnimationEnd',
+    'MozAnimation': 'mozAnimationEnd',
+    'OAnimation': 'oAnimationEnd',
+    'msAnimation': 'MSAnimationEnd'
+  }
+};
+
+var endEvents = [];
+
+function detectEvents() {
+  var testEl = document.createElement('div');
+  var style = testEl.style;
+
+  // On some platforms, in particular some releases of Android 4.x,
+  // the un-prefixed "animation" and "transition" properties are defined on the
+  // style object but the events that fire will still be prefixed, so we need
+  // to check if the un-prefixed events are useable, and if not remove them
+  // from the map
+  if (!('AnimationEvent' in window)) {
+    delete EVENT_NAME_MAP.animationend.animation;
+  }
+
+  if (!('TransitionEvent' in window)) {
+    delete EVENT_NAME_MAP.transitionend.transition;
+  }
+
+  for (var baseEventName in EVENT_NAME_MAP) {
+    var baseEvents = EVENT_NAME_MAP[baseEventName];
+    for (var styleName in baseEvents) {
+      if (styleName in style) {
+        endEvents.push(baseEvents[styleName]);
+        break;
+      }
+    }
+  }
+}
+
+if (ExecutionEnvironment.canUseDOM) {
+  detectEvents();
+}
+
+// We use the raw {add|remove}EventListener() call because EventListener
+// does not know how to remove event listeners and we really should
+// clean up. Also, these events are not triggered in older browsers
+// so we should be A-OK here.
+
+function addEventListener(node, eventName, eventListener) {
+  node.addEventListener(eventName, eventListener, false);
+}
+
+function removeEventListener(node, eventName, eventListener) {
+  node.removeEventListener(eventName, eventListener, false);
+}
+
+var ReactTransitionEvents = {
+  addEndEventListener: function(node, eventListener) {
+    if (endEvents.length === 0) {
+      // If CSS transitions are not supported, trigger an "end animation"
+      // event immediately.
+      window.setTimeout(eventListener, 0);
+      return;
+    }
+    endEvents.forEach(function(endEvent) {
+      addEventListener(node, endEvent, eventListener);
+    });
+  },
+
+  removeEndEventListener: function(node, eventListener) {
+    if (endEvents.length === 0) {
+      return;
+    }
+    endEvents.forEach(function(endEvent) {
+      removeEventListener(node, endEvent, eventListener);
+    });
+  }
+};
+
+module.exports = ReactTransitionEvents;
+
+},{"./ExecutionEnvironment":93}],160:[function(require,module,exports){
+/**
+ * Copyright 2013-2014, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule ReactTransitionGroup
+ */
+
+"use strict";
+
+var React = require("./React");
+var ReactTransitionChildMapping = require("./ReactTransitionChildMapping");
+
+var assign = require("./Object.assign");
+var cloneWithProps = require("./cloneWithProps");
+var emptyFunction = require("./emptyFunction");
+
+var ReactTransitionGroup = React.createClass({
+  displayName: 'ReactTransitionGroup',
+
+  propTypes: {
+    component: React.PropTypes.any,
+    childFactory: React.PropTypes.func
+  },
+
+  getDefaultProps: function() {
+    return {
+      component: 'span',
+      childFactory: emptyFunction.thatReturnsArgument
+    };
+  },
+
+  getInitialState: function() {
+    return {
+      children: ReactTransitionChildMapping.getChildMapping(this.props.children)
+    };
+  },
+
+  componentWillReceiveProps: function(nextProps) {
+    var nextChildMapping = ReactTransitionChildMapping.getChildMapping(
+      nextProps.children
+    );
+    var prevChildMapping = this.state.children;
+
+    this.setState({
+      children: ReactTransitionChildMapping.mergeChildMappings(
+        prevChildMapping,
+        nextChildMapping
+      )
+    });
+
+    var key;
+
+    for (key in nextChildMapping) {
+      var hasPrev = prevChildMapping && prevChildMapping.hasOwnProperty(key);
+      if (nextChildMapping[key] && !hasPrev &&
+          !this.currentlyTransitioningKeys[key]) {
+        this.keysToEnter.push(key);
+      }
+    }
+
+    for (key in prevChildMapping) {
+      var hasNext = nextChildMapping && nextChildMapping.hasOwnProperty(key);
+      if (prevChildMapping[key] && !hasNext &&
+          !this.currentlyTransitioningKeys[key]) {
+        this.keysToLeave.push(key);
+      }
+    }
+
+    // If we want to someday check for reordering, we could do it here.
+  },
+
+  componentWillMount: function() {
+    this.currentlyTransitioningKeys = {};
+    this.keysToEnter = [];
+    this.keysToLeave = [];
+  },
+
+  componentDidUpdate: function() {
+    var keysToEnter = this.keysToEnter;
+    this.keysToEnter = [];
+    keysToEnter.forEach(this.performEnter);
+
+    var keysToLeave = this.keysToLeave;
+    this.keysToLeave = [];
+    keysToLeave.forEach(this.performLeave);
+  },
+
+  performEnter: function(key) {
+    this.currentlyTransitioningKeys[key] = true;
+
+    var component = this.refs[key];
+
+    if (component.componentWillEnter) {
+      component.componentWillEnter(
+        this._handleDoneEntering.bind(this, key)
+      );
+    } else {
+      this._handleDoneEntering(key);
+    }
+  },
+
+  _handleDoneEntering: function(key) {
+    var component = this.refs[key];
+    if (component.componentDidEnter) {
+      component.componentDidEnter();
+    }
+
+    delete this.currentlyTransitioningKeys[key];
+
+    var currentChildMapping = ReactTransitionChildMapping.getChildMapping(
+      this.props.children
+    );
+
+    if (!currentChildMapping || !currentChildMapping.hasOwnProperty(key)) {
+      // This was removed before it had fully entered. Remove it.
+      this.performLeave(key);
+    }
+  },
+
+  performLeave: function(key) {
+    this.currentlyTransitioningKeys[key] = true;
+
+    var component = this.refs[key];
+    if (component.componentWillLeave) {
+      component.componentWillLeave(this._handleDoneLeaving.bind(this, key));
+    } else {
+      // Note that this is somewhat dangerous b/c it calls setState()
+      // again, effectively mutating the component before all the work
+      // is done.
+      this._handleDoneLeaving(key);
+    }
+  },
+
+  _handleDoneLeaving: function(key) {
+    var component = this.refs[key];
+
+    if (component.componentDidLeave) {
+      component.componentDidLeave();
+    }
+
+    delete this.currentlyTransitioningKeys[key];
+
+    var currentChildMapping = ReactTransitionChildMapping.getChildMapping(
+      this.props.children
+    );
+
+    if (currentChildMapping && currentChildMapping.hasOwnProperty(key)) {
+      // This entered again before it fully left. Add it again.
+      this.performEnter(key);
+    } else {
+      var newChildren = assign({}, this.state.children);
+      delete newChildren[key];
+      this.setState({children: newChildren});
+    }
+  },
+
+  render: function() {
+    // TODO: we could get rid of the need for the wrapper node
+    // by cloning a single child
+    var childrenToRender = {};
+    for (var key in this.state.children) {
+      var child = this.state.children[key];
+      if (child) {
+        // You may need to apply reactive updates to a child as it is leaving.
+        // The normal React way to do it won't work since the child will have
+        // already been removed. In case you need this behavior you can provide
+        // a childFactory function to wrap every child, even the ones that are
+        // leaving.
+        childrenToRender[key] = cloneWithProps(
+          this.props.childFactory(child),
+          {ref: key}
+        );
+      }
+    }
+    return React.createElement(
+      this.props.component,
+      this.props,
+      childrenToRender
+    );
+  }
+});
+
+module.exports = ReactTransitionGroup;
+
+},{"./Object.assign":99,"./React":101,"./ReactTransitionChildMapping":158,"./cloneWithProps":184,"./emptyFunction":192}],161:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -22915,7 +24561,61 @@ var ReactUpdates = {
 module.exports = ReactUpdates;
 
 }).call(this,require('_process'))
-},{"./CallbackQueue":76,"./Object.assign":97,"./PooledClass":98,"./ReactCurrentOwner":107,"./ReactPerf":139,"./Transaction":166,"./invariant":197,"./warning":216,"_process":31}],151:[function(require,module,exports){
+},{"./CallbackQueue":77,"./Object.assign":99,"./PooledClass":100,"./ReactCurrentOwner":112,"./ReactPerf":145,"./Transaction":178,"./invariant":211,"./warning":231,"_process":31}],162:[function(require,module,exports){
+(function (process){
+/**
+ * Copyright 2013-2014, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule ReactWithAddons
+ */
+
+/**
+ * This module exists purely in the open source project, and is meant as a way
+ * to create a separate standalone build of React. This build has "addons", or
+ * functionality we've built and think might be useful but doesn't have a good
+ * place to live inside React core.
+ */
+
+"use strict";
+
+var LinkedStateMixin = require("./LinkedStateMixin");
+var React = require("./React");
+var ReactComponentWithPureRenderMixin =
+  require("./ReactComponentWithPureRenderMixin");
+var ReactCSSTransitionGroup = require("./ReactCSSTransitionGroup");
+var ReactTransitionGroup = require("./ReactTransitionGroup");
+var ReactUpdates = require("./ReactUpdates");
+
+var cx = require("./cx");
+var cloneWithProps = require("./cloneWithProps");
+var update = require("./update");
+
+React.addons = {
+  CSSTransitionGroup: ReactCSSTransitionGroup,
+  LinkedStateMixin: LinkedStateMixin,
+  PureRenderMixin: ReactComponentWithPureRenderMixin,
+  TransitionGroup: ReactTransitionGroup,
+
+  batchedUpdates: ReactUpdates.batchedUpdates,
+  classSet: cx,
+  cloneWithProps: cloneWithProps,
+  update: update
+};
+
+if ("production" !== process.env.NODE_ENV) {
+  React.addons.Perf = require("./ReactDefaultPerf");
+  React.addons.TestUtils = require("./ReactTestUtils");
+}
+
+module.exports = React;
+
+}).call(this,require('_process'))
+},{"./LinkedStateMixin":95,"./React":101,"./ReactCSSTransitionGroup":104,"./ReactComponentWithPureRenderMixin":109,"./ReactDefaultPerf":126,"./ReactTestUtils":156,"./ReactTransitionGroup":160,"./ReactUpdates":161,"./cloneWithProps":184,"./cx":189,"./update":230,"_process":31}],163:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -23007,7 +24707,7 @@ var SVGDOMPropertyConfig = {
 
 module.exports = SVGDOMPropertyConfig;
 
-},{"./DOMProperty":81}],152:[function(require,module,exports){
+},{"./DOMProperty":82}],164:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -23202,7 +24902,7 @@ var SelectEventPlugin = {
 
 module.exports = SelectEventPlugin;
 
-},{"./EventConstants":86,"./EventPropagators":91,"./ReactInputSelection":130,"./SyntheticEvent":158,"./getActiveElement":184,"./isTextInputElement":200,"./keyOf":204,"./shallowEqual":212}],153:[function(require,module,exports){
+},{"./EventConstants":87,"./EventPropagators":92,"./ReactInputSelection":135,"./SyntheticEvent":170,"./getActiveElement":198,"./isTextInputElement":214,"./keyOf":218,"./shallowEqual":226}],165:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -23233,7 +24933,7 @@ var ServerReactRootIndex = {
 
 module.exports = ServerReactRootIndex;
 
-},{}],154:[function(require,module,exports){
+},{}],166:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -23661,7 +25361,7 @@ var SimpleEventPlugin = {
 module.exports = SimpleEventPlugin;
 
 }).call(this,require('_process'))
-},{"./EventConstants":86,"./EventPluginUtils":90,"./EventPropagators":91,"./SyntheticClipboardEvent":155,"./SyntheticDragEvent":157,"./SyntheticEvent":158,"./SyntheticFocusEvent":159,"./SyntheticKeyboardEvent":161,"./SyntheticMouseEvent":162,"./SyntheticTouchEvent":163,"./SyntheticUIEvent":164,"./SyntheticWheelEvent":165,"./getEventCharCode":185,"./invariant":197,"./keyOf":204,"./warning":216,"_process":31}],155:[function(require,module,exports){
+},{"./EventConstants":87,"./EventPluginUtils":91,"./EventPropagators":92,"./SyntheticClipboardEvent":167,"./SyntheticDragEvent":169,"./SyntheticEvent":170,"./SyntheticFocusEvent":171,"./SyntheticKeyboardEvent":173,"./SyntheticMouseEvent":174,"./SyntheticTouchEvent":175,"./SyntheticUIEvent":176,"./SyntheticWheelEvent":177,"./getEventCharCode":199,"./invariant":211,"./keyOf":218,"./warning":231,"_process":31}],167:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -23707,7 +25407,7 @@ SyntheticEvent.augmentClass(SyntheticClipboardEvent, ClipboardEventInterface);
 module.exports = SyntheticClipboardEvent;
 
 
-},{"./SyntheticEvent":158}],156:[function(require,module,exports){
+},{"./SyntheticEvent":170}],168:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -23753,7 +25453,7 @@ SyntheticEvent.augmentClass(
 module.exports = SyntheticCompositionEvent;
 
 
-},{"./SyntheticEvent":158}],157:[function(require,module,exports){
+},{"./SyntheticEvent":170}],169:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -23792,7 +25492,7 @@ SyntheticMouseEvent.augmentClass(SyntheticDragEvent, DragEventInterface);
 
 module.exports = SyntheticDragEvent;
 
-},{"./SyntheticMouseEvent":162}],158:[function(require,module,exports){
+},{"./SyntheticMouseEvent":174}],170:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -23950,7 +25650,7 @@ PooledClass.addPoolingTo(SyntheticEvent, PooledClass.threeArgumentPooler);
 
 module.exports = SyntheticEvent;
 
-},{"./Object.assign":97,"./PooledClass":98,"./emptyFunction":178,"./getEventTarget":188}],159:[function(require,module,exports){
+},{"./Object.assign":99,"./PooledClass":100,"./emptyFunction":192,"./getEventTarget":202}],171:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -23989,7 +25689,7 @@ SyntheticUIEvent.augmentClass(SyntheticFocusEvent, FocusEventInterface);
 
 module.exports = SyntheticFocusEvent;
 
-},{"./SyntheticUIEvent":164}],160:[function(require,module,exports){
+},{"./SyntheticUIEvent":176}],172:[function(require,module,exports){
 /**
  * Copyright 2013 Facebook, Inc.
  * All rights reserved.
@@ -24036,7 +25736,7 @@ SyntheticEvent.augmentClass(
 module.exports = SyntheticInputEvent;
 
 
-},{"./SyntheticEvent":158}],161:[function(require,module,exports){
+},{"./SyntheticEvent":170}],173:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -24123,7 +25823,7 @@ SyntheticUIEvent.augmentClass(SyntheticKeyboardEvent, KeyboardEventInterface);
 
 module.exports = SyntheticKeyboardEvent;
 
-},{"./SyntheticUIEvent":164,"./getEventCharCode":185,"./getEventKey":186,"./getEventModifierState":187}],162:[function(require,module,exports){
+},{"./SyntheticUIEvent":176,"./getEventCharCode":199,"./getEventKey":200,"./getEventModifierState":201}],174:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -24206,7 +25906,7 @@ SyntheticUIEvent.augmentClass(SyntheticMouseEvent, MouseEventInterface);
 
 module.exports = SyntheticMouseEvent;
 
-},{"./SyntheticUIEvent":164,"./ViewportMetrics":167,"./getEventModifierState":187}],163:[function(require,module,exports){
+},{"./SyntheticUIEvent":176,"./ViewportMetrics":179,"./getEventModifierState":201}],175:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -24254,7 +25954,7 @@ SyntheticUIEvent.augmentClass(SyntheticTouchEvent, TouchEventInterface);
 
 module.exports = SyntheticTouchEvent;
 
-},{"./SyntheticUIEvent":164,"./getEventModifierState":187}],164:[function(require,module,exports){
+},{"./SyntheticUIEvent":176,"./getEventModifierState":201}],176:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -24316,7 +26016,7 @@ SyntheticEvent.augmentClass(SyntheticUIEvent, UIEventInterface);
 
 module.exports = SyntheticUIEvent;
 
-},{"./SyntheticEvent":158,"./getEventTarget":188}],165:[function(require,module,exports){
+},{"./SyntheticEvent":170,"./getEventTarget":202}],177:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -24377,7 +26077,7 @@ SyntheticMouseEvent.augmentClass(SyntheticWheelEvent, WheelEventInterface);
 
 module.exports = SyntheticWheelEvent;
 
-},{"./SyntheticMouseEvent":162}],166:[function(require,module,exports){
+},{"./SyntheticMouseEvent":174}],178:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -24618,7 +26318,7 @@ var Transaction = {
 module.exports = Transaction;
 
 }).call(this,require('_process'))
-},{"./invariant":197,"_process":31}],167:[function(require,module,exports){
+},{"./invariant":211,"_process":31}],179:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -24650,7 +26350,7 @@ var ViewportMetrics = {
 
 module.exports = ViewportMetrics;
 
-},{"./getUnboundedScrollPosition":193}],168:[function(require,module,exports){
+},{"./getUnboundedScrollPosition":207}],180:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014, Facebook, Inc.
@@ -24716,7 +26416,7 @@ function accumulateInto(current, next) {
 module.exports = accumulateInto;
 
 }).call(this,require('_process'))
-},{"./invariant":197,"_process":31}],169:[function(require,module,exports){
+},{"./invariant":211,"_process":31}],181:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -24750,7 +26450,7 @@ function adler32(data) {
 
 module.exports = adler32;
 
-},{}],170:[function(require,module,exports){
+},{}],182:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -24782,7 +26482,7 @@ function camelize(string) {
 
 module.exports = camelize;
 
-},{}],171:[function(require,module,exports){
+},{}],183:[function(require,module,exports){
 /**
  * Copyright 2014, Facebook, Inc.
  * All rights reserved.
@@ -24824,7 +26524,66 @@ function camelizeStyleName(string) {
 
 module.exports = camelizeStyleName;
 
-},{"./camelize":170}],172:[function(require,module,exports){
+},{"./camelize":182}],184:[function(require,module,exports){
+(function (process){
+/**
+ * Copyright 2013-2014, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @typechecks
+ * @providesModule cloneWithProps
+ */
+
+"use strict";
+
+var ReactElement = require("./ReactElement");
+var ReactPropTransferer = require("./ReactPropTransferer");
+
+var keyOf = require("./keyOf");
+var warning = require("./warning");
+
+var CHILDREN_PROP = keyOf({children: null});
+
+/**
+ * Sometimes you want to change the props of a child passed to you. Usually
+ * this is to add a CSS class.
+ *
+ * @param {object} child child component you'd like to clone
+ * @param {object} props props you'd like to modify. They will be merged
+ * as if you used `transferPropsTo()`.
+ * @return {object} a clone of child with props merged in.
+ */
+function cloneWithProps(child, props) {
+  if ("production" !== process.env.NODE_ENV) {
+    ("production" !== process.env.NODE_ENV ? warning(
+      !child.ref,
+      'You are calling cloneWithProps() on a child with a ref. This is ' +
+      'dangerous because you\'re creating a new child which will not be ' +
+      'added as a ref to its parent.'
+    ) : null);
+  }
+
+  var newProps = ReactPropTransferer.mergeProps(props, child.props);
+
+  // Use `child.props.children` if it is provided.
+  if (!newProps.hasOwnProperty(CHILDREN_PROP) &&
+      child.props.hasOwnProperty(CHILDREN_PROP)) {
+    newProps.children = child.props.children;
+  }
+
+  // The current API doesn't retain _owner and _context, which is why this
+  // doesn't use ReactElement.cloneAndReplaceProps.
+  return ReactElement.createElement(child.type, newProps);
+}
+
+module.exports = cloneWithProps;
+
+}).call(this,require('_process'))
+},{"./ReactElement":128,"./ReactPropTransferer":146,"./keyOf":218,"./warning":231,"_process":31}],185:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -24868,7 +26627,7 @@ function containsNode(outerNode, innerNode) {
 
 module.exports = containsNode;
 
-},{"./isTextNode":201}],173:[function(require,module,exports){
+},{"./isTextNode":215}],186:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -24954,7 +26713,7 @@ function createArrayFrom(obj) {
 
 module.exports = createArrayFrom;
 
-},{"./toArray":214}],174:[function(require,module,exports){
+},{"./toArray":228}],187:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -25015,7 +26774,7 @@ function createFullPageComponent(tag) {
 module.exports = createFullPageComponent;
 
 }).call(this,require('_process'))
-},{"./ReactCompositeComponent":105,"./ReactElement":123,"./invariant":197,"_process":31}],175:[function(require,module,exports){
+},{"./ReactCompositeComponent":110,"./ReactElement":128,"./invariant":211,"_process":31}],188:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -25105,7 +26864,46 @@ function createNodesFromMarkup(markup, handleScript) {
 module.exports = createNodesFromMarkup;
 
 }).call(this,require('_process'))
-},{"./ExecutionEnvironment":92,"./createArrayFrom":173,"./getMarkupWrap":189,"./invariant":197,"_process":31}],176:[function(require,module,exports){
+},{"./ExecutionEnvironment":93,"./createArrayFrom":186,"./getMarkupWrap":203,"./invariant":211,"_process":31}],189:[function(require,module,exports){
+/**
+ * Copyright 2013-2014, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule cx
+ */
+
+/**
+ * This function is used to mark string literals representing CSS class names
+ * so that they can be transformed statically. This allows for modularization
+ * and minification of CSS class names.
+ *
+ * In static_upstream, this function is actually implemented, but it should
+ * eventually be replaced with something more descriptive, and the transform
+ * that is used in the main stack should be ported for use elsewhere.
+ *
+ * @param string|object className to modularize, or an object of key/values.
+ *                      In the object case, the values are conditions that
+ *                      determine if the className keys should be included.
+ * @param [string ...]  Variable list of classNames in the string case.
+ * @return string       Renderable space-separated CSS className.
+ */
+function cx(classNames) {
+  if (typeof classNames == 'object') {
+    return Object.keys(classNames).filter(function(className) {
+      return classNames[className];
+    }).join(' ');
+  } else {
+    return Array.prototype.join.call(arguments, ' ');
+  }
+}
+
+module.exports = cx;
+
+},{}],190:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -25163,7 +26961,7 @@ function dangerousStyleValue(name, value) {
 
 module.exports = dangerousStyleValue;
 
-},{"./CSSProperty":74}],177:[function(require,module,exports){
+},{"./CSSProperty":75}],191:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -25214,7 +27012,7 @@ function deprecated(namespace, oldName, newName, ctx, fn) {
 module.exports = deprecated;
 
 }).call(this,require('_process'))
-},{"./Object.assign":97,"./warning":216,"_process":31}],178:[function(require,module,exports){
+},{"./Object.assign":99,"./warning":231,"_process":31}],192:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -25248,7 +27046,7 @@ emptyFunction.thatReturnsArgument = function(arg) { return arg; };
 
 module.exports = emptyFunction;
 
-},{}],179:[function(require,module,exports){
+},{}],193:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -25272,7 +27070,7 @@ if ("production" !== process.env.NODE_ENV) {
 module.exports = emptyObject;
 
 }).call(this,require('_process'))
-},{"_process":31}],180:[function(require,module,exports){
+},{"_process":31}],194:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -25313,7 +27111,7 @@ function escapeTextForBrowser(text) {
 
 module.exports = escapeTextForBrowser;
 
-},{}],181:[function(require,module,exports){
+},{}],195:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -25382,7 +27180,7 @@ function flattenChildren(children) {
 module.exports = flattenChildren;
 
 }).call(this,require('_process'))
-},{"./ReactTextComponent":149,"./traverseAllChildren":215,"./warning":216,"_process":31}],182:[function(require,module,exports){
+},{"./ReactTextComponent":157,"./traverseAllChildren":229,"./warning":231,"_process":31}],196:[function(require,module,exports){
 /**
  * Copyright 2014, Facebook, Inc.
  * All rights reserved.
@@ -25411,7 +27209,7 @@ function focusNode(node) {
 
 module.exports = focusNode;
 
-},{}],183:[function(require,module,exports){
+},{}],197:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -25442,7 +27240,7 @@ var forEachAccumulated = function(arr, cb, scope) {
 
 module.exports = forEachAccumulated;
 
-},{}],184:[function(require,module,exports){
+},{}],198:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -25471,7 +27269,7 @@ function getActiveElement() /*?DOMElement*/ {
 
 module.exports = getActiveElement;
 
-},{}],185:[function(require,module,exports){
+},{}],199:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -25523,7 +27321,7 @@ function getEventCharCode(nativeEvent) {
 
 module.exports = getEventCharCode;
 
-},{}],186:[function(require,module,exports){
+},{}],200:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -25628,7 +27426,7 @@ function getEventKey(nativeEvent) {
 
 module.exports = getEventKey;
 
-},{"./getEventCharCode":185}],187:[function(require,module,exports){
+},{"./getEventCharCode":199}],201:[function(require,module,exports){
 /**
  * Copyright 2013 Facebook, Inc.
  * All rights reserved.
@@ -25675,7 +27473,7 @@ function getEventModifierState(nativeEvent) {
 
 module.exports = getEventModifierState;
 
-},{}],188:[function(require,module,exports){
+},{}],202:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -25706,7 +27504,7 @@ function getEventTarget(nativeEvent) {
 
 module.exports = getEventTarget;
 
-},{}],189:[function(require,module,exports){
+},{}],203:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -25823,7 +27621,7 @@ function getMarkupWrap(nodeName) {
 module.exports = getMarkupWrap;
 
 }).call(this,require('_process'))
-},{"./ExecutionEnvironment":92,"./invariant":197,"_process":31}],190:[function(require,module,exports){
+},{"./ExecutionEnvironment":93,"./invariant":211,"_process":31}],204:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -25898,7 +27696,7 @@ function getNodeForCharacterOffset(root, offset) {
 
 module.exports = getNodeForCharacterOffset;
 
-},{}],191:[function(require,module,exports){
+},{}],205:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -25933,7 +27731,7 @@ function getReactRootElementInContainer(container) {
 
 module.exports = getReactRootElementInContainer;
 
-},{}],192:[function(require,module,exports){
+},{}],206:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -25970,7 +27768,7 @@ function getTextContentAccessor() {
 
 module.exports = getTextContentAccessor;
 
-},{"./ExecutionEnvironment":92}],193:[function(require,module,exports){
+},{"./ExecutionEnvironment":93}],207:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -26010,7 +27808,7 @@ function getUnboundedScrollPosition(scrollable) {
 
 module.exports = getUnboundedScrollPosition;
 
-},{}],194:[function(require,module,exports){
+},{}],208:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -26043,7 +27841,7 @@ function hyphenate(string) {
 
 module.exports = hyphenate;
 
-},{}],195:[function(require,module,exports){
+},{}],209:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -26084,7 +27882,7 @@ function hyphenateStyleName(string) {
 
 module.exports = hyphenateStyleName;
 
-},{"./hyphenate":194}],196:[function(require,module,exports){
+},{"./hyphenate":208}],210:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -26198,7 +27996,7 @@ function instantiateReactComponent(element, parentCompositeType) {
 module.exports = instantiateReactComponent;
 
 }).call(this,require('_process'))
-},{"./ReactElement":123,"./ReactEmptyComponent":125,"./ReactLegacyElement":132,"./ReactNativeComponent":137,"./warning":216,"_process":31}],197:[function(require,module,exports){
+},{"./ReactElement":128,"./ReactEmptyComponent":130,"./ReactLegacyElement":137,"./ReactNativeComponent":143,"./warning":231,"_process":31}],211:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -26255,7 +28053,7 @@ var invariant = function(condition, format, a, b, c, d, e, f) {
 module.exports = invariant;
 
 }).call(this,require('_process'))
-},{"_process":31}],198:[function(require,module,exports){
+},{"_process":31}],212:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -26320,7 +28118,7 @@ function isEventSupported(eventNameSuffix, capture) {
 
 module.exports = isEventSupported;
 
-},{"./ExecutionEnvironment":92}],199:[function(require,module,exports){
+},{"./ExecutionEnvironment":93}],213:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -26348,7 +28146,7 @@ function isNode(object) {
 
 module.exports = isNode;
 
-},{}],200:[function(require,module,exports){
+},{}],214:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -26392,7 +28190,7 @@ function isTextInputElement(elem) {
 
 module.exports = isTextInputElement;
 
-},{}],201:[function(require,module,exports){
+},{}],215:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -26417,7 +28215,7 @@ function isTextNode(object) {
 
 module.exports = isTextNode;
 
-},{"./isNode":199}],202:[function(require,module,exports){
+},{"./isNode":213}],216:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -26458,7 +28256,7 @@ function joinClasses(className/*, ... */) {
 
 module.exports = joinClasses;
 
-},{}],203:[function(require,module,exports){
+},{}],217:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -26513,7 +28311,7 @@ var keyMirror = function(obj) {
 module.exports = keyMirror;
 
 }).call(this,require('_process'))
-},{"./invariant":197,"_process":31}],204:[function(require,module,exports){
+},{"./invariant":211,"_process":31}],218:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -26549,7 +28347,7 @@ var keyOf = function(oneKeyObj) {
 
 module.exports = keyOf;
 
-},{}],205:[function(require,module,exports){
+},{}],219:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -26602,7 +28400,7 @@ function mapObject(object, callback, context) {
 
 module.exports = mapObject;
 
-},{}],206:[function(require,module,exports){
+},{}],220:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -26636,7 +28434,7 @@ function memoizeStringOnly(callback) {
 
 module.exports = memoizeStringOnly;
 
-},{}],207:[function(require,module,exports){
+},{}],221:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014, Facebook, Inc.
@@ -26670,7 +28468,7 @@ function monitorCodeUse(eventName, data) {
 module.exports = monitorCodeUse;
 
 }).call(this,require('_process'))
-},{"./invariant":197,"_process":31}],208:[function(require,module,exports){
+},{"./invariant":211,"_process":31}],222:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -26710,7 +28508,7 @@ function onlyChild(children) {
 module.exports = onlyChild;
 
 }).call(this,require('_process'))
-},{"./ReactElement":123,"./invariant":197,"_process":31}],209:[function(require,module,exports){
+},{"./ReactElement":128,"./invariant":211,"_process":31}],223:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -26738,7 +28536,7 @@ if (ExecutionEnvironment.canUseDOM) {
 
 module.exports = performance || {};
 
-},{"./ExecutionEnvironment":92}],210:[function(require,module,exports){
+},{"./ExecutionEnvironment":93}],224:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -26766,7 +28564,7 @@ var performanceNow = performance.now.bind(performance);
 
 module.exports = performanceNow;
 
-},{"./performance":209}],211:[function(require,module,exports){
+},{"./performance":223}],225:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -26844,7 +28642,7 @@ if (ExecutionEnvironment.canUseDOM) {
 
 module.exports = setInnerHTML;
 
-},{"./ExecutionEnvironment":92}],212:[function(require,module,exports){
+},{"./ExecutionEnvironment":93}],226:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -26888,7 +28686,7 @@ function shallowEqual(objA, objB) {
 
 module.exports = shallowEqual;
 
-},{}],213:[function(require,module,exports){
+},{}],227:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -26926,7 +28724,7 @@ function shouldUpdateReactComponent(prevElement, nextElement) {
 
 module.exports = shouldUpdateReactComponent;
 
-},{}],214:[function(require,module,exports){
+},{}],228:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014, Facebook, Inc.
@@ -26998,7 +28796,7 @@ function toArray(obj) {
 module.exports = toArray;
 
 }).call(this,require('_process'))
-},{"./invariant":197,"_process":31}],215:[function(require,module,exports){
+},{"./invariant":211,"_process":31}],229:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -27181,7 +28979,175 @@ function traverseAllChildren(children, callback, traverseContext) {
 module.exports = traverseAllChildren;
 
 }).call(this,require('_process'))
-},{"./ReactElement":123,"./ReactInstanceHandles":131,"./invariant":197,"_process":31}],216:[function(require,module,exports){
+},{"./ReactElement":128,"./ReactInstanceHandles":136,"./invariant":211,"_process":31}],230:[function(require,module,exports){
+(function (process){
+/**
+ * Copyright 2013-2014, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ *
+ * @providesModule update
+ */
+
+"use strict";
+
+var assign = require("./Object.assign");
+var keyOf = require("./keyOf");
+var invariant = require("./invariant");
+
+function shallowCopy(x) {
+  if (Array.isArray(x)) {
+    return x.concat();
+  } else if (x && typeof x === 'object') {
+    return assign(new x.constructor(), x);
+  } else {
+    return x;
+  }
+}
+
+var COMMAND_PUSH = keyOf({$push: null});
+var COMMAND_UNSHIFT = keyOf({$unshift: null});
+var COMMAND_SPLICE = keyOf({$splice: null});
+var COMMAND_SET = keyOf({$set: null});
+var COMMAND_MERGE = keyOf({$merge: null});
+var COMMAND_APPLY = keyOf({$apply: null});
+
+var ALL_COMMANDS_LIST = [
+  COMMAND_PUSH,
+  COMMAND_UNSHIFT,
+  COMMAND_SPLICE,
+  COMMAND_SET,
+  COMMAND_MERGE,
+  COMMAND_APPLY
+];
+
+var ALL_COMMANDS_SET = {};
+
+ALL_COMMANDS_LIST.forEach(function(command) {
+  ALL_COMMANDS_SET[command] = true;
+});
+
+function invariantArrayCase(value, spec, command) {
+  ("production" !== process.env.NODE_ENV ? invariant(
+    Array.isArray(value),
+    'update(): expected target of %s to be an array; got %s.',
+    command,
+    value
+  ) : invariant(Array.isArray(value)));
+  var specValue = spec[command];
+  ("production" !== process.env.NODE_ENV ? invariant(
+    Array.isArray(specValue),
+    'update(): expected spec of %s to be an array; got %s. ' +
+    'Did you forget to wrap your parameter in an array?',
+    command,
+    specValue
+  ) : invariant(Array.isArray(specValue)));
+}
+
+function update(value, spec) {
+  ("production" !== process.env.NODE_ENV ? invariant(
+    typeof spec === 'object',
+    'update(): You provided a key path to update() that did not contain one ' +
+    'of %s. Did you forget to include {%s: ...}?',
+    ALL_COMMANDS_LIST.join(', '),
+    COMMAND_SET
+  ) : invariant(typeof spec === 'object'));
+
+  if (spec.hasOwnProperty(COMMAND_SET)) {
+    ("production" !== process.env.NODE_ENV ? invariant(
+      Object.keys(spec).length === 1,
+      'Cannot have more than one key in an object with %s',
+      COMMAND_SET
+    ) : invariant(Object.keys(spec).length === 1));
+
+    return spec[COMMAND_SET];
+  }
+
+  var nextValue = shallowCopy(value);
+
+  if (spec.hasOwnProperty(COMMAND_MERGE)) {
+    var mergeObj = spec[COMMAND_MERGE];
+    ("production" !== process.env.NODE_ENV ? invariant(
+      mergeObj && typeof mergeObj === 'object',
+      'update(): %s expects a spec of type \'object\'; got %s',
+      COMMAND_MERGE,
+      mergeObj
+    ) : invariant(mergeObj && typeof mergeObj === 'object'));
+    ("production" !== process.env.NODE_ENV ? invariant(
+      nextValue && typeof nextValue === 'object',
+      'update(): %s expects a target of type \'object\'; got %s',
+      COMMAND_MERGE,
+      nextValue
+    ) : invariant(nextValue && typeof nextValue === 'object'));
+    assign(nextValue, spec[COMMAND_MERGE]);
+  }
+
+  if (spec.hasOwnProperty(COMMAND_PUSH)) {
+    invariantArrayCase(value, spec, COMMAND_PUSH);
+    spec[COMMAND_PUSH].forEach(function(item) {
+      nextValue.push(item);
+    });
+  }
+
+  if (spec.hasOwnProperty(COMMAND_UNSHIFT)) {
+    invariantArrayCase(value, spec, COMMAND_UNSHIFT);
+    spec[COMMAND_UNSHIFT].forEach(function(item) {
+      nextValue.unshift(item);
+    });
+  }
+
+  if (spec.hasOwnProperty(COMMAND_SPLICE)) {
+    ("production" !== process.env.NODE_ENV ? invariant(
+      Array.isArray(value),
+      'Expected %s target to be an array; got %s',
+      COMMAND_SPLICE,
+      value
+    ) : invariant(Array.isArray(value)));
+    ("production" !== process.env.NODE_ENV ? invariant(
+      Array.isArray(spec[COMMAND_SPLICE]),
+      'update(): expected spec of %s to be an array of arrays; got %s. ' +
+      'Did you forget to wrap your parameters in an array?',
+      COMMAND_SPLICE,
+      spec[COMMAND_SPLICE]
+    ) : invariant(Array.isArray(spec[COMMAND_SPLICE])));
+    spec[COMMAND_SPLICE].forEach(function(args) {
+      ("production" !== process.env.NODE_ENV ? invariant(
+        Array.isArray(args),
+        'update(): expected spec of %s to be an array of arrays; got %s. ' +
+        'Did you forget to wrap your parameters in an array?',
+        COMMAND_SPLICE,
+        spec[COMMAND_SPLICE]
+      ) : invariant(Array.isArray(args)));
+      nextValue.splice.apply(nextValue, args);
+    });
+  }
+
+  if (spec.hasOwnProperty(COMMAND_APPLY)) {
+    ("production" !== process.env.NODE_ENV ? invariant(
+      typeof spec[COMMAND_APPLY] === 'function',
+      'update(): expected spec of %s to be a function; got %s.',
+      COMMAND_APPLY,
+      spec[COMMAND_APPLY]
+    ) : invariant(typeof spec[COMMAND_APPLY] === 'function'));
+    nextValue = spec[COMMAND_APPLY](nextValue);
+  }
+
+  for (var k in spec) {
+    if (!(ALL_COMMANDS_SET.hasOwnProperty(k) && ALL_COMMANDS_SET[k])) {
+      nextValue[k] = update(value[k], spec[k]);
+    }
+  }
+
+  return nextValue;
+}
+
+module.exports = update;
+
+}).call(this,require('_process'))
+},{"./Object.assign":99,"./invariant":211,"./keyOf":218,"_process":31}],231:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014, Facebook, Inc.
@@ -27226,7 +29192,7 @@ if ("production" !== process.env.NODE_ENV) {
 module.exports = warning;
 
 }).call(this,require('_process'))
-},{"./emptyFunction":178,"_process":31}],217:[function(require,module,exports){
+},{"./emptyFunction":192,"_process":31}],232:[function(require,module,exports){
 module.exports = require('./lib/React');
 
-},{"./lib/React":99}]},{},[30]);
+},{"./lib/React":101}]},{},[30]);

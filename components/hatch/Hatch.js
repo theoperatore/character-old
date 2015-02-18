@@ -1,52 +1,24 @@
 var React = require('react');
 
 var Hatch = React.createClass({
-  getInitialState : function() {
-    var state = {};
-
-    state.isOpen = false;
-
-    return (state);
+  recalculate : function() {
+    this.props.recalculate(this.props.eventKey);
   },
-  open : function() {
-    var node = this.refs.cover.getDOMNode();
-    var height = this.refs.entryway.getDOMNode().clientHeight;
-    
-    node.style.webkitTransform = "translate3d(0," + height + "px,0)";
-    node.style.MozTransform    = "translate3d(0," + height + "px,0)";
-    node.style.msTransform     = "translate3d(0," + height + "px,0)";
-    node.style.OTransform      = "translate3d(0," + height + "px,0)";
-    node.style.transform       = "translate3d(0," + height + "px,0)";
 
-    console.log("running", height);
-    this.setState({ isOpen : true });
-  },
-  close : function() {
-    var node = this.refs.cover.getDOMNode();
-    
-    node.style.webkitTransform = "translate3d(0,0,0)";
-    node.style.MozTransform    = "translate3d(0,0,0)";
-    node.style.msTransform     = "translate3d(0,0,0)";
-    node.style.OTransform      = "translate3d(0,0,0)";
-    node.style.transform       = "translate3d(0,0,0)";
-
-    this.setState({ isOpen : false });
-  },
-  getCurrentState : function() {
-    return (this.state.isOpen);
-  },
   toggle : function() {
-    if (this.state.isOpen) {
-      this.close();
-    }
-    else {
-      this.open();
-    }
+    this.props.toggle(this.props.eventKey);
+  },
+
+  // this might not give the correct context to each child call of this.props.recalculate
+  renderChildren : function() {
+    return React.Children.map(this.props.children, function(child) {
+      return React.addons.cloneWithProps(child, { recalculate : this.recalculate, toggle : this.toggle });
+    }.bind(this));
   },
   render : function() {
     return (
-      <div ref="entryway" id={this.props.eventKey} className="hatch-entryway">
-        {this.props.children}
+      <div ref="entryway" id={this.props.eventKey || ""} className="hatch-entryway">
+        {this.renderChildren()}
       </div>
     );
   }

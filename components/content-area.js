@@ -52,7 +52,6 @@ var ContentArea = React.createClass({
           />
         </TabPane>
 
-
         <TabPane eventKey={6} tab={<Glyphicon glyph="book" />}>
           <PaneSpell 
             character={this.props.character} edit={this.props.edit} 
@@ -61,9 +60,9 @@ var ContentArea = React.createClass({
         </TabPane>
 
         <TabPane eventKey={7} tab={<Glyphicon glyph="shopping-cart" />}>
-          <PaneEquipment character={this.props.character} edit={this.props.edit} /> 
+          <PaneEquipment character={this.props.character} edit={this.props.edit} />
         </TabPane>
-
+        
       </TabbedArea>
     )
   }

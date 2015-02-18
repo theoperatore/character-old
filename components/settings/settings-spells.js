@@ -1,5 +1,4 @@
 var React = require('react');
-var Settings = require('./settings-tear');
 
 var Input = require('react-bootstrap/Input');
 var ButtonToolbar = require('react-bootstrap/ButtonToolbar');
@@ -41,7 +40,11 @@ var SettingsSpells = React.createClass({
     return (state);
   },
   toggle : function() {
-    this.refs.settings.toggle();
+    this.props.toggle();
+  },
+  componentDidUpdate : function() {
+    // recalculate this 
+    this.props.recalculate();
   },
   clearState : function() {
     var state = {};
@@ -202,7 +205,6 @@ var SettingsSpells = React.createClass({
   renderAdd : function() {
     return (
       <div>
-        <h3>{"Add new spell"}</h3>
         <p>{"Enter the info for each spell. The only required information is spell level and name--all other fields are optional."}</p>
         <Input type="text" label={"Name"} value={this.state.name} onChange={this.handleChange.bind(this, "name")}/>
         <Input type="select" label={"Spell Level"} value={this.state.lvl} onChange={this.handleSelect}>
@@ -251,7 +253,6 @@ var SettingsSpells = React.createClass({
 
     return (
       <div>
-        <h3>{"Edit Spells"}</h3>
         <p>{"Select a spell to edit any detail. Be as thorough as possible."}</p>
         <Input>
           <Row>
@@ -295,7 +296,6 @@ var SettingsSpells = React.createClass({
   renderSpellSlots : function() {
     return (
       <div>
-        <h3>{"Edit spell slots"}</h3>
         <p>{"Select a spell level and enter how many spell slots your character has for that level."}</p>
         <Input type="select" label={"Spell Level"} value={this.state.slotLvl} onChange={this.handleSelect}>
           <option value={-1}>{"Spell Level"}</option>
@@ -319,8 +319,9 @@ var SettingsSpells = React.createClass({
   },
   render : function() {
     return (
-      <Settings ref="settings">
-        <TabbedArea activeKey={this.state.mode} onSelect={this.handleModeChange}>
+      <div className="settings-tear">
+        <h3>{"Add / Edit spells and slots"}</h3>
+        <TabbedArea activeKey={this.state.mode} animation={false} onSelect={this.handleModeChange}>
           <TabPane eventKey={0} tab="new">
             {this.renderAdd()}
           </TabPane>
@@ -331,7 +332,7 @@ var SettingsSpells = React.createClass({
             {this.renderSpellSlots()}
           </TabPane>
         </TabbedArea>
-      </Settings>
+      </div>
     );
   }
 })
