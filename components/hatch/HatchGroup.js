@@ -29,8 +29,6 @@ var HatchGroup = React.createClass({
       node.__translateHeight = (node.__translateHeight)
         ? (node.__translateHeight + height) : height;
 
-      console.log("opening...", node.__translateHeight);
-
       node.style.webkitTransform = "translate3d(0," + node.__translateHeight + "px,0)";
       node.style.MozTransform    = "translate3d(0," + node.__translateHeight + "px,0)";
       node.style.msTransform     = "translate3d(0," + node.__translateHeight + "px,0)";
@@ -98,8 +96,6 @@ var HatchGroup = React.createClass({
     var node;
 
     if (!this.state.hatches[idx] || this.state.hatches[idx] === false) return;
-
-    console.log("recalculating hatch:", idx);
 
     root = this.refs.root.getDOMNode();
     currHeight = root.getBoundingClientRect().height;

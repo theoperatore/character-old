@@ -1,4 +1,5 @@
 var React = require('react/addons');
+var utils = require('./utils');
 
 // a component to simulate the behavior of a collapsing bootstrap panel,
 // but instead of transitioning the height, use translate3d and update
@@ -33,7 +34,7 @@ var Panel3d = React.createClass({
     // container.style.height = state.heightHeader + "px";
 
     // setup event listener for transitionend?
-    content.addEventListener("webkitTransitionEnd", function(el) {
+    content.addEventListener(utils.findTransitionEvent(), function(el) {
       if (el.target.classList.contains("closing")) {
         var height = this.state.heightHeader;
 
