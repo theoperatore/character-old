@@ -27,7 +27,7 @@ var ContentArea = React.createClass({
   },
   render : function() {
     return (
-      <TabbedArea defaultActiveKey={1}>
+      <TabbedArea defaultActiveKey={7}>
 
         <TabPane eventKey={1} tab={<Glyphicon glyph="info-sign" />}>
           <PaneInfo character={this.props.character} edit={this.props.edit} />          
@@ -55,7 +55,6 @@ var ContentArea = React.createClass({
             preferences={this.props.preferences} editPreferences={this.props.editPreferences}
           />
         </TabPane>
-
 
         <TabPane eventKey={6} tab={<Glyphicon glyph="book" />}>
           <PaneSpell 

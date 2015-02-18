@@ -8,83 +8,86 @@ var HatchGroup = React.createClass({
     var root = this.refs.root.getDOMNode();
     var hatches = this.state.hatches;
     var currHeight = root.getBoundingClientRect().height;
-    var child;
+    var hatch = document.getElementById(idx);
     var height;
     var node;
 
-    for (var i = 0; i < root.childNodes.length; i++) {
-      child = root.childNodes[i];
-
-      if (child.id === idx) {
-        height = child.getBoundingClientRect().height;
-        child.__prevHeight = height;
-
-        for (var j = i+1; j < root.childNodes.length; j++) {
-          node = root.childNodes[j];
-
-          node.__translateHeight = 
-            node.__translateHeight + height || height;
-
-          node.style.webkitTransform = "translate3d(0," + node.__translateHeight + "px,0)";
-          node.style.MozTransform    = "translate3d(0," + node.__translateHeight + "px,0)";
-          node.style.msTransform     = "translate3d(0," + node.__translateHeight + "px,0)";
-          node.style.OTransform      = "translate3d(0," + node.__translateHeight + "px,0)";
-          node.style.transform       = "translate3d(0," + node.__translateHeight + "px,0)";
-
-        }
-
-        currHeight += height;
-        hatches[idx] = true;
-        root.style.height = currHeight + "px";
-        this.setState({ hatches : hatches });
-      }
+    if (!hatch) {
+      console.error("cannot find node to open :", idx);
+      return;
     }
+
+    height = hatch.getBoundingClientRect().height;
+    hatch.__prevHeight = height;
+
+    hatch.classList.add("hatch-group-open");
+
+    // for sibling nodes, translate them
+    node = hatch.nextElementSibling;
+
+    while(node) {
+      node.__translateHeight = (node.__translateHeight)
+        ? (node.__translateHeight + height) : height;
+
+      console.log("opening...", node.__translateHeight);
+
+      node.style.webkitTransform = "translate3d(0," + node.__translateHeight + "px,0)";
+      node.style.MozTransform    = "translate3d(0," + node.__translateHeight + "px,0)";
+      node.style.msTransform     = "translate3d(0," + node.__translateHeight + "px,0)";
+      node.style.OTransform      = "translate3d(0," + node.__translateHeight + "px,0)";
+      node.style.transform       = "translate3d(0," + node.__translateHeight + "px,0)";
+
+      node = node.nextElementSibling;
+    }
+
+    currHeight += height;
+    hatches[idx] = true;
+    //root.style.height = currHeight + "px";
+
+    this.setState({ hatches : hatches });
   },
   close : function(idx) {
     var root = this.refs.root.getDOMNode();
     var hatches = this.state.hatches;
     var currHeight = root.getBoundingClientRect().height;
-    var child;
+    var child = document.getElementById(idx);
     var height;
     var node;
 
-    for (var i = 0; i < root.childNodes.length; i++) {
-      child = root.childNodes[i];
-
-      if (child.id === idx) {
-
-        // get the height of the hatch-entryway so we know how much to
-        // translate by
-        height = child.getBoundingClientRect().height;
-
-        // for each sibling apply the translate
-        for (var j = i+1; j < root.childNodes.length; j++) {
-          node = root.childNodes[j];
-
-          node.__translateHeight = 
-            node.__translateHeight - height || 0;
-
-          node.style.webkitTransform = "translate3d(0," + node.__translateHeight + "px,0)";
-          node.style.MozTransform    = "translate3d(0," + node.__translateHeight + "px,0)";
-          node.style.msTransform     = "translate3d(0," + node.__translateHeight + "px,0)";
-          node.style.OTransform      = "translate3d(0," + node.__translateHeight + "px,0)";
-          node.style.transform       = "translate3d(0," + node.__translateHeight + "px,0)";
-        }
-
-        currHeight -= height;
-
-        delete hatches[idx];
-
-        if (Object.keys(hatches).length === 0) {
-          root.style.height = "100%";
-        }
-        else {
-          root.style.height = currHeight + "px";
-        }
-
-        this.setState({ hatches : hatches });
-      }
+    if (!child) {
+      console.error("cannot find node to close :", idx);
+      return;
     }
+
+    height = child.getBoundingClientRect().height;
+    child.__prevHeight = height;
+
+    child.classList.remove("hatch-group-open");
+
+    // for sibling nodes, translate them
+    node = child.nextElementSibling;
+
+    while(node) {
+
+      node.__translateHeight = (node.__translateHeight)
+        ? (node.__translateHeight - height) : height;
+
+      console.log("closing...", node.__translateHeight);
+
+      node.style.webkitTransform = "translate3d(0," + node.__translateHeight + "px,0)";
+      node.style.MozTransform    = "translate3d(0," + node.__translateHeight + "px,0)";
+      node.style.msTransform     = "translate3d(0," + node.__translateHeight + "px,0)";
+      node.style.OTransform      = "translate3d(0," + node.__translateHeight + "px,0)";
+      node.style.transform       = "translate3d(0," + node.__translateHeight + "px,0)";
+
+      node = node.nextElementSibling;
+    }
+
+    currHeight -= height;
+    hatches[idx] = false;
+    //root.style.height = currHeight + "px";
+
+    this.setState({ hatches : hatches });
   },
   recalculate : function(idx) {
     var root;
@@ -97,39 +100,41 @@ var HatchGroup = React.createClass({
     if (!this.state.hatches[idx] || this.state.hatches[idx] === false) return;
 
     console.log("recalculating hatch:", idx);
+
     root = this.refs.root.getDOMNode();
     currHeight = root.getBoundingClientRect().height;
+    child = document.getElementById(idx);
 
-    for (var i = 0; i < root.childNodes.length; i++) {
-      child = root.childNodes[i];
-
-      if (child.id === idx) {
-
-        // get the new height of the entryway (because it changed if this is called)
-        height = child.getBoundingClientRect().height;
-        diff = height - child.__prevHeight;
-        child.__prevHeight = height;
-
-        // for each sibling apply the translate
-        for (var j = i+1; j < root.childNodes.length; j++) {
-          node = root.childNodes[j];
-
-          node.__translateHeight = node.__translateHeight || height;
-          node.__translateHeight += diff;
-
-          node.style.webkitTransform = "translate3d(0," + node.__translateHeight + "px,0)";
-          node.style.MozTransform    = "translate3d(0," + node.__translateHeight + "px,0)";
-          node.style.msTransform     = "translate3d(0," + node.__translateHeight + "px,0)";
-          node.style.OTransform      = "translate3d(0," + node.__translateHeight + "px,0)";
-          node.style.transform       = "translate3d(0," + node.__translateHeight + "px,0)";
-        }
-
-        currHeight += diff;
-        root.style.height = currHeight + "px";
-      }
+    if (!child) {
+      console.error("cannot find node to recalculate : ", idx);
+      return;
     }
+
+    height = child.getBoundingClientRect().height;
+    diff = height - child.__prevHeight;
+    child.__prevHeight = height;
+
+    // for sibling nodes, translate them
+    node = child.nextElementSibling;
+
+    while(node) {
+      node.__translateHeight = node.__translateHeight || height;
+      node.__translateHeight += diff;
+
+      node.style.webkitTransform = "translate3d(0," + node.__translateHeight + "px,0)";
+      node.style.MozTransform    = "translate3d(0," + node.__translateHeight + "px,0)";
+      node.style.msTransform     = "translate3d(0," + node.__translateHeight + "px,0)";
+      node.style.OTransform      = "translate3d(0," + node.__translateHeight + "px,0)";
+      node.style.transform       = "translate3d(0," + node.__translateHeight + "px,0)";
+
+      node = node.nextElementSibling;
+    }
+
+    currHeight += diff;
+    //root.style.height = currHeight + "px";
   },
   toggle : function(idx) {
+    console.log("toggle", idx);
     if (this.state.hatches[idx] === true) {
       this.close(idx);
     }

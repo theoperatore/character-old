@@ -2,6 +2,7 @@ var React = require('react');
 var SettingsEquip = require('../settings/settings-equipment');
 var HatchGroup = require('../hatch/HatchGroup');
 var Hatch = require('../hatch/Hatch');
+var Panel3d = require('../hatch/Panel3d');
 
 var Glyphicon = require('react-bootstrap/Glyphicon');
 var Accordion = require('react-bootstrap/Accordion');
@@ -14,26 +15,26 @@ var Col = require('react-bootstrap/Col');
 
 var Equipment = React.createClass({
   displayName : "CharEquipment",
-  toggle : function(idx) {
-    this.refs.settings.toggle(idx);
+  toggle : function(cmp, idx, dir) {
+    this.refs[cmp].toggle(idx,dir);
   },
   render : function() {
 
     var equips = [];
     this.props.character['charEquipment']['otherEquipment'].forEach(function(equip, i) {
       equips.push(
-        <Panel bsStyle="warning" className="no-padding" eventKey={i} key={i} header={equip.name}>
-            <p>{equip.desc}</p>
-        </Panel>
+        <Panel3d title={equip.name} key={"equipItem" + i} className="list-header">
+          {equip.desc}
+        </Panel3d>
       );
-    });
+    }.bind(this));
 
     return (
       <HatchGroup ref="settings">
         <div className="hatch-cover">
-          <h3>{"Equipment"} <Button className="no-border" onClick={this.toggle.bind(this, "equipment0")}><Glyphicon glyph="cog"/></Button></h3>
+          <h3>{"Equipment"} <Button className="no-border" onClick={this.toggle.bind(this, "settings", "equipment0")}><Glyphicon glyph="cog"/></Button></h3>
         </div>
-        <Hatch eventKey={"equipment0"}>
+        <Hatch eventKey="equipment0">
           <SettingsEquip character={this.props.character} edit={this.props.edit} />
         </Hatch>
         <div className="hatch-cover">
@@ -55,9 +56,7 @@ var Equipment = React.createClass({
               </Row>
             </Grid>
           </Panel>
-          <Accordion defaultActiveKey="">
-            {equips}
-          </Accordion>
+          {equips}
         </div>
       </HatchGroup>
     );

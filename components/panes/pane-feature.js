@@ -3,6 +3,7 @@ var React = require('react');
 var Settings = require('../settings/settings-features');
 var HatchGroup = require('../hatch/HatchGroup');
 var Hatch = require('../hatch/Hatch');
+var Panel3d = require('../hatch/Panel3d');
 
 var Glyphicon = require('react-bootstrap/Glyphicon');
 var Accordion = require('react-bootstrap/Accordion');
@@ -20,9 +21,9 @@ var Features = React.createClass({
     var feats = [];
     this.props.character['charFeatures'].forEach(function(feat, i) {
       feats.push(
-        <Panel className="no-padding" bsStyle="warning" key={i} header={feat.name} eventKey={i}>
-            <p>{feat.desc}</p>
-        </Panel>
+        <Panel3d title={feat.name} key={"feat" + i} className="list-header">
+          {feat.desc}
+        </Panel3d>
       );
     });
 
@@ -35,9 +36,7 @@ var Features = React.createClass({
           <Settings character={this.props.character} edit={this.props.edit}/>
         </Hatch>
         <div className="hatch-cover">
-          <Accordion defaultActiveKey="">
-            {feats}
-          </Accordion>
+          {feats}
         </div>
       </HatchGroup>
     );

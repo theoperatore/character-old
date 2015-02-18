@@ -180,8 +180,8 @@ html {
 .settings-tear {
   border: 0 !important;
   box-shadow: none !important;
-  margin: auto -15px;
-  padding:30px;
+  /*margin: auto -15px;*/
+  padding:15px;
   padding-bottom: 60px;
   background-color: rgba(51, 51, 51, 1);
   color: rgba(220, 220, 220, 1);
@@ -228,21 +228,127 @@ html {
   border-bottom: 2px solid #ddd;
 }
 
-/***************************************** HATCH *****************************/
-.hatch-group-container {
-  overflow: hidden;
-  position:relative;
+.list-header {
+  background-color: white;
+  color : #8a6d3b;
 }
-.hatch-entryway {
-  position:absolute;
+
+.panel3d-header.open {
+  border-bottom: 1px solid #faebcc;
+}
+
+.panel3d-content.open {
+  opacity:1;
+}
+
+/*
+*
+*  Panel3D
+* 
+*/
+.panel3d-container {
+  overflow: hidden;
+  position: relative;
+
+  margin-bottom: 10px;
+
+  backface-visibility:hidden;
+  -webkit-backface-visibility:hidden; /* Chrome and Safari */
+  -moz-backface-visibility:hidden; /* Firefox */
+  -ms-backface-visibility:hidden; /* Internet Explorer 10+ */
+
+  /*
+  -webkit-transition: all 0.25s ease;
+  -moz-transition: all 0.25s ease;
+  -ms-transition: all 0.25s ease;
+  -o-transition: all 0.25s ease;
+  transition: all 0.25s ease;
+  */
+
+  -webkit-transform: translate3d(0, 0, 0);
+  -moz-transform: translate3d(0, 0, 0);
+  -ms-transform: translate3d(0, 0, 0);
+  -o-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+}
+.panel3d-header {
+  position: relative;
+  width: 100%;
+  z-index: 2;
+
+  font-weight: bold;
+  padding: 10px 15px;
+
+  -webkit-transition: all 0.25s ease;
+  -moz-transition: all 0.25s ease;
+  -ms-transition: all 0.25s ease;
+  -o-transition: all 0.25s ease;
+  transition: all 0.25s ease;
+
+  -webkit-transform: translate3d(0, 0, 0);
+  -moz-transform: translate3d(0, 0, 0);
+  -ms-transform: translate3d(0, 0, 0);
+  -o-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+
+  backface-visibility:hidden;
+  -webkit-backface-visibility:hidden; /* Chrome and Safari */
+  -moz-backface-visibility:hidden; /* Firefox */
+  -ms-backface-visibility:hidden; /* Internet Explorer 10+ */
+
+  cursor: pointer;
+}
+.panel3d-content {
+  position: absolute;
   width: 100%;
   z-index: 1;
+
+  opacity: 0;
+
+  padding:15px;
 
   -webkit-transition: all 0.3s ease;
   -moz-transition: all 0.3s ease;
   -ms-transition: all 0.3s ease;
   -o-transition: all 0.3s ease;
   transition: all 0.3s ease;
+
+  -webkit-transform: translate3d(0, 0, 0);
+  -moz-transform: translate3d(0, 0, 0);
+  -ms-transform: translate3d(0, 0, 0);
+  -o-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+
+  backface-visibility:hidden;
+  -webkit-backface-visibility:hidden; /* Chrome and Safari */
+  -moz-backface-visibility:hidden; /* Firefox */
+  -ms-backface-visibility:hidden; /* Internet Explorer 10+ */
+}
+
+/***************************************** HATCH *****************************/
+.hatch-group-container {
+  /*overflow: hidden;*/
+  position:relative;
+}
+.hatch-entryway {
+  position:absolute;
+  width: 100%;
+  z-index: -1;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+
+  -webkit-transition: all 0.3s ease;
+  -moz-transition: all 0.3s ease;
+  -ms-transition: all 0.3s ease;
+  -o-transition: all 0.3s ease;
+  transition: all 0.3s ease;
+}
+.hatch-group-open {
+  visibility: visible;
+  z-index: 1;
+  opacity: 1;
+  pointer-events:auto;
 }
 .hatch-cover {
   position:relative;
