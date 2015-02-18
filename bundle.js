@@ -83,7 +83,7 @@ var ContentArea = React.createClass({
         React.createElement(TabPane, {eventKey: 7, tab: React.createElement(Glyphicon, {glyph: "shopping-cart"})}, 
           React.createElement(PaneEquipment, {character: this.props.character, edit: this.props.edit})
         )
-
+        
       )
     )
   }
@@ -91,8 +91,7 @@ var ContentArea = React.createClass({
 
 module.exports = ContentArea;
 
-},{"./hatch/Hatch":3,"./hatch/HatchGroup":4,"./panes/pane-ability":6,"./panes/pane-attack":7,"./panes/pane-defense":8,"./panes/pane-equipment":9,"./panes/pane-feature":10,"./panes/pane-info":11,"./panes/pane-spell":12,"react":232,"react-bootstrap/Button":36,"react-bootstrap/Glyphicon":42,"react-bootstrap/TabPane":57,"react-bootstrap/TabbedArea":58}],3:[function(require,module,exports){
-
+},{"./panes/pane-ability":6,"./panes/pane-attack":7,"./panes/pane-defense":8,"./panes/pane-equipment":9,"./panes/pane-feature":10,"./panes/pane-info":11,"./panes/pane-spell":12,"react":232,"react-bootstrap/Glyphicon":42,"react-bootstrap/TabPane":57,"react-bootstrap/TabbedArea":58}],3:[function(require,module,exports){
 var React = require('react');
 
 var Hatch = React.createClass({displayName: "Hatch",
