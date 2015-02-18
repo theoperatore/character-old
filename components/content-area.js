@@ -27,7 +27,7 @@ var ContentArea = React.createClass({
   },
   render : function() {
     return (
-      <TabbedArea defaultActiveKey={7}>
+      <TabbedArea defaultActiveKey={1}>
 
         <TabPane eventKey={1} tab={<Glyphicon glyph="info-sign" />}>
           <PaneInfo character={this.props.character} edit={this.props.edit} />          

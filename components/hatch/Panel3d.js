@@ -1,4 +1,4 @@
-var React = require('react');
+var React = require('react/addons');
 
 // a component to simulate the behavior of a collapsing bootstrap panel,
 // but instead of transitioning the height, use translate3d and update
@@ -33,22 +33,23 @@ var Panel3d = React.createClass({
     // container.style.height = state.heightHeader + "px";
 
     // setup event listener for transitionend?
-    // add transition listener for the end?
     content.addEventListener("webkitTransitionEnd", function(el) {
       if (el.target.classList.contains("closing")) {
-        el.target.classList.remove("closing");
+        var height = this.state.heightHeader;
 
         if (this.state.isDirty) {
-          this.refs.container.getDOMNode().style.height = this.refs.header.getDOMNode().getBoundingClientRect().height + "px";
+          height = this.refs.header.getDOMNode().getBoundingClientRect().height + "px";
         }
-        else {
-          this.refs.container.getDOMNode().style.height = this.state.heightHeader + "px";
-        }
+
+        el.target.classList.remove("closing");
+        this.refs.container.getDOMNode().style.height = height + "px";
+
+        // if this Panel is in another panel, tell the parent to recalculate
+        if (this.props.panelRecalculate) this.props.panelRecalculate();
         return;
       }
 
     }.bind(this))
-
 
     this.setState(state);
   },
@@ -90,6 +91,9 @@ var Panel3d = React.createClass({
 
     // apply open height to container
     container.style.height = heightHeader + heightContent + "px";
+
+    // if this Panel is in another panel, tell the parent to recalculate
+    if (this.props.panelRecalculate) this.props.panelRecalculate();
 
     // keep track of state
     this.setState({ isOpen : true });
@@ -154,6 +158,8 @@ var Panel3d = React.createClass({
     var content = this.refs.content.getDOMNode();
     var state = {};
 
+    console.log("recalculating...");
+
     // new heights
     state.heightHeader = header.getBoundingClientRect().height;
     state.heightContent = content.getBoundingClientRect().height;
@@ -190,11 +196,13 @@ var Panel3d = React.createClass({
 
   // give children toggle and recalculate functions as props
   renderChildren : function() {
-    return (  
-      React.Children.map(this.props.children, function(child) {
-        return React.addons.cloneWithProps(child, { recalculate : this.recalculate, toggle : this.toggle });
-      }.bind(this))
-    );
+    return React.Children.map(this.props.children, function(child) {
+      if (child && (child.type === Panel3d.type)) {
+        console.log("adding props", child);
+        return React.addons.cloneWithProps(child, { panelRecalculate : this.recalculate , panelToggle : this.toggle });
+      }
+      return child;
+    }.bind(this))
   },
 
   // render everything
@@ -202,7 +210,7 @@ var Panel3d = React.createClass({
     return (
       <div ref="container" className="panel3d-container">
         <div ref="content" className="panel3d-content">
-          {this.props.children}
+          {this.renderChildren()}
         </div>
         {this.renderHeader()}
       </div>

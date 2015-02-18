@@ -48,7 +48,7 @@ var ContentArea = React.createClass({
   },
   render : function() {
     return (
-      React.createElement(TabbedArea, {defaultActiveKey: 7}, 
+      React.createElement(TabbedArea, {defaultActiveKey: 1}, 
 
         React.createElement(TabPane, {eventKey: 1, tab: React.createElement(Glyphicon, {glyph: "info-sign"})}, 
           React.createElement(PaneInfo, {character: this.props.character, edit: this.props.edit})
@@ -286,7 +286,7 @@ var HatchGroup = React.createClass({displayName: "HatchGroup",
 module.exports = HatchGroup;
 
 },{"react/addons":71}],5:[function(require,module,exports){
-var React = require('react');
+var React = require('react/addons');
 
 // a component to simulate the behavior of a collapsing bootstrap panel,
 // but instead of transitioning the height, use translate3d and update
@@ -321,22 +321,23 @@ var Panel3d = React.createClass({displayName: "Panel3d",
     // container.style.height = state.heightHeader + "px";
 
     // setup event listener for transitionend?
-    // add transition listener for the end?
     content.addEventListener("webkitTransitionEnd", function(el) {
       if (el.target.classList.contains("closing")) {
-        el.target.classList.remove("closing");
+        var height = this.state.heightHeader;
 
         if (this.state.isDirty) {
-          this.refs.container.getDOMNode().style.height = this.refs.header.getDOMNode().getBoundingClientRect().height + "px";
+          height = this.refs.header.getDOMNode().getBoundingClientRect().height + "px";
         }
-        else {
-          this.refs.container.getDOMNode().style.height = this.state.heightHeader + "px";
-        }
+
+        el.target.classList.remove("closing");
+        this.refs.container.getDOMNode().style.height = height + "px";
+
+        // if this Panel is in another panel, tell the parent to recalculate
+        if (this.props.panelRecalculate) this.props.panelRecalculate();
         return;
       }
 
     }.bind(this))
-
 
     this.setState(state);
   },
@@ -378,6 +379,9 @@ var Panel3d = React.createClass({displayName: "Panel3d",
 
     // apply open height to container
     container.style.height = heightHeader + heightContent + "px";
+
+    // if this Panel is in another panel, tell the parent to recalculate
+    if (this.props.panelRecalculate) this.props.panelRecalculate();
 
     // keep track of state
     this.setState({ isOpen : true });
@@ -442,6 +446,8 @@ var Panel3d = React.createClass({displayName: "Panel3d",
     var content = this.refs.content.getDOMNode();
     var state = {};
 
+    console.log("recalculating...");
+
     // new heights
     state.heightHeader = header.getBoundingClientRect().height;
     state.heightContent = content.getBoundingClientRect().height;
@@ -478,11 +484,13 @@ var Panel3d = React.createClass({displayName: "Panel3d",
 
   // give children toggle and recalculate functions as props
   renderChildren : function() {
-    return (  
-      React.Children.map(this.props.children, function(child) {
-        return React.addons.cloneWithProps(child, { recalculate : this.recalculate, toggle : this.toggle });
-      }.bind(this))
-    );
+    return React.Children.map(this.props.children, function(child) {
+      if (child && (child.type === Panel3d.type)) {
+        console.log("adding props", child);
+        return React.addons.cloneWithProps(child, { panelRecalculate : this.recalculate , panelToggle : this.toggle });
+      }
+      return child;
+    }.bind(this))
   },
 
   // render everything
@@ -490,7 +498,7 @@ var Panel3d = React.createClass({displayName: "Panel3d",
     return (
       React.createElement("div", {ref: "container", className: "panel3d-container"}, 
         React.createElement("div", {ref: "content", className: "panel3d-content"}, 
-          this.props.children
+          this.renderChildren()
         ), 
         this.renderHeader()
       )
@@ -500,7 +508,7 @@ var Panel3d = React.createClass({displayName: "Panel3d",
 
 module.exports = Panel3d;
 
-},{"react":232}],6:[function(require,module,exports){
+},{"react/addons":71}],6:[function(require,module,exports){
 var React = require('react');
 var SettingsAbility = require('../settings/settings-abilities');
 var SettingsSkills = require('../settings/settings-skills');
@@ -658,6 +666,7 @@ var AttackConfig = require('../popovers/attack-bonus');
 var HelpTooltip = require('../tooltips/help');
 var HatchGroup = require('../hatch/HatchGroup');
 var Hatch = require('../hatch/Hatch');
+var Panel3d = require('../hatch/Panel3d');
 
 var Glyphicon = require('react-bootstrap/Glyphicon');
 var Accordion = require('react-bootstrap/Accordion');
@@ -694,7 +703,7 @@ var Attack = React.createClass({
     // compile list of attacks
     charAttacks.forEach(function(attack, i) {
       attacks.push(
-        React.createElement(Panel, {className: "no-padding", bsStyle: "warning", key: i, header: attack.name, eventKey: i}, 
+        React.createElement(Panel3d, {className: "list-header", key: i, title: attack.name}, 
             React.createElement("p", null, attack.desc)
         )
       );
@@ -785,12 +794,8 @@ var Attack = React.createClass({
               )
             )
           ), 
-
           charges, 
-
-          React.createElement(Accordion, {defaultActiveKey: ""}, 
-            attacks
-          )
+          attacks
         )
       )
     )
@@ -799,7 +804,7 @@ var Attack = React.createClass({
 
 module.exports = Attack;
 
-},{"../hatch/Hatch":3,"../hatch/HatchGroup":4,"../popovers/attack-bonus":13,"../settings/settings-attacks":15,"../tooltips/help":27,"react":232,"react-bootstrap/Accordion":34,"react-bootstrap/Button":36,"react-bootstrap/Col":39,"react-bootstrap/Glyphicon":42,"react-bootstrap/Grid":43,"react-bootstrap/OverlayTrigger":50,"react-bootstrap/Panel":52,"react-bootstrap/Popover":54,"react-bootstrap/Row":56,"react-bootstrap/Tooltip":59}],8:[function(require,module,exports){
+},{"../hatch/Hatch":3,"../hatch/HatchGroup":4,"../hatch/Panel3d":5,"../popovers/attack-bonus":13,"../settings/settings-attacks":15,"../tooltips/help":27,"react":232,"react-bootstrap/Accordion":34,"react-bootstrap/Button":36,"react-bootstrap/Col":39,"react-bootstrap/Glyphicon":42,"react-bootstrap/Grid":43,"react-bootstrap/OverlayTrigger":50,"react-bootstrap/Panel":52,"react-bootstrap/Popover":54,"react-bootstrap/Row":56,"react-bootstrap/Tooltip":59}],8:[function(require,module,exports){
 var React = require('react');
 var HelpTooltip = require('../tooltips/help');
 var SettingsDefenses = require('../settings/settings-defenses');
@@ -1122,7 +1127,7 @@ var Equipment = React.createClass({
     this.props.character['charEquipment']['otherEquipment'].forEach(function(equip, i) {
       equips.push(
         React.createElement(Panel3d, {title: equip.name, key: "equipItem" + i, className: "list-header"}, 
-          equip.desc
+          React.createElement("p", null, equip.desc)
         )
       );
     }.bind(this));
@@ -1188,7 +1193,7 @@ var Features = React.createClass({
     this.props.character['charFeatures'].forEach(function(feat, i) {
       feats.push(
         React.createElement(Panel3d, {title: feat.name, key: "feat" + i, className: "list-header"}, 
-          feat.desc
+          React.createElement("p", null, feat.desc)
         )
       );
     });
@@ -1220,8 +1225,8 @@ var SettingsLangs = require('../settings/settings-languages');
 
 var HatchGroup = require('../hatch/HatchGroup');
 var Hatch = require('../hatch/Hatch');
+var Panel3d = require('../hatch/Panel3d');
 
-var Accordion = require('react-bootstrap/Accordion');
 var Grid = require('react-bootstrap/Grid');
 var Row = require('react-bootstrap/Row');
 var Col = require('react-bootstrap/Col');
@@ -1241,7 +1246,7 @@ var Info = React.createClass({
     var languages = [];
     this.props.character["charOtherProficiencies"]["languages"].forEach(function(lan, i) {
       languages.push(
-        React.createElement(Panel, {className: "no-padding", bsStyle: "warning", key: i, header: lan.name, eventKey: i}, 
+        React.createElement(Panel3d, {className: "list-header", key: i, title: lan.name}, 
           React.createElement("p", null, lan.desc)
         )
       )
@@ -1251,7 +1256,7 @@ var Info = React.createClass({
     var proficiencies = [];
     this.props.character["charOtherProficiencies"]["proficiencies"].forEach(function(prof, i) {
       proficiencies.push(
-        React.createElement(Panel, {className: "no-padding", bsStyle: "warning", key: i, header: prof.name, eventKey: i}, 
+        React.createElement(Panel3d, {className: "list-header", key: i, title: prof.name}, 
           React.createElement("p", null, prof.desc)
         )
       )
@@ -1321,22 +1326,20 @@ var Info = React.createClass({
             React.createElement(SettingsTraits, {character: this.props.character, edit: this.props.edit})
           ), 
           React.createElement("div", {className: "hatch-cover"}, 
-            React.createElement(Accordion, {defaultActiveKey: ""}, 
-              React.createElement(Panel, {className: "no-padding", bsStyle: "warning", eventKey: 0, header: "Personality Traits"}, 
-                React.createElement("p", null, this.props.character['charTraits']['personalityTraits'])
-              ), 
-              
-              React.createElement(Panel, {className: "no-padding", bsStyle: "warning", eventKey: 1, header: "Ideals"}, 
-                React.createElement("p", null, this.props.character['charTraits']['ideals'])
-              ), 
+            React.createElement(Panel3d, {className: "list-header", title: "Personality Traits"}, 
+              React.createElement("p", null, this.props.character['charTraits']['personalityTraits'])
+            ), 
+            
+            React.createElement(Panel3d, {className: "list-header", title: "Ideals"}, 
+              React.createElement("p", null, this.props.character['charTraits']['ideals'])
+            ), 
 
-              React.createElement(Panel, {className: "no-padding", bsStyle: "warning", eventKey: 2, header: "Bonds"}, 
-                React.createElement("p", null, this.props.character['charTraits']['bonds'])
-              ), 
-              
-              React.createElement(Panel, {className: "no-padding", bsStyle: "warning", eventKey: 3, header: "Flaws"}, 
-                React.createElement("p", null, this.props.character['charTraits']['flaws'])
-              )
+            React.createElement(Panel3d, {className: "list-header", title: "Bonds"}, 
+              React.createElement("p", null, this.props.character['charTraits']['bonds'])
+            ), 
+            
+            React.createElement(Panel3d, {className: "list-header", title: "Flaws"}, 
+              React.createElement("p", null, this.props.character['charTraits']['flaws'])
             ), 
             React.createElement("h3", null, "Proficiencies", " ", React.createElement(Button, {className: "no-border", onClick: this.handleToggle.bind(this, "settings", "info2")}, React.createElement(Glyphicon, {glyph: "cog"})))
           ), 
@@ -1344,18 +1347,14 @@ var Info = React.createClass({
             React.createElement(SettingsProfs, {character: this.props.character, edit: this.props.edit})
           ), 
           React.createElement("div", {className: "hatch-cover"}, 
-            React.createElement(Accordion, {defaultActiveKey: ""}, 
-              proficiencies
-            ), 
+            proficiencies, 
             React.createElement("h3", null, "Languages", " ", React.createElement(Button, {className: "no-border", onClick: this.handleToggle.bind(this, "settings", "info3")}, React.createElement(Glyphicon, {glyph: "cog"})))
           ), 
           React.createElement(Hatch, {eventKey: "info3"}, 
             React.createElement(SettingsLangs, {character: this.props.character, edit: this.props.edit})
           ), 
           React.createElement("div", {className: "hatch-cover"}, 
-            React.createElement(Accordion, {defaultActiveKey: ""}, 
-              languages
-            )
+            languages
           )
         )
     )
@@ -1364,7 +1363,7 @@ var Info = React.createClass({
 
 module.exports = Info;
 
-},{"../hatch/Hatch":3,"../hatch/HatchGroup":4,"../settings/settings-info":19,"../settings/settings-languages":20,"../settings/settings-proficiencies":21,"../settings/settings-traits":25,"react":232,"react-bootstrap/Accordion":34,"react-bootstrap/Button":36,"react-bootstrap/Col":39,"react-bootstrap/Glyphicon":42,"react-bootstrap/Grid":43,"react-bootstrap/OverlayMixin":49,"react-bootstrap/Panel":52,"react-bootstrap/Row":56}],12:[function(require,module,exports){
+},{"../hatch/Hatch":3,"../hatch/HatchGroup":4,"../hatch/Panel3d":5,"../settings/settings-info":19,"../settings/settings-languages":20,"../settings/settings-proficiencies":21,"../settings/settings-traits":25,"react":232,"react-bootstrap/Button":36,"react-bootstrap/Col":39,"react-bootstrap/Glyphicon":42,"react-bootstrap/Grid":43,"react-bootstrap/OverlayMixin":49,"react-bootstrap/Panel":52,"react-bootstrap/Row":56}],12:[function(require,module,exports){
 var React = require('react');
 
 var AttackConfig = require('../popovers/attack-bonus');
@@ -1372,6 +1371,7 @@ var HelpTooltip = require('../tooltips/help');
 var SettingsSpells = require('../settings/settings-spells');
 var HatchGroup = require('../hatch/HatchGroup');
 var Hatch = require('../hatch/Hatch');
+var Panel3d = require('../hatch/Panel3d');
 
 var Glyphicon = require('react-bootstrap/Glyphicon');
 var Accordion = require('react-bootstrap/Accordion');
@@ -1441,7 +1441,7 @@ var Spells = React.createClass({
         var sps = [];
         level.spells.forEach(function(spell, j) {
           sps.push(
-            React.createElement(Panel, {key: j, eventKey: j, header: spell['name']}, 
+            React.createElement(Panel3d, {key: j, className: "list-header", title: spell['name']}, 
               React.createElement("p", null, React.createElement("strong", null, "CT:"), "  ", spell['cast']), 
               React.createElement("p", null, React.createElement("strong", null, "R:"), "   ", spell['range']), 
               React.createElement("p", null, React.createElement("strong", null, "CMP:"), " ", spell['cmp']), 
@@ -1453,11 +1453,9 @@ var Spells = React.createClass({
 
         // put it all together
         spells.push(
-          React.createElement(Panel, {bsStyle: "warning", className: "no-padding", key: i, eventKey: i, header: level['name'] + ((i !== 0) ?  " Level" : "")}, 
+          React.createElement(Panel3d, {key: i, title: level['name'] + ((i !== 0) ?  " Level" : "")}, 
             slotsArea, 
-            React.createElement(Accordion, {defaultActiveKey: ""}, 
-              sps
-            )
+            sps
           )
         );
       }
@@ -1544,10 +1542,7 @@ var Spells = React.createClass({
             spelldc, 
             bubbles
           ), 
-
-          React.createElement(Accordion, {defaultActiveKey: ""}, 
-            spells
-          )
+          spells
         )
       )
     );
@@ -1556,7 +1551,7 @@ var Spells = React.createClass({
 
 module.exports = Spells;
 
-},{"../hatch/Hatch":3,"../hatch/HatchGroup":4,"../popovers/attack-bonus":13,"../settings/settings-spells":24,"../tooltips/help":27,"react":232,"react-bootstrap/Accordion":34,"react-bootstrap/Button":36,"react-bootstrap/Col":39,"react-bootstrap/Glyphicon":42,"react-bootstrap/Grid":43,"react-bootstrap/Input":44,"react-bootstrap/Modal":46,"react-bootstrap/OverlayTrigger":50,"react-bootstrap/Panel":52,"react-bootstrap/Popover":54,"react-bootstrap/Row":56,"react-bootstrap/TabPane":57,"react-bootstrap/TabbedArea":58,"react-bootstrap/Tooltip":59}],13:[function(require,module,exports){
+},{"../hatch/Hatch":3,"../hatch/HatchGroup":4,"../hatch/Panel3d":5,"../popovers/attack-bonus":13,"../settings/settings-spells":24,"../tooltips/help":27,"react":232,"react-bootstrap/Accordion":34,"react-bootstrap/Button":36,"react-bootstrap/Col":39,"react-bootstrap/Glyphicon":42,"react-bootstrap/Grid":43,"react-bootstrap/Input":44,"react-bootstrap/Modal":46,"react-bootstrap/OverlayTrigger":50,"react-bootstrap/Panel":52,"react-bootstrap/Popover":54,"react-bootstrap/Row":56,"react-bootstrap/TabPane":57,"react-bootstrap/TabbedArea":58,"react-bootstrap/Tooltip":59}],13:[function(require,module,exports){
 var React = require('react');
 var EventListener = require('react-bootstrap/utils/EventListener');
 var Input = require('react-bootstrap/Input');

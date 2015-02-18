@@ -22,7 +22,7 @@ var Features = React.createClass({
     this.props.character['charFeatures'].forEach(function(feat, i) {
       feats.push(
         <Panel3d title={feat.name} key={"feat" + i} className="list-header">
-          {feat.desc}
+          <p>{feat.desc}</p>
         </Panel3d>
       );
     });

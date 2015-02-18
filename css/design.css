@@ -298,6 +298,10 @@ html {
 
   cursor: pointer;
 }
+.panel3d-header:focus, .panel3d-header:active {
+  text-decoration: underline;
+}
+
 .panel3d-content {
   position: absolute;
   width: 100%;

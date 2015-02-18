@@ -5,6 +5,7 @@ var HelpTooltip = require('../tooltips/help');
 var SettingsSpells = require('../settings/settings-spells');
 var HatchGroup = require('../hatch/HatchGroup');
 var Hatch = require('../hatch/Hatch');
+var Panel3d = require('../hatch/Panel3d');
 
 var Glyphicon = require('react-bootstrap/Glyphicon');
 var Accordion = require('react-bootstrap/Accordion');
@@ -74,24 +75,22 @@ var Spells = React.createClass({
         var sps = [];
         level.spells.forEach(function(spell, j) {
           sps.push(
-            <Panel key={j} eventKey={j} header={spell['name']}>
+            <Panel3d key={j} className="list-header" title={spell['name']}>
               <p><strong>{"CT:"}</strong>  {spell['cast']}</p>
               <p><strong>{"R:"}</strong>   {spell['range']}</p>
               <p><strong>{"CMP:"}</strong> {spell['cmp']}</p>
               <p><strong>{"DUR:"}</strong> {spell['dur']}</p>
               <p>{spell['desc']}</p>
-            </Panel>
+            </Panel3d>
           );
         });
 
         // put it all together
         spells.push(
-          <Panel bsStyle="warning" className="no-padding" key={i} eventKey={i} header={level['name'] + ((i !== 0) ?  " Level" : "")}>
+          <Panel3d key={i} title={level['name'] + ((i !== 0) ?  " Level" : "")}>
             {slotsArea}
-            <Accordion defaultActiveKey="">
-              {sps}
-            </Accordion>
-          </Panel>
+            {sps}
+          </Panel3d>
         );
       }
     });
@@ -177,10 +176,7 @@ var Spells = React.createClass({
             {spelldc}
             {bubbles}
           </Panel>
-
-          <Accordion defaultActiveKey="">
-            {spells}
-          </Accordion>
+          {spells}
         </div>
       </HatchGroup>
     );

@@ -6,8 +6,8 @@ var SettingsLangs = require('../settings/settings-languages');
 
 var HatchGroup = require('../hatch/HatchGroup');
 var Hatch = require('../hatch/Hatch');
+var Panel3d = require('../hatch/Panel3d');
 
-var Accordion = require('react-bootstrap/Accordion');
 var Grid = require('react-bootstrap/Grid');
 var Row = require('react-bootstrap/Row');
 var Col = require('react-bootstrap/Col');
@@ -27,9 +27,9 @@ var Info = React.createClass({
     var languages = [];
     this.props.character["charOtherProficiencies"]["languages"].forEach(function(lan, i) {
       languages.push(
-        <Panel className="no-padding" bsStyle="warning" key={i} header={lan.name} eventKey={i}>
+        <Panel3d className="list-header" key={i} title={lan.name}>
           <p>{lan.desc}</p>  
-        </Panel>
+        </Panel3d>
       )
     });
 
@@ -37,9 +37,9 @@ var Info = React.createClass({
     var proficiencies = [];
     this.props.character["charOtherProficiencies"]["proficiencies"].forEach(function(prof, i) {
       proficiencies.push(
-        <Panel className="no-padding" bsStyle="warning" key={i} header={prof.name} eventKey={i}>
+        <Panel3d className="list-header" key={i} title={prof.name}>
           <p>{prof.desc}</p>  
-        </Panel>
+        </Panel3d>
       )
     });
     
@@ -107,41 +107,35 @@ var Info = React.createClass({
             <SettingsTraits character={this.props.character} edit={this.props.edit}/>
           </Hatch>
           <div className="hatch-cover">
-            <Accordion defaultActiveKey="">
-              <Panel className="no-padding" bsStyle="warning" eventKey={0} header="Personality Traits">
-                <p>{this.props.character['charTraits']['personalityTraits']}</p>  
-              </Panel>
-              
-              <Panel className="no-padding" bsStyle="warning" eventKey={1} header="Ideals">
-                <p>{this.props.character['charTraits']['ideals']}</p>
-              </Panel>
+            <Panel3d className="list-header" title="Personality Traits">
+              <p>{this.props.character['charTraits']['personalityTraits']}</p>  
+            </Panel3d>
+            
+            <Panel3d className="list-header" title="Ideals">
+              <p>{this.props.character['charTraits']['ideals']}</p>
+            </Panel3d>
 
-              <Panel className="no-padding" bsStyle="warning" eventKey={2} header="Bonds">
-                <p>{this.props.character['charTraits']['bonds']}</p>
-              </Panel>        
-              
-              <Panel className="no-padding" bsStyle="warning" eventKey={3} header="Flaws">
-                <p>{this.props.character['charTraits']['flaws']}</p>
-              </Panel>
-            </Accordion>
+            <Panel3d className="list-header" title="Bonds">
+              <p>{this.props.character['charTraits']['bonds']}</p>
+            </Panel3d>        
+            
+            <Panel3d className="list-header" title="Flaws">
+              <p>{this.props.character['charTraits']['flaws']}</p>
+            </Panel3d>
             <h3>{"Proficiencies"} <Button className="no-border" onClick={this.handleToggle.bind(this, "settings", "info2")}><Glyphicon glyph="cog"/></Button></h3>
           </div>
           <Hatch eventKey={"info2"}>
             <SettingsProfs character={this.props.character} edit={this.props.edit}/>
           </Hatch>
           <div className="hatch-cover">
-            <Accordion defaultActiveKey="">
-              {proficiencies}
-            </Accordion>
+            {proficiencies}
             <h3>{"Languages"} <Button className="no-border" onClick={this.handleToggle.bind(this, "settings", "info3")}><Glyphicon glyph="cog"/></Button></h3>
           </div>
           <Hatch eventKey={"info3"}>
             <SettingsLangs character={this.props.character} edit={this.props.edit}/>
           </Hatch>
           <div className="hatch-cover">
-            <Accordion defaultActiveKey="">
-              {languages}
-            </Accordion>
+            {languages}
           </div>
         </HatchGroup>
     )

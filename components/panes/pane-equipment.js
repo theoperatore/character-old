@@ -24,7 +24,7 @@ var Equipment = React.createClass({
     this.props.character['charEquipment']['otherEquipment'].forEach(function(equip, i) {
       equips.push(
         <Panel3d title={equip.name} key={"equipItem" + i} className="list-header">
-          {equip.desc}
+          <p>{equip.desc}</p>
         </Panel3d>
       );
     }.bind(this));
