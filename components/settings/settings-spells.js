@@ -81,7 +81,17 @@ var SettingsSpells = React.createClass({
   },
   handleChange : function(cmp, e) {
     var node = {};
-    node[cmp] = (cmp === "newLvl") ? parseInt(e.target.value) : e.target.value;
+    var val;
+
+    if (cmp === "newSlots" || cmp === "newLvl") {
+      val = parseInt(e.target.value, 10);
+
+      if (isNaN(val)) {
+        val = e.target.value;
+      }
+    }
+
+    node[cmp] = val || e.target.value;
     this.setState(node);
   },
   handleSelect : function(e) {
@@ -192,10 +202,15 @@ var SettingsSpells = React.createClass({
 
     // editing spell slots per level
     else if (this.state.mode === 2) {
-      if (this.state.newSlots === "" || this.state.newSlots === -1) return;
+      var newSlots = this.state.newSlots;
 
-      tmp['charSpells'][this.state.slotLvl]['slots'] = this.state.newSlots;
-      path += ".edit.spellSlots.level." + this.state.slotLvl + ".slots." + this.state.newSlots;
+      if (newSlots === "" || newSlots === -1) return;
+      if (isNaN(parseInt(newSlots, 10))) return;
+      if (newSlots === "0") newSlots = 0; 
+
+
+      tmp['charSpells'][this.state.slotLvl]['slots'] = newSlots;
+      path += ".edit.spellSlots.level." + this.state.slotLvl + ".slots." + newSlots;
 
     }
 

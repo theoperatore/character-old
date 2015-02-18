@@ -70,8 +70,6 @@ var HatchGroup = React.createClass({
       node.__translateHeight = (node.__translateHeight)
         ? (node.__translateHeight - height) : height;
 
-      console.log("closing...", node.__translateHeight);
-
       node.style.webkitTransform = "translate3d(0," + node.__translateHeight + "px,0)";
       node.style.MozTransform    = "translate3d(0," + node.__translateHeight + "px,0)";
       node.style.msTransform     = "translate3d(0," + node.__translateHeight + "px,0)";
@@ -130,7 +128,6 @@ var HatchGroup = React.createClass({
     //root.style.height = currHeight + "px";
   },
   toggle : function(idx) {
-    console.log("toggle", idx);
     if (this.state.hatches[idx] === true) {
       this.close(idx);
     }

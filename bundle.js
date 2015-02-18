@@ -193,8 +193,6 @@ var HatchGroup = React.createClass({displayName: "HatchGroup",
       node.__translateHeight = (node.__translateHeight)
         ? (node.__translateHeight - height) : height;
 
-      console.log("closing...", node.__translateHeight);
-
       node.style.webkitTransform = "translate3d(0," + node.__translateHeight + "px,0)";
       node.style.MozTransform    = "translate3d(0," + node.__translateHeight + "px,0)";
       node.style.msTransform     = "translate3d(0," + node.__translateHeight + "px,0)";
@@ -253,7 +251,6 @@ var HatchGroup = React.createClass({displayName: "HatchGroup",
     //root.style.height = currHeight + "px";
   },
   toggle : function(idx) {
-    console.log("toggle", idx);
     if (this.state.hatches[idx] === true) {
       this.close(idx);
     }
@@ -335,6 +332,15 @@ var Panel3d = React.createClass({displayName: "Panel3d",
     this.setState(state);
   },
 
+  // whenever this component's children change, need to recalculate cahced vals
+  componentWillReceiveProps: function (nextProps) {
+    if (React.Children.count(this.props.children) !== 
+        React.Children.count(nextProps.children)) 
+    {
+      this.setState({ isDirty : true });  
+    }
+  },
+
   // open this component
   open : function() {
     var container = this.refs.container.getDOMNode();
@@ -346,6 +352,8 @@ var Panel3d = React.createClass({displayName: "Panel3d",
     var heightContent = this.state.heightContent;
 
     // force a recalculation if dirty
+    // no way to guarantee that the state change will be in time
+    // for rendering if we just use this.recalculate()
     if (this.state.isDirty) {
       var state = {};
 
@@ -391,6 +399,8 @@ var Panel3d = React.createClass({displayName: "Panel3d",
     var heightContent = this.state.heightContent;
 
     // force a recalculation if dirty
+    // no way to guarantee that the state change will be in time
+    // for rendering if we just use this.recalculate()
     if (this.state.isDirty) {
       var state = {};
 
@@ -439,8 +449,6 @@ var Panel3d = React.createClass({displayName: "Panel3d",
     var content = this.refs.content.getDOMNode();
     var state = {};
 
-    console.log("recalculating...");
-
     // new heights
     state.heightHeader = header.getBoundingClientRect().height;
     state.heightContent = content.getBoundingClientRect().height;
@@ -476,10 +484,10 @@ var Panel3d = React.createClass({displayName: "Panel3d",
   },
 
   // give children toggle and recalculate functions as props
+  // this only works if Panel3d is a direct child of another panel3d...
   renderChildren : function() {
     return React.Children.map(this.props.children, function(child) {
       if (child && (child.type === Panel3d.type)) {
-        console.log("adding props", child);
         return React.addons.cloneWithProps(child, { panelRecalculate : this.recalculate , panelToggle : this.toggle });
       }
       return child;
@@ -1439,6 +1447,7 @@ var Spells = React.createClass({
     var spells = [];
     this.props.character['charSpells'].forEach(function(level, i) {
       if (level.spells.length !== 0 || level.slots !== 0) {
+        
         // get spell slots
         var slots = [];
         for (var k = 0; k < level.slots; k++) {
@@ -3533,7 +3542,17 @@ var SettingsSpells = React.createClass({displayName: "SettingsSpells",
   },
   handleChange : function(cmp, e) {
     var node = {};
-    node[cmp] = (cmp === "newLvl") ? parseInt(e.target.value) : e.target.value;
+    var val;
+
+    if (cmp === "newSlots" || cmp === "newLvl") {
+      val = parseInt(e.target.value, 10);
+
+      if (isNaN(val)) {
+        val = e.target.value;
+      }
+    }
+
+    node[cmp] = val || e.target.value;
     this.setState(node);
   },
   handleSelect : function(e) {
@@ -3644,10 +3663,15 @@ var SettingsSpells = React.createClass({displayName: "SettingsSpells",
 
     // editing spell slots per level
     else if (this.state.mode === 2) {
-      if (this.state.newSlots === "" || this.state.newSlots === -1) return;
+      var newSlots = this.state.newSlots;
 
-      tmp['charSpells'][this.state.slotLvl]['slots'] = this.state.newSlots;
-      path += ".edit.spellSlots.level." + this.state.slotLvl + ".slots." + this.state.newSlots;
+      if (newSlots === "" || newSlots === -1) return;
+      if (isNaN(parseInt(newSlots, 10))) return;
+      if (newSlots === "0") newSlots = 0; 
+
+
+      tmp['charSpells'][this.state.slotLvl]['slots'] = newSlots;
+      path += ".edit.spellSlots.level." + this.state.slotLvl + ".slots." + newSlots;
 
     }
 

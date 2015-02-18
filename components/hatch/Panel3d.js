@@ -55,6 +55,15 @@ var Panel3d = React.createClass({
     this.setState(state);
   },
 
+  // whenever this component's children change, need to recalculate cahced vals
+  componentWillReceiveProps: function (nextProps) {
+    if (React.Children.count(this.props.children) !== 
+        React.Children.count(nextProps.children)) 
+    {
+      this.setState({ isDirty : true });  
+    }
+  },
+
   // open this component
   open : function() {
     var container = this.refs.container.getDOMNode();
@@ -66,6 +75,8 @@ var Panel3d = React.createClass({
     var heightContent = this.state.heightContent;
 
     // force a recalculation if dirty
+    // no way to guarantee that the state change will be in time
+    // for rendering if we just use this.recalculate()
     if (this.state.isDirty) {
       var state = {};
 
@@ -111,6 +122,8 @@ var Panel3d = React.createClass({
     var heightContent = this.state.heightContent;
 
     // force a recalculation if dirty
+    // no way to guarantee that the state change will be in time
+    // for rendering if we just use this.recalculate()
     if (this.state.isDirty) {
       var state = {};
 
@@ -159,8 +172,6 @@ var Panel3d = React.createClass({
     var content = this.refs.content.getDOMNode();
     var state = {};
 
-    console.log("recalculating...");
-
     // new heights
     state.heightHeader = header.getBoundingClientRect().height;
     state.heightContent = content.getBoundingClientRect().height;
@@ -196,10 +207,10 @@ var Panel3d = React.createClass({
   },
 
   // give children toggle and recalculate functions as props
+  // this only works if Panel3d is a direct child of another panel3d...
   renderChildren : function() {
     return React.Children.map(this.props.children, function(child) {
       if (child && (child.type === Panel3d.type)) {
-        console.log("adding props", child);
         return React.addons.cloneWithProps(child, { panelRecalculate : this.recalculate , panelToggle : this.toggle });
       }
       return child;

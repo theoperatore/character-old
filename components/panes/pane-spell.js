@@ -50,6 +50,7 @@ var Spells = React.createClass({
     var spells = [];
     this.props.character['charSpells'].forEach(function(level, i) {
       if (level.spells.length !== 0 || level.slots !== 0) {
+        
         // get spell slots
         var slots = [];
         for (var k = 0; k < level.slots; k++) {
