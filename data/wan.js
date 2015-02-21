@@ -273,6 +273,12 @@ module.exports = {
       }
     ]
   },
+  "charResistances" : [
+    {
+      "name" : "Aging",
+      "desc" : "My Ki gives me immunity to physical aging effects. I can die of long life, but my bones and physique remain unchanged."
+    }
+  ],
   "charSkills" : {
     "Acrobatics" : {
       "mod" : "dex", 

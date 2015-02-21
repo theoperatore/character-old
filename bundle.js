@@ -689,7 +689,7 @@ var Ability = React.createClass({
 
 module.exports = Ability;
 
-},{"../hatch/Hatch":3,"../hatch/HatchGroup":4,"../settings/settings-abilities":15,"../settings/settings-skills":24,"react":233,"react-bootstrap/Accordion":35,"react-bootstrap/Button":37,"react-bootstrap/Col":40,"react-bootstrap/Glyphicon":43,"react-bootstrap/Grid":44,"react-bootstrap/Input":45,"react-bootstrap/Modal":47,"react-bootstrap/Panel":53,"react-bootstrap/Popover":55,"react-bootstrap/Row":57}],8:[function(require,module,exports){
+},{"../hatch/Hatch":3,"../hatch/HatchGroup":4,"../settings/settings-abilities":15,"../settings/settings-skills":25,"react":233,"react-bootstrap/Accordion":35,"react-bootstrap/Button":37,"react-bootstrap/Col":40,"react-bootstrap/Glyphicon":43,"react-bootstrap/Grid":44,"react-bootstrap/Input":45,"react-bootstrap/Modal":47,"react-bootstrap/Panel":53,"react-bootstrap/Popover":55,"react-bootstrap/Row":57}],8:[function(require,module,exports){
 var React = require('react');
 
 var SettingsAttack = require('../settings/settings-attacks');
@@ -835,13 +835,15 @@ var Attack = React.createClass({
 
 module.exports = Attack;
 
-},{"../hatch/Hatch":3,"../hatch/HatchGroup":4,"../hatch/Panel3d":5,"../popovers/attack-bonus":14,"../settings/settings-attacks":16,"../tooltips/help":28,"react":233,"react-bootstrap/Accordion":35,"react-bootstrap/Button":37,"react-bootstrap/Col":40,"react-bootstrap/Glyphicon":43,"react-bootstrap/Grid":44,"react-bootstrap/OverlayTrigger":51,"react-bootstrap/Panel":53,"react-bootstrap/Popover":55,"react-bootstrap/Row":57,"react-bootstrap/Tooltip":60}],9:[function(require,module,exports){
+},{"../hatch/Hatch":3,"../hatch/HatchGroup":4,"../hatch/Panel3d":5,"../popovers/attack-bonus":14,"../settings/settings-attacks":16,"../tooltips/help":29,"react":233,"react-bootstrap/Accordion":35,"react-bootstrap/Button":37,"react-bootstrap/Col":40,"react-bootstrap/Glyphicon":43,"react-bootstrap/Grid":44,"react-bootstrap/OverlayTrigger":51,"react-bootstrap/Panel":53,"react-bootstrap/Popover":55,"react-bootstrap/Row":57,"react-bootstrap/Tooltip":60}],9:[function(require,module,exports){
 var React = require('react');
 var HelpTooltip = require('../tooltips/help');
 var SettingsDefenses = require('../settings/settings-defenses');
 var SettingsThrows = require('../settings/settings-saving-throws');
+var SettingsResistances = require('../settings/settings-resistances');
 var HatchGroup = require('../hatch/HatchGroup');
 var Hatch = require('../hatch/Hatch');
+var Panel3d = require('../hatch/Panel3d');
 
 var Glyphicon = require('react-bootstrap/Glyphicon');
 var Accordion = require('react-bootstrap/Accordion');
@@ -931,6 +933,7 @@ var Defense = React.createClass({
   handleHelpToggle : function() {
     this.refs.help.toggle();
   },
+
   render : function() {
     var curr = this.props.character['charHitPoints']['current'];
     var max  = this.props.character['charHitPoints']['maximum'];
@@ -966,6 +969,15 @@ var Defense = React.createClass({
     clear = (
       React.createElement(Button, {onClick: this.handleHP.bind(this, "clear")}, "Clear")
     );
+
+    var resistances = [];
+    this.props.character['charResistances'].forEach(function(res, i) {
+      resistances.push(
+        React.createElement(Panel3d, {key: "res" + i, title: res.name, className: "list-header"}, 
+          React.createElement("p", null, res.desc)
+        )
+      );
+    });
 
     return (
       React.createElement(HatchGroup, {ref: "settings"}, 
@@ -1122,7 +1134,14 @@ var Defense = React.createClass({
                 )
               )
             )
-          )
+          ), 
+          React.createElement("h3", null, "Resistances", " ", React.createElement(Button, {className: "no-border", onClick: this.toggle.bind(this, "res0")}, React.createElement(Glyphicon, {glyph: "cog"})))
+        ), 
+        React.createElement(Hatch, {eventKey: "res0"}, 
+          React.createElement(SettingsResistances, {character: this.props.character, edit: this.props.edit})
+        ), 
+        React.createElement("div", {className: "hatch-cover"}, 
+          resistances
         )
       )
     );
@@ -1131,7 +1150,7 @@ var Defense = React.createClass({
 
 module.exports = Defense;
 
-},{"../hatch/Hatch":3,"../hatch/HatchGroup":4,"../settings/settings-defenses":17,"../settings/settings-saving-throws":23,"../tooltips/help":28,"react":233,"react-bootstrap/Accordion":35,"react-bootstrap/Button":37,"react-bootstrap/Col":40,"react-bootstrap/Glyphicon":43,"react-bootstrap/Grid":44,"react-bootstrap/Input":45,"react-bootstrap/OverlayTrigger":51,"react-bootstrap/Panel":53,"react-bootstrap/ProgressBar":56,"react-bootstrap/Row":57,"react-bootstrap/Tooltip":60}],10:[function(require,module,exports){
+},{"../hatch/Hatch":3,"../hatch/HatchGroup":4,"../hatch/Panel3d":5,"../settings/settings-defenses":17,"../settings/settings-resistances":23,"../settings/settings-saving-throws":24,"../tooltips/help":29,"react":233,"react-bootstrap/Accordion":35,"react-bootstrap/Button":37,"react-bootstrap/Col":40,"react-bootstrap/Glyphicon":43,"react-bootstrap/Grid":44,"react-bootstrap/Input":45,"react-bootstrap/OverlayTrigger":51,"react-bootstrap/Panel":53,"react-bootstrap/ProgressBar":56,"react-bootstrap/Row":57,"react-bootstrap/Tooltip":60}],10:[function(require,module,exports){
 var React = require('react');
 var SettingsEquip = require('../settings/settings-equipment');
 var HatchGroup = require('../hatch/HatchGroup');
@@ -1394,7 +1413,7 @@ var Info = React.createClass({
 
 module.exports = Info;
 
-},{"../hatch/Hatch":3,"../hatch/HatchGroup":4,"../hatch/Panel3d":5,"../settings/settings-info":20,"../settings/settings-languages":21,"../settings/settings-proficiencies":22,"../settings/settings-traits":26,"react":233,"react-bootstrap/Button":37,"react-bootstrap/Col":40,"react-bootstrap/Glyphicon":43,"react-bootstrap/Grid":44,"react-bootstrap/OverlayMixin":50,"react-bootstrap/Panel":53,"react-bootstrap/Row":57}],13:[function(require,module,exports){
+},{"../hatch/Hatch":3,"../hatch/HatchGroup":4,"../hatch/Panel3d":5,"../settings/settings-info":20,"../settings/settings-languages":21,"../settings/settings-proficiencies":22,"../settings/settings-traits":27,"react":233,"react-bootstrap/Button":37,"react-bootstrap/Col":40,"react-bootstrap/Glyphicon":43,"react-bootstrap/Grid":44,"react-bootstrap/OverlayMixin":50,"react-bootstrap/Panel":53,"react-bootstrap/Row":57}],13:[function(require,module,exports){
 var React = require('react');
 
 var AttackConfig = require('../popovers/attack-bonus');
@@ -1583,7 +1602,7 @@ var Spells = React.createClass({
 
 module.exports = Spells;
 
-},{"../hatch/Hatch":3,"../hatch/HatchGroup":4,"../hatch/Panel3d":5,"../popovers/attack-bonus":14,"../settings/settings-spells":25,"../tooltips/help":28,"react":233,"react-bootstrap/Accordion":35,"react-bootstrap/Button":37,"react-bootstrap/Col":40,"react-bootstrap/Glyphicon":43,"react-bootstrap/Grid":44,"react-bootstrap/Input":45,"react-bootstrap/Modal":47,"react-bootstrap/OverlayTrigger":51,"react-bootstrap/Panel":53,"react-bootstrap/Popover":55,"react-bootstrap/Row":57,"react-bootstrap/TabPane":58,"react-bootstrap/TabbedArea":59,"react-bootstrap/Tooltip":60}],14:[function(require,module,exports){
+},{"../hatch/Hatch":3,"../hatch/HatchGroup":4,"../hatch/Panel3d":5,"../popovers/attack-bonus":14,"../settings/settings-spells":26,"../tooltips/help":29,"react":233,"react-bootstrap/Accordion":35,"react-bootstrap/Button":37,"react-bootstrap/Col":40,"react-bootstrap/Glyphicon":43,"react-bootstrap/Grid":44,"react-bootstrap/Input":45,"react-bootstrap/Modal":47,"react-bootstrap/OverlayTrigger":51,"react-bootstrap/Panel":53,"react-bootstrap/Popover":55,"react-bootstrap/Row":57,"react-bootstrap/TabPane":58,"react-bootstrap/TabbedArea":59,"react-bootstrap/Tooltip":60}],14:[function(require,module,exports){
 var React = require('react');
 var EventListener = require('react-bootstrap/utils/EventListener');
 var Input = require('react-bootstrap/Input');
@@ -3080,6 +3099,182 @@ module.exports = SettingsTraits;
 var React = require('react');
 
 var Input = require('react-bootstrap/Input');
+var Button = require('react-bootstrap/Button');
+var ButtonToolbar = require('react-bootstrap/ButtonToolbar');
+var TabbedArea = require('react-bootstrap/TabbedArea');
+var TabPane = require('react-bootstrap/TabPane');
+var Grid = require('react-bootstrap/Grid');
+var Row = require('react-bootstrap/Row');
+var Col = require('react-bootstrap/Col');
+
+var ResistanceSettings = React.createClass({displayName: "ResistanceSettings",
+  getInitialState : function() {
+    var state = {};
+
+    state.mode = 0;
+    state.name = "";
+    state.desc = "";
+    state.newName = "";
+    state.newDesc = "";
+    state.idx = -1;
+
+    return (state);
+  },
+  clearState : function() {
+    var state = {};
+
+    state.name = "";
+    state.desc = "";
+    state.newName = "";
+    state.newDesc = "";
+    state.idx = -1;
+
+    this.setState(state);
+  },
+  toggle : function() {
+
+    // call HatchGroup to close
+    this.props.toggle();
+  },
+  componentDidUpdate : function() {
+    
+    // call HatchGroup recalculate
+    this.props.recalculate();
+  },
+  handleModeChange : function(mode) {
+    this.setState({ mode : mode });
+  },
+  handleChange : function(cmp, e) {
+    var state = {};
+
+    state[cmp] = e.target.value;
+
+    this.setState(state);
+  },
+  handleSelect : function(e) {
+    var idx = parseInt(e.target.value, 10);
+    var node = this.props.character['charResistances'][idx];
+    var name = (idx === -1) ? "" : node.name;
+    var desc = (idx === -1) ? "" : node.desc;
+    var state = {};
+
+    state.idx = idx;
+    state.newName = name;
+    state.newDesc = desc;
+    
+    this.setState(state);
+  },
+  handleOk : function() {
+    var tmp = this.props.character;
+    var path = "charResistances.";
+    var res;
+
+    // adding res
+    if (this.state.mode === 0) {
+      if (this.state.name === "") return;
+
+      path += "add." + this.state.name;
+
+      res = {};
+      res.name = this.state.name;
+      res.desc = this.state.desc;
+
+      tmp['charResistances'].push(res);
+    }
+
+    // editing res
+    else if (this.state.mode === 1) {
+      if (this.state.newName === "") return;
+      if (this.state.idx === -1) return;
+
+      path += "edit." + this.state.newName;
+
+      res = tmp['charResistances'][this.state.idx];
+      res.name = this.state.newName;
+      res.desc = this.state.newDesc;
+    }
+
+    this.props.edit({ path : path, character : tmp });
+    this.clearState();
+  },
+  handleDelete : function() {
+    var tmp = this.props.character;
+    var path = "charResistances.delete.";
+    var name = tmp['charResistances'][this.state.idx].name;
+    var res;
+
+    // if mistake, stop deleting!
+    if (!confirm("Do you really want to get rid of\n '" + name + "'\n forever?")) return;
+
+    res = tmp['charResistances'].splice(this.state.idx, 1);
+    path += res[0].name;
+
+    this.props.edit({ path : path, character : tmp });
+    this.clearState();
+  },
+  renderNew : function() {
+    return(
+      React.createElement("div", null, 
+        React.createElement("p", null, "Enter the name and an optional short description of the resistance/immunity."), 
+        React.createElement(Input, {type: "text", value: this.state.name, label: "Resistance Name", onChange: this.handleChange.bind(this, "name")}), 
+        React.createElement(Input, {type: "textarea", value: this.state.desc, label: "Resistance Description", onChange: this.handleChange.bind(this, "desc")})
+      )
+    );
+  },
+  renderEdit : function() {
+    var options = [];
+    this.props.character['charResistances'].forEach(function(res, i) {
+      options.push(
+        React.createElement("option", {key: i, value: i}, res.name)
+      );
+    }.bind(this));
+
+    return(
+      React.createElement("div", null, 
+        React.createElement("p", null, "Select a resistance/immunity to edit or delete."), 
+        React.createElement(Row, null, 
+          React.createElement(Col, {xs: 6}, 
+            React.createElement(Input, {type: "select", onChange: this.handleSelect, value: this.state.idx}, 
+              React.createElement("option", {value: -1}, "Select Resistance"), 
+              options
+            )
+          ), 
+          React.createElement(Col, {xs: 6}, 
+            React.createElement(Button, {disabled: this.state.idx === -1 ? true : false, bsStyle: "danger", onClick: this.handleDelete}, "Delete")
+          )
+        ), 
+        React.createElement(Input, {disabled: this.state.idx === -1 ? true : false, type: "text", value: this.state.newName, label: "New Resistance Name", onChange: this.handleChange.bind(this, "newName")}), 
+        React.createElement(Input, {disabled: this.state.idx === -1 ? true : false, type: "textarea", value: this.state.newDesc, label: "New Resistance Descescription", onChange: this.handleChange.bind(this, "newDesc")})
+      )
+    );
+  },
+  render : function() {
+    return (
+      React.createElement("div", {className: "settings-tear"}, 
+        React.createElement("h3", null, "Add / Edit Resistances"), 
+        React.createElement(TabbedArea, {activeKey: this.state.mode, animation: false, onSelect: this.handleModeChange}, 
+          React.createElement(TabPane, {tab: "new", eventKey: 0}, 
+            this.renderNew()
+          ), 
+          React.createElement(TabPane, {tab: "edit", eventKey: 1}, 
+            this.renderEdit()
+          )
+        ), 
+        React.createElement(ButtonToolbar, null, 
+          React.createElement(Button, {bsStyle: "danger", onClick: this.toggle}, "Close"), 
+          React.createElement(Button, {bsStyle: "success", onClick: this.handleOk}, "Save")
+        )
+      )
+    );
+  }
+})
+
+module.exports = ResistanceSettings;
+
+},{"react":233,"react-bootstrap/Button":37,"react-bootstrap/ButtonToolbar":39,"react-bootstrap/Col":40,"react-bootstrap/Grid":44,"react-bootstrap/Input":45,"react-bootstrap/Row":57,"react-bootstrap/TabPane":58,"react-bootstrap/TabbedArea":59}],24:[function(require,module,exports){
+var React = require('react');
+
+var Input = require('react-bootstrap/Input');
 var ButtonToolbar = require('react-bootstrap/ButtonToolbar');
 var Button = require('react-bootstrap/Button');
 var Row = require('react-bootstrap/Row');
@@ -3208,6 +3403,7 @@ var SettingsSavingThrows = React.createClass({displayName: "SettingsSavingThrows
     // save
     this.props.edit({ path : path, character : tmp });
     this.clearState();
+    this.toggle();
   },
   handleProfSelect : function(e) {
     //console.log(e.target.options);
@@ -3284,7 +3480,7 @@ var SettingsSavingThrows = React.createClass({displayName: "SettingsSavingThrows
 
 module.exports = SettingsSavingThrows;
 
-},{"react":233,"react-bootstrap/Button":37,"react-bootstrap/ButtonToolbar":39,"react-bootstrap/Col":40,"react-bootstrap/Input":45,"react-bootstrap/Row":57}],24:[function(require,module,exports){
+},{"react":233,"react-bootstrap/Button":37,"react-bootstrap/ButtonToolbar":39,"react-bootstrap/Col":40,"react-bootstrap/Input":45,"react-bootstrap/Row":57}],25:[function(require,module,exports){
 var React = require('react');
 
 var Input = require('react-bootstrap/Input');
@@ -3458,7 +3654,7 @@ var SettingsAbilities = React.createClass({displayName: "SettingsAbilities",
 
 module.exports = SettingsAbilities;
 
-},{"react":233,"react-bootstrap/Button":37,"react-bootstrap/ButtonToolbar":39,"react-bootstrap/Input":45}],25:[function(require,module,exports){
+},{"react":233,"react-bootstrap/Button":37,"react-bootstrap/ButtonToolbar":39,"react-bootstrap/Input":45}],26:[function(require,module,exports){
 var React = require('react');
 
 var Input = require('react-bootstrap/Input');
@@ -3815,7 +4011,7 @@ var SettingsSpells = React.createClass({displayName: "SettingsSpells",
 
 module.exports = SettingsSpells;
 
-},{"react":233,"react-bootstrap/Button":37,"react-bootstrap/ButtonToolbar":39,"react-bootstrap/Col":40,"react-bootstrap/Input":45,"react-bootstrap/Row":57,"react-bootstrap/TabPane":58,"react-bootstrap/TabbedArea":59}],26:[function(require,module,exports){
+},{"react":233,"react-bootstrap/Button":37,"react-bootstrap/ButtonToolbar":39,"react-bootstrap/Col":40,"react-bootstrap/Input":45,"react-bootstrap/Row":57,"react-bootstrap/TabPane":58,"react-bootstrap/TabbedArea":59}],27:[function(require,module,exports){
 var React = require('react');
 
 var Input = require('react-bootstrap/Input');
@@ -3870,6 +4066,7 @@ var SettingsTraits = React.createClass({displayName: "SettingsTraits",
     }
 
     this.props.edit({ path : path, character : tmp});
+    this.toggle();
   },
   render : function() {
     return (
@@ -3891,7 +4088,7 @@ var SettingsTraits = React.createClass({displayName: "SettingsTraits",
 
 module.exports = SettingsTraits;
 
-},{"react":233,"react-bootstrap/Button":37,"react-bootstrap/ButtonToolbar":39,"react-bootstrap/Input":45}],27:[function(require,module,exports){
+},{"react":233,"react-bootstrap/Button":37,"react-bootstrap/ButtonToolbar":39,"react-bootstrap/Input":45}],28:[function(require,module,exports){
 var React = require('react');
 var PageHeader = require('react-bootstrap/PageHeader');
 
@@ -3909,7 +4106,7 @@ var Title = React.createClass({
 // return component
 module.exports = Title;
 
-},{"react":233,"react-bootstrap/PageHeader":52}],28:[function(require,module,exports){
+},{"react":233,"react-bootstrap/PageHeader":52}],29:[function(require,module,exports){
 var React = require('react');
 var EventListener = require('react-bootstrap/utils/EventListener');
 
@@ -3952,7 +4149,7 @@ var HelpTooltip = React.createClass({displayName: "HelpTooltip",
 
 module.exports = HelpTooltip;
 
-},{"react":233,"react-bootstrap/utils/EventListener":63}],29:[function(require,module,exports){
+},{"react":233,"react-bootstrap/utils/EventListener":63}],30:[function(require,module,exports){
 module.exports = {
   "charName" : "Loading...",
   "charInfo" : {
@@ -4133,6 +4330,7 @@ module.exports = {
     "languages" : [],
     "proficiencies" : []
   },
+  "charResistances" : [],
   "charSkills" : {
     "Acrobatics" : {
       "mod" : "dex",  
@@ -4264,459 +4462,6 @@ module.exports = {
   "charFeatures" : []
 };
 
-},{}],30:[function(require,module,exports){
-module.exports = {
-  "charName" : "Tap Me! (or swipe right)",
-  "charInfo" : {
-    "class" : "Monk",
-    "level" : 5,
-    "background" : "Hermit",
-    "race" : "Human",
-    "alignment" : "Lawful Neutral",
-    "xp" : 6500
-  },
-  "charTraits" : {
-    "personalityTraits" : "I contemplate the reason for living each day during meditation; The meaning of life. I strive to pursue one goal each day.",
-    "ideals" : "One should act according to tradition. Straying from one's past brings dishonor and ruin. There's always another way...",
-    "bonds" : "Seeing my people ravaged and my loved ones killed, I entered seclusion to contemplate my sorrow and seek meaning for surviving.",
-    "flaws" : "While I try to live acording to my peaceful traditions, a great wrath burns in my heart where love and my people should be. Sometimes that wrath surfaces..."
-  },
-  "charClassCharges" : [
-    {
-      "name" : "Ki",
-      "charges" : 5
-    }
-  ],
-  "charSpells" : [
-    {
-      "name" : "Cantrips",
-      "slots" : 0,
-      "spells" : [
-        {
-          "name" : "Acid Splash",
-          "cast" : "1 action",
-          "range" : "60ft",
-          "cmp" : "VS",
-          "dur" : "Instantaneous",
-          "desc" : "Choose one creatuer within range, or two creatures within range that are within 5 ft of each other. A target must succeed on a DEX save or take 1d6 acid damage"
-        },
-        {
-          "name" : "Blade Ward",
-          "cast" : "1 action",
-          "range" : "Self",
-          "cmp" : "VS",
-          "dur" : "1 round",
-          "desc" : "You extend your hand and trace a sigil of warding in the air. Until the end of your next turn, you have resistance against bludgeoning, piercing, and slashing damage dealt by weapon attacks"
-        }
-      ]
-    },
-    {
-      "name" : "1st",
-      "slots" : 2,
-      "spells" : [
-        {
-          "name" : "Bless",
-          "cast" : "1 action",
-          "range" : "30ft",
-          "cmp" : "VSM (a sprinkling of holy water)",
-          "dur" : "Concentration, up to 1 min",
-          "desc" : "You bless up to three creatures of your choice within range. Whenever a target makes an attack roll or a saving throw before the spell ends, the target can roll a d4 and add the number rolled to the attack roll or saving throw"
-        }
-      ]
-    },
-    {
-      "name" : "2nd",
-      "slots" : 0,
-      "spells" : []
-    },
-    {
-      "name" : "3rd",
-      "slots" : 0,
-      "spells" : []
-    },
-    {
-      "name" : "4th",
-      "slots" : 0,
-      "spells" : []
-    },
-    {
-      "name" : "5th",
-      "slots" : 0,
-      "spells" : []
-    },
-    {
-      "name" : "6th",
-      "slots" : 0,
-      "spells" : []
-    },
-    {
-      "name" : "7th",
-      "slots" : 0,
-      "spells" : []
-    },
-    {
-      "name" : "8th",
-      "slots" : 0,
-      "spells" : []
-    },
-    {
-      "name" : "9th",
-      "slots" : 0,
-      "spells" : []
-    }
-  ],
-  "charAbilities" : {
-    "str" : {
-      "score" : 11,
-      "mod" : 0
-    },
-    "dex" : {
-      "score" : 19,
-      "mod" : 4
-    },
-    "con" : {
-      "score" : 14,
-      "mod" : 2
-    },
-    "int" : {
-      "score" : 16,
-      "mod" : 3
-    },
-    "wis" : {
-      "score" : 18,
-      "mod" : 4
-    },
-    "cha" : {
-      "score" : 11,
-      "mod" : 0
-    }
-  },
-  "charSavingThrows" : {
-    "str" : {
-      "score" : 3,
-      "bonus" : 0,
-      "proficient" : true,
-      "derivatives" : []
-    },  
-    "dex" : { 
-      "score" : 7,
-      "bonus" : 0,
-      "proficient" : true,
-      "derivatives" : []
-    },
-    "con" : {
-      "score" : 2,
-      "bonus" : 0,
-      "proficient" : false,
-      "derivatives" : []
-    },
-    "int" : {
-      "score" : 3,
-      "bonus" : 0,
-      "proficient" : false,
-      "derivatives" : []
-    },
-    "wis" : {
-      "score" : 4,
-      "bonus" : 0,
-      "proficient" : false,
-      "derivatives" : []
-    },
-    "cha" : {
-      "score" : 0,
-      "bonus" : 0,
-      "proficient" : false,
-      "derivatives" : []
-    }
-  },
-  "charProficiencyBonus" : {
-    "score" : 3,
-    "derivatives" : []
-  },
-  "charPassivePerception" : {
-    "score" : 14,
-    "bonus" : 0,
-    "derivatives" : []
-  },
-  "charArmorClass" : {
-    "score" : 18,
-    "derivatives" : []
-  },
-  "charInitiative" : {
-    "score" : 4,
-    "derivatives" : []
-  },
-  "charSpeed" : {
-    "score" : "50",
-    "derivatives" : []
-  },
-  "charHitPoints" : {
-    "current" : 37,
-    "maximum" : 37,
-    "temporary" : 10,
-    "hitDiceTotal" : "5d8",
-    "deathSaves" : {
-      "successes" : 0,
-      "failures" : 0
-    },
-    "derivatives" : []
-  },
-  "charAttacks" : [
-    {
-      "name" : "Unarmed Attack",
-      "desc" : "Use monk table attack 1d6 + DEX"
-    },
-    {
-      "name" : "Monk Weapon",
-      "desc" : "Use Monk Weapon (+1 Monk Staff); 1d8 + DEX + 1"
-    },
-    {
-      "name" : "Flurry of Blows",
-      "desc" : "Immediately after you take the Attack action on your turn, you can spend 1 ki point to make two unarmed strikes as a bonus action."
-    },
-    {
-      "name" : "Patient Defense",
-      "desc" : "You can spend 1 ki point to take the Dodge action as a bonus action on your turn."
-    },
-    {
-      "name" : "Step of the Wind",
-      "desc" : "You can spend 1 ki point to take the Disengage or Dash action as a bonus action on your turn, and your jump distance is doubled for the turn."
-    }
-  ],
-  "charEquipment" : {
-    "money" : {
-      "cp" : 0,
-      "sp" : 0,
-      "ep" : 0,
-      "gp" : 1337,
-      "pp" : 0
-    },
-    "otherEquipment" : [
-      {
-        "name" : "Cloth Armor",
-        "desc" : "Simple cloth armor. Covers all the important parts."
-      },
-      {
-        "name" : "Lyre of the Bearded Tree Goddess",
-        "desc" : "A Lyre made from the branch of the Elder Tree and strings made from the stray beard hairs of the lovliest Tree Goddess."
-      },
-      {
-        "name" : "+1 Monk Staff",
-        "desc" : "Monk weapon; use DEX; 1d8 bludgeoning; A basic wooden quarterstaff that I have made using the knowledge of my people."
-      }
-    ]
-  },
-  "charOtherProficiencies" : {
-    "languages" : [
-      {
-        "name" : "Common",
-        "desc" : "Everyone speaks it!"
-      },
-      {
-        "name" : "Tree Speech",
-        "desc" : "WssooWssooWssooWssooWsso"
-      },
-      {
-        "name" : "Elvish",
-        "desc" : "Old dudes talk"
-      },
-      {
-        "name" : "Dwarfish",
-        "desc" : "Mountain dudes talk"
-      }
-    ],
-    "proficiencies" : [
-      {
-        "name" : "Herbalism Kit",
-        "desc" : "For making poultices and stuff"
-      },
-      {
-        "name" : "Alchemist Supplies",
-        "desc" : "For making potions and stuff"
-      },
-      {
-        "name" : "Simple Weapons / Short swords",
-        "desc" : "For defense and surviving"
-      }
-    ]
-  },
-  "charSkills" : {
-    "Acrobatics" : {
-      "mod" : "dex", 
-      "bonus" : 0,
-      "trained" : true,
-      "score" : 7,
-      "derivatives" : []
-    },
-    "Animal Handling" : {
-      "mod" : "wis",
-      "bonus" : 0,
-      "trained" : false,
-      "score" : 4,
-      "derivatives" : []
-    },
-    "Arcana" : {
-      "mod" : "int",
-      "bonus" : 0,
-      "trained" : false,
-      "score" : 3,
-      "derivatives" : []
-    },
-    "Athletics" : {
-      "mod" : "str",
-      "bonus" : 0,
-      "trained" : false,
-      "score" : 0,
-      "derivatives" : []
-    },
-    "Deception" : {
-      "mod" : "cha",
-      "bonus" : 0,
-      "trained" : false,
-      "score" : 0,
-      "derivatives" : []
-    },
-    "History" : {
-      "mod" : "int",
-      "bonus" : 0,
-      "trained" : false,
-      "score" : 3,
-      "derivatives" : []
-    },
-    "Insight" : {
-      "mod" : "wis",
-      "bonus" : 0,
-      "trained" : true,
-      "score" : 7,
-      "derivatives" : []
-    },
-    "Intimidation" : {
-      "mod" : "cha",
-      "bonus" : 0,
-      "trained" : false,
-      "score" : 0,
-      "derivatives" : []
-    },
-    "Investigation" : {
-      "mod" : "int",
-      "bonus" : 0,
-      "trained" : false,
-      "score" : 3,
-      "derivatives" : []
-    },
-    "Medicine" : {
-      "mod" : "wis",
-      "bonus" : 0,
-      "trained" : true,
-      "score" : 7,
-      "derivatives" : []
-    },
-    "Nature" : {
-      "mod" : "int",
-      "bonus" : 0,
-      "trained" : true,
-      "score" : 6,
-      "derivatives" : []
-    },
-    "Perception" : {
-      "mod" : "wis",
-      "bonus" : 0,
-      "trained" : false,
-      "score" : 4,
-      "derivatives" : []
-    },
-    "Performance" : {
-      "mod" : "cha",
-      "bonus" : 0,
-      "trained" : false,
-      "score" : 0,
-      "derivatives" : []
-    },
-    "Persuasion" : {
-      "mod" : "cha",
-      "bonus" : 0,
-      "trained" : false,
-      "score" : 0,
-      "derivatives" : []
-    },
-    "Religion" : {
-      "mod" : "int",
-      "bonus" : 0,
-      "trained" : true,
-      "score" : 6,
-      "derivatives" : []
-    },
-    "Sleight of Hand" : {
-      "mod" : "dex",
-      "bonus" : 0,
-      "trained" : false,
-      "score" : 4,
-      "derivatives" : []
-    },
-    "Stealth" : {
-      "mod" : "dex",
-      "bonus" : 0,
-      "trained" : false,
-      "score" : 4,
-      "derivatives" : []
-    },
-    "Survival" : {
-      "mod" : "wis",
-      "bonus" : 0,
-      "trained" : false,
-      "score" : 4,
-      "derivatives" : []
-    }
-  },
-  "charFeatures" : [
-    {
-      "name" : "Unarmored Defense",
-      "desc" : "While not wearing armor or shield, AC is 10 + DEX + WIS"
-    },
-    {
-      "name" : "Martial Arts",
-      "desc" : "While wielding Monk Weapon: can use DEX for attack and damage rolls, roll 1d6 for unarmed strike or monk weapon (see monk table for higher levels), on Attack action with Monk Weapon can make on unarmed strike as a bonus action"
-    },
-    {
-      "name" : "Ki",
-      "desc" : "(See monk table for amount) Saving throw against Ki DC = 8 + PROF + WIS",
-      "idx" : 0
-    },
-    {
-      "name" : "Unarmored Movement",
-      "desc" : "Speed + 10 feet when not wearing armor or shield: see monk table for higher increase"
-    },
-    {
-      "name" : "Monastic Tradition",
-      "desc" : "I chose to follow the Way of the Open Palm tradition"
-    },
-    {
-      "name" : "Open Hand Technique",
-      "desc" : "When I hit with Flurry of Blows can do one on target: Make a DEX save or be prone, Make STR save or I push it 15 feet away, It cannot take reactions until end of my next turn"
-    },
-    {
-      "name" : "Deflect Missiles",
-      "desc" : "Use reaction to deflect or catch missile when hit by ranged attack. Reduce damage by 1d10 + DEX + Monk Level; if damage reduces to 0, catch it. Can spend 1 kip point to make a ranged attack with it with proficiency and counts as Monk Weapon"
-    },
-    {
-      "name" : "Ability Score Improvement",
-      "desc" : "Added to DEX and WIS"
-    },
-    {
-      "name" : "Slow Fall",
-      "desc" : "Use reaction whn falling to reduce damage equal to 5 times Monk Level"
-    },
-    {
-      "name" : "Extra Attack",
-      "desc" : "Attack twice, instead of once, when I take an Attack action on my turn"
-    },
-    {
-      "name" : "Stunning Strike",
-      "desc" : "Spend 1 ki point to attempt to stun; creatures takes CON save or be stunned until end of my next turn"
-    }
-  ]
-};
-
 },{}],31:[function(require,module,exports){
 // config? and preferences?
 require('fastclick')(document.body);
@@ -4724,7 +4469,7 @@ require('fastclick')(document.body);
 // main requires
 var React = require('react');
 var Firebase = require('firebase');
-var wan = require('./data/wan');
+//var wan = require('./data/wan');
 var blank = require('./data/blank');
 var chardb = new Firebase("https://character-db.firebaseio.com/");
 var snap;
@@ -4779,9 +4524,17 @@ var Character = React.createClass({
   componentWillMount: function () {
     // parse address and try to get character
     var hash = document.location.hash.split("#")[1] || "blank";
-    var character = chardb.child(hash).once("value", function(snap) {
+    var character;
+
+    chardb.child(hash).once("value", function(snap) {
       if (snap.val()) {
-        this.setState({ character : JSON.parse(snap.val().character) });
+        character = JSON.parse(snap.val().character);
+
+        // quick fix for augmenting character data structure already in the db
+        character['charResistances'] = character['charResistances'] ? character['charResistances'] : [];
+
+
+        this.setState({ character : character });
       }
       else {
         blank['charName'] = "Tap Me! To Create a new Character!";
@@ -4901,7 +4654,7 @@ var Character = React.createClass({
 // render Character
 React.render(React.createElement(Character, null), document.body);
 
-},{"./components/app-settings":1,"./components/content-area":2,"./components/title":27,"./data/blank":29,"./data/wan":30,"fastclick":33,"firebase":34,"react":233,"react-bootstrap/Button":37,"react-bootstrap/Input":45,"react-bootstrap/Modal":47,"react-bootstrap/OverlayMixin":50}],32:[function(require,module,exports){
+},{"./components/app-settings":1,"./components/content-area":2,"./components/title":28,"./data/blank":30,"fastclick":33,"firebase":34,"react":233,"react-bootstrap/Button":37,"react-bootstrap/Input":45,"react-bootstrap/Modal":47,"react-bootstrap/OverlayMixin":50}],32:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};

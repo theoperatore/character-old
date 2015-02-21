@@ -129,6 +129,7 @@ var SettingsSavingThrows = React.createClass({
     // save
     this.props.edit({ path : path, character : tmp });
     this.clearState();
+    this.toggle();
   },
   handleProfSelect : function(e) {
     //console.log(e.target.options);

@@ -2,8 +2,10 @@ var React = require('react');
 var HelpTooltip = require('../tooltips/help');
 var SettingsDefenses = require('../settings/settings-defenses');
 var SettingsThrows = require('../settings/settings-saving-throws');
+var SettingsResistances = require('../settings/settings-resistances');
 var HatchGroup = require('../hatch/HatchGroup');
 var Hatch = require('../hatch/Hatch');
+var Panel3d = require('../hatch/Panel3d');
 
 var Glyphicon = require('react-bootstrap/Glyphicon');
 var Accordion = require('react-bootstrap/Accordion');
@@ -93,6 +95,7 @@ var Defense = React.createClass({
   handleHelpToggle : function() {
     this.refs.help.toggle();
   },
+
   render : function() {
     var curr = this.props.character['charHitPoints']['current'];
     var max  = this.props.character['charHitPoints']['maximum'];
@@ -128,6 +131,15 @@ var Defense = React.createClass({
     clear = (
       <Button onClick={this.handleHP.bind(this, "clear")}>Clear</Button>
     );
+
+    var resistances = [];
+    this.props.character['charResistances'].forEach(function(res, i) {
+      resistances.push(
+        <Panel3d key={"res" + i} title={res.name} className="list-header">
+          <p>{res.desc}</p>
+        </Panel3d>
+      );
+    });
 
     return (
       <HatchGroup ref="settings">
@@ -285,6 +297,13 @@ var Defense = React.createClass({
               </Row>
             </Grid>
           </Panel>
+          <h3>{"Resistances"} <Button className="no-border" onClick={this.toggle.bind(this, "res0")}><Glyphicon glyph="cog"/></Button></h3>
+        </div>
+        <Hatch eventKey={"res0"}>
+          <SettingsResistances character={this.props.character} edit={this.props.edit} />
+        </Hatch>
+        <div className="hatch-cover">
+          {resistances}
         </div>
       </HatchGroup>
     );

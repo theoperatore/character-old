@@ -52,6 +52,7 @@ var SettingsTraits = React.createClass({
     }
 
     this.props.edit({ path : path, character : tmp});
+    this.toggle();
   },
   render : function() {
     return (

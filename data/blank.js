@@ -178,6 +178,7 @@ module.exports = {
     "languages" : [],
     "proficiencies" : []
   },
+  "charResistances" : [],
   "charSkills" : {
     "Acrobatics" : {
       "mod" : "dex",  

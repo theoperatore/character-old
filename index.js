@@ -4,7 +4,7 @@ require('fastclick')(document.body);
 // main requires
 var React = require('react');
 var Firebase = require('firebase');
-var wan = require('./data/wan');
+//var wan = require('./data/wan');
 var blank = require('./data/blank');
 var chardb = new Firebase("https://character-db.firebaseio.com/");
 var snap;
@@ -59,9 +59,17 @@ var Character = React.createClass({
   componentWillMount: function () {
     // parse address and try to get character
     var hash = document.location.hash.split("#")[1] || "blank";
-    var character = chardb.child(hash).once("value", function(snap) {
+    var character;
+
+    chardb.child(hash).once("value", function(snap) {
       if (snap.val()) {
-        this.setState({ character : JSON.parse(snap.val().character) });
+        character = JSON.parse(snap.val().character);
+
+        // quick fix for augmenting character data structure already in the db
+        character['charResistances'] = character['charResistances'] ? character['charResistances'] : [];
+
+
+        this.setState({ character : character });
       }
       else {
         blank['charName'] = "Tap Me! To Create a new Character!";
