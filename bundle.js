@@ -4779,10 +4779,22 @@ var Character = React.createClass({
     // parse address and try to get character
     var hash = document.location.hash.split("#")[1] || "blank";
     var character;
+    var loadedprefs; 
 
     chardb.child(hash).once("value", function(snap) {
       if (snap.val()) {
         character = JSON.parse(snap.val().character);
+
+        console.log("loading character: ", character['charName'], "...");
+
+        if (snap.val().preferences) {
+          console.log("using database preferences");
+          loadedprefs = JSON.parse(snap.val().preferences);
+        }
+        else {
+          loadedprefs = prefs;
+          console.log("using default / localStorage prefs");
+        }        
 
         // quick fix for augmenting character data structure already in the db
         character['charResistances'] = character['charResistances'] ? character['charResistances'] : [];
@@ -4802,7 +4814,7 @@ var Character = React.createClass({
           }
         }
 
-        this.setState({ character : character });
+        this.setState({ character : character,  preferences : loadedprefs });
       }
       else {
         blank['charName'] = "Tap Me! To Create a new Character!";
@@ -4967,9 +4979,14 @@ var Character = React.createClass({
     console.log("                     data: ");
     console.log(data.preferences);
     this.setState({ preferences : data.preferences });
+
+    var date = +new Date;
+    var out = {};
+    out.preferences = JSON.stringify(data.preferences);
+    out['pref_last_edited'] = date;
     
-    // save to local storage
-    localStorage.setItem("__character_preferences", JSON.stringify(this.state.preferences));
+    // save to database
+    chardb.child(this.state.character['charName'].toLowerCase().replace(" ", "-")).update(out);
   },
   render : function() {
     return (
