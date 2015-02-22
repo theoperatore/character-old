@@ -27,15 +27,15 @@ Fix / Do now:
   - ~~remaining / total~~
 - spells slots be it's own block, not in spell list
 - prepared spell toggle
-- editing money
+- ~~editing money~~
 - Switch to computing all scores on state updates, don't use score (allow character updates to trigger true re-renders)
-- Switch to translate3d for settings menus
+- Should prolly use React Immutability Helpers...
+- ~~Switch to translate3d for settings menus~~
 
 Non-Important stuff:
 
-- Test various layouts for best mobile use
-- Nail down data model
-- Work on custom parser?
+- **Test various layouts for best mobile use** (1mb+ JS!)
+- Nail down data model (WIP)
 
     
 ## License 
