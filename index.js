@@ -122,7 +122,7 @@ var Character = React.createClass({
       else {
         blank['charName'] = "Tap Me! To Create a new Character!";
 
-        document.title = blank['charName'];
+        document.title = "New Character";
         this.setState({ character : blank });
       }
     }.bind(this));

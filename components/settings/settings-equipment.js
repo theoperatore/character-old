@@ -18,6 +18,8 @@ var SettingsEquip = React.createClass({
     state.newName = "";
     state.newDesc = "";
     state.idx = -1;
+    state.moneyIdx = -1;
+    state.money = "";
 
     return (state);
   },
@@ -37,6 +39,8 @@ var SettingsEquip = React.createClass({
     state.newName = "";
     state.newDesc = "";
     state.idx = -1;
+    state.moneyIdx = -1;
+    state.money = "";
 
     this.setState(state);
   },
@@ -47,6 +51,16 @@ var SettingsEquip = React.createClass({
     var node = {};
     node[cmp] = e.target.value;
     this.setState(node);
+  },
+  handleMoneySelect : function(e) {
+    var state = {};
+
+    if (e.target.value === -1) return;
+
+    state.moneyIdx = e.target.value;
+    state.money = this.props.character['charEquipment']['money'][state.moneyIdx];
+
+    this.setState(state);
   },
   handleSelect : function(e) {
     var idx = parseInt(e.target.value, 10);
@@ -102,6 +116,16 @@ var SettingsEquip = React.createClass({
       tmp['charEquipment']['otherEquipment'][this.state.idx].desc = this.state.newDesc;
     }
 
+    // edit money
+    else if (this.state.mode === 2) {
+      if (this.state.moneyIdx === -1) return;
+      if (isNaN(parseInt(this.state.money, 10))) return;
+
+      path += "edit.money." + this.state.moneyIdx + "." + this.state.money;
+      tmp['charEquipment']['money'][this.state.moneyIdx] = parseInt(this.state.money, 10);
+
+    }
+
     this.props.edit({ path : path, character : tmp });
     this.clearState();
   },
@@ -153,6 +177,27 @@ var SettingsEquip = React.createClass({
       </div>
     );
   },
+  renderMoney : function() {
+
+    return (
+      <div>
+        <p>{"Add money!"}</p>
+        <Input type="select" onChange={this.handleMoneySelect} value={this.state.moneyIdx}>
+          <option value={-1}>{"Select a Unit"}</option>
+          <option value={"cp"}>{"Copper"}</option>
+          <option value={"sp"}>{"Silver"}</option>
+          <option value={"ep"}>{"Eternium"}</option>
+          <option value={"gp"}>{"Gold"}</option>
+          <option value={"pp"}>{"Platinum"}</option>
+        </Input>
+        <Input disabled={this.state.moneyIdx === -1 ? true : false} type="number" value={this.state.money} onChange={this.handleChange.bind(this, "money")} label={"Enter Money!"}/>
+        <ButtonToolbar>
+          <Button bsStyle="danger" onClick={this.toggle}>Close</Button>
+          <Button bsStyle="success" onClick={this.handleOk}>Save</Button>
+        </ButtonToolbar>
+      </div>
+    );
+  },
   render : function() {
     return (
       <div className="settings-tear">
@@ -163,6 +208,9 @@ var SettingsEquip = React.createClass({
           </TabPane>
           <TabPane eventKey={1} tab="edit">
             {this.renderEdit()}
+          </TabPane>
+          <TabPane eventKey={2} tab="money">
+            {this.renderMoney()}
           </TabPane>
         </TabbedArea>
       </div>

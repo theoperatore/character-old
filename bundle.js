@@ -2401,6 +2401,8 @@ var SettingsEquip = React.createClass({displayName: "SettingsEquip",
     state.newName = "";
     state.newDesc = "";
     state.idx = -1;
+    state.moneyIdx = -1;
+    state.money = "";
 
     return (state);
   },
@@ -2420,6 +2422,8 @@ var SettingsEquip = React.createClass({displayName: "SettingsEquip",
     state.newName = "";
     state.newDesc = "";
     state.idx = -1;
+    state.moneyIdx = -1;
+    state.money = "";
 
     this.setState(state);
   },
@@ -2430,6 +2434,16 @@ var SettingsEquip = React.createClass({displayName: "SettingsEquip",
     var node = {};
     node[cmp] = e.target.value;
     this.setState(node);
+  },
+  handleMoneySelect : function(e) {
+    var state = {};
+
+    if (e.target.value === -1) return;
+
+    state.moneyIdx = e.target.value;
+    state.money = this.props.character['charEquipment']['money'][state.moneyIdx];
+
+    this.setState(state);
   },
   handleSelect : function(e) {
     var idx = parseInt(e.target.value, 10);
@@ -2485,6 +2499,16 @@ var SettingsEquip = React.createClass({displayName: "SettingsEquip",
       tmp['charEquipment']['otherEquipment'][this.state.idx].desc = this.state.newDesc;
     }
 
+    // edit money
+    else if (this.state.mode === 2) {
+      if (this.state.moneyIdx === -1) return;
+      if (isNaN(parseInt(this.state.money, 10))) return;
+
+      path += "edit.money." + this.state.moneyIdx + "." + this.state.money;
+      tmp['charEquipment']['money'][this.state.moneyIdx] = parseInt(this.state.money, 10);
+
+    }
+
     this.props.edit({ path : path, character : tmp });
     this.clearState();
   },
@@ -2536,6 +2560,27 @@ var SettingsEquip = React.createClass({displayName: "SettingsEquip",
       )
     );
   },
+  renderMoney : function() {
+
+    return (
+      React.createElement("div", null, 
+        React.createElement("p", null, "Add money!"), 
+        React.createElement(Input, {type: "select", onChange: this.handleMoneySelect, value: this.state.moneyIdx}, 
+          React.createElement("option", {value: -1}, "Select a Unit"), 
+          React.createElement("option", {value: "cp"}, "Copper"), 
+          React.createElement("option", {value: "sp"}, "Silver"), 
+          React.createElement("option", {value: "ep"}, "Eternium"), 
+          React.createElement("option", {value: "gp"}, "Gold"), 
+          React.createElement("option", {value: "pp"}, "Platinum")
+        ), 
+        React.createElement(Input, {disabled: this.state.moneyIdx === -1 ? true : false, type: "number", value: this.state.money, onChange: this.handleChange.bind(this, "money"), label: "Enter Money!"}), 
+        React.createElement(ButtonToolbar, null, 
+          React.createElement(Button, {bsStyle: "danger", onClick: this.toggle}, "Close"), 
+          React.createElement(Button, {bsStyle: "success", onClick: this.handleOk}, "Save")
+        )
+      )
+    );
+  },
   render : function() {
     return (
       React.createElement("div", {className: "settings-tear"}, 
@@ -2546,6 +2591,9 @@ var SettingsEquip = React.createClass({displayName: "SettingsEquip",
           ), 
           React.createElement(TabPane, {eventKey: 1, tab: "edit"}, 
             this.renderEdit()
+          ), 
+          React.createElement(TabPane, {eventKey: 2, tab: "money"}, 
+            this.renderMoney()
           )
         )
       )
@@ -4820,7 +4868,7 @@ var Character = React.createClass({
       else {
         blank['charName'] = "Tap Me! To Create a new Character!";
 
-        document.title = blank['charName'];
+        document.title = "New Character";
         this.setState({ character : blank });
       }
     }.bind(this));
