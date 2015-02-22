@@ -1,13 +1,13 @@
 var React = require('react');
 
-var Input = require('react-bootstrap/Input');
-var Button = require('react-bootstrap/Button');
-var ButtonToolbar = require('react-bootstrap/ButtonToolbar');
-var TabbedArea = require('react-bootstrap/TabbedArea');
-var TabPane = require('react-bootstrap/TabPane');
-var Grid = require('react-bootstrap/Grid');
-var Row = require('react-bootstrap/Row');
-var Col = require('react-bootstrap/Col');
+var Input = require('react-bootstrap/lib/Input');
+var Button = require('react-bootstrap/lib/Button');
+var ButtonToolbar = require('react-bootstrap/lib/ButtonToolbar');
+var TabbedArea = require('react-bootstrap/lib/TabbedArea');
+var TabPane = require('react-bootstrap/lib/TabPane');
+var Grid = require('react-bootstrap/lib/Grid');
+var Row = require('react-bootstrap/lib/Row');
+var Col = require('react-bootstrap/lib/Col');
 
 var ResistanceSettings = React.createClass({
   getInitialState : function() {

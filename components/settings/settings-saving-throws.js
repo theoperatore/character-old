@@ -1,10 +1,10 @@
 var React = require('react');
 
-var Input = require('react-bootstrap/Input');
-var ButtonToolbar = require('react-bootstrap/ButtonToolbar');
-var Button = require('react-bootstrap/Button');
-var Row = require('react-bootstrap/Row');
-var Col = require('react-bootstrap/Col');
+var Input = require('react-bootstrap/lib/Input');
+var ButtonToolbar = require('react-bootstrap/lib/ButtonToolbar');
+var Button = require('react-bootstrap/lib/Button');
+var Row = require('react-bootstrap/lib/Row');
+var Col = require('react-bootstrap/lib/Col');
 
 var SettingsSavingThrows = React.createClass({
   getInitialState : function() {

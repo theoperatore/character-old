@@ -1,5 +1,5 @@
 var React = require('react');
-var PageHeader = require('react-bootstrap/PageHeader');
+var PageHeader = require('react-bootstrap/lib/PageHeader');
 
 var Title = React.createClass({
   displayName : "Title",

@@ -10,9 +10,9 @@ var PaneEquipment = require('./panes/pane-equipment');
 var PaneSpell = require('./panes/pane-spell');
 
 // react-bootstrap stuff
-var TabbedArea = require('react-bootstrap/TabbedArea');
-var TabPane = require('react-bootstrap/TabPane');
-var Glyphicon = require('react-bootstrap/Glyphicon');
+var TabbedArea = require('react-bootstrap/lib/TabbedArea');
+var TabPane = require('react-bootstrap/lib/TabPane');
+var Glyphicon = require('react-bootstrap/lib/Glyphicon');
 
 
 // the thing!

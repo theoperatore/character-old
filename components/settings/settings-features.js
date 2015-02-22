@@ -1,12 +1,12 @@
 var React = require('react');
 
-var TabbedArea = require('react-bootstrap/TabbedArea');
-var TabPane = require('react-bootstrap/TabPane');
-var Input = require('react-bootstrap/Input');
-var ButtonToolbar = require('react-bootstrap/ButtonToolbar');
-var Button = require('react-bootstrap/Button');
-var Row = require('react-bootstrap/Row');
-var Col = require('react-bootstrap/Col');
+var TabbedArea = require('react-bootstrap/lib/TabbedArea');
+var TabPane = require('react-bootstrap/lib/TabPane');
+var Input = require('react-bootstrap/lib/Input');
+var ButtonToolbar = require('react-bootstrap/lib/ButtonToolbar');
+var Button = require('react-bootstrap/lib/Button');
+var Row = require('react-bootstrap/lib/Row');
+var Col = require('react-bootstrap/lib/Col');
 
 var SettingsFeatures = React.createClass({
   getInitialState : function() {
@@ -160,6 +160,7 @@ var SettingsFeatures = React.createClass({
 
         crgs.name = this.state.name;
         crgs.charges = this.state.charges;
+        crgs.used = 0;
 
         // push new class charges node and link with feature
         tmp['charClassCharges'].push(crgs);

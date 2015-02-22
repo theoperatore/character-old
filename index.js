@@ -14,13 +14,23 @@ var Title = require('./components/title');
 var ContentArea = require('./components/content-area');
 var AppSettings = require('./components/app-settings');
 
-var Modal = require('react-bootstrap/Modal');
-var OverlayMixin = require('react-bootstrap/OverlayMixin');
-var Button = require('react-bootstrap/Button');
-var Input = require('react-bootstrap/Input');
+var Modal = require('react-bootstrap/lib/Modal');
+var Alert = require('react-bootstrap/lib/Alert');
+var OverlayMixin = require('react-bootstrap/lib/OverlayMixin');
+var Button = require('react-bootstrap/lib/Button');
+var Input = require('react-bootstrap/lib/Input');
 
-// app preferences
-var prefs = JSON.parse(localStorage.getItem("__character_preferences")) ||  {
+// initial character status and app preferences
+var initStatus = {};
+var initPrefs;
+
+initStatus.hitdice = {};
+initStatus.hitpoints ={};
+initStatus.hitdice.curr = 1;
+initStatus.hitpoints.curr = 100;
+initStatus.hitpoints.temp = 0;
+
+initPrefs = {
   atkBubbles : [
     {
       abil : "str",
@@ -44,17 +54,28 @@ var prefs = JSON.parse(localStorage.getItem("__character_preferences")) ||  {
   ]
 };
 
+// app preferences / status
+var prefs = JSON.parse(localStorage.getItem("__character_preferences")) || initPrefs;
+var status = JSON.parse(localStorage.getItem("__character_status")) || initStatus;
+
 // main out
 var Character = React.createClass({
   displayName : "Character",
   mixins : [OverlayMixin],
   getInitialState : function() {
-    return ({ 
-      character : blank,
-      preferences : prefs,
-      needsName : false,
-      name : ""
-    })
+    var state = {};
+
+    state.character = blank;
+    state.preferences = prefs;
+    state.status = status;
+    state.needsName = false;
+    state.name = "";
+    state.dead = false;
+    state.deadCount = 0;
+    state.deadMsg = "";
+    state.deadAlert = false;
+    
+    return (state);
   },
   componentWillMount: function () {
     // parse address and try to get character
@@ -67,7 +88,21 @@ var Character = React.createClass({
 
         // quick fix for augmenting character data structure already in the db
         character['charResistances'] = character['charResistances'] ? character['charResistances'] : [];
+        character['charHitPoints']['hitDiceCurrent'] = character['charHitPoints']['hitDiceCurrent'] !== undefined ? character['charHitPoints']['hitDiceCurrent'] : character['charInfo']['level'];
 
+        // spell slots quick fix
+        if (character['charSpells'][1]['used'] === undefined) {
+          for (var i = 1; i < 10; i++) {
+            character['charSpells'][i]['used'] = 0;
+          }
+        }
+
+        // class charges quick fix
+        if (character['charClassCharges'][0] && character['charClassCharges'][0]['used'] === undefined) {
+          for (var i = 0; i < character['charClassCharges'].length; i++) {
+            character['charClassCharges'][i]['used'] = 0;
+          }
+        }
 
         this.setState({ character : character });
       }
@@ -117,7 +152,68 @@ var Character = React.createClass({
   handleChange : function(e) {
     this.setState({ name : e.target.value });
   },
+
+  cancelDeadHide : function() {
+    var msg = "";
+
+    if (this.state.deadCount < 3) {
+      msg = "Sorry, but your character is dead..."; 
+    }
+    else if (this.state.deadCount >= 3 && this.state.deadCount <= 5) {
+      msg = "I'm really sorry...but there's no will for your character to live...";
+    }
+    else if (this.state.deadCount > 5 && this.state.deadCount <= 8) {
+      msg = "maybe if you made a really good roll and prayed to your deity?";
+    }
+    else if (this.state.deadCount > 8 && this.state.deadCount <= 11) {
+      msg = "but that would probably require a critical...and even then I don't think any spell can bring back anyone from the dead.";
+    }
+    else if (this.state.deadCount > 11 && this.state.deadCount <= 14) {
+      msg = "you must really want " + this.state.character['charName'] + " back.";
+    }
+    else if (this.state.deadCount > 14 && this.state.deadcount <= 30) {
+      msg = "Sorry, but your character is dead...";
+    }
+    else if (this.state.deadCount > 30) {
+      msg = "The Hippo is truly sorry for your loss...all stories must eventually end no matter the length!";
+    }
+
+    this.setState({ deadCount : this.state.deadCount + 1, deadMsg : msg, deadAlert : true });
+    return;
+  },
+  handleAlertDismiss : function() {
+    this.setState({ deadAlert : false });
+  },
+  onDeadNewCharacter : function() {
+    this.setState({ dead : false, deadCount : 0, deadMsg : "" });
+  },
   renderOverlay : function() {
+    if (this.state.dead === true) {
+
+      var alert;
+
+      if (this.state.deadAlert) {
+        alert = (
+          <Alert bsStyle="danger" onDismiss={this.handleAlertDismiss} dismissAfter={3000}>
+            <p>{this.state.deadMsg}</p>
+          </Alert>
+        );
+      }
+    
+      return (
+        <Modal title={"And so " + this.state.character['charName'] + "'s future ceased to exist..."} onRequestHide={this.cancelDeadHide}>
+          <div className="modal-body">
+            {alert}
+            <p></p>
+          </div>
+          <div className="modal-footer">
+            <Button bsStyle="success" bsSize={"large"} onClick={this.cancelDeadHide}>Close</Button>
+            <Button bsStyle="danger" bsSize={"xsmall"} onClick={this.onDeadNewCharacter}>{"Create new Character"}</Button>
+          </div>
+        </Modal>
+      );
+    }
+
     if (!this.state.needsName) return (<span />);
 
     return (
@@ -137,25 +233,41 @@ var Character = React.createClass({
   },
   editCharacter : function(data) {
     console.log("received from: ", data.path);
-    console.log("     data: ", data.character);
+    console.log("         data:");
+    console.log(data.character);
     this.setState({ character : data.character });
 
+    var date = +new Date;
     var out = {};
     out.character = JSON.stringify(data.character);
+    out['last_edited'] = date;
+    out['date_created'] = (data.path === "characterCreation") ? date : "for all time";
 
     // save to firebase
     chardb.child(data.character['charName'].toLowerCase().replace(" ", "-")).update(out);
+
+    if (data.character['charHitPoints']['deathSaves']['failures'] >= 3) {
+      var dead_date = +new Date;
+      console.log("CHARACTER DIED!", dead_date);
+      this.setState({ dead : true });
+
+      chardb.child(data.character['charName'].toLowerCase().replace(" ", "-")).update({ "date_of_death" : date });
+    }
   },
-  editCharacterState : function(data) {
-    console.log("received from: ", data.path);
-    console.log("     updated: ", data.character);
-    console.warn("this function has not yet been fully implemented. Nothing is saved.");
+  editCharacterStatus : function(data) {
+    console.log("received status from: ", data.path);
+    console.log("             updated:");
+    console.log(data.status);
+    console.warn("this function has not yet been fully implemented. Nothing is saved. Does this function need to exist?");
+    this.setState({ status : data.status });
 
     // save to local storage only? or to firebase as well?
+    //localStore.setItem("__character_status", JSON.stringify(this.state.status));
   },
   editPreferences : function(data) {
     console.log("received preferences from: ", data.path);
-    console.log("     data: ", data.preferences);
+    console.log("                     data: ");
+    console.log(data.preferences);
     this.setState({ preferences : data.preferences });
     
     // save to local storage

@@ -26,6 +26,6 @@
     "fastclick": "^1.0.6",
     "firebase": "^2.2.0",
     "react": "^0.12.2",
-    "react-bootstrap": "^0.13.3"
+    "react-bootstrap": "^0.15.1"
   }
 }

@@ -7,20 +7,20 @@ var HatchGroup = require('../hatch/HatchGroup');
 var Hatch = require('../hatch/Hatch');
 var Panel3d = require('../hatch/Panel3d');
 
-var Glyphicon = require('react-bootstrap/Glyphicon');
-var Accordion = require('react-bootstrap/Accordion');
-var Panel = require('react-bootstrap/Panel');
-var Input = require('react-bootstrap/Input');
-var Grid = require('react-bootstrap/Grid');
-var Row = require('react-bootstrap/Row');
-var Col = require('react-bootstrap/Col');
-var OverlayTrigger = require('react-bootstrap/OverlayTrigger');
-var Popover = require('react-bootstrap/Popover');
-var Modal = require('react-bootstrap/Modal');
-var Button = require('react-bootstrap/Button');
-var Tooltip = require('react-bootstrap/Tooltip');
-var TabbedArea = require('react-bootstrap/TabbedArea');
-var TabPane = require('react-bootstrap/TabPane');
+var Glyphicon = require('react-bootstrap/lib/Glyphicon');
+var Accordion = require('react-bootstrap/lib/Accordion');
+var Panel = require('react-bootstrap/lib/Panel');
+var Input = require('react-bootstrap/lib/Input');
+var Grid = require('react-bootstrap/lib/Grid');
+var Row = require('react-bootstrap/lib/Row');
+var Col = require('react-bootstrap/lib/Col');
+var OverlayTrigger = require('react-bootstrap/lib/OverlayTrigger');
+var Popover = require('react-bootstrap/lib/Popover');
+var Modal = require('react-bootstrap/lib/Modal');
+var Button = require('react-bootstrap/lib/Button');
+var Tooltip = require('react-bootstrap/lib/Tooltip');
+var TabbedArea = require('react-bootstrap/lib/TabbedArea');
+var TabPane = require('react-bootstrap/lib/TabPane');
 
 var Spells = React.createClass({
   displayName : "CharSpell",
@@ -43,6 +43,21 @@ var Spells = React.createClass({
   handleToggle : function(idx) {
     this.refs.settings.toggle(idx);
   },
+  handleCharge : function(level, e) {
+    var tmp = this.props.character;
+    var path = "charSpells.slots.used.total.";
+
+    if (e.target.checked) {
+      tmp['charSpells'][level]['used'] += 1;
+      path += tmp['charSpells'][level]['used'];
+    }
+    else {
+      tmp['charSpells'][level]['used'] -= 1;
+      path += tmp['charSpells'][level]['used'];
+    }
+    
+    this.props.edit({ path : path, character : tmp });
+  },
   render : function() {
     var prof = this.props.character['charProficiencyBonus']['score'];
 
@@ -54,8 +69,10 @@ var Spells = React.createClass({
         // get spell slots
         var slots = [];
         for (var k = 0; k < level.slots; k++) {
+          var checked = k < level.used;
+
           slots.push(
-            <Col key={k} xs={1}><input type="checkbox" /></Col>
+            <Col key={k} xs={1}><input checked={checked} onChange={this.handleCharge.bind(this, i)} type="checkbox" /></Col>
           );
         }
 
@@ -94,7 +111,7 @@ var Spells = React.createClass({
           </Panel3d>
         );
       }
-    });
+    }.bind(this));
 
     // add in spell attack bonus bubbles
     var bubbles = [];

@@ -8,13 +8,13 @@ var HatchGroup = require('../hatch/HatchGroup');
 var Hatch = require('../hatch/Hatch');
 var Panel3d = require('../hatch/Panel3d');
 
-var Grid = require('react-bootstrap/Grid');
-var Row = require('react-bootstrap/Row');
-var Col = require('react-bootstrap/Col');
-var Panel = require('react-bootstrap/Panel');
-var Button = require('react-bootstrap/Button');
-var Glyphicon = require('react-bootstrap/Glyphicon');
-var OverlayMixin = require('react-bootstrap/OverlayMixin');
+var Grid = require('react-bootstrap/lib/Grid');
+var Row = require('react-bootstrap/lib/Row');
+var Col = require('react-bootstrap/lib/Col');
+var Panel = require('react-bootstrap/lib/Panel');
+var Button = require('react-bootstrap/lib/Button');
+var Glyphicon = require('react-bootstrap/lib/Glyphicon');
+var OverlayMixin = require('react-bootstrap/lib/OverlayMixin');
 
 var Info = React.createClass({
   displayName : "CharInfo",

@@ -1,5 +1,6 @@
 var React = require('react');
 var HelpTooltip = require('../tooltips/help');
+var RestConfig = require('../popovers/rest');
 var SettingsDefenses = require('../settings/settings-defenses');
 var SettingsThrows = require('../settings/settings-saving-throws');
 var SettingsResistances = require('../settings/settings-resistances');
@@ -7,17 +8,18 @@ var HatchGroup = require('../hatch/HatchGroup');
 var Hatch = require('../hatch/Hatch');
 var Panel3d = require('../hatch/Panel3d');
 
-var Glyphicon = require('react-bootstrap/Glyphicon');
-var Accordion = require('react-bootstrap/Accordion');
-var Panel = require('react-bootstrap/Panel');
-var ProgressBar = require('react-bootstrap/ProgressBar');
-var OverlayTrigger = require('react-bootstrap/OverlayTrigger');
-var Tooltip = require('react-bootstrap/Tooltip');
-var Input = require('react-bootstrap/Input');
-var Grid = require('react-bootstrap/Grid');
-var Row = require('react-bootstrap/Row');
-var Col = require('react-bootstrap/Col');
-var Button = require('react-bootstrap/Button');
+var Glyphicon = require('react-bootstrap/lib/Glyphicon');
+var Accordion = require('react-bootstrap/lib/Accordion');
+var Panel = require('react-bootstrap/lib/Panel');
+var ProgressBar = require('react-bootstrap/lib/ProgressBar');
+var OverlayTrigger = require('react-bootstrap/lib/OverlayTrigger');
+var Popover = require('react-bootstrap/lib/Popover');
+var Tooltip = require('react-bootstrap/lib/Tooltip');
+var Input = require('react-bootstrap/lib/Input');
+var Grid = require('react-bootstrap/lib/Grid');
+var Row = require('react-bootstrap/lib/Row');
+var Col = require('react-bootstrap/lib/Col');
+var Button = require('react-bootstrap/lib/Button');
 
 var Defense = React.createClass({
   displayName : "CharDefenses",
@@ -34,10 +36,39 @@ var Defense = React.createClass({
   toggleHP : function() {
     this.setState({ hpOpen : ((this.state.hpOpen === 0) ? 1 : 0) });
   },
+  toggleRest : function() {
+    this.refs['rest-popover'].toggle();
+  },
   handleHPInput : function(cmp, e) {
     var node = {};
     node[cmp] = e.target.value;
     this.setState(node);
+  },
+  handleDeathSaves : function(cmp, e) {
+    var tmp = this.props.character;
+    var path = "charDefenses." + cmp + ".total.";
+    if (cmp === "successes") {
+      if (e.target.checked) {
+        tmp['charHitPoints']['deathSaves']['successes'] += 1;
+      }
+      else {
+        tmp['charHitPoints']['deathSaves']['successes'] -= 1;
+      }
+
+      path += tmp['charHitPoints']['deathSaves']['successes'];
+    }
+    else if (cmp === "failures") {
+      if (e.target.checked) {
+        tmp['charHitPoints']['deathSaves']['failures'] += 1;
+      }
+      else {
+        tmp['charHitPoints']['deathSaves']['failures'] -= 1;
+      }
+
+      path += tmp['charHitPoints']['deathSaves']['failures'];
+    }
+
+    this.props.edit({ path : path, character : tmp });
   },
   handleHP : function(mode) {
     var data = this.props.character;
@@ -80,7 +111,7 @@ var Defense = React.createClass({
       if (isNaN(temp)) return;
 
       path += "tempHP." + temp;
-      data['charHitPoints']['temporary'] += temp;
+      data['charHitPoints']['temporary'] = temp;
     }
     else if (mode === "clear") {
 
@@ -141,6 +172,22 @@ var Defense = React.createClass({
       );
     });
 
+    var successes = [];
+    var failures = [];
+    for (var i = 0; i < 3; i++) {
+      var checked = i < this.props.character['charHitPoints']['deathSaves']['successes'];
+      successes.push(
+        <Col key={"successes" + i} xs={4}><input onChange={this.handleDeathSaves.bind(this, "successes")}  checked={checked} className="chkbox-lg" type="checkbox" /></Col>
+      );
+    }
+
+    for (var i = 0; i < 3; i++) {
+      var checked = i < this.props.character['charHitPoints']['deathSaves']['failures'];
+      failures.push(
+        <Col key={"failures" + i} xs={4}><input onChange={this.handleDeathSaves.bind(this, "failures")} checked={checked} className="chkbox-lg" type="checkbox" /></Col>
+      );
+    }
+
     return (
       <HatchGroup ref="settings">
         <div className="hatch-cover">
@@ -194,7 +241,18 @@ var Defense = React.createClass({
                     <h3>{this.props.character['charInitiative']['score']}</h3>
                   </div>
                 </Col>
-                <Col xs={4}><div></div></Col>
+                <Col xs={4}>
+                  <OverlayTrigger ref={"rest-popover"} placement={"bottom"} trigger={'manual'} overlay={
+                    <Popover title={"Take a Rest"}>
+                      <RestConfig close={this.toggleRest} character={this.props.character} edit={this.props.edit}/>
+                    </Popover>
+                  }>
+                    <div className="card">
+                      <p>Rest</p>
+                      <Button className="btn-rest" onClick={this.toggleRest}><Glyphicon glyph="tent" /></Button>
+                    </div>
+                  </OverlayTrigger>
+                </Col>
                 <Col xs={4}>
                   <div className="card">
                     <p>Speed</p>
@@ -207,6 +265,7 @@ var Defense = React.createClass({
                   <div>
                     <p>Hit Dice</p>
                     <h3>{this.props.character['charHitPoints']['hitDiceTotal']}</h3>
+                    <p>{this.props.character['charHitPoints']['hitDiceCurrent']} / {this.props.character['charInfo']['level']}</p>
                   </div>
                 </Col>
               </Row>
@@ -227,18 +286,14 @@ var Defense = React.createClass({
                 <Col xs={6}>
                   <Grid fluid>
                     <Row className="no-padding">
-                      <Col xs={4}><input className="chkbox-lg" type="checkbox" /></Col>
-                      <Col xs={4}><input className="chkbox-lg" type="checkbox" /></Col>
-                      <Col xs={4}><input className="chkbox-lg" type="checkbox" /></Col>
+                      {successes}
                     </Row>
                   </Grid>
                 </Col>
                 <Col xs={6}>
                   <Grid fluid>
                     <Row className="no-padding">
-                      <Col xs={4}><input className="chkbox-lg" type="checkbox" /></Col>
-                      <Col xs={4}><input className="chkbox-lg" type="checkbox" /></Col>
-                      <Col xs={4}><input className="chkbox-lg" type="checkbox" /></Col>
+                      {failures}
                     </Row>
                   </Grid>
                 </Col>

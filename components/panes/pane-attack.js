@@ -7,16 +7,16 @@ var HatchGroup = require('../hatch/HatchGroup');
 var Hatch = require('../hatch/Hatch');
 var Panel3d = require('../hatch/Panel3d');
 
-var Glyphicon = require('react-bootstrap/Glyphicon');
-var Accordion = require('react-bootstrap/Accordion');
-var Panel = require('react-bootstrap/Panel');
-var Grid = require('react-bootstrap/Grid');
-var Row = require('react-bootstrap/Row');
-var Col = require('react-bootstrap/Col');
-var OverlayTrigger = require('react-bootstrap/OverlayTrigger');
-var Tooltip = require('react-bootstrap/Tooltip');
-var Popover = require('react-bootstrap/Popover');
-var Button = require('react-bootstrap/Button');
+var Glyphicon = require('react-bootstrap/lib/Glyphicon');
+var Accordion = require('react-bootstrap/lib/Accordion');
+var Panel = require('react-bootstrap/lib/Panel');
+var Grid = require('react-bootstrap/lib/Grid');
+var Row = require('react-bootstrap/lib/Row');
+var Col = require('react-bootstrap/lib/Col');
+var OverlayTrigger = require('react-bootstrap/lib/OverlayTrigger');
+var Tooltip = require('react-bootstrap/lib/Tooltip');
+var Popover = require('react-bootstrap/lib/Popover');
+var Button = require('react-bootstrap/lib/Button');
 
 var Attack = React.createClass({
   displayName : "CharAttack",
@@ -31,6 +31,23 @@ var Attack = React.createClass({
   handleHelpToggle : function() {
     this.refs['help'].toggle();
   },
+
+  handleCharge : function(chargeIdx, e) {
+    var tmp = this.props.character;
+    var path = "charClassCharges.used.total.";
+
+    if (e.target.checked) {
+      tmp['charClassCharges'][chargeIdx]['used'] += 1;
+      path += tmp['charClassCharges'][chargeIdx]['used'];
+    }
+    else {
+      tmp['charClassCharges'][chargeIdx]['used'] -= 1;
+      path += tmp['charClassCharges'][chargeIdx]['used'];
+    }
+    
+    this.props.edit({ path : path, character : tmp });
+  },
+
   render : function() {
 
     var charAttacks = this.props.character['charAttacks'];
@@ -53,8 +70,10 @@ var Attack = React.createClass({
       var slots = [];
 
       for (var j = 0; j < resource['charges']; j++) {
+        var checked = j < resource.used;
+
         slots.push(
-          <Col key={j} xs={1}><input className="chkbox-lg" type="checkbox" /></Col>
+          <Col key={j} xs={1}><input checked={checked} onChange={this.handleCharge.bind(this, i)} className="chkbox-lg" type="checkbox" /></Col>
         );
       }
 
@@ -70,7 +89,7 @@ var Attack = React.createClass({
           </div>
         </Panel>
       );
-    });
+    }.bind(this));
 
 
     // render attack bonus bubbles -- might have to think of something

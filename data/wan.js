@@ -188,6 +188,7 @@ module.exports = {
     "maximum" : 37,
     "temporary" : 10,
     "hitDiceTotal" : "5d8",
+    "hitDiceCurrent" : 5,
     "deathSaves" : {
       "successes" : 0,
       "failures" : 0

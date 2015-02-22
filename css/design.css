@@ -136,6 +136,13 @@ html {
   font-weight: bold;
 }
 
+.btn-rest {
+  font-size: 22px;
+  line-height: 22px;
+  height:50px;
+  width:50px;
+}
+
 /* For some reason, React-Bootstrap doesn't do the modal backdrop? */
 .modal {
   z-index: 1337;

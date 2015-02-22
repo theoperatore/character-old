@@ -5,11 +5,11 @@ var HatchGroup = require('../hatch/HatchGroup');
 var Hatch = require('../hatch/Hatch');
 var Panel3d = require('../hatch/Panel3d');
 
-var Glyphicon = require('react-bootstrap/Glyphicon');
-var Accordion = require('react-bootstrap/Accordion');
-var Panel = require('react-bootstrap/Panel');
-var Input = require('react-bootstrap/Input');
-var Button = require('react-bootstrap/Button');
+var Glyphicon = require('react-bootstrap/lib/Glyphicon');
+var Accordion = require('react-bootstrap/lib/Accordion');
+var Panel = require('react-bootstrap/lib/Panel');
+var Input = require('react-bootstrap/lib/Input');
+var Button = require('react-bootstrap/lib/Button');
 
 var Features = React.createClass({
   displayName : "CharFeatures",

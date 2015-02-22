@@ -1,6 +1,6 @@
 var React = require('react');
-var Button = require('react-bootstrap/Button');
-var ButtonGroup = require('react-bootstrap/ButtonGroup');
+var Button = require('react-bootstrap/lib/Button');
+var ButtonGroup = require('react-bootstrap/lib/ButtonGroup');
 
 var AppSettings = React.createClass({
   render : function() {

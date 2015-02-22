@@ -5,16 +5,16 @@ var SettingsSkills = require('../settings/settings-skills');
 var HatchGroup = require('../hatch/HatchGroup');
 var Hatch = require('../hatch/Hatch');
 
-var Glyphicon = require('react-bootstrap/Glyphicon');
-var Accordion = require('react-bootstrap/Accordion');
-var Panel = require('react-bootstrap/Panel');
-var Input = require('react-bootstrap/Input');
-var Grid = require('react-bootstrap/Grid');
-var Row = require('react-bootstrap/Row');
-var Col = require('react-bootstrap/Col');
-var Popover = require('react-bootstrap/Popover');
-var Modal = require('react-bootstrap/Modal');
-var Button = require('react-bootstrap/Button');
+var Glyphicon = require('react-bootstrap/lib/Glyphicon');
+var Accordion = require('react-bootstrap/lib/Accordion');
+var Panel = require('react-bootstrap/lib/Panel');
+var Input = require('react-bootstrap/lib/Input');
+var Grid = require('react-bootstrap/lib/Grid');
+var Row = require('react-bootstrap/lib/Row');
+var Col = require('react-bootstrap/lib/Col');
+var Popover = require('react-bootstrap/lib/Popover');
+var Modal = require('react-bootstrap/lib/Modal');
+var Button = require('react-bootstrap/lib/Button');
 
 var Ability = React.createClass({
   displayName : "CharAbility",

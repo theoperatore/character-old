@@ -1,5 +1,5 @@
 var React = require('react');
-var EventListener = require('react-bootstrap/utils/EventListener');
+var EventListener = require('react-bootstrap/lib/utils/EventListener');
 
 // func that see if 
 var targetInRoot = function(target, root) {

@@ -19,51 +19,61 @@ module.exports = {
     {
       "name" : "Cantrips",
       "slots" : 0,
+      "used" : 0,
       "spells" : []
     },
     {
       "name" : "1st",
       "slots" : 0,
+      "used" : 0,
       "spells" : []
     },
     {
       "name" : "2nd",
       "slots" : 0,
+      "used" : 0,
       "spells" : []
     },
     {
       "name" : "3rd",
       "slots" : 0,
+      "used" : 0,
       "spells" : []
     },
     {
       "name" : "4th",
       "slots" : 0,
+      "used" : 0,
       "spells" : []
     },
     {
       "name" : "5th",
       "slots" : 0,
+      "used" : 0,
       "spells" : []
     },
     {
       "name" : "6th",
       "slots" : 0,
+      "used" : 0,
       "spells" : []
     },
     {
       "name" : "7th",
       "slots" : 0,
+      "used" : 0,
       "spells" : []
     },
     {
       "name" : "8th",
       "slots" : 0,
+      "used" : 0,
       "spells" : []
     },
     {
       "name" : "9th",
       "slots" : 0,
+      "used" : 0,
       "spells" : []
     }
   ],
@@ -157,6 +167,7 @@ module.exports = {
     "maximum" : 0,
     "temporary" : 0,
     "hitDiceTotal" : "0",
+    "hitDiceCurrent" : 1,
     "deathSaves" : {
       "successes" : 0,
       "failures" : 0

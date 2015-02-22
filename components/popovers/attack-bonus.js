@@ -1,8 +1,8 @@
 var React = require('react');
-var EventListener = require('react-bootstrap/utils/EventListener');
-var Input = require('react-bootstrap/Input');
-var Button = require('react-bootstrap/Button');
-var Glyphicon = require('react-bootstrap/Glyphicon');
+var EventListener = require('react-bootstrap/lib/utils/EventListener');
+var Input = require('react-bootstrap/lib/Input');
+var Button = require('react-bootstrap/lib/Button');
+var Glyphicon = require('react-bootstrap/lib/Glyphicon');
 
 // func that see if 
 var targetInRoot = function(target, root) {
