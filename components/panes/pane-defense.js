@@ -192,9 +192,7 @@ var Defense = React.createClass({
       <HatchGroup ref="settings">
         <div className="hatch-cover">
           <h3>
-            {"Defenses"}
-            <Button className="no-border" onClick={this.toggle.bind(this, "def0")}><Glyphicon glyph="cog"/></Button>
-
+            {"Defenses"} <Button className="no-border" onClick={this.toggle.bind(this, "def0")}><Glyphicon glyph="cog"/></Button>
             <OverlayTrigger ref="help" placement="bottom" trigger="manual" overlay={
               <Tooltip>
                 <HelpTooltip close={this.handleHelpToggle}>

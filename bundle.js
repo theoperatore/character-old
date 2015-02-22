@@ -1049,9 +1049,7 @@ var Defense = React.createClass({
       React.createElement(HatchGroup, {ref: "settings"}, 
         React.createElement("div", {className: "hatch-cover"}, 
           React.createElement("h3", null, 
-            "Defenses", 
-            React.createElement(Button, {className: "no-border", onClick: this.toggle.bind(this, "def0")}, React.createElement(Glyphicon, {glyph: "cog"})), 
-
+            "Defenses", " ", React.createElement(Button, {className: "no-border", onClick: this.toggle.bind(this, "def0")}, React.createElement(Glyphicon, {glyph: "cog"})), 
             React.createElement(OverlayTrigger, {ref: "help", placement: "bottom", trigger: "manual", overlay: 
               React.createElement(Tooltip, null, 
                 React.createElement(HelpTooltip, {close: this.handleHelpToggle}, 
