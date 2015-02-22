@@ -1106,7 +1106,7 @@ var Defense = React.createClass({
                   }, 
                     React.createElement("div", {className: "card"}, 
                       React.createElement("p", null, "Rest"), 
-                      React.createElement(Button, {className: "btn-rest", onClick: this.toggleRest}, React.createElement(Glyphicon, {glyph: "tent"}))
+                      React.createElement(Button, {className: "btn-rest no-border", onClick: this.toggleRest}, React.createElement(Glyphicon, {glyph: "tent"}))
                     )
                   )
                 ), 

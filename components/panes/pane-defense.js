@@ -249,7 +249,7 @@ var Defense = React.createClass({
                   }>
                     <div className="card">
                       <p>Rest</p>
-                      <Button className="btn-rest" onClick={this.toggleRest}><Glyphicon glyph="tent" /></Button>
+                      <Button className="btn-rest no-border" onClick={this.toggleRest}><Glyphicon glyph="tent" /></Button>
                     </div>
                   </OverlayTrigger>
                 </Col>
