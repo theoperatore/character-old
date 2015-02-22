@@ -171,7 +171,7 @@ var Character = React.createClass({
     else if (this.state.deadCount > 11 && this.state.deadCount <= 14) {
       msg = "you must really want " + this.state.character['charName'] + " back.";
     }
-    else if (this.state.deadCount > 14 && this.state.deadcount <= 30) {
+    else if (this.state.deadCount > 14 && this.state.deadCount <= 30) {
       msg = "Sorry, but your character is dead...";
     }
     else if (this.state.deadCount > 30) {
