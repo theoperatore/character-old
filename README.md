@@ -19,12 +19,12 @@ including, but not limited to:
 
 Fix / Do now:
 
-- Traits / Info / Saving throws close on save
-- Add tent to Glyphicons?
-- Resistences in defenses pane under saving throws
-- hit dice -- figure out how they really work: roll + CON mod. 
-  - long rest gives _some_ hitdice. get up to half hitdice total.
-  - remaining / total 
+- ~~Traits / Info / Saving throws close on save~~
+- ~~Add tent to Glyphicons?~~
+- ~~Resistences in defenses pane under saving throws~~
+- ~~hit dice -- figure out how they really work: roll + CON mod.~~
+  - ~~long rest gives _some_ hitdice. get up to half hitdice total.~~
+  - ~~remaining / total~~
 - spells slots be it's own block, not in spell list
 - prepared spell toggle
 - editing money
