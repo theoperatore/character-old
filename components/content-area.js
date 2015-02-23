@@ -28,13 +28,13 @@ var ContentArea = React.createClass({
     return (state);
   },
   
-  handleGesture : function(dir) {
+  handleGesture : function(ev) {
     var active = this.state.active;
 
-    if (dir === "left") {
+    if (ev.direction === Hammer.DIRECTION_LEFT) {
       active = ((active - 1) < 0) ? 6 : (active - 1);
     }
-    else if (dir === "right") {
+    else if (ev.direction === Hammer.DIRECTION_RIGHT) {
       active = (active + 1) % 7;
     }
 
@@ -44,24 +44,25 @@ var ContentArea = React.createClass({
     this.setState({ active : tab });
   },
   componentDidMount: function () {
-    gesture = new Hammer(this.getDOMNode());
+    //gesture = new Hammer(this.getDOMNode());
 
     // only care about swipe gestures
-    gesture.get("tap").set({ enable : false });
-    gesture.get("doubletap").set({ enable : false });
-    //gesture.get("pan").set({ enable : false });
-    gesture.get("press").set({ enable : false });
+    //gesture.get("tap").set({ enable : false });
+    //gesture.get("doubletap").set({ enable : false });
+    //gesture.get("press").set({ enable : false });
+
+    //gesture.get("pan").set({ threshold : 10 });
 
     // add gesture event listeners
-    gesture.on("swiperight", this.handleGesture.bind(this, "left"));
-    gesture.on("swipeleft", this.handleGesture.bind(this, "right"));
+    //gesture.on("pan", this.handleGesture);
+    //gesture.on("panleft", this.handleGesture.bind(this, "right"));
   },
   toggleHatch : function(idx) {
     this.refs.hatchgroup.toggle(idx);
   },
   render : function() {
     return (
-      <TabbedArea activeKey={this.state.active} onSelect={this.handleSelect}>
+      <TabbedArea animation={false} activeKey={this.state.active} onSelect={this.handleSelect}>
 
         <TabPane eventKey={0} tab={<Glyphicon glyph="info-sign" />}>
           <PaneInfo character={this.props.character} edit={this.props.edit} />          
