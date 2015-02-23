@@ -1,4 +1,6 @@
 var React = require('react');
+var Hammer = require('hammerjs');
+var gesture;
 
 // components
 var PaneInfo = require('./panes/pane-info');
@@ -18,48 +20,84 @@ var Glyphicon = require('react-bootstrap/lib/Glyphicon');
 // the thing!
 var ContentArea = React.createClass({
   displayName : "ContentArea",
+  getInitialState : function() {
+    var state = {};
+
+    state.active = 2;
+
+    return (state);
+  },
+  
+  handleGesture : function(dir) {
+    var active = this.state.active;
+
+    if (dir === "left") {
+      active = ((active - 1) < 0) ? 6 : (active - 1);
+    }
+    else if (dir === "right") {
+      active = (active + 1) % 7;
+    }
+
+    this.setState({ active : active });
+  },
+  handleSelect : function(tab) {
+    this.setState({ active : tab });
+  },
+  componentDidMount: function () {
+    gesture = new Hammer(this.getDOMNode());
+
+    // only care about swipe gestures
+    gesture.get("tap").set({ enable : false });
+    gesture.get("doubletap").set({ enable : false });
+    //gesture.get("pan").set({ enable : false });
+    gesture.get("press").set({ enable : false });
+
+    // add gesture event listeners
+    gesture.on("swiperight", this.handleGesture.bind(this, "left"));
+    gesture.on("swipeleft", this.handleGesture.bind(this, "right"));
+  },
   toggleHatch : function(idx) {
     this.refs.hatchgroup.toggle(idx);
   },
   render : function() {
     return (
-      <TabbedArea defaultActiveKey={1}>
+      <TabbedArea activeKey={this.state.active} onSelect={this.handleSelect}>
 
-        <TabPane eventKey={1} tab={<Glyphicon glyph="info-sign" />}>
+        <TabPane eventKey={0} tab={<Glyphicon glyph="info-sign" />}>
           <PaneInfo character={this.props.character} edit={this.props.edit} />          
         </TabPane>
 
 
-        <TabPane eventKey={2} tab={<Glyphicon glyph="bookmark" />}>
+        <TabPane eventKey={1} tab={<div className="icon-chart" />}>
           <PaneAbility character={this.props.character} edit={this.props.edit} />
         </TabPane>
 
 
-        <TabPane eventKey={3} tab={<Glyphicon glyph="tower" />}>
+        <TabPane eventKey={2} tab={<div className="icon-shield" />}>
           <PaneDefense character={this.props.character} edit={this.props.edit} />
         </TabPane>
 
 
-        <TabPane eventKey={4} tab={<Glyphicon glyph="flash" />}>
+        <TabPane eventKey={3} tab={<div className="icon-features" />}>
           <PaneFeature character={this.props.character} edit={this.props.edit} />
         </TabPane>
 
 
-        <TabPane eventKey={5} tab={<Glyphicon glyph="fire" />}>
+        <TabPane eventKey={4} tab={<div className="icon-attack" />}>
           <PaneAttack 
             character={this.props.character} edit={this.props.edit}
             preferences={this.props.preferences} editPreferences={this.props.editPreferences}
           />
         </TabPane>
 
-        <TabPane eventKey={6} tab={<Glyphicon glyph="book" />}>
+        <TabPane eventKey={5} tab={<div className="icon-repo" />}>
           <PaneSpell 
             character={this.props.character} edit={this.props.edit} 
             preferences={this.props.preferences} editPreferences={this.props.editPreferences}
           />
         </TabPane>
 
-        <TabPane eventKey={7} tab={<Glyphicon glyph="shopping-cart" />}>
+        <TabPane eventKey={6} tab={<div className="icon-equipment" />}>
           <PaneEquipment character={this.props.character} edit={this.props.edit} />
         </TabPane>
         
