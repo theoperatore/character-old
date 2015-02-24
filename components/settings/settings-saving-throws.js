@@ -53,7 +53,7 @@ var SettingsSavingThrows = React.createClass({
     this.setState(state);
   },
   toggle : function() {
-    this.props.toggle();
+    this.props.hatchToggle();
   },
   handleChange : function(cmp, e) {
     var val = (e.target.value === "" ) ? "" : parseInt(e.target.value, 10);

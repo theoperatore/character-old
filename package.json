@@ -25,7 +25,6 @@
   "dependencies": {
     "fastclick": "^1.0.6",
     "firebase": "^2.2.0",
-    "hammerjs": "^2.0.4",
     "react": "^0.12.2",
     "react-bootstrap": "^0.15.1"
   }

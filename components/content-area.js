@@ -1,6 +1,5 @@
 var React = require('react');
-var Hammer = require('hammerjs');
-var gesture;
+var swiper;
 
 // components
 var PaneInfo = require('./panes/pane-info');
@@ -12,10 +11,11 @@ var PaneEquipment = require('./panes/pane-equipment');
 var PaneSpell = require('./panes/pane-spell');
 
 // react-bootstrap stuff
-var TabbedArea = require('react-bootstrap/lib/TabbedArea');
-var TabPane = require('react-bootstrap/lib/TabPane');
+var Nav = require('react-bootstrap/lib/Nav');
+var NavItem = require('react-bootstrap/lib/NavItem');
 var Glyphicon = require('react-bootstrap/lib/Glyphicon');
-
+//var TabbedArea = require('react-bootstrap/lib/TabbedArea');
+//var TabPane = require('react-bootstrap/lib/TabPane');
 
 // the thing!
 var ContentArea = React.createClass({
@@ -23,43 +23,76 @@ var ContentArea = React.createClass({
   getInitialState : function() {
     var state = {};
 
-    state.active = 2;
+    state.active = 0;
 
     return (state);
   },
-  
-  handleGesture : function(ev) {
-    var active = this.state.active;
-
-    if (ev.direction === Hammer.DIRECTION_LEFT) {
-      active = ((active - 1) < 0) ? 6 : (active - 1);
-    }
-    else if (ev.direction === Hammer.DIRECTION_RIGHT) {
-      active = (active + 1) % 7;
-    }
-
-    this.setState({ active : active });
+  handleSwiperSelect : function(s) {
+    this.setState({ active : s.activeIndex });
   },
   handleSelect : function(tab) {
     this.setState({ active : tab });
+    swiper.slideTo(tab);
   },
   componentDidMount: function () {
-    //gesture = new Hammer(this.getDOMNode());
+    var opts = {};
 
-    // only care about swipe gestures
-    //gesture.get("tap").set({ enable : false });
-    //gesture.get("doubletap").set({ enable : false });
-    //gesture.get("press").set({ enable : false });
+    opts.grabCursor = true;
+    opts.threshold = 50;
+    opts.preventClicks = false;
+    opts.preventClicksPropagation = false;
+    opts.keyboardControl = true;
+    opts.onSlideChangeStart = this.handleSwiperSelect;
 
-    //gesture.get("pan").set({ threshold : 10 });
-
-    // add gesture event listeners
-    //gesture.on("pan", this.handleGesture);
-    //gesture.on("panleft", this.handleGesture.bind(this, "right"));
+    swiper = new Swiper(this.refs['swiper-container'].getDOMNode(), opts);
   },
-  toggleHatch : function(idx) {
-    this.refs.hatchgroup.toggle(idx);
-  },
+  render : function() {
+    return (
+      <div>
+        <Nav bsStyle="tabs" activeKey={this.state.active} onSelect={this.handleSelect}>
+          <NavItem eventKey={0}><Glyphicon glyph="info-sign" /></NavItem>
+          <NavItem eventKey={1}><div className="icon-chart" /></NavItem>
+          <NavItem eventKey={2}><div className="icon-shield" /></NavItem>
+          <NavItem eventKey={3}><div className="icon-features" /></NavItem>
+          <NavItem eventKey={4}><div className="icon-attack" /></NavItem>
+          <NavItem eventKey={5}><div className="icon-repo" /></NavItem>
+          <NavItem eventKey={6}><div className="icon-equipment" /></NavItem>
+        </Nav>
+        <div ref="swiper-container" className="swiper-container">
+          <div className="swiper-wrapper">
+            <div className="swiper-slide">
+              <PaneInfo character={this.props.character} edit={this.props.edit} />
+            </div>
+            <div className="swiper-slide">
+              <PaneAbility character={this.props.character} edit={this.props.edit} />
+            </div>
+            <div className="swiper-slide">
+              <PaneDefense character={this.props.character} edit={this.props.edit} />
+            </div>
+            <div className="swiper-slide">
+              <PaneFeature character={this.props.character} edit={this.props.edit} />
+            </div>
+            <div className="swiper-slide">
+              <PaneAttack 
+                character={this.props.character} edit={this.props.edit}
+                preferences={this.props.preferences} editPreferences={this.props.editPreferences}
+              />         
+            </div>
+            <div className="swiper-slide">
+              <PaneSpell 
+                character={this.props.character} edit={this.props.edit} 
+                preferences={this.props.preferences} editPreferences={this.props.editPreferences}
+              />
+            </div>
+            <div className="swiper-slide">
+              <PaneEquipment character={this.props.character} edit={this.props.edit} />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  /* original render
   render : function() {
     return (
       <TabbedArea animation={false} activeKey={this.state.active} onSelect={this.handleSelect}>
@@ -105,6 +138,7 @@ var ContentArea = React.createClass({
       </TabbedArea>
     )
   }
+  */
 })
 
 module.exports = ContentArea;

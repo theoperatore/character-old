@@ -20,6 +20,8 @@ var OverlayMixin = require('react-bootstrap/lib/OverlayMixin');
 var Button = require('react-bootstrap/lib/Button');
 var Input = require('react-bootstrap/lib/Input');
 
+//React.initializeTouchEvents(true);
+
 // initial character status and app preferences
 var initStatus = {};
 var initPrefs;

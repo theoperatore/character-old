@@ -22,7 +22,7 @@ var SettingsAttacks = React.createClass({
     return (state);
   },
   toggle : function() {
-    this.props.toggle();
+    this.props.hatchToggle();
   },
   componentDidUpdate : function() {
     // recalculate this 

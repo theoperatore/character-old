@@ -137,7 +137,7 @@ var HatchGroup = React.createClass({
   },
   renderChildren : function() {
     return React.Children.map(this.props.children, function(child) {
-      return React.addons.cloneWithProps(child, { recalculate : this.recalculate, toggle : this.toggle });
+      return React.addons.cloneWithProps(child, { recalculate : this.recalculate, hatchToggle : this.toggle });
     }.bind(this))
   },
   render : function() {

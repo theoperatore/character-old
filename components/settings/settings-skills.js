@@ -24,7 +24,7 @@ var SettingsAbilities = React.createClass({
     return (state);
   },
   toggle : function() {
-    this.props.toggle();
+    this.props.hatchToggle();
   },
   clearState : function() {
     var state = {};

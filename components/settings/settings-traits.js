@@ -20,7 +20,7 @@ var SettingsTraits = React.createClass({
     return (state);
   },
   toggle : function() {
-    this.props.toggle();
+    this.props.hatchToggle();
   },
   handleChange : function(cmp, e) {
     var node = {};

@@ -36,7 +36,7 @@ var ResistanceSettings = React.createClass({
   toggle : function() {
 
     // call HatchGroup to close
-    this.props.toggle();
+    this.props.hatchToggle();
   },
   componentDidUpdate : function() {
     
