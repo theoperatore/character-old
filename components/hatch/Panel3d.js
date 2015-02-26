@@ -219,8 +219,8 @@ var Panel3d = React.createClass({
       );
     }
     return (
-      <div ref="header" className={"panel3d-header " + this.props.className} onClick={this.toggle}>
-        {this.props.title || ""}
+      <div ref="header" className={"panel3d-header " + this.props.className}>
+        <span onClick={this.toggle}>{this.props.title || ""}</span>
       </div>
     );
   },

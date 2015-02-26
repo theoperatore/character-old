@@ -68,7 +68,7 @@ var Rest = React.createClass({
     }
 
     // reset class charges
-    for (var i = 0; i < tmp['charClassCharges']; i++) {
+    for (var i = 0; i < tmp.get('charClassCharges').size; i++) {
       //tmp['charClassCharges'][i].used = 0;
       tmp = tmp.setIn(['charClassCharges', i, 'used'], 0);
     }

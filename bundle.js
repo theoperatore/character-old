@@ -627,8 +627,8 @@ var Panel3d = React.createClass({displayName: "Panel3d",
       );
     }
     return (
-      React.createElement("div", {ref: "header", className: "panel3d-header " + this.props.className, onClick: this.toggle}, 
-        this.props.title || ""
+      React.createElement("div", {ref: "header", className: "panel3d-header " + this.props.className}, 
+        React.createElement("span", {onClick: this.toggle}, this.props.title || "")
       )
     );
   },
@@ -2105,7 +2105,7 @@ var Rest = React.createClass({displayName: "Rest",
     }
 
     // reset class charges
-    for (var i = 0; i < tmp['charClassCharges']; i++) {
+    for (var i = 0; i < tmp.get('charClassCharges').size; i++) {
       //tmp['charClassCharges'][i].used = 0;
       tmp = tmp.setIn(['charClassCharges', i, 'used'], 0);
     }
