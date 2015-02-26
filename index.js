@@ -5,7 +5,6 @@ require('fastclick')(document.body);
 var React = require('react');
 var Firebase = require('firebase');
 var Immutable = require('immutable');
-//var wan = require('./data/wan');
 var blank = require('./data/blank');
 var chardb = new Firebase("https://character-db.firebaseio.com/");
 var snap;
@@ -27,15 +26,8 @@ var Glyphicon = require('react-bootstrap/lib/Glyphicon');
 
 React.initializeTouchEvents(true);
 
-// initial character status and app preferences
-var initStatus = {};
+// initial character app preferences
 var initPrefs;
-
-initStatus.hitdice = {};
-initStatus.hitpoints ={};
-initStatus.hitdice.curr = 1;
-initStatus.hitpoints.curr = 100;
-initStatus.hitpoints.temp = 0;
 
 initPrefs = {
   atkBubbles : [
@@ -63,7 +55,6 @@ initPrefs = {
 
 // app preferences / status
 var prefs = JSON.parse(localStorage.getItem("__character_preferences")) || initPrefs;
-var status = JSON.parse(localStorage.getItem("__character_status")) || initStatus;
 
 // main out
 var Character = React.createClass({
@@ -74,7 +65,6 @@ var Character = React.createClass({
 
     state.character = new Immutable.fromJS(blank);
     state.preferences = new Immutable.fromJS(prefs);
-    //state.status = status;
     state.activeNav = 0;
     state.needsName = false;
     state.name = "";
@@ -88,9 +78,11 @@ var Character = React.createClass({
   componentWillMount: function () {
     // parse address and try to get character
     var hash = document.location.hash.split("#")[1] || "blank";
+    //var hash = this.props.characterHash;
     var character;
     var loadedprefs; 
 
+    // load from url
     chardb.child(hash).once("value", function(snap) {
       if (snap.val()) {
         character = JSON.parse(snap.val().character);
@@ -324,7 +316,10 @@ var Character = React.createClass({
     var out = {};
     out.character = JSON.stringify(data.character.toJS());
     out['last_edited'] = date;
-    out['date_created'] = (data.path === "characterCreation") ? date : "for all time";
+
+    if (data.path === "characterCreation") {
+      out['date_created'] = date;      
+    }
 
     // save to firebase
     chardb.child(data.character.get('charName').toLowerCase().replace(" ", "-")).update(out, function(err) {
@@ -336,23 +331,13 @@ var Character = React.createClass({
       }
     });
 
-    //if (data.character['charHitPoints']['deathSaves']['failures'] >= 3) {
-    //  var dead_date = +new Date;
-    //  console.log("CHARACTER DIED!", dead_date);
-    //  this.setState({ dead : true });
+    if (data.character.getIn(['charHitPoints', 'deathSaves', 'failures']) >= 3) {
+      var dead_date = +new Date;
+      console.log("CHARACTER DIED!", dead_date);
+      this.setState({ dead : true });
 
-    //  chardb.child(data.character['charName'].toLowerCase().replace(" ", "-")).update({ "date_of_death" : date });
-    //}
-  },
-  editCharacterStatus : function(data) {
-    console.log("received status from: ", data.path);
-    console.log("             updated:");
-    console.log(data.status);
-    console.warn("this function has not yet been fully implemented. Nothing is saved. Does this function need to exist?");
-    //this.setState({ status : data.status });
-
-    // save to local storage only? or to firebase as well?
-    //localStore.setItem("__character_status", JSON.stringify(this.state.status));
+      chardb.child(data.character.get('charName').toLowerCase().replace(" ", "-")).update({ "date_of_death" : date });
+    }
   },
   editPreferences : function(data) {
     console.log("received preferences from: ", data.path);

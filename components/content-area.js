@@ -38,7 +38,7 @@ var ContentArea = React.createClass({
     opts.threshold = 50;
     opts.preventClicks = false;
     opts.preventClicksPropagation = false;
-    opts.keyboardControl = true;
+    //opts.keyboardControl = true;
     opts.onSlideChangeStart = this.handleSwiperSelect;
     //opts.onTap = this.handleTap.bind(this, "tap");
 

@@ -172,7 +172,7 @@ var Defense = React.createClass({
     var curr = this.props.character.getIn(['charHitPoints', 'current']);
     var max  = this.props.character.getIn(['charHitPoints', 'maximum']);
     var temp = this.props.character.getIn(['charHitPoints', 'temporary']);
-    var hpPercent = Math.floor((curr / max) * 100);
+    var hpPercent = Math.abs(Math.floor((curr / max) * 100));
     var tempPercent = Math.floor((temp / max) * 100);
     var hpStyle = "success";
     var showhp = (this.state.hpOpen === true) ? "" : " hide";
