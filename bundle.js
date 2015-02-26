@@ -5446,7 +5446,12 @@ var Character = React.createClass({
     );
   },
   setNav : function(key) {
-    this.setState({ activeNav : key });
+    if (key === 7) {
+      document.body.scrollTop = 0;
+    }
+    else {
+      this.setState({ activeNav : key });  
+    }
   },
   editCharacter : function(data) {
     console.log("received from: ", data.path);
@@ -5522,7 +5527,8 @@ var Character = React.createClass({
             React.createElement(NavItem, {eventKey: 3}, React.createElement("div", {className: "icon-features"})), 
             React.createElement(NavItem, {eventKey: 4}, React.createElement("div", {className: "icon-attack"})), 
             React.createElement(NavItem, {eventKey: 5}, React.createElement("div", {className: "icon-repo"})), 
-            React.createElement(NavItem, {eventKey: 6}, React.createElement("div", {className: "icon-equipment"}))
+            React.createElement(NavItem, {eventKey: 6}, React.createElement("div", {className: "icon-equipment"})), 
+            React.createElement(NavItem, {eventKey: 7}, React.createElement(Glyphicon, {glyph: "arrow-up"}))
           )
         ), 
         React.createElement("div", {className: "snap-drawers"}, 

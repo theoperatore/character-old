@@ -305,7 +305,12 @@ var Character = React.createClass({
     );
   },
   setNav : function(key) {
-    this.setState({ activeNav : key });
+    if (key === 7) {
+      document.body.scrollTop = 0;
+    }
+    else {
+      this.setState({ activeNav : key });  
+    }
   },
   editCharacter : function(data) {
     console.log("received from: ", data.path);
@@ -382,6 +387,7 @@ var Character = React.createClass({
             <NavItem eventKey={4}><div className="icon-attack" /></NavItem>
             <NavItem eventKey={5}><div className="icon-repo" /></NavItem>
             <NavItem eventKey={6}><div className="icon-equipment" /></NavItem>
+            <NavItem eventKey={7}><Glyphicon glyph="arrow-up" /></NavItem>
           </Nav>
         </Affix>
         <div className="snap-drawers">
