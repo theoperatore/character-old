@@ -55,11 +55,23 @@ var Panel3d = React.createClass({
     this.setState(state);
   },
 
-  // whenever this component's children change, need to recalculate cahced vals
+  //shouldComponentUpdate : function(nextProps, nextState) {
+  //  return (
+  //    this.state.isOpen !== nextState.isOpen ||
+  //    this.state.heightHeader !== nextState.heightHeader ||
+  //    this.state.heightContent !== nextState.heightContent ||
+  //    this.state.isDirty !== nextState.isDirty
+  //  );
+  //},
+
+  // whenever this component's children change, need to recalculate cached vals
+  // causes layout thrashing... called too much
   componentWillReceiveProps: function (nextProps) {
+    
     if (React.Children.count(this.props.children) !== 
         React.Children.count(nextProps.children)) 
     {
+      console.log("receiving props panel3d");
       this.setState({ isDirty : true });  
     }
   },
@@ -198,12 +210,19 @@ var Panel3d = React.createClass({
   // render the header in a div with a particular class
   // allows the render function to be a little cleaner
   renderHeader : function() {
+    if (this.props.title.props && this.props.title.props.children) {
+      return (
+        <div ref="header" className={"panel3d-header " + this.props.className}>
+          {this.props.title.props.children[0]}
+          {React.addons.cloneWithProps(this.props.title.props.children[1], { onClick : this.toggle })}
+        </div>  
+      );
+    }
     return (
       <div ref="header" className={"panel3d-header " + this.props.className} onClick={this.toggle}>
         {this.props.title || ""}
       </div>
     );
-
   },
 
   // give children toggle and recalculate functions as props

@@ -1,4 +1,5 @@
 var React = require('react');
+var Immutable = require('immutable');
 
 var Input = require('react-bootstrap/lib/Input');
 var ButtonToolbar = require('react-bootstrap/lib/ButtonToolbar');
@@ -50,9 +51,9 @@ var SettingsAttacks = React.createClass({
   },
   handleSelect : function(e) {
     var idx = parseInt(e.target.value, 10);
-    var node = this.props.character['charAttacks'][idx];
-    var name = (idx === -1) ? "" : node.name;
-    var desc = (idx === -1) ? "" : node.desc;
+    var node = this.props.character.getIn(['charAttacks', idx]);
+    var name = (idx === -1) ? "" : node.get('name');
+    var desc = (idx === -1) ? "" : node.get('desc');
     var state = {};
 
     state.idx = idx;
@@ -64,14 +65,17 @@ var SettingsAttacks = React.createClass({
   handleDelete : function() {
     var tmp = this.props.character;
     var path = "charAttacks.delete";
-    var name = tmp['charAttacks'][this.state.idx].name;
+    var name = tmp.getIn(['charAttacks', this.state.idx, 'name']);
     var atk;
 
     // if mistake, stop deleting!
     if (!confirm("Do you really want to get rid of\n '" + name + "'\n forever?")) return;
 
-    atk = tmp['charAttacks'].splice(this.state.idx, 1);
-    path += "." + atk[0].name;
+    //atk = tmp['charAttacks'].splice(this.state.idx, 1);
+    path += "." + name;
+    tmp = tmp.update('charAttacks', function(list) {
+      return list.splice(this.state.idx, 1)
+    }.bind(this))
 
     // save
     this.props.edit({ path : path, character : tmp });
@@ -90,16 +94,29 @@ var SettingsAttacks = React.createClass({
       node.name = this.state.name;
       node.desc = this.state.desc;
 
-      tmp['charAttacks'].push(node);
+      //tmp['charAttacks'].push(node);
       path += "add." + node.name;
+      tmp = tmp.update('charAttacks', function(list) {
+        return list.push(new Immutable.Map(node))
+      })
     }
 
     // edit
     else if (this.state.mode === 1) {
       if (this.state.idx === -1) return;
 
-      tmp['charAttacks'][this.state.idx].name = this.state.newName;
-      tmp['charAttacks'][this.state.idx].desc = this.state.newDesc;
+      //tmp['charAttacks'][this.state.idx].name = this.state.newName;
+      //tmp['charAttacks'][this.state.idx].desc = this.state.newDesc;
+      tmp = tmp.update('charAttacks', function(list) {
+        return list.update(this.state.idx, function(item) {
+          var atk = item;
+
+          atk = atk.set('name', this.state.newName);
+          atk = atk.set('desc', this.state.newDesc);
+
+          return atk;
+        }.bind(this))
+      }.bind(this))
 
       path += "edit." + this.state.newName;
     }
@@ -124,9 +141,9 @@ var SettingsAttacks = React.createClass({
 
     // populate the select box
     var attacks = [];
-    this.props.character['charAttacks'].forEach(function(atk, i) {
+    this.props.character.get('charAttacks').forEach(function(atk, i) {
       attacks.push(
-        <option key={i} value={i}>{atk.name}</option>
+        <option key={i} value={i}>{atk.get('name')}</option>
       );
     }); 
 

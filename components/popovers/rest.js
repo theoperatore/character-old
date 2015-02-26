@@ -46,24 +46,31 @@ var Rest = React.createClass({
   handleLongRest : function() {
     var tmp = this.props.character;
     var path = "charDefenses.longrest";
-    var hitdice = Math.floor(tmp['charInfo']['level'] / 2);
+    var hitdice = Math.floor(tmp.getIn(['charInfo', 'level']) / 2);
 
-    hitdice += tmp['charHitPoints']['hitDiceCurrent'];
+    hitdice += tmp.getIn(['charHitPoints', 'hitDiceCurrent']);
 
-    tmp['charHitPoints'].temporary = 0;
-    tmp['charHitPoints'].current = tmp['charHitPoints'].maximum;
-    tmp['charHitPoints']['hitDiceCurrent'] = Math.min(hitdice, tmp['charInfo']['level']);
-    tmp['charHitPoints']['deathSaves']['successes'] = 0;
-    tmp['charHitPoints']['deathSaves']['failures'] = 0;
+    //tmp['charHitPoints'].temporary = 0;
+    //tmp['charHitPoints'].current = tmp['charHitPoints'].maximum;
+    //tmp['charHitPoints']['hitDiceCurrent'] = Math.min(hitdice, tmp['charInfo']['level']);
+    //tmp['charHitPoints']['deathSaves']['successes'] = 0;
+    //tmp['charHitPoints']['deathSaves']['failures'] = 0;
+    tmp = tmp.setIn(['charHitPoints', 'temporary'], 0);
+    tmp = tmp.setIn(['charHitPoints', 'current'], tmp.getIn(['charHitPoints', 'maximum']));
+    tmp = tmp.setIn(['charHitPoints', 'hitDiceCurrent'], Math.min(hitdice, tmp.getIn(['charInfo', 'level'])));
+    tmp = tmp.setIn(['charHitPoints', 'deathSaves', 'successes'], 0);
+    tmp = tmp.setIn(['charHitPoints', 'deathSaves', 'failures'], 0);
 
     // reset spell slots
     for (var i = 1; i < 10; i++) {
-      tmp['charSpells'][i]['used'] = 0;
+      //tmp['charSpells'][i]['used'] = 0;
+      tmp = tmp.setIn(['charSpells', i, 'used'], 0);
     }
 
     // reset class charges
     for (var i = 0; i < tmp['charClassCharges']; i++) {
-      tmp['charClassCharges'][i].used = 0;
+      //tmp['charClassCharges'][i].used = 0;
+      tmp = tmp.setIn(['charClassCharges', i, 'used'], 0);
     }
 
     // save changes and close tab
@@ -80,8 +87,11 @@ var Rest = React.createClass({
     var tmp = this.props.character;
     var path = "charDefenses.shortrest.";
     var val = parseInt(this.state.hps, 10);
+    var curr = tmp.getIn(['charHitPoints', 'current']);
+    var max = tmp.getIn(['charHitPoints', 'maximum']);
+    var currhd = tmp.getIn(['charHitPoints', 'hitDiceCurrent']);
 
-    if (tmp['charHitPoints']['hitDiceCurrent'] === 0) {
+    if (tmp.getIn(['charHitPoints', 'hitDiceCurrent']) === 0) {
       alert("There's no will to rest!");
       return;
     }
@@ -89,15 +99,17 @@ var Rest = React.createClass({
     if (isNaN(val) || val === 0) return;
 
     // add to current hp
-    tmp['charHitPoints']['current'] += val;
-    tmp['charHitPoints']['current'] = Math.min(tmp['charHitPoints']['maximum'], tmp['charHitPoints']['current']);
+    //tmp['charHitPoints']['current'] += val;
+    //tmp['charHitPoints']['current'] = Math.min(tmp['charHitPoints']['maximum'], tmp['charHitPoints']['current']);
+    tmp = tmp.setIn(['charHitPoints', 'current'], Math.min(max, (curr + val)));
 
     // remove one from hit dice
-    tmp['charHitPoints']['hitDiceCurrent'] -= 1;
+    //tmp['charHitPoints']['hitDiceCurrent'] -= 1;
+    tmp = tmp.setIn(['charHitPoints', 'hitDiceCurrent'], (currhd - 1));
 
     // death saves
-    tmp['charHitPoints']['deathSaves']['successes'] = 0;
-    tmp['charHitPoints']['deathSaves']['failures'] = 0;
+    tmp = tmp.setIn(['charHitPoints', 'deathSaves', 'successes'], 0);
+    tmp = tmp.setIn(['charHitPoints', 'deathSaves', 'failures'], 0);
 
     this.props.edit({ path: path, character : tmp });
     this.setState({ hps : 0 });
@@ -112,14 +124,10 @@ var Rest = React.createClass({
     return (
       <div className="container-fluid">
         <p>{"Take a long rest and restore all hp, class charges, and spent utilities."}</p>
-        <ButtonToolbar>
-          <Button onClick={this.handleLongRest}>Long Rest</Button>
-        </ButtonToolbar>
+        <Button block bsStyle={"info"} onClick={this.handleLongRest}>Long Rest</Button>
         <p>{"Or, spend a hit dice to regain hp by entering the number of hp you regain per hit die spent."}</p>
         <Input type="number" value={this.state.hps} onChange={this.handleChange.bind(this, "hps")} />
-        <ButtonToolbar>
-          <Button onClick={this.handleShortRest}>Short Rest</Button>
-        </ButtonToolbar>
+        <Button block bsStyle={"info"} onClick={this.handleShortRest}>Short Rest</Button>
       </div>
     );
   }

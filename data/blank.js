@@ -190,133 +190,151 @@ module.exports = {
     "proficiencies" : []
   },
   "charResistances" : [],
-  "charSkills" : {
-    "Acrobatics" : {
+  "charSkills" : [
+    {
       "mod" : "dex",  
       "trained" : false,
       "bonus" : 0,
       "score" : 0,
+      "name" : "Acrobatics",
       "derivatives" : []
     },
-    "Animal Handling" : {
+    {
       "mod" : "wis",
       "trained" : false,
       "bonus" : 0,
       "score" : 0,
+      "name" : "Animal Handling",
       "derivatives" : []
     },
-    "Arcana" : {
+    {
       "mod" : "int",
       "trained" : false,
       "bonus" : 0,
       "score" : 0,
+      "name" : "Arcana",
       "derivatives" : []
     },
-    "Athletics" : {
+    {
       "mod" : "str",
       "trained" : false,
       "bonus" : 0,
       "score" : 0,
+      "name" : "Athletics",
       "derivatives" : []
     },
-    "Deception" : {
+    {
       "mod" : "cha",
       "trained" : false,
       "bonus" : 0,
       "score" : 0,
+      "name" : "Deception",
       "derivatives" : []
     },
-    "History" : {
+    {
       "mod" : "int",
       "trained" : false,
       "bonus" : 0,
       "score" : 0,
+      "name" : "History",
       "derivatives" : []
     },
-    "Insight" : {
+    {
       "mod" : "wis",
       "trained" : false,
       "bonus" : 0,
       "score" : 0,
+      "name" : "Insight",
       "derivatives" : []
     },
-    "Intimidation" : {
+    {
       "mod" : "cha",
       "trained" : false,
       "bonus" : 0,
       "score" : 0,
+      "name" : "Intimidation",
       "derivatives" : []
     },
-    "Investigation" : {
+    {
       "mod" : "int",
       "trained" : false,
       "bonus" : 0,
       "score" : 0,
+      "name" : "Investigation",
       "derivatives" : []
     },
-    "Medicine" : {
+    {
       "mod" : "wis",
       "trained" : false,
       "bonus" : 0,
       "score" : 0,
+      "name" : "Medicine",
       "derivatives" : []
     },
-    "Nature" : {
+    {
       "mod" : "int",
       "trained" : false,
       "bonus" : 0,
       "score" : 0,
+      "name" : "Nature",
       "derivatives" : []
     },
-    "Perception" : {
+    {
       "mod" : "wis",
       "trained" : false,
       "bonus" : 0,
       "score" : 0,
+      "name" : "Perception",
       "derivatives" : []
     },
-    "Performance" : {
+    {
       "mod" : "cha",
       "trained" : false,
       "bonus" : 0,
       "score" : 0,
+      "name" : "Performance",
       "derivatives" : []
     },
-    "Persuasion" : {
+    {
       "mod" : "cha",
       "trained" : false,
       "bonus" : 0,
       "score" : 0,
+      "name" : "Persuasion",
       "derivatives" : []
     },
-    "Religion" : {
+    {
       "mod" : "int",
       "trained" : false,
       "bonus" : 0,
       "score" : 0,
+      "name" : "Religion",
       "derivatives" : []
     },
-    "Sleight of Hand" : {
+    {
       "mod" : "dex",
       "trained" : false,
       "bonus" : 0,
       "score" : 0,
+      "name" : "Sleight of Hand",
       "derivatives" : []
     },
-    "Stealth" : {
+    {
       "mod" : "dex",
       "trained" : false,
       "bonus" : 0,
       "score" : 0,
+      "name" : "Stealth",
       "derivatives" : []
     },
-    "Survival" : {
+    {
       "mod" : "wis",
       "trained" : false,
       "bonus" : 0,
       "score" : 0,
+      "name" : "Survival",
       "derivatives" : []
     }
-  },
+  ],
   "charFeatures" : []
 };

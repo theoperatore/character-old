@@ -1,4 +1,5 @@
 var React = require('react');
+var Immutable = require('immutable');
 var SettingsInfo = require('../settings/settings-info');
 var SettingsTraits = require('../settings/settings-traits');
 var SettingsProfs = require('../settings/settings-proficiencies');
@@ -22,23 +23,22 @@ var Info = React.createClass({
     this.refs[cmp].toggle(idx);
   },
   render : function() {
-
     // list languages known
     var languages = [];
-    this.props.character["charOtherProficiencies"]["languages"].forEach(function(lan, i) {
+    this.props.character.getIn(['charOtherProficiencies', 'languages']).forEach(function(lan, i) {
       languages.push(
-        <Panel3d className="list-header" key={i} title={lan.name}>
-          <p>{lan.desc}</p>  
+        <Panel3d className="list-header" key={i} title={lan.get('name')}>
+          <p>{lan.get('desc')}</p>  
         </Panel3d>
       )
     });
 
     // list proficiencies
     var proficiencies = [];
-    this.props.character["charOtherProficiencies"]["proficiencies"].forEach(function(prof, i) {
+    this.props.character.getIn(["charOtherProficiencies", "proficiencies"]).forEach(function(prof, i) {
       proficiencies.push(
-        <Panel3d className="list-header" key={i} title={prof.name}>
-          <p>{prof.desc}</p>  
+        <Panel3d className="list-header" key={i} title={prof.get('name')}>
+          <p>{prof.get('desc')}</p>  
         </Panel3d>
       )
     });
@@ -59,19 +59,19 @@ var Info = React.createClass({
                   <Col xs={4}>
                     <div>
                       <p>Class</p>
-                      <h4>{this.props.character['charInfo']['class']}</h4>
+                      <h4>{this.props.character.get('charInfo').get('class')}</h4>
                     </div>
                   </Col>
                   <Col xs={4}>
                     <div>
                       <p>Lvl</p>
-                      <h4>{this.props.character['charInfo']['level']}</h4>
+                      <h4>{this.props.character.get('charInfo').get('level')}</h4>
                     </div>
                   </Col>
                   <Col xs={4}>
                     <div>
                       <p>Xp</p>
-                      <h4>{this.props.character['charInfo']['xp']}</h4>
+                      <h4>{this.props.character.get('charInfo').get('xp')}</h4>
                     </div>
                   </Col>
                 </Row>
@@ -83,19 +83,19 @@ var Info = React.createClass({
                   <Col xs={4}>
                     <div>
                       <p>Bg</p>
-                      <h4>{this.props.character['charInfo']['background']}</h4>
+                      <h4>{this.props.character.get('charInfo').get('background')}</h4>
                     </div>
                   </Col>
                   <Col xs={4}>
                     <div>
                       <p>Race</p>
-                      <h4>{this.props.character['charInfo']['race']}</h4>
+                      <h4>{this.props.character.get('charInfo').get('race')}</h4>
                     </div>
                   </Col>
                   <Col xs={4}>
                     <div>
                       <p>Align</p>
-                      <h4>{this.props.character['charInfo']['alignment']}</h4>
+                      <h4>{this.props.character.get('charInfo').get('alignment')}</h4>
                     </div>
                   </Col>
                 </Row>
@@ -108,19 +108,19 @@ var Info = React.createClass({
           </Hatch>
           <div className="hatch-cover">
             <Panel3d className="list-header" title="Personality Traits">
-              <p>{this.props.character['charTraits']['personalityTraits']}</p>  
+              <p>{this.props.character.get('charTraits').get('personalityTraits')}</p>
             </Panel3d>
             
             <Panel3d className="list-header" title="Ideals">
-              <p>{this.props.character['charTraits']['ideals']}</p>
+              <p>{this.props.character.get('charTraits').get('ideals')}</p>
             </Panel3d>
 
             <Panel3d className="list-header" title="Bonds">
-              <p>{this.props.character['charTraits']['bonds']}</p>
+              <p>{this.props.character.get('charTraits').get('bonds')}</p>
             </Panel3d>        
             
             <Panel3d className="list-header" title="Flaws">
-              <p>{this.props.character['charTraits']['flaws']}</p>
+              <p>{this.props.character.get('charTraits').get('flaws')}</p>
             </Panel3d>
             <h3>{"Proficiencies"} <Button className="no-border" onClick={this.handleToggle.bind(this, "settings", "info2")}><Glyphicon glyph="cog"/></Button></h3>
           </div>

@@ -1,5 +1,50 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 var React = require('react');
+
+var Affix = React.createClass({displayName: "Affix",
+  getInitialState : function() {
+    var state = {};
+    state.isVisible = false;
+    return state;
+  },
+  getDefaultProps : function() {
+    var props = {};
+    props.threshold = 50;
+    return props;
+  },
+  componentDidMount: function () {
+    document.addEventListener('scroll', this.handleScroll);
+  },
+  componentWillUnmount: function () {
+    document.removeEventListener('scroll', this.handleScroll);  
+  },
+
+  handleScroll : function() {
+    if (document.body.scrollTop >= this.props.threshold) {
+      if (this.state.isVisible === true) return;
+
+      this.setState({ isVisible : true });
+    }
+    else if (document.body.scrollTop < this.props.threshold) {
+      if (this.state.isVisible === false) return;
+
+      this.setState({ isVisible : false });
+    }
+
+  },
+  render : function() {
+    return (
+      React.createElement("div", {className: "header-affix" + (this.state.isVisible ? " affix" : "")}, 
+        this.props.children
+      )
+    )
+  }
+})
+
+module.exports = Affix;
+
+},{"react":238}],2:[function(require,module,exports){
+var React = require('react');
 var Button = require('react-bootstrap/lib/Button');
 var ButtonGroup = require('react-bootstrap/lib/ButtonGroup');
 
@@ -18,7 +63,7 @@ var AppSettings = React.createClass({displayName: "AppSettings",
 
 module.exports = AppSettings;
 
-},{"react":235,"react-bootstrap/lib/Button":39,"react-bootstrap/lib/ButtonGroup":40}],2:[function(require,module,exports){
+},{"react":238,"react-bootstrap/lib/Button":42,"react-bootstrap/lib/ButtonGroup":43}],3:[function(require,module,exports){
 var React = require('react');
 var swiper;
 
@@ -32,8 +77,6 @@ var PaneEquipment = require('./panes/pane-equipment');
 var PaneSpell = require('./panes/pane-spell');
 
 // react-bootstrap stuff
-var Nav = require('react-bootstrap/lib/Nav');
-var NavItem = require('react-bootstrap/lib/NavItem');
 var Glyphicon = require('react-bootstrap/lib/Glyphicon');
 //var TabbedArea = require('react-bootstrap/lib/TabbedArea');
 //var TabPane = require('react-bootstrap/lib/TabPane');
@@ -41,19 +84,18 @@ var Glyphicon = require('react-bootstrap/lib/Glyphicon');
 // the thing!
 var ContentArea = React.createClass({
   displayName : "ContentArea",
-  getInitialState : function() {
-    var state = {};
-
-    state.active = 0;
-
-    return (state);
-  },
+  // setting the state of this component causes a re-render...
   handleSwiperSelect : function(s) {
-    this.setState({ active : s.activeIndex });
+    //this.setState({ active : s.activeIndex });
+    this.props.setNav(s.activeIndex);
   },
   handleSelect : function(tab) {
     this.setState({ active : tab });
     swiper.slideTo(tab);
+  },
+  handleTap : function(type, s, ev) {
+    ev.preventDefault();
+    ev.stopPropagation();
   },
   componentDidMount: function () {
     var opts = {};
@@ -64,57 +106,62 @@ var ContentArea = React.createClass({
     opts.preventClicksPropagation = false;
     opts.keyboardControl = true;
     opts.onSlideChangeStart = this.handleSwiperSelect;
+    //opts.onTap = this.handleTap.bind(this, "tap");
 
     swiper = new Swiper(this.refs['swiper-container'].getDOMNode(), opts);
   },
-  render : function() {
+  componentWillReceiveProps: function (nextProps) {
+    if (nextProps.activeNav === undefined) return;
+    //console.log(nextProps.activeNav, this.props.activeNav, swiper.activeIndex);
+    swiper.slideTo(nextProps.activeNav);
+  },
+  shouldComponentUpdate: function (nextProps, nextState) {
     return (
-      React.createElement("div", null, 
-        React.createElement(Nav, {bsStyle: "tabs", activeKey: this.state.active, onSelect: this.handleSelect}, 
-          React.createElement(NavItem, {eventKey: 0}, React.createElement(Glyphicon, {glyph: "info-sign"})), 
-          React.createElement(NavItem, {eventKey: 1}, React.createElement("div", {className: "icon-chart"})), 
-          React.createElement(NavItem, {eventKey: 2}, React.createElement("div", {className: "icon-shield"})), 
-          React.createElement(NavItem, {eventKey: 3}, React.createElement("div", {className: "icon-features"})), 
-          React.createElement(NavItem, {eventKey: 4}, React.createElement("div", {className: "icon-attack"})), 
-          React.createElement(NavItem, {eventKey: 5}, React.createElement("div", {className: "icon-repo"})), 
-          React.createElement(NavItem, {eventKey: 6}, React.createElement("div", {className: "icon-equipment"}))
-        ), 
-        React.createElement("div", {ref: "swiper-container", className: "swiper-container"}, 
-          React.createElement("div", {className: "swiper-wrapper"}, 
-            React.createElement("div", {className: "swiper-slide"}, 
-              React.createElement(PaneInfo, {character: this.props.character, edit: this.props.edit})
-            ), 
-            React.createElement("div", {className: "swiper-slide"}, 
-              React.createElement(PaneAbility, {character: this.props.character, edit: this.props.edit})
-            ), 
-            React.createElement("div", {className: "swiper-slide"}, 
-              React.createElement(PaneDefense, {character: this.props.character, edit: this.props.edit})
-            ), 
-            React.createElement("div", {className: "swiper-slide"}, 
-              React.createElement(PaneFeature, {character: this.props.character, edit: this.props.edit})
-            ), 
-            React.createElement("div", {className: "swiper-slide"}, 
-              React.createElement(PaneAttack, {
-                character: this.props.character, edit: this.props.edit, 
-                preferences: this.props.preferences, editPreferences: this.props.editPreferences}
-              )
-            ), 
-            React.createElement("div", {className: "swiper-slide"}, 
-              React.createElement(PaneSpell, {
-                character: this.props.character, edit: this.props.edit, 
-                preferences: this.props.preferences, editPreferences: this.props.editPreferences}
-              )
-            ), 
-            React.createElement("div", {className: "swiper-slide"}, 
-              React.createElement(PaneEquipment, {character: this.props.character, edit: this.props.edit})
+      this.props.character !== nextProps.character ||
+      this.props.preferences !== nextProps.preferences
+    );
+  },
+  render : function() {
+
+    console.log("rendering content-area");
+    return (  
+      React.createElement("div", {ref: "swiper-container", className: "swiper-container"}, 
+        React.createElement("div", {className: "swiper-wrapper"}, 
+          React.createElement("div", {className: "swiper-slide"}, 
+            React.createElement(PaneInfo, {character: this.props.character, edit: this.props.edit})
+          ), 
+          React.createElement("div", {className: "swiper-slide"}, 
+            React.createElement(PaneAbility, {character: this.props.character, edit: this.props.edit})
+          ), 
+          React.createElement("div", {className: "swiper-slide"}, 
+            React.createElement(PaneDefense, {character: this.props.character, edit: this.props.edit})
+          ), 
+          React.createElement("div", {className: "swiper-slide"}, 
+            React.createElement(PaneFeature, {character: this.props.character, edit: this.props.edit})
+          ), 
+          React.createElement("div", {className: "swiper-slide"}, 
+            React.createElement(PaneAttack, {
+              character: this.props.character, edit: this.props.edit, 
+              preferences: this.props.preferences, editPreferences: this.props.editPreferences}
             )
+          ), 
+          React.createElement("div", {className: "swiper-slide"}, 
+            React.createElement(PaneSpell, {
+              character: this.props.character, edit: this.props.edit, 
+              preferences: this.props.preferences, editPreferences: this.props.editPreferences}
+            )
+          ), 
+          React.createElement("div", {className: "swiper-slide"}, 
+            React.createElement(PaneEquipment, {character: this.props.character, edit: this.props.edit})
           )
         )
       )
     );
   }
+
   /* original render
   render : function() {
+
     return (
       <TabbedArea animation={false} activeKey={this.state.active} onSelect={this.handleSelect}>
 
@@ -164,7 +211,7 @@ var ContentArea = React.createClass({
 
 module.exports = ContentArea;
 
-},{"./panes/pane-ability":7,"./panes/pane-attack":8,"./panes/pane-defense":9,"./panes/pane-equipment":10,"./panes/pane-feature":11,"./panes/pane-info":12,"./panes/pane-spell":13,"react":235,"react-bootstrap/lib/Glyphicon":45,"react-bootstrap/lib/Nav":50,"react-bootstrap/lib/NavItem":51}],3:[function(require,module,exports){
+},{"./panes/pane-ability":8,"./panes/pane-attack":9,"./panes/pane-defense":10,"./panes/pane-equipment":11,"./panes/pane-feature":12,"./panes/pane-info":13,"./panes/pane-spell":14,"react":238,"react-bootstrap/lib/Glyphicon":48}],4:[function(require,module,exports){
 var React = require('react');
 
 var Hatch = React.createClass({displayName: "Hatch",
@@ -193,18 +240,29 @@ var Hatch = React.createClass({displayName: "Hatch",
 
 module.exports = Hatch;
 
-},{"react":235}],4:[function(require,module,exports){
+},{"react":238}],5:[function(require,module,exports){
 var React = require('react/addons');
+//var Immutable = require('immutable');
 
 var HatchGroup = React.createClass({displayName: "HatchGroup",
   getInitialState : function() {
-    return ({ hatches : {} });
+    var state = {};
+    
+    state.hatches = {};
+
+    return (state);
   },
+
+  //shouldComponentUpdate : function(nextProps, nextState) {
+  //  return (
+  //    this.state.hatches !== nextState.hatches
+  //  );
+  //},
   open : function(idx) {
     var root = this.refs.root.getDOMNode();
-    var hatches = this.state.hatches;
     var currHeight = root.getBoundingClientRect().height;
     var hatch = document.getElementById(idx);
+    var hatches = this.state.hatches
     var height;
     var node;
 
@@ -237,14 +295,13 @@ var HatchGroup = React.createClass({displayName: "HatchGroup",
     currHeight += height;
     hatches[idx] = true;
     //root.style.height = currHeight + "px";
-
-    this.setState({ hatches : hatches });
+    this.setState({ hatches :  hatches });
   },
   close : function(idx) {
     var root = this.refs.root.getDOMNode();
-    var hatches = this.state.hatches;
     var currHeight = root.getBoundingClientRect().height;
     var child = document.getElementById(idx);
+    var hatches = this.state.hatches;
     var height;
     var node;
 
@@ -277,6 +334,7 @@ var HatchGroup = React.createClass({displayName: "HatchGroup",
 
     currHeight -= height;
     hatches[idx] = false;
+    //hatches = this.state.hatches.set(idx, false);
     //root.style.height = currHeight + "px";
 
     this.setState({ hatches : hatches });
@@ -347,7 +405,7 @@ var HatchGroup = React.createClass({displayName: "HatchGroup",
 
 module.exports = HatchGroup;
 
-},{"react/addons":74}],5:[function(require,module,exports){
+},{"react/addons":77}],6:[function(require,module,exports){
 var React = require('react/addons');
 var utils = require('./utils');
 
@@ -405,11 +463,23 @@ var Panel3d = React.createClass({displayName: "Panel3d",
     this.setState(state);
   },
 
-  // whenever this component's children change, need to recalculate cahced vals
+  //shouldComponentUpdate : function(nextProps, nextState) {
+  //  return (
+  //    this.state.isOpen !== nextState.isOpen ||
+  //    this.state.heightHeader !== nextState.heightHeader ||
+  //    this.state.heightContent !== nextState.heightContent ||
+  //    this.state.isDirty !== nextState.isDirty
+  //  );
+  //},
+
+  // whenever this component's children change, need to recalculate cached vals
+  // causes layout thrashing... called too much
   componentWillReceiveProps: function (nextProps) {
+    
     if (React.Children.count(this.props.children) !== 
         React.Children.count(nextProps.children)) 
     {
+      console.log("receiving props panel3d");
       this.setState({ isDirty : true });  
     }
   },
@@ -548,12 +618,19 @@ var Panel3d = React.createClass({displayName: "Panel3d",
   // render the header in a div with a particular class
   // allows the render function to be a little cleaner
   renderHeader : function() {
+    if (this.props.title.props && this.props.title.props.children) {
+      return (
+        React.createElement("div", {ref: "header", className: "panel3d-header " + this.props.className}, 
+          this.props.title.props.children[0], 
+          React.addons.cloneWithProps(this.props.title.props.children[1], { onClick : this.toggle })
+        )  
+      );
+    }
     return (
       React.createElement("div", {ref: "header", className: "panel3d-header " + this.props.className, onClick: this.toggle}, 
         this.props.title || ""
       )
     );
-
   },
 
   // give children toggle and recalculate functions as props
@@ -582,7 +659,7 @@ var Panel3d = React.createClass({displayName: "Panel3d",
 
 module.exports = Panel3d;
 
-},{"./utils":6,"react/addons":74}],6:[function(require,module,exports){
+},{"./utils":7,"react/addons":77}],7:[function(require,module,exports){
 // used to detect which transition event for which to listen on Panel3ds
 exports.findTransitionEvent = function () {
   var div = document.createElement('div');
@@ -612,7 +689,7 @@ exports.supports = function(feature) {
   return false;
 }
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 var React = require('react');
 var SettingsAbility = require('../settings/settings-abilities');
 var SettingsSkills = require('../settings/settings-skills');
@@ -637,32 +714,33 @@ var Ability = React.createClass({
     this.refs.settings.toggle(idx);
   },
   render : function() {
+    var prof = this.props.character.getIn(['charProficiencyBonus', 'score']);
+    var abil = this.props.character.get('charAbilities');
+    var passivePerception = 10;
 
+    // loop through skills object -- the skill's score should pull mod from
+    // relevent ability score and add in proficiency bonus if trained
     var skills = [];
-    var skillNames = Object.keys(this.props.character['charSkills']);
-    for (var i = 0, j = 1; j < skillNames.length; j+=2, i+=2) {
-      var sk1 = skillNames[i];
-      var sk2 = skillNames[j];
-      var skill1 = this.props.character['charSkills'][sk1];
-      var skill2 = this.props.character['charSkills'][sk2];
+    this.props.character.get('charSkills').forEach(function(skill, key) {
+      var score = abil.get(skill.get('mod')).get('mod');
+      
+      score += skill.get('trained') ? prof : 0;
+      score += skill.get('bonus');
+
+      if (skill.get('name') === "Perception") {
+        passivePerception += score;
+        passivePerception += this.props.character.getIn(['charPassivePerception', 'bonus']);
+      }
 
       skills.push(
-        React.createElement(Row, {key: i}, 
-          React.createElement(Col, {xs: 6}, 
-            React.createElement("div", {className: "card"}, 
-              React.createElement("p", null, sk1), 
-              React.createElement("h3", {className: (skill1.trained === true) ? "trained" : ""}, skill1.score)
-            )
-          ), 
-          React.createElement(Col, {xs: 6}, 
-            React.createElement("div", {className: "card"}, 
-              React.createElement("p", null, sk2), 
-              React.createElement("h3", {className: (skill2.trained === true) ? "trained" : ""}, skill2.score)
-            )
+        React.createElement(Col, {key: key, xs: 6}, 
+          React.createElement("div", {className: "card"}, 
+            React.createElement("p", null, skill.get('name') + " (" + skill.get('mod') + ")"), 
+            React.createElement("h3", {className: (skill.get('trained') === true) ? "trained" : ""}, score)
           )
         )
-      )
-    }
+      );
+    }, this)
 
     return (
       React.createElement(HatchGroup, {ref: "settings"}, 
@@ -679,22 +757,22 @@ var Ability = React.createClass({
                 React.createElement(Col, {xs: 4}, 
                   React.createElement("div", {className: "card"}, 
                     React.createElement("p", null, "STR"), 
-                    React.createElement("h3", {className: "bg-success"}, this.props.character['charAbilities']['str']['mod']), 
-                    React.createElement("p", null, this.props.character['charAbilities']['str']['score'])
+                    React.createElement("h3", {className: "bg-success"}, this.props.character.getIn(['charAbilities', 'str', 'mod'])), 
+                    React.createElement("p", null, this.props.character.getIn(['charAbilities', 'str','score']))
                   )
                 ), 
                 React.createElement(Col, {xs: 4}, 
                   React.createElement("div", {className: "card"}, 
                     React.createElement("p", null, "DEX"), 
-                    React.createElement("h3", {className: "bg-success"}, this.props.character['charAbilities']['dex']['mod']), 
-                    React.createElement("p", null, this.props.character['charAbilities']['dex']['score'])
+                    React.createElement("h3", {className: "bg-success"}, this.props.character.getIn(['charAbilities', 'dex','mod'])), 
+                    React.createElement("p", null, this.props.character.getIn(['charAbilities', 'dex','score']))
                   )
                 ), 
                 React.createElement(Col, {xs: 4}, 
                   React.createElement("div", {className: "card"}, 
                     React.createElement("p", null, "CON"), 
-                    React.createElement("h3", {className: "bg-success"}, this.props.character['charAbilities']['con']['mod']), 
-                    React.createElement("p", null, this.props.character['charAbilities']['con']['score'])
+                    React.createElement("h3", {className: "bg-success"}, this.props.character.getIn(['charAbilities', 'con','mod'])), 
+                    React.createElement("p", null, this.props.character.getIn(['charAbilities', 'con','score']))
                   )
                 )
               ), 
@@ -702,22 +780,22 @@ var Ability = React.createClass({
                 React.createElement(Col, {xs: 4}, 
                   React.createElement("div", {className: "card"}, 
                     React.createElement("p", null, "INT"), 
-                    React.createElement("h3", {className: "bg-success"}, this.props.character['charAbilities']['int']['mod']), 
-                    React.createElement("p", null, this.props.character['charAbilities']['int']['score'])
+                    React.createElement("h3", {className: "bg-success"}, this.props.character.getIn(['charAbilities', 'int','mod'])), 
+                    React.createElement("p", null, this.props.character.getIn(['charAbilities', 'int','score']))
                   )
                 ), 
                 React.createElement(Col, {xs: 4}, 
                   React.createElement("div", {className: "card"}, 
                     React.createElement("p", null, "WIS"), 
-                    React.createElement("h3", {className: "bg-success"}, this.props.character['charAbilities']['wis']['mod']), 
-                    React.createElement("p", null, this.props.character['charAbilities']['wis']['score'])
+                    React.createElement("h3", {className: "bg-success"}, this.props.character.getIn(['charAbilities', 'wis','mod'])), 
+                    React.createElement("p", null, this.props.character.getIn(['charAbilities', 'wis','score']))
                   )
                 ), 
                 React.createElement(Col, {xs: 4}, 
                   React.createElement("div", {className: "card"}, 
                     React.createElement("p", null, "CHA"), 
-                    React.createElement("h3", {className: "bg-success"}, this.props.character['charAbilities']['cha']['mod']), 
-                    React.createElement("p", null, this.props.character['charAbilities']['cha']['score'])
+                    React.createElement("h3", {className: "bg-success"}, this.props.character.getIn(['charAbilities', 'cha','mod'])), 
+                    React.createElement("p", null, this.props.character.getIn(['charAbilities', 'cha','score']))
                   )
                 )
               )
@@ -730,13 +808,13 @@ var Ability = React.createClass({
                 React.createElement(Col, {xs: 6}, 
                   React.createElement("div", {className: "card"}, 
                     React.createElement("p", null, "Proficiency Bonus"), 
-                    React.createElement("h3", {className: "trained"}, this.props.character['charProficiencyBonus']['score'])
+                    React.createElement("h3", {className: "trained"}, this.props.character.getIn(['charProficiencyBonus', 'score']))
                   )
                 ), 
                 React.createElement(Col, {xs: 6}, 
                   React.createElement("div", {className: "card"}, 
                     React.createElement("p", null, "Passive Perception"), 
-                    React.createElement("h3", null, this.props.character['charPassivePerception']['score'])
+                    React.createElement("h3", null, passivePerception)
                   )
                 )
               )
@@ -751,7 +829,9 @@ var Ability = React.createClass({
         React.createElement("div", {className: "hatch-cover"}, 
           React.createElement(Panel, null, 
             React.createElement(Grid, {fluid: true}, 
-              skills
+              React.createElement(Row, null, 
+                skills
+              )
             )
           )
         )
@@ -762,7 +842,7 @@ var Ability = React.createClass({
 
 module.exports = Ability;
 
-},{"../hatch/Hatch":3,"../hatch/HatchGroup":4,"../settings/settings-abilities":16,"../settings/settings-skills":26,"react":235,"react-bootstrap/lib/Accordion":36,"react-bootstrap/lib/Button":39,"react-bootstrap/lib/Col":42,"react-bootstrap/lib/Glyphicon":45,"react-bootstrap/lib/Grid":46,"react-bootstrap/lib/Input":47,"react-bootstrap/lib/Modal":49,"react-bootstrap/lib/Panel":55,"react-bootstrap/lib/Popover":57,"react-bootstrap/lib/Row":59}],8:[function(require,module,exports){
+},{"../hatch/Hatch":4,"../hatch/HatchGroup":5,"../settings/settings-abilities":17,"../settings/settings-skills":27,"react":238,"react-bootstrap/lib/Accordion":39,"react-bootstrap/lib/Button":42,"react-bootstrap/lib/Col":45,"react-bootstrap/lib/Glyphicon":48,"react-bootstrap/lib/Grid":49,"react-bootstrap/lib/Input":50,"react-bootstrap/lib/Modal":52,"react-bootstrap/lib/Panel":58,"react-bootstrap/lib/Popover":60,"react-bootstrap/lib/Row":62}],9:[function(require,module,exports){
 var React = require('react');
 
 var SettingsAttack = require('../settings/settings-attacks');
@@ -800,23 +880,25 @@ var Attack = React.createClass({
   handleCharge : function(chargeIdx, e) {
     var tmp = this.props.character;
     var path = "charClassCharges.used.total.";
+    var curr = tmp.getIn(['charClassCharges', chargeIdx, 'used']);
 
     if (e.target.checked) {
-      tmp['charClassCharges'][chargeIdx]['used'] += 1;
-      path += tmp['charClassCharges'][chargeIdx]['used'];
+      //tmp = tmp['charClassCharges'][chargeIdx]['used'] += 1;
+      tmp = tmp.setIn(['charClassCharges', chargeIdx, 'used'], (curr + 1));
+      path += curr + 1;
     }
     else {
-      tmp['charClassCharges'][chargeIdx]['used'] -= 1;
-      path += tmp['charClassCharges'][chargeIdx]['used'];
+      //tmp['charClassCharges'][chargeIdx]['used'] -= 1;
+      tmp = tmp.setIn(['charClassCharges', chargeIdx, 'used'], (curr - 1));
+      path += curr - 1;
     }
     
     this.props.edit({ path : path, character : tmp });
   },
 
   render : function() {
-
-    var charAttacks = this.props.character['charAttacks'];
-    var prof = this.props.character['charProficiencyBonus']['score'];
+    var charAttacks = this.props.character.get('charAttacks');
+    var prof = this.props.character.getIn(['charProficiencyBonus', 'score']);
     var attacks = [];
     var charges = [];
     var bubbles = [];
@@ -824,18 +906,18 @@ var Attack = React.createClass({
     // compile list of attacks
     charAttacks.forEach(function(attack, i) {
       attacks.push(
-        React.createElement(Panel3d, {className: "list-header", key: i, title: attack.name}, 
-            React.createElement("p", null, attack.desc)
+        React.createElement(Panel3d, {className: "list-header", key: i, title: attack.get('name')}, 
+            React.createElement("p", null, attack.get('desc'))
         )
       );
-    }.bind(this));
+    });
 
     // render class charges
-    this.props.character['charClassCharges'].forEach(function(resource, i) {
+    this.props.character.get('charClassCharges').forEach(function(resource, i) {
       var slots = [];
 
-      for (var j = 0; j < resource['charges']; j++) {
-        var checked = j < resource.used;
+      for (var j = 0; j < resource.get('charges'); j++) {
+        var checked = j < resource.get('used');
 
         slots.push(
           React.createElement(Col, {key: j, xs: 1}, React.createElement("input", {checked: checked, onChange: this.handleCharge.bind(this, i), className: "chkbox-lg", type: "checkbox"}))
@@ -845,7 +927,7 @@ var Attack = React.createClass({
       charges.push(
         React.createElement(Panel, {key: i}, 
           React.createElement("div", {className: "slots"}, 
-            React.createElement("p", null, resource.name), 
+            React.createElement("p", null, resource.get('display')), 
             React.createElement(Grid, {fluid: true}, 
               React.createElement(Row, null, 
                 slots
@@ -859,9 +941,9 @@ var Attack = React.createClass({
 
     // render attack bonus bubbles -- might have to think of something
     // different than using popovers
-    this.props.preferences.atkBubbles.forEach(function(bubble, i) {
-      var bonus = this.props.character['charAbilities'][bubble.abil]['mod'];
-      bonus += (bubble.prof === true) ? prof : 0;
+    this.props.preferences.get('atkBubbles').forEach(function(bubble, i) {
+      var bonus = this.props.character.getIn(['charAbilities', bubble.get('abil'), 'mod']);
+      bonus += (bubble.get('prof') === true) ? prof : 0;
 
       bubbles.push(
         React.createElement(OverlayTrigger, {key: i, ref: "trigger" + i, placement: "bottom", trigger: "manual", overlay: 
@@ -872,18 +954,18 @@ var Attack = React.createClass({
           React.createElement(Row, null, 
             React.createElement(Col, {className: "no-padding", xs: 5}, 
               React.createElement("div", {className: "bonus-container"}, 
-                React.createElement("h3", {onClick: this.handleConfigToggle.bind(this, "trigger" + i), className: "bonus text-center" + ((bubble.prof === true) ? " trained" : "")}, bonus)
+                React.createElement("h3", {onClick: this.handleConfigToggle.bind(this, "trigger" + i), className: "bonus text-center" + ((bubble.get('prof') === true) ? " trained" : "")}, bonus)
               )
             ), 
             React.createElement(Col, {className: "no-padding", xs: 7}, 
-              React.createElement("p", {className: "bonus-desc"}, bubble.desc), 
-              React.createElement("p", null, bubble.abil + ((bubble.prof === true) ? " + prof" : ""))
+              React.createElement("p", {className: "bonus-desc"}, bubble.get('desc')), 
+              React.createElement("p", null, bubble.get('abil') + ((bubble.get('prof') === true) ? " + prof" : ""))
             )
           )
         )
       );
 
-    }.bind(this));
+    }, this);
 
     // render the component
     return (
@@ -895,7 +977,7 @@ var Attack = React.createClass({
             React.createElement(OverlayTrigger, {ref: "help", placement: "bottom", trigger: "manual", overlay: 
               React.createElement(Tooltip, null, 
                 React.createElement(HelpTooltip, {close: this.handleHelpToggle}, 
-                  React.createElement("p", null, "Class points like 'Ki', 'Rage', or 'Sorcery' can be modified in 'Features' (", " ", React.createElement(Glyphicon, {glyph: "flash"}), " ", ")"), 
+                  React.createElement("p", null, "Class charges like 'Ki', 'Rage', or 'Sorcery' can be modified in 'Features' (", " ", React.createElement(Glyphicon, {glyph: "flash"}), " ", ")"), 
                   React.createElement("p", null, "Tap 'Attack Bonus' to configure the ability score it uses and if you have proficiency")
                 )
               )
@@ -927,8 +1009,9 @@ var Attack = React.createClass({
 
 module.exports = Attack;
 
-},{"../hatch/Hatch":3,"../hatch/HatchGroup":4,"../hatch/Panel3d":5,"../popovers/attack-bonus":14,"../settings/settings-attacks":17,"../tooltips/help":30,"react":235,"react-bootstrap/lib/Accordion":36,"react-bootstrap/lib/Button":39,"react-bootstrap/lib/Col":42,"react-bootstrap/lib/Glyphicon":45,"react-bootstrap/lib/Grid":46,"react-bootstrap/lib/OverlayTrigger":53,"react-bootstrap/lib/Panel":55,"react-bootstrap/lib/Popover":57,"react-bootstrap/lib/Row":59,"react-bootstrap/lib/Tooltip":62}],9:[function(require,module,exports){
+},{"../hatch/Hatch":4,"../hatch/HatchGroup":5,"../hatch/Panel3d":6,"../popovers/attack-bonus":15,"../settings/settings-attacks":18,"../tooltips/help":31,"react":238,"react-bootstrap/lib/Accordion":39,"react-bootstrap/lib/Button":42,"react-bootstrap/lib/Col":45,"react-bootstrap/lib/Glyphicon":48,"react-bootstrap/lib/Grid":49,"react-bootstrap/lib/OverlayTrigger":56,"react-bootstrap/lib/Panel":58,"react-bootstrap/lib/Popover":60,"react-bootstrap/lib/Row":62,"react-bootstrap/lib/Tooltip":65}],10:[function(require,module,exports){
 var React = require('react');
+var Immutable = require('immutable');
 var HelpTooltip = require('../tooltips/help');
 var RestConfig = require('../popovers/rest');
 var SettingsDefenses = require('../settings/settings-defenses');
@@ -977,25 +1060,32 @@ var Defense = React.createClass({
   handleDeathSaves : function(cmp, e) {
     var tmp = this.props.character;
     var path = "charDefenses." + cmp + ".total.";
+    var curr;
     if (cmp === "successes") {
+      curr = tmp.getIn(['charHitPoints', 'deathSaves', 'successes']);
+
       if (e.target.checked) {
-        tmp['charHitPoints']['deathSaves']['successes'] += 1;
+        curr += 1;
       }
       else {
-        tmp['charHitPoints']['deathSaves']['successes'] -= 1;
+        curr -=1;
       }
 
-      path += tmp['charHitPoints']['deathSaves']['successes'];
+      path += curr;
+      tmp = tmp.setIn(['charHitPoints', 'deathSaves', 'successes'], curr);
     }
     else if (cmp === "failures") {
+      curr = tmp.getIn(['charHitPoints', 'deathSaves', 'failures']);
+
       if (e.target.checked) {
-        tmp['charHitPoints']['deathSaves']['failures'] += 1;
+        curr += 1;
       }
       else {
-        tmp['charHitPoints']['deathSaves']['failures'] -= 1;
+        curr -= 1;
       }
 
-      path += tmp['charHitPoints']['deathSaves']['failures'];
+      path += curr;
+      tmp = tmp.setIn(['charHitPoints', 'deathSaves', 'failures'], curr);
     }
 
     this.props.edit({ path : path, character : tmp });
@@ -1006,47 +1096,80 @@ var Defense = React.createClass({
     var amount = parseInt(this.state.dmg, 10);
     var temp = parseInt(this.state.temp, 10);
     var diff;
+    var curr;
+    var currt;
+    var max;
 
     if (mode === "heal") {
-
       if (isNaN(amount)) return;
+
+      curr = data.getIn(['charHitPoints', 'current']);
+      max = data.getIn(['charHitPoints', 'maximum']);
 
       path += "hpHeal." + amount;
-      data['charHitPoints']['current'] = 
-        (data['charHitPoints']['current'] + amount >= data['charHitPoints']['maximum'])
-        ? data['charHitPoints']['maximum']
-        : data['charHitPoints']['current'] + amount;
+      curr = (curr + amount >= max) ? max : curr + amount;
+      data = data.setIn(['charHitPoints', 'current'], curr);
+
+      //data['charHitPoints']['current'] = 
+      //  (data['charHitPoints']['current'] + amount >= data['charHitPoints']['maximum'])
+      //  ? data['charHitPoints']['maximum']
+      //  : data['charHitPoints']['current'] + amount;
     }
     else if (mode === "dmg") {
-
       if (isNaN(amount)) return;
 
+      curr = data.getIn(['charHitPoints', 'current']);
+      currt = data.getIn(['charHitPoints', 'temporary']);
+
       path += "hpDamage." + amount;
-      if (data['charHitPoints']['temporary'] !== 0) {
-        diff = data['charHitPoints']['temporary'] - amount;
+
+      if (currt !== 0) {
+        diff = currt - amount;
 
         if (diff < 0) {
-          data['charHitPoints']['temporary'] = 0;
-          data['charHitPoints']['current'] += diff;         
+          curr += diff;
+          currt = 0;
         }
         else if (diff >= 0) {
-          data['charHitPoints']['temporary'] = diff;
+          currt = diff;
         }
+
+        data = data.setIn(['charHitPoints', 'current'], curr);
+        data = data.setIn(['charHitPoints', 'temporary'], currt);
+
       }
       else {
-        data['charHitPoints']['current'] -= amount;
+        curr -= amount;
+        data = data.setIn(['charHitPoints', 'current'], curr);
       }
+
+      //if (data['charHitPoints']['temporary'] !== 0) {
+      //  diff = data['charHitPoints']['temporary'] - amount;
+      //
+      //  if (diff < 0) {
+      //    data['charHitPoints']['temporary'] = 0;
+      //    data['charHitPoints']['current'] += diff;         
+      //  }
+      //  else if (diff >= 0) {
+      //    data['charHitPoints']['temporary'] = diff;
+      //  }
+      //}
+      //else {
+      //  data['charHitPoints']['current'] -= amount;
+      //}
     }
     else if (mode === "temp") {
       if (isNaN(temp)) return;
 
       path += "tempHP." + temp;
-      data['charHitPoints']['temporary'] = temp;
+      //data['charHitPoints']['temporary'] = temp;
+      data = data.setIn(['charHitPoints', 'temporary'], temp);
     }
     else if (mode === "clear") {
 
       path += "tempHP.clear";
-      data['charHitPoints']['temporary'] = 0;
+      //data['charHitPoints']['temporary'] = 0;
+      data = data.setIn(['charHitPoints', 'temporary'], 0);
 
     }
 
@@ -1058,9 +1181,9 @@ var Defense = React.createClass({
   },
 
   render : function() {
-    var curr = this.props.character['charHitPoints']['current'];
-    var max  = this.props.character['charHitPoints']['maximum'];
-    var temp = this.props.character['charHitPoints']['temporary'];
+    var curr = this.props.character.getIn(['charHitPoints', 'current']);
+    var max  = this.props.character.getIn(['charHitPoints', 'maximum']);
+    var temp = this.props.character.getIn(['charHitPoints', 'temporary']);
     var hpPercent = Math.floor((curr / max) * 100);
     var tempPercent = Math.floor((temp / max) * 100);
     var hpStyle = "success";
@@ -1094,10 +1217,10 @@ var Defense = React.createClass({
     );
 
     var resistances = [];
-    this.props.character['charResistances'].forEach(function(res, i) {
+    this.props.character.get('charResistances').forEach(function(res, i) {
       resistances.push(
-        React.createElement(Panel3d, {key: "res" + i, title: res.name, className: "list-header"}, 
-          React.createElement("p", null, res.desc)
+        React.createElement(Panel3d, {key: "res" + i, title: res.get('name'), className: "list-header"}, 
+          React.createElement("p", null, res.get('desc'))
         )
       );
     });
@@ -1105,18 +1228,28 @@ var Defense = React.createClass({
     var successes = [];
     var failures = [];
     for (var i = 0; i < 3; i++) {
-      var checked = i < this.props.character['charHitPoints']['deathSaves']['successes'];
+      var checked = i < this.props.character.getIn(['charHitPoints', 'deathSaves', 'successes']);
       successes.push(
         React.createElement(Col, {key: "successes" + i, xs: 4}, React.createElement("input", {onChange: this.handleDeathSaves.bind(this, "successes"), checked: checked, className: "chkbox-lg", type: "checkbox"}))
       );
     }
 
     for (var i = 0; i < 3; i++) {
-      var checked = i < this.props.character['charHitPoints']['deathSaves']['failures'];
+      var checked = i < this.props.character.getIn(['charHitPoints', 'deathSaves', 'failures']);
       failures.push(
         React.createElement(Col, {key: "failures" + i, xs: 4}, React.createElement("input", {onChange: this.handleDeathSaves.bind(this, "failures"), checked: checked, className: "chkbox-lg", type: "checkbox"}))
       );
     }
+
+    // calculate saving throws
+    var st = {};
+    var abil = this.props.character.get('charAbilities');
+    var prof = this.props.character.getIn(['charProficiencyBonus', 'score']);
+    this.props.character.get('charSavingThrows').forEach(function(saves, key) {
+      st[key] = abil.getIn([key, 'mod']);
+      st[key] += saves.get('proficient') ? prof : 0;
+      st[key] += saves.get('bonus');
+    })
 
     return (
       React.createElement(HatchGroup, {ref: "settings"}, 
@@ -1158,7 +1291,7 @@ var Defense = React.createClass({
                 React.createElement(Col, {xs: 12}, 
                   React.createElement("div", {className: "card"}, 
                     React.createElement("p", null, "Armor Class"), 
-                    React.createElement("h3", {className: "shield"}, this.props.character['charArmorClass']['score'])
+                    React.createElement("h3", {className: "shield"}, this.props.character.getIn(['charArmorClass', 'score']))
                   )
                 )
               ), 
@@ -1166,7 +1299,7 @@ var Defense = React.createClass({
                 React.createElement(Col, {xs: 4}, 
                   React.createElement("div", {className: "card"}, 
                     React.createElement("p", null, "Initiative"), 
-                    React.createElement("h3", null, this.props.character['charInitiative']['score'])
+                    React.createElement("h3", null, this.props.character.getIn(['charInitiative', 'score']))
                   )
                 ), 
                 React.createElement(Col, {xs: 4}, 
@@ -1184,7 +1317,7 @@ var Defense = React.createClass({
                 React.createElement(Col, {xs: 4}, 
                   React.createElement("div", {className: "card"}, 
                     React.createElement("p", null, "Speed"), 
-                    React.createElement("h3", null, this.props.character['charSpeed']['score'])
+                    React.createElement("h3", null, this.props.character.getIn(['charSpeed', 'score']))
                   )
                 )
               ), 
@@ -1192,8 +1325,8 @@ var Defense = React.createClass({
                 React.createElement(Col, {xs: 12}, 
                   React.createElement("div", null, 
                     React.createElement("p", null, "Hit Dice"), 
-                    React.createElement("h3", null, this.props.character['charHitPoints']['hitDiceTotal']), 
-                    React.createElement("p", null, this.props.character['charHitPoints']['hitDiceCurrent'], " / ", this.props.character['charInfo']['level'])
+                    React.createElement("h3", null, this.props.character.getIn(['charHitPoints', 'hitDiceTotal'])), 
+                    React.createElement("p", null, this.props.character.getIn(['charHitPoints', 'hitDiceCurrent']), " / ", this.props.character.getIn(['charInfo', 'level']))
                   )
                 )
               )
@@ -1242,19 +1375,19 @@ var Defense = React.createClass({
                 React.createElement(Col, {xs: 4}, 
                   React.createElement("div", {className: "card"}, 
                     React.createElement("p", null, "STR"), 
-                    React.createElement("h3", {className: (this.props.character['charSavingThrows']['str']['proficient'] === true) ? "trained" : ""}, this.props.character['charSavingThrows']['str']['score'])
+                    React.createElement("h3", {className: (this.props.character.getIn(['charSavingThrows', 'str', 'proficient']) === true) ? "trained" : ""}, st['str'])
                   )
                 ), 
                 React.createElement(Col, {xs: 4}, 
                   React.createElement("div", {className: "card"}, 
                     React.createElement("p", null, "DEX"), 
-                    React.createElement("h3", {className: (this.props.character['charSavingThrows']['dex']['proficient'] === true) ? "trained" : ""}, this.props.character['charSavingThrows']['dex']['score'])
+                    React.createElement("h3", {className: (this.props.character.getIn(['charSavingThrows', 'dex', 'proficient']) === true) ? "trained" : ""}, st['dex'])
                   )
                 ), 
                 React.createElement(Col, {xs: 4}, 
                   React.createElement("div", {className: "card"}, 
                     React.createElement("p", null, "CON"), 
-                    React.createElement("h3", {className: (this.props.character['charSavingThrows']['con']['proficient'] === true) ? "trained" : ""}, this.props.character['charSavingThrows']['con']['score'])
+                    React.createElement("h3", {className: (this.props.character.getIn(['charSavingThrows', 'con', 'proficient']) === true) ? "trained" : ""}, st['con'])
                   )
                 )
               ), 
@@ -1262,19 +1395,19 @@ var Defense = React.createClass({
                 React.createElement(Col, {xs: 4}, 
                   React.createElement("div", {className: "card"}, 
                     React.createElement("p", null, "INT"), 
-                    React.createElement("h3", {className: (this.props.character['charSavingThrows']['int']['proficient'] === true) ? "trained" : ""}, this.props.character['charSavingThrows']['int']['score'])
+                    React.createElement("h3", {className: (this.props.character.getIn(['charSavingThrows', 'int', 'proficient']) === true) ? "trained" : ""}, st['int'])
                   )
                 ), 
                 React.createElement(Col, {xs: 4}, 
                   React.createElement("div", {className: "card"}, 
                     React.createElement("p", null, "WIS"), 
-                    React.createElement("h3", {className: (this.props.character['charSavingThrows']['wis']['proficient'] === true) ? "trained" : ""}, this.props.character['charSavingThrows']['wis']['score'])
+                    React.createElement("h3", {className: (this.props.character.getIn(['charSavingThrows', 'wis', 'proficient']) === true) ? "trained" : ""}, st['wis'])
                   )
                 ), 
                 React.createElement(Col, {xs: 4}, 
                   React.createElement("div", {className: "card"}, 
                     React.createElement("p", null, "CHA"), 
-                    React.createElement("h3", {className: (this.props.character['charSavingThrows']['cha']['proficient'] === true) ? "trained" : ""}, this.props.character['charSavingThrows']['cha']['score'])
+                    React.createElement("h3", {className: (this.props.character.getIn(['charSavingThrows', 'cha', 'proficient']) === true) ? "trained" : ""}, st['cha'])
                   )
                 )
               )
@@ -1295,7 +1428,7 @@ var Defense = React.createClass({
 
 module.exports = Defense;
 
-},{"../hatch/Hatch":3,"../hatch/HatchGroup":4,"../hatch/Panel3d":5,"../popovers/rest":15,"../settings/settings-defenses":18,"../settings/settings-resistances":24,"../settings/settings-saving-throws":25,"../tooltips/help":30,"react":235,"react-bootstrap/lib/Accordion":36,"react-bootstrap/lib/Button":39,"react-bootstrap/lib/Col":42,"react-bootstrap/lib/Glyphicon":45,"react-bootstrap/lib/Grid":46,"react-bootstrap/lib/Input":47,"react-bootstrap/lib/OverlayTrigger":53,"react-bootstrap/lib/Panel":55,"react-bootstrap/lib/Popover":57,"react-bootstrap/lib/ProgressBar":58,"react-bootstrap/lib/Row":59,"react-bootstrap/lib/Tooltip":62}],10:[function(require,module,exports){
+},{"../hatch/Hatch":4,"../hatch/HatchGroup":5,"../hatch/Panel3d":6,"../popovers/rest":16,"../settings/settings-defenses":19,"../settings/settings-resistances":25,"../settings/settings-saving-throws":26,"../tooltips/help":31,"immutable":38,"react":238,"react-bootstrap/lib/Accordion":39,"react-bootstrap/lib/Button":42,"react-bootstrap/lib/Col":45,"react-bootstrap/lib/Glyphicon":48,"react-bootstrap/lib/Grid":49,"react-bootstrap/lib/Input":50,"react-bootstrap/lib/OverlayTrigger":56,"react-bootstrap/lib/Panel":58,"react-bootstrap/lib/Popover":60,"react-bootstrap/lib/ProgressBar":61,"react-bootstrap/lib/Row":62,"react-bootstrap/lib/Tooltip":65}],11:[function(require,module,exports){
 var React = require('react');
 var SettingsEquip = require('../settings/settings-equipment');
 var HatchGroup = require('../hatch/HatchGroup');
@@ -1317,12 +1450,11 @@ var Equipment = React.createClass({
     this.refs[cmp].toggle(idx,dir);
   },
   render : function() {
-
     var equips = [];
-    this.props.character['charEquipment']['otherEquipment'].forEach(function(equip, i) {
+    this.props.character.getIn(['charEquipment', 'otherEquipment']).forEach(function(equip, i) {
       equips.push(
-        React.createElement(Panel3d, {title: equip.name, key: "equipItem" + i, className: "list-header"}, 
-          React.createElement("p", null, equip.desc)
+        React.createElement(Panel3d, {title: equip.get('name'), key: "equipItem" + i, className: "list-header"}, 
+          React.createElement("p", null, equip.get('desc'))
         )
       );
     }.bind(this));
@@ -1346,11 +1478,11 @@ var Equipment = React.createClass({
                 React.createElement(Col, {xs: 2}, React.createElement("p", null, "pp"))
               ), 
               React.createElement(Row, null, 
-                React.createElement(Col, {xs: 2}, React.createElement("p", null, this.props.character['charEquipment']['money']['cp'])), 
-                React.createElement(Col, {xs: 2}, React.createElement("p", null, this.props.character['charEquipment']['money']['sp'])), 
-                React.createElement(Col, {xs: 4}, React.createElement("p", null, this.props.character['charEquipment']['money']['ep'])), 
-                React.createElement(Col, {xs: 2}, React.createElement("p", null, this.props.character['charEquipment']['money']['gp'])), 
-                React.createElement(Col, {xs: 2}, React.createElement("p", null, this.props.character['charEquipment']['money']['pp']))
+                React.createElement(Col, {xs: 2}, React.createElement("p", null, this.props.character.getIn(['charEquipment', 'money', 'cp']))), 
+                React.createElement(Col, {xs: 2}, React.createElement("p", null, this.props.character.getIn(['charEquipment', 'money', 'sp']))), 
+                React.createElement(Col, {xs: 4}, React.createElement("p", null, this.props.character.getIn(['charEquipment', 'money', 'ep']))), 
+                React.createElement(Col, {xs: 2}, React.createElement("p", null, this.props.character.getIn(['charEquipment', 'money', 'gp']))), 
+                React.createElement(Col, {xs: 2}, React.createElement("p", null, this.props.character.getIn(['charEquipment', 'money', 'pp'])))
               )
             )
           ), 
@@ -1363,7 +1495,7 @@ var Equipment = React.createClass({
 
 module.exports = Equipment;
 
-},{"../hatch/Hatch":3,"../hatch/HatchGroup":4,"../hatch/Panel3d":5,"../settings/settings-equipment":19,"react":235,"react-bootstrap/lib/Accordion":36,"react-bootstrap/lib/Button":39,"react-bootstrap/lib/Col":42,"react-bootstrap/lib/Glyphicon":45,"react-bootstrap/lib/Grid":46,"react-bootstrap/lib/Input":47,"react-bootstrap/lib/Panel":55,"react-bootstrap/lib/Row":59}],11:[function(require,module,exports){
+},{"../hatch/Hatch":4,"../hatch/HatchGroup":5,"../hatch/Panel3d":6,"../settings/settings-equipment":20,"react":238,"react-bootstrap/lib/Accordion":39,"react-bootstrap/lib/Button":42,"react-bootstrap/lib/Col":45,"react-bootstrap/lib/Glyphicon":48,"react-bootstrap/lib/Grid":49,"react-bootstrap/lib/Input":50,"react-bootstrap/lib/Panel":58,"react-bootstrap/lib/Row":62}],12:[function(require,module,exports){
 var React = require('react');
 
 var Settings = require('../settings/settings-features');
@@ -1383,12 +1515,11 @@ var Features = React.createClass({
     this.refs.settings.toggle(idx);
   },
   render : function() {
-
     var feats = [];
-    this.props.character['charFeatures'].forEach(function(feat, i) {
+    this.props.character.get('charFeatures').forEach(function(feat, i) {
       feats.push(
-        React.createElement(Panel3d, {title: feat.name, key: "feat" + i, className: "list-header"}, 
-          React.createElement("p", null, feat.desc)
+        React.createElement(Panel3d, {title: feat.get('name'), key: "feat" + i, className: "list-header"}, 
+          React.createElement("p", null, feat.get('desc'))
         )
       );
     });
@@ -1411,8 +1542,9 @@ var Features = React.createClass({
 
 module.exports = Features;
 
-},{"../hatch/Hatch":3,"../hatch/HatchGroup":4,"../hatch/Panel3d":5,"../settings/settings-features":20,"react":235,"react-bootstrap/lib/Accordion":36,"react-bootstrap/lib/Button":39,"react-bootstrap/lib/Glyphicon":45,"react-bootstrap/lib/Input":47,"react-bootstrap/lib/Panel":55}],12:[function(require,module,exports){
+},{"../hatch/Hatch":4,"../hatch/HatchGroup":5,"../hatch/Panel3d":6,"../settings/settings-features":21,"react":238,"react-bootstrap/lib/Accordion":39,"react-bootstrap/lib/Button":42,"react-bootstrap/lib/Glyphicon":48,"react-bootstrap/lib/Input":50,"react-bootstrap/lib/Panel":58}],13:[function(require,module,exports){
 var React = require('react');
+var Immutable = require('immutable');
 var SettingsInfo = require('../settings/settings-info');
 var SettingsTraits = require('../settings/settings-traits');
 var SettingsProfs = require('../settings/settings-proficiencies');
@@ -1436,23 +1568,22 @@ var Info = React.createClass({
     this.refs[cmp].toggle(idx);
   },
   render : function() {
-
     // list languages known
     var languages = [];
-    this.props.character["charOtherProficiencies"]["languages"].forEach(function(lan, i) {
+    this.props.character.getIn(['charOtherProficiencies', 'languages']).forEach(function(lan, i) {
       languages.push(
-        React.createElement(Panel3d, {className: "list-header", key: i, title: lan.name}, 
-          React.createElement("p", null, lan.desc)
+        React.createElement(Panel3d, {className: "list-header", key: i, title: lan.get('name')}, 
+          React.createElement("p", null, lan.get('desc'))
         )
       )
     });
 
     // list proficiencies
     var proficiencies = [];
-    this.props.character["charOtherProficiencies"]["proficiencies"].forEach(function(prof, i) {
+    this.props.character.getIn(["charOtherProficiencies", "proficiencies"]).forEach(function(prof, i) {
       proficiencies.push(
-        React.createElement(Panel3d, {className: "list-header", key: i, title: prof.name}, 
-          React.createElement("p", null, prof.desc)
+        React.createElement(Panel3d, {className: "list-header", key: i, title: prof.get('name')}, 
+          React.createElement("p", null, prof.get('desc'))
         )
       )
     });
@@ -1473,19 +1604,19 @@ var Info = React.createClass({
                   React.createElement(Col, {xs: 4}, 
                     React.createElement("div", null, 
                       React.createElement("p", null, "Class"), 
-                      React.createElement("h4", null, this.props.character['charInfo']['class'])
+                      React.createElement("h4", null, this.props.character.get('charInfo').get('class'))
                     )
                   ), 
                   React.createElement(Col, {xs: 4}, 
                     React.createElement("div", null, 
                       React.createElement("p", null, "Lvl"), 
-                      React.createElement("h4", null, this.props.character['charInfo']['level'])
+                      React.createElement("h4", null, this.props.character.get('charInfo').get('level'))
                     )
                   ), 
                   React.createElement(Col, {xs: 4}, 
                     React.createElement("div", null, 
                       React.createElement("p", null, "Xp"), 
-                      React.createElement("h4", null, this.props.character['charInfo']['xp'])
+                      React.createElement("h4", null, this.props.character.get('charInfo').get('xp'))
                     )
                   )
                 )
@@ -1497,19 +1628,19 @@ var Info = React.createClass({
                   React.createElement(Col, {xs: 4}, 
                     React.createElement("div", null, 
                       React.createElement("p", null, "Bg"), 
-                      React.createElement("h4", null, this.props.character['charInfo']['background'])
+                      React.createElement("h4", null, this.props.character.get('charInfo').get('background'))
                     )
                   ), 
                   React.createElement(Col, {xs: 4}, 
                     React.createElement("div", null, 
                       React.createElement("p", null, "Race"), 
-                      React.createElement("h4", null, this.props.character['charInfo']['race'])
+                      React.createElement("h4", null, this.props.character.get('charInfo').get('race'))
                     )
                   ), 
                   React.createElement(Col, {xs: 4}, 
                     React.createElement("div", null, 
                       React.createElement("p", null, "Align"), 
-                      React.createElement("h4", null, this.props.character['charInfo']['alignment'])
+                      React.createElement("h4", null, this.props.character.get('charInfo').get('alignment'))
                     )
                   )
                 )
@@ -1522,19 +1653,19 @@ var Info = React.createClass({
           ), 
           React.createElement("div", {className: "hatch-cover"}, 
             React.createElement(Panel3d, {className: "list-header", title: "Personality Traits"}, 
-              React.createElement("p", null, this.props.character['charTraits']['personalityTraits'])
+              React.createElement("p", null, this.props.character.get('charTraits').get('personalityTraits'))
             ), 
             
             React.createElement(Panel3d, {className: "list-header", title: "Ideals"}, 
-              React.createElement("p", null, this.props.character['charTraits']['ideals'])
+              React.createElement("p", null, this.props.character.get('charTraits').get('ideals'))
             ), 
 
             React.createElement(Panel3d, {className: "list-header", title: "Bonds"}, 
-              React.createElement("p", null, this.props.character['charTraits']['bonds'])
+              React.createElement("p", null, this.props.character.get('charTraits').get('bonds'))
             ), 
             
             React.createElement(Panel3d, {className: "list-header", title: "Flaws"}, 
-              React.createElement("p", null, this.props.character['charTraits']['flaws'])
+              React.createElement("p", null, this.props.character.get('charTraits').get('flaws'))
             ), 
             React.createElement("h3", null, "Proficiencies", " ", React.createElement(Button, {className: "no-border", onClick: this.handleToggle.bind(this, "settings", "info2")}, React.createElement(Glyphicon, {glyph: "cog"})))
           ), 
@@ -1558,7 +1689,7 @@ var Info = React.createClass({
 
 module.exports = Info;
 
-},{"../hatch/Hatch":3,"../hatch/HatchGroup":4,"../hatch/Panel3d":5,"../settings/settings-info":21,"../settings/settings-languages":22,"../settings/settings-proficiencies":23,"../settings/settings-traits":28,"react":235,"react-bootstrap/lib/Button":39,"react-bootstrap/lib/Col":42,"react-bootstrap/lib/Glyphicon":45,"react-bootstrap/lib/Grid":46,"react-bootstrap/lib/OverlayMixin":52,"react-bootstrap/lib/Panel":55,"react-bootstrap/lib/Row":59}],13:[function(require,module,exports){
+},{"../hatch/Hatch":4,"../hatch/HatchGroup":5,"../hatch/Panel3d":6,"../settings/settings-info":22,"../settings/settings-languages":23,"../settings/settings-proficiencies":24,"../settings/settings-traits":29,"immutable":38,"react":238,"react-bootstrap/lib/Button":42,"react-bootstrap/lib/Col":45,"react-bootstrap/lib/Glyphicon":48,"react-bootstrap/lib/Grid":49,"react-bootstrap/lib/OverlayMixin":55,"react-bootstrap/lib/Panel":58,"react-bootstrap/lib/Row":62}],14:[function(require,module,exports){
 var React = require('react');
 
 var AttackConfig = require('../popovers/attack-bonus');
@@ -1601,84 +1732,114 @@ var Spells = React.createClass({
   handleHelpToggle : function() {
     this.refs.help.toggle();
   },
+  handlePrepareSpell : function(level, idx, e) {
+    var tmp = this.props.character;
+    var path = "charSpells.prepare.";
+
+    tmp = tmp.updateIn(['charSpells', level, 'spells', idx], function(spell) {
+      path += spell.get('name') + "." + e.target.checked;
+      return spell.set('prepared', e.target.checked);
+    });
+
+    this.props.edit({ path : path, character : tmp });
+
+    //e.preventDefault();
+    //e.stopPropagation();
+  },
   handleToggle : function(idx) {
     this.refs.settings.toggle(idx);
   },
   handleCharge : function(level, e) {
     var tmp = this.props.character;
     var path = "charSpells.slots.used.total.";
+    var curr = tmp.getIn(['charSpells', level, 'used']);
 
     if (e.target.checked) {
-      tmp['charSpells'][level]['used'] += 1;
-      path += tmp['charSpells'][level]['used'];
+      //tmp['charSpells'][level]['used'] += 1;
+      tmp = tmp.setIn(['charSpells', level, 'used'], (curr + 1));
+      path += curr + 1;
     }
     else {
-      tmp['charSpells'][level]['used'] -= 1;
-      path += tmp['charSpells'][level]['used'];
+      //tmp['charSpells'][level]['used'] -= 1;
+      tmp = tmp.setIn(['charSpells', level, 'used'], (curr - 1));
+      path += curr - 1;
     }
     
     this.props.edit({ path : path, character : tmp });
   },
   render : function() {
-    var prof = this.props.character['charProficiencyBonus']['score'];
+    var prof = this.props.character.getIn(['charProficiencyBonus', 'score']);
+
+    // build spell slots
+    var spellSlots = [];
+    this.props.character.get('charSpells').forEach(function(level, i) {
+      
+      // only show spell levels with slots...
+      if (level.get('slots') !== 0) {
+        var slots = [];
+        for (var j = 0; j < level.get('slots'); j++) {
+          var checked = j < level.get('used');
+          slots.push(
+            React.createElement(Col, {key: j, xs: 1}, React.createElement("input", {className: "chkbox-lg", checked: checked, onChange: this.handleCharge.bind(this, i), type: "checkbox"}))
+          ); 
+        }
+
+        spellSlots.push(
+          React.createElement(Panel, {key: i}, 
+            React.createElement("div", {className: "slots"}, 
+              React.createElement("p", null, level.get('name') + " Level Spell Slots"), 
+              React.createElement(Grid, {fluid: true}, 
+                React.createElement(Row, null, 
+                  slots
+                )
+              )
+            )
+          )
+        );
+      }
+    }, this)
 
     // build list of spells
     var spells = [];
-    this.props.character['charSpells'].forEach(function(level, i) {
-      if (level.spells.length !== 0 || level.slots !== 0) {
-        
-        // get spell slots
-        var slots = [];
-        for (var k = 0; k < level.slots; k++) {
-          var checked = k < level.used;
-
-          slots.push(
-            React.createElement(Col, {key: k, xs: 1}, React.createElement("input", {checked: checked, onChange: this.handleCharge.bind(this, i), type: "checkbox"}))
-          );
-        }
-
-        // if there are spell slots, draw them
-        var slotsArea;
-        if (slots.length !== 0) {
-          slotsArea = (React.createElement("div", {className: "slots"}, 
-            React.createElement("p", null, "Spell Slots"), 
-            React.createElement(Grid, {fluid: true}, 
-              React.createElement(Row, null, 
-                slots
-              )
-            )
-          ));
-        } 
+    this.props.character.get('charSpells').forEach(function(level, i) {
+      if (level.get('spells').size !== 0) {
 
         // get each spell
         var sps = [];
-        level.spells.forEach(function(spell, j) {
-          sps.push(
-            React.createElement(Panel3d, {key: j, className: "list-header", title: spell['name']}, 
-              React.createElement("p", null, React.createElement("strong", null, "CT:"), "  ", spell['cast']), 
-              React.createElement("p", null, React.createElement("strong", null, "R:"), "   ", spell['range']), 
-              React.createElement("p", null, React.createElement("strong", null, "CMP:"), " ", spell['cmp']), 
-              React.createElement("p", null, React.createElement("strong", null, "DUR:"), " ", spell['dur']), 
-              React.createElement("p", null, spell['desc'])
+        level.get('spells').forEach(function(spell, j) {
+          var checked = spell.get('prepared');
+          var title = (
+            React.createElement("div", null, 
+              React.createElement("input", {type: "checkbox", checked: checked, onChange: this.handlePrepareSpell.bind(this, i, j), className: "prepared-checkbox" + (i === 0 ? " hide" : "") }), 
+              React.createElement("span", null, spell.get('name'))
             )
           );
-        });
+
+          sps.push(
+            React.createElement(Panel3d, {key: j, className: "list-header" + (checked ? " prepared" : ""), title: title}, 
+              React.createElement("p", null, React.createElement("strong", null, "CT:"), "  " +  spell.get('cast')), 
+              React.createElement("p", null, React.createElement("strong", null, "R:"), "    " + spell.get('range')), 
+              React.createElement("p", null, React.createElement("strong", null, "CMP:"), " " +  spell.get('cmp')), 
+              React.createElement("p", null, React.createElement("strong", null, "DUR:"), " " +  spell.get('dur')), 
+              React.createElement("p", null, spell.get('desc'))
+            )
+          );
+        }, this);
 
         // put it all together
         spells.push(
-          React.createElement(Panel3d, {key: i, title: level['name'] + ((i !== 0) ?  " Level" : "")}, 
-            slotsArea, 
+          React.createElement(Panel3d, {key: i, title: level.get('name') + ((i !== 0) ?  " Level" : "")}, 
             sps
           )
         );
       }
-    }.bind(this));
+    }, this);
 
     // add in spell attack bonus bubbles
     var bubbles = [];
-    this.props.preferences['spellBubbles'].forEach(function(bubble, i) {
-      var bonus = this.props.character['charAbilities'][bubble.abil]['mod'];
-      bonus += (bubble.prof === true) ? prof : 0;
+    this.props.preferences.get('spellBubbles').forEach(function(bubble, i) {
+      var bonus = this.props.character.getIn(['charAbilities', bubble.get('abil'), 'mod']);
+      bonus += (bubble.get('prof') === true) ? prof : 0;
 
       bubbles.push(
         React.createElement(OverlayTrigger, {key: i, ref: "trigger" + i, trigger: "manual", placement: "bottom", overlay: 
@@ -1689,12 +1850,12 @@ var Spells = React.createClass({
           React.createElement(Row, null, 
             React.createElement(Col, {className: "no-padding", xs: 5}, 
               React.createElement("div", {className: "bonus-container"}, 
-                React.createElement("h3", {onClick: this.handleConfigToggle.bind(this, "trigger" + i), className: "bonus text-center" + ((bubble.prof === true) ? " trained" : "")}, bonus)
+                React.createElement("h3", {onClick: this.handleConfigToggle.bind(this, "trigger" + i), className: "bonus text-center" + ((bubble.get('prof') === true) ? " trained" : "")}, bonus)
               )
             ), 
             React.createElement(Col, {className: "no-padding", xs: 7}, 
-              React.createElement("p", {className: "bonus-desc"}, bubble.desc), 
-              React.createElement("p", null, bubble.abil + ((bubble.prof === true) ? " + prof" : ""))
+              React.createElement("p", {className: "bonus-desc"}, bubble.get('desc')), 
+              React.createElement("p", null, bubble.get('abil') + ((bubble.get('prof') === true) ? " + prof" : ""))
             )
           )
         )
@@ -1705,23 +1866,24 @@ var Spells = React.createClass({
     //
     // TODO: clean this whole function up
     //
-    var bonus = this.props.character['charAbilities'][this.props.preferences.spellDC[0].abil]['mod'];
-    bonus += (this.props.preferences.spellDC[0].prof === true) ? prof : 0;
+    var bonus = this.props.character.getIn(['charAbilities', this.props.preferences.getIn(['spellDC', 0, 'abil']), 'mod']);
+    bonus += (this.props.preferences.getIn(['spellDC', 0, 'prof']) === true) ? prof : 0;
+    bonus += 8;
     var spelldc = (
       React.createElement(OverlayTrigger, {ref: "dc", trigger: "manual", placement: "bottom", overlay: 
         React.createElement(Popover, {title: "Spell Save DC Config"}, 
-          React.createElement(AttackConfig, {hidecontrols: true, pane: "CharSpells", configName: "spellDC", close: this.handleDCConfigToggle, idx: 0, bubble: this.props.preferences.spellDC[0], edit: this.props.editPreferences, preferences: this.props.preferences})
+          React.createElement(AttackConfig, {hidecontrols: true, pane: "CharSpells", configName: "spellDC", close: this.handleDCConfigToggle, idx: 0, bubble: this.props.preferences.getIn(['spellDC', 0]), edit: this.props.editPreferences, preferences: this.props.preferences})
         )
       }, 
         React.createElement(Row, null, 
           React.createElement(Col, {className: "no-padding", xs: 5}, 
             React.createElement("div", {className: "bonus-container"}, 
-              React.createElement("h3", {onClick: this.handleDCConfigToggle, className: "bonus text-center" + ((this.props.preferences.spellDC[0].prof === true) ? " trained" : "")}, bonus + 8)
+              React.createElement("h3", {onClick: this.handleDCConfigToggle, className: "bonus text-center" + ((this.props.preferences.getIn(['spellDC', 0, 'prof']) === true) ? " trained" : "")}, bonus)
             )
           ), 
           React.createElement(Col, {className: "no-padding", xs: 7}, 
-            React.createElement("p", {className: "bonus-desc"}, this.props.preferences.spellDC[0].desc), 
-            React.createElement("p", null, this.props.preferences.spellDC[0].abil + ((this.props.preferences.spellDC[0].prof === true) ? " + prof" : ""))
+            React.createElement("p", {className: "bonus-desc"}, this.props.preferences.getIn(['spellDC', 0, 'desc'])), 
+            React.createElement("p", null, this.props.preferences.getIn(['spellDC', 0, 'abil']) + ((this.props.preferences.getIn(['spellDC', 0, 'prof']) === true) ? " + prof" : ""))
           )
         )
       )
@@ -1755,6 +1917,7 @@ var Spells = React.createClass({
             spelldc, 
             bubbles
           ), 
+          spellSlots, 
           spells
         )
       )
@@ -1764,8 +1927,9 @@ var Spells = React.createClass({
 
 module.exports = Spells;
 
-},{"../hatch/Hatch":3,"../hatch/HatchGroup":4,"../hatch/Panel3d":5,"../popovers/attack-bonus":14,"../settings/settings-spells":27,"../tooltips/help":30,"react":235,"react-bootstrap/lib/Accordion":36,"react-bootstrap/lib/Button":39,"react-bootstrap/lib/Col":42,"react-bootstrap/lib/Glyphicon":45,"react-bootstrap/lib/Grid":46,"react-bootstrap/lib/Input":47,"react-bootstrap/lib/Modal":49,"react-bootstrap/lib/OverlayTrigger":53,"react-bootstrap/lib/Panel":55,"react-bootstrap/lib/Popover":57,"react-bootstrap/lib/Row":59,"react-bootstrap/lib/TabPane":60,"react-bootstrap/lib/TabbedArea":61,"react-bootstrap/lib/Tooltip":62}],14:[function(require,module,exports){
+},{"../hatch/Hatch":4,"../hatch/HatchGroup":5,"../hatch/Panel3d":6,"../popovers/attack-bonus":15,"../settings/settings-spells":28,"../tooltips/help":31,"react":238,"react-bootstrap/lib/Accordion":39,"react-bootstrap/lib/Button":42,"react-bootstrap/lib/Col":45,"react-bootstrap/lib/Glyphicon":48,"react-bootstrap/lib/Grid":49,"react-bootstrap/lib/Input":50,"react-bootstrap/lib/Modal":52,"react-bootstrap/lib/OverlayTrigger":56,"react-bootstrap/lib/Panel":58,"react-bootstrap/lib/Popover":60,"react-bootstrap/lib/Row":62,"react-bootstrap/lib/TabPane":63,"react-bootstrap/lib/TabbedArea":64,"react-bootstrap/lib/Tooltip":65}],15:[function(require,module,exports){
 var React = require('react');
+var Immutable = require('Immutable');
 var EventListener = require('react-bootstrap/lib/utils/EventListener');
 var Input = require('react-bootstrap/lib/Input');
 var Button = require('react-bootstrap/lib/Button');
@@ -1793,8 +1957,11 @@ var Bubble = React.createClass({displayName: "Bubble",
     var data = this.props.preferences;
     var path = this.props.pane + ".atkBubble." + this.props.idx + "." + cmp;
 
-    data[this.props.configName][this.props.idx][cmp] = 
-      (cmp === "prof") ? e.target.checked : e.target.value;
+    //data[this.props.configName][this.props.idx][cmp] = 
+    //  (cmp === "prof") ? e.target.checked : e.target.value;
+
+    data = data.setIn([this.props.configName, this.props.idx, cmp],
+                      (cmp === "prof") ? e.target.checked : e.target.value);
 
     this.props.edit({ path : path, preferences : data });
   },
@@ -1803,16 +1970,25 @@ var Bubble = React.createClass({displayName: "Bubble",
     var path = this.props.pane + "." + this.props.configName;
 
     if (cmp === "add") {
-      if (data[this.props.configName].length === 3) return;
-      data[this.props.configName].push({
-        abil : "str",
-        prof : false,
-        desc : "Attack Bonus"
-      });
+      if (data.getIn([this.props.configName, 'length']) === 3) return;
+      
+      //data[this.props.configName].push({
+      //  abil : "str",
+      //  prof : false,
+      //  desc : "Attack Bonus"
+      //});
+
+      data = data.update(this.props.configName, function(list) {
+        return list.push(new Immutable.Map({ abil : "str", prof : false, desc : "Attack Bonus" }))
+      })
+
     }
     else if (cmp === "sub") {
-      if (data[this.props.configName].length === 1) return;
-      data[this.props.configName].splice(data[this.props.configName].length - 1, 1);
+      if (data.getIn([this.props.configName, 'length']) === 1) return;
+      //data[this.props.configName].splice(data[this.props.configName].length - 1, 1);
+      data = data.update(this.props.configName, function(list) {
+        return list.pop()
+      })
     }
 
     this.props.edit({ path : path + "." + cmp, preferences : data });
@@ -1831,7 +2007,7 @@ var Bubble = React.createClass({displayName: "Bubble",
   render : function() {
     return (
       React.createElement("div", {className: "container-fluid"}, 
-        React.createElement(Input, {type: "select", label: "Ability Mod", value: this.props.bubble['abil'], onChange: this.handleChange.bind(this, "abil")}, 
+        React.createElement(Input, {type: "select", label: "Ability Mod", value: this.props.bubble.get('abil'), onChange: this.handleChange.bind(this, "abil")}, 
           React.createElement("option", {value: "str"}, "str"), 
           React.createElement("option", {value: "dex"}, "dex"), 
           React.createElement("option", {value: "con"}, "con"), 
@@ -1839,8 +2015,8 @@ var Bubble = React.createClass({displayName: "Bubble",
           React.createElement("option", {value: "wis"}, "wis"), 
           React.createElement("option", {value: "cha"}, "cha")
         ), 
-        React.createElement(Input, {type: "checkbox", checked: this.props.bubble.prof, label: "Proficient", onChange: this.handleChange.bind(this, "prof")}), 
-        React.createElement(Input, {type: "text", value: this.props.bubble.desc, label: "Name", onChange: this.handleChange.bind(this, "desc")}), 
+        React.createElement(Input, {type: "checkbox", checked: this.props.bubble.get('prof'), label: "Proficient", onChange: this.handleChange.bind(this, "prof")}), 
+        React.createElement(Input, {type: "text", value: this.props.bubble.get('desc'), label: "Name", onChange: this.handleChange.bind(this, "desc")}), 
         React.createElement("div", {className: (this.props.hidecontrols) ? "hide" : ""}, 
           React.createElement(Input, {label: "Add/Remove Attack Bubble"}, 
             React.createElement(Button, {className: "no-border", onClick: this.manipBubbles.bind(this, "sub")}, 
@@ -1858,7 +2034,7 @@ var Bubble = React.createClass({displayName: "Bubble",
 
 module.exports = Bubble;
 
-},{"react":235,"react-bootstrap/lib/Button":39,"react-bootstrap/lib/Glyphicon":45,"react-bootstrap/lib/Input":47,"react-bootstrap/lib/utils/EventListener":65}],15:[function(require,module,exports){
+},{"Immutable":34,"react":238,"react-bootstrap/lib/Button":42,"react-bootstrap/lib/Glyphicon":48,"react-bootstrap/lib/Input":50,"react-bootstrap/lib/utils/EventListener":68}],16:[function(require,module,exports){
 var React = require('react');
 
 var EventListener = require('react-bootstrap/lib/utils/EventListener');
@@ -1907,24 +2083,31 @@ var Rest = React.createClass({displayName: "Rest",
   handleLongRest : function() {
     var tmp = this.props.character;
     var path = "charDefenses.longrest";
-    var hitdice = Math.floor(tmp['charInfo']['level'] / 2);
+    var hitdice = Math.floor(tmp.getIn(['charInfo', 'level']) / 2);
 
-    hitdice += tmp['charHitPoints']['hitDiceCurrent'];
+    hitdice += tmp.getIn(['charHitPoints', 'hitDiceCurrent']);
 
-    tmp['charHitPoints'].temporary = 0;
-    tmp['charHitPoints'].current = tmp['charHitPoints'].maximum;
-    tmp['charHitPoints']['hitDiceCurrent'] = Math.min(hitdice, tmp['charInfo']['level']);
-    tmp['charHitPoints']['deathSaves']['successes'] = 0;
-    tmp['charHitPoints']['deathSaves']['failures'] = 0;
+    //tmp['charHitPoints'].temporary = 0;
+    //tmp['charHitPoints'].current = tmp['charHitPoints'].maximum;
+    //tmp['charHitPoints']['hitDiceCurrent'] = Math.min(hitdice, tmp['charInfo']['level']);
+    //tmp['charHitPoints']['deathSaves']['successes'] = 0;
+    //tmp['charHitPoints']['deathSaves']['failures'] = 0;
+    tmp = tmp.setIn(['charHitPoints', 'temporary'], 0);
+    tmp = tmp.setIn(['charHitPoints', 'current'], tmp.getIn(['charHitPoints', 'maximum']));
+    tmp = tmp.setIn(['charHitPoints', 'hitDiceCurrent'], Math.min(hitdice, tmp.getIn(['charInfo', 'level'])));
+    tmp = tmp.setIn(['charHitPoints', 'deathSaves', 'successes'], 0);
+    tmp = tmp.setIn(['charHitPoints', 'deathSaves', 'failures'], 0);
 
     // reset spell slots
     for (var i = 1; i < 10; i++) {
-      tmp['charSpells'][i]['used'] = 0;
+      //tmp['charSpells'][i]['used'] = 0;
+      tmp = tmp.setIn(['charSpells', i, 'used'], 0);
     }
 
     // reset class charges
     for (var i = 0; i < tmp['charClassCharges']; i++) {
-      tmp['charClassCharges'][i].used = 0;
+      //tmp['charClassCharges'][i].used = 0;
+      tmp = tmp.setIn(['charClassCharges', i, 'used'], 0);
     }
 
     // save changes and close tab
@@ -1941,8 +2124,11 @@ var Rest = React.createClass({displayName: "Rest",
     var tmp = this.props.character;
     var path = "charDefenses.shortrest.";
     var val = parseInt(this.state.hps, 10);
+    var curr = tmp.getIn(['charHitPoints', 'current']);
+    var max = tmp.getIn(['charHitPoints', 'maximum']);
+    var currhd = tmp.getIn(['charHitPoints', 'hitDiceCurrent']);
 
-    if (tmp['charHitPoints']['hitDiceCurrent'] === 0) {
+    if (tmp.getIn(['charHitPoints', 'hitDiceCurrent']) === 0) {
       alert("There's no will to rest!");
       return;
     }
@@ -1950,15 +2136,17 @@ var Rest = React.createClass({displayName: "Rest",
     if (isNaN(val) || val === 0) return;
 
     // add to current hp
-    tmp['charHitPoints']['current'] += val;
-    tmp['charHitPoints']['current'] = Math.min(tmp['charHitPoints']['maximum'], tmp['charHitPoints']['current']);
+    //tmp['charHitPoints']['current'] += val;
+    //tmp['charHitPoints']['current'] = Math.min(tmp['charHitPoints']['maximum'], tmp['charHitPoints']['current']);
+    tmp = tmp.setIn(['charHitPoints', 'current'], Math.min(max, (curr + val)));
 
     // remove one from hit dice
-    tmp['charHitPoints']['hitDiceCurrent'] -= 1;
+    //tmp['charHitPoints']['hitDiceCurrent'] -= 1;
+    tmp = tmp.setIn(['charHitPoints', 'hitDiceCurrent'], (currhd - 1));
 
     // death saves
-    tmp['charHitPoints']['deathSaves']['successes'] = 0;
-    tmp['charHitPoints']['deathSaves']['failures'] = 0;
+    tmp = tmp.setIn(['charHitPoints', 'deathSaves', 'successes'], 0);
+    tmp = tmp.setIn(['charHitPoints', 'deathSaves', 'failures'], 0);
 
     this.props.edit({ path: path, character : tmp });
     this.setState({ hps : 0 });
@@ -1973,14 +2161,10 @@ var Rest = React.createClass({displayName: "Rest",
     return (
       React.createElement("div", {className: "container-fluid"}, 
         React.createElement("p", null, "Take a long rest and restore all hp, class charges, and spent utilities."), 
-        React.createElement(ButtonToolbar, null, 
-          React.createElement(Button, {onClick: this.handleLongRest}, "Long Rest")
-        ), 
+        React.createElement(Button, {block: true, bsStyle: "info", onClick: this.handleLongRest}, "Long Rest"), 
         React.createElement("p", null, "Or, spend a hit dice to regain hp by entering the number of hp you regain per hit die spent."), 
         React.createElement(Input, {type: "number", value: this.state.hps, onChange: this.handleChange.bind(this, "hps")}), 
-        React.createElement(ButtonToolbar, null, 
-          React.createElement(Button, {onClick: this.handleShortRest}, "Short Rest")
-        )
+        React.createElement(Button, {block: true, bsStyle: "info", onClick: this.handleShortRest}, "Short Rest")
       )
     );
   }
@@ -1988,7 +2172,7 @@ var Rest = React.createClass({displayName: "Rest",
 
 module.exports = Rest;
 
-},{"react":235,"react-bootstrap/lib/Button":39,"react-bootstrap/lib/ButtonToolbar":41,"react-bootstrap/lib/Input":47,"react-bootstrap/lib/utils/EventListener":65}],16:[function(require,module,exports){
+},{"react":238,"react-bootstrap/lib/Button":42,"react-bootstrap/lib/ButtonToolbar":44,"react-bootstrap/lib/Input":50,"react-bootstrap/lib/utils/EventListener":68}],17:[function(require,module,exports){
 var React = require('react');
 
 var Input = require('react-bootstrap/lib/Input');
@@ -2079,37 +2263,37 @@ var SettingsAbilities = React.createClass({displayName: "SettingsAbilities",
     }
 
     if (this.state['str'] !== "") {
-      tmp['charAbilities']['str']['score'] = this.state['str'];
-      tmp['charAbilities']['str']['mod'] = Math.floor((this.state['str'] - 10) / 2);
+      tmp = tmp.setIn(['charAbilities', 'str', 'score'], this.state['str']);
+      tmp = tmp.setIn(['charAbilities', 'str', 'mod'], Math.floor((this.state['str'] - 10) / 2));
       path += 'str.' + this.state['str'];
     }
     if (this.state['dex'] !== "") {
-      tmp['charAbilities']['dex']['score'] = this.state['dex'];
-      tmp['charAbilities']['dex']['mod'] = Math.floor((this.state['dex'] - 10) / 2);
+      tmp = tmp.setIn(['charAbilities', 'dex', 'score'], this.state['dex']);
+      tmp = tmp.setIn(['charAbilities', 'dex', 'mod'], Math.floor((this.state['dex'] - 10) / 2));
       path += 'dex.' + this.state['dex'];
     }
     if (this.state['con'] !== "") {
-      tmp['charAbilities']['con']['score'] = this.state['con'];
-      tmp['charAbilities']['con']['mod'] = Math.floor((this.state['con'] - 10) / 2);
+      tmp = tmp.setIn(['charAbilities', 'con', 'score'], this.state['con']);
+      tmp = tmp.setIn(['charAbilities', 'con', 'mod'], Math.floor((this.state['con'] - 10) / 2));
       path += 'con.' + this.state['con'];
     }
     if (this.state['int'] !== "") {
-      tmp['charAbilities']['int']['score'] = this.state['int'];
-      tmp['charAbilities']['int']['mod'] = Math.floor((this.state['int'] - 10) / 2);
+      tmp = tmp.setIn(['charAbilities', 'int', 'score'], this.state['int']);
+      tmp = tmp.setIn(['charAbilities', 'int', 'mod'], Math.floor((this.state['int'] - 10) / 2));
       path += 'int.' + this.state['int'];
     }
     if (this.state['wis'] !== "") {
-      tmp['charAbilities']['wis']['score'] = this.state['wis'];
-      tmp['charAbilities']['wis']['mod'] = Math.floor((this.state['wis'] - 10) / 2);
+      tmp = tmp.setIn(['charAbilities', 'wis', 'score'], this.state['wis']);
+      tmp = tmp.setIn(['charAbilities', 'wis', 'mod'], Math.floor((this.state['wis'] - 10) / 2));
       path += 'wis.' + this.state['wis'];
     }
     if (this.state['cha'] !== "") {
-      tmp['charAbilities']['cha']['score'] = this.state['cha'];
-      tmp['charAbilities']['cha']['mod'] = Math.floor((this.state['cha'] - 10) / 2);
+      tmp = tmp.setIn(['charAbilities', 'cha', 'score'], this.state['cha']);
+      tmp = tmp.setIn(['charAbilities', 'cha', 'mod'], Math.floor((this.state['cha'] - 10) / 2));
       path += 'cha.' + this.state['cha'];
     }
     if (this.state.prof !== "") {
-      tmp['charProficiencyBonus']['score'] = this.state.prof;
+      tmp = tmp.setIn(['charProficiencyBonus', 'score'], this.state.prof);
       path += 'proficiency.' + this.state.prof;
     }
 
@@ -2131,13 +2315,13 @@ var SettingsAbilities = React.createClass({displayName: "SettingsAbilities",
       React.createElement("div", {className: "settings-tear"}, 
         React.createElement("h3", null, "Edit Ability Scores"), 
         React.createElement("p", null, "Enter the values of each ability score. The relevant modifiers are calculated automatically."), 
-        React.createElement(Input, {bsStyle: this.state['str'] === "" ? null : validstr, type: "text", label: "Strength", value: this.state['str'], onChange: this.handleChange.bind(this, "str"), placeholder: this.props.character['charAbilities']['str']['score']}), 
-        React.createElement(Input, {bsStyle: this.state['dex'] === "" ? null : validdex, type: "text", label: "Dexterity", value: this.state['dex'], onChange: this.handleChange.bind(this, "dex"), placeholder: this.props.character['charAbilities']['dex']['score']}), 
-        React.createElement(Input, {bsStyle: this.state['con'] === "" ? null : validcon, type: "text", label: "Constitution", value: this.state['con'], onChange: this.handleChange.bind(this, "con"), placeholder: this.props.character['charAbilities']['con']['score']}), 
-        React.createElement(Input, {bsStyle: this.state['int'] === "" ? null : validint, type: "text", label: "Intelligence", value: this.state['int'], onChange: this.handleChange.bind(this, "int"), placeholder: this.props.character['charAbilities']['int']['score']}), 
-        React.createElement(Input, {bsStyle: this.state['wis'] === "" ? null : validwis, type: "text", label: "Wisdom", value: this.state['wis'], onChange: this.handleChange.bind(this, "wis"), placeholder: this.props.character['charAbilities']['wis']['score']}), 
-        React.createElement(Input, {bsStyle: this.state['cha'] === "" ? null : validcha, type: "text", label: "Charisma", value: this.state['cha'], onChange: this.handleChange.bind(this, "cha"), placeholder: this.props.character['charAbilities']['cha']['score']}), 
-        React.createElement(Input, {bsStyle: this.state.prof === "" ? null : validprof, type: "text", label: "Proficiency Bonus", value: this.state.prof, onChange: this.handleChange.bind(this, "prof"), placeholder: this.props.character['charProficiencyBonus']['score']}), 
+        React.createElement(Input, {bsStyle: this.state['str'] === "" ? null : validstr, type: "text", label: "Strength", value: this.state['str'], onChange: this.handleChange.bind(this, "str"), placeholder: this.props.character.getIn(['charAbilities', 'str', 'score'])}), 
+        React.createElement(Input, {bsStyle: this.state['dex'] === "" ? null : validdex, type: "text", label: "Dexterity", value: this.state['dex'], onChange: this.handleChange.bind(this, "dex"), placeholder: this.props.character.getIn(['charAbilities', 'dex', 'score'])}), 
+        React.createElement(Input, {bsStyle: this.state['con'] === "" ? null : validcon, type: "text", label: "Constitution", value: this.state['con'], onChange: this.handleChange.bind(this, "con"), placeholder: this.props.character.getIn(['charAbilities', 'con', 'score'])}), 
+        React.createElement(Input, {bsStyle: this.state['int'] === "" ? null : validint, type: "text", label: "Intelligence", value: this.state['int'], onChange: this.handleChange.bind(this, "int"), placeholder: this.props.character.getIn(['charAbilities', 'int', 'score'])}), 
+        React.createElement(Input, {bsStyle: this.state['wis'] === "" ? null : validwis, type: "text", label: "Wisdom", value: this.state['wis'], onChange: this.handleChange.bind(this, "wis"), placeholder: this.props.character.getIn(['charAbilities', 'wis', 'score'])}), 
+        React.createElement(Input, {bsStyle: this.state['cha'] === "" ? null : validcha, type: "text", label: "Charisma", value: this.state['cha'], onChange: this.handleChange.bind(this, "cha"), placeholder: this.props.character.getIn(['charAbilities', 'cha', 'score'])}), 
+        React.createElement(Input, {bsStyle: this.state.prof === "" ? null : validprof, type: "text", label: "Proficiency Bonus", value: this.state.prof, onChange: this.handleChange.bind(this, "prof"), placeholder: this.props.character.getIn(['charProficiencyBonus', 'score'])}), 
         React.createElement(ButtonToolbar, null, 
           React.createElement(Button, {bsStyle: "danger", onClick: this.toggle}, "Close"), 
           React.createElement(Button, {bsStyle: "success", onClick: this.handleOk}, "Save")
@@ -2149,8 +2333,9 @@ var SettingsAbilities = React.createClass({displayName: "SettingsAbilities",
 
 module.exports = SettingsAbilities;
 
-},{"react":235,"react-bootstrap/lib/Button":39,"react-bootstrap/lib/ButtonToolbar":41,"react-bootstrap/lib/Input":47}],17:[function(require,module,exports){
+},{"react":238,"react-bootstrap/lib/Button":42,"react-bootstrap/lib/ButtonToolbar":44,"react-bootstrap/lib/Input":50}],18:[function(require,module,exports){
 var React = require('react');
+var Immutable = require('immutable');
 
 var Input = require('react-bootstrap/lib/Input');
 var ButtonToolbar = require('react-bootstrap/lib/ButtonToolbar');
@@ -2202,9 +2387,9 @@ var SettingsAttacks = React.createClass({displayName: "SettingsAttacks",
   },
   handleSelect : function(e) {
     var idx = parseInt(e.target.value, 10);
-    var node = this.props.character['charAttacks'][idx];
-    var name = (idx === -1) ? "" : node.name;
-    var desc = (idx === -1) ? "" : node.desc;
+    var node = this.props.character.getIn(['charAttacks', idx]);
+    var name = (idx === -1) ? "" : node.get('name');
+    var desc = (idx === -1) ? "" : node.get('desc');
     var state = {};
 
     state.idx = idx;
@@ -2216,14 +2401,17 @@ var SettingsAttacks = React.createClass({displayName: "SettingsAttacks",
   handleDelete : function() {
     var tmp = this.props.character;
     var path = "charAttacks.delete";
-    var name = tmp['charAttacks'][this.state.idx].name;
+    var name = tmp.getIn(['charAttacks', this.state.idx, 'name']);
     var atk;
 
     // if mistake, stop deleting!
     if (!confirm("Do you really want to get rid of\n '" + name + "'\n forever?")) return;
 
-    atk = tmp['charAttacks'].splice(this.state.idx, 1);
-    path += "." + atk[0].name;
+    //atk = tmp['charAttacks'].splice(this.state.idx, 1);
+    path += "." + name;
+    tmp = tmp.update('charAttacks', function(list) {
+      return list.splice(this.state.idx, 1)
+    }.bind(this))
 
     // save
     this.props.edit({ path : path, character : tmp });
@@ -2242,16 +2430,29 @@ var SettingsAttacks = React.createClass({displayName: "SettingsAttacks",
       node.name = this.state.name;
       node.desc = this.state.desc;
 
-      tmp['charAttacks'].push(node);
+      //tmp['charAttacks'].push(node);
       path += "add." + node.name;
+      tmp = tmp.update('charAttacks', function(list) {
+        return list.push(new Immutable.Map(node))
+      })
     }
 
     // edit
     else if (this.state.mode === 1) {
       if (this.state.idx === -1) return;
 
-      tmp['charAttacks'][this.state.idx].name = this.state.newName;
-      tmp['charAttacks'][this.state.idx].desc = this.state.newDesc;
+      //tmp['charAttacks'][this.state.idx].name = this.state.newName;
+      //tmp['charAttacks'][this.state.idx].desc = this.state.newDesc;
+      tmp = tmp.update('charAttacks', function(list) {
+        return list.update(this.state.idx, function(item) {
+          var atk = item;
+
+          atk = atk.set('name', this.state.newName);
+          atk = atk.set('desc', this.state.newDesc);
+
+          return atk;
+        }.bind(this))
+      }.bind(this))
 
       path += "edit." + this.state.newName;
     }
@@ -2276,9 +2477,9 @@ var SettingsAttacks = React.createClass({displayName: "SettingsAttacks",
 
     // populate the select box
     var attacks = [];
-    this.props.character['charAttacks'].forEach(function(atk, i) {
+    this.props.character.get('charAttacks').forEach(function(atk, i) {
       attacks.push(
-        React.createElement("option", {key: i, value: i}, atk.name)
+        React.createElement("option", {key: i, value: i}, atk.get('name'))
       );
     }); 
 
@@ -2326,7 +2527,7 @@ var SettingsAttacks = React.createClass({displayName: "SettingsAttacks",
 
 module.exports = SettingsAttacks;
 
-},{"react":235,"react-bootstrap/lib/Button":39,"react-bootstrap/lib/ButtonToolbar":41,"react-bootstrap/lib/Col":42,"react-bootstrap/lib/Input":47,"react-bootstrap/lib/Row":59,"react-bootstrap/lib/TabPane":60,"react-bootstrap/lib/TabbedArea":61}],18:[function(require,module,exports){
+},{"immutable":38,"react":238,"react-bootstrap/lib/Button":42,"react-bootstrap/lib/ButtonToolbar":44,"react-bootstrap/lib/Col":45,"react-bootstrap/lib/Input":50,"react-bootstrap/lib/Row":62,"react-bootstrap/lib/TabPane":63,"react-bootstrap/lib/TabbedArea":64}],19:[function(require,module,exports){
 var React = require('react');
 
 var Input = require('react-bootstrap/lib/Input');
@@ -2399,32 +2600,38 @@ var SettingsDefenses = React.createClass({displayName: "SettingsDefenses",
     if (this.state.hperror || this.state.acerror || this.state.initerror) return;
 
     if (this.state.hp !== "") {
-      tmp['charHitPoints']['maximum'] = this.state.hp;
+      //tmp['charHitPoints']['maximum'] = this.state.hp;
+      tmp = tmp.setIn(['charHitPoints', 'maximum'], this.state.hp);
       path += "hp." + this.state.hp;
     }
 
     if (this.state.ac !== "") {
-      tmp['charArmorClass']['score'] = this.state.ac;
+      //tmp['charArmorClass']['score'] = this.state.ac;
+      tmp = tmp.setIn(['charArmorClass', 'score'], this.state.ac);
       path += ".ac." + this.state.ac;
     }
 
     if (this.state.init !== "") {
-      tmp['charInitiative']['score'] = this.state.init;
+      //tmp['charInitiative']['score'] = this.state.init;
+      tmp = tmp.setIn(['charInitiative', 'score'], this.state.init);
       path += ".init." + this.state.init;
     }
 
     if (this.state.speed !== "") {
-      tmp['charSpeed']['score'] = this.state.speed;
+      //tmp['charSpeed']['score'] = this.state.speed;
+      tmp = tmp.setIn(['charSpeed', 'score'], this.state.speed);
       path += ".speed." + this.state.speed;
     }
 
     if (this.state.hitdice !== "") {
-      tmp['charHitPoints']['hitDiceTotal'] = this.state.hitdice;
+      //tmp['charHitPoints']['hitDiceTotal'] = this.state.hitdice;
+      tmp = tmp.setIn(['charHitPoints', 'hitDiceTotal'], this.state.hitdice);
       path += ".hitdice." + this.state.hitdice;
     }
 
     this.props.edit({ path : path, character : tmp });
     this.clearState();
+    this.toggle();
   },
   render : function() {
     var validhp = (this.state.hperror) ? "error" : "success";
@@ -2435,11 +2642,11 @@ var SettingsDefenses = React.createClass({displayName: "SettingsDefenses",
       React.createElement("div", {className: "settings-tear"}, 
         React.createElement("h3", null, "Edit Defenses"), 
         React.createElement("p", null, "Edit the values for your character's maximum hit points, hit dice, initiative, speed, and armor class."), 
-        React.createElement(Input, {type: "text", bsStyle: (this.state.hp === "") ? null : validhp, onChange: this.handleChange.bind(this, "hp"), label: "Maximum Hit Points", placeholder: this.props.character['charHitPoints']['maximum'], value: this.state.hp}), 
-        React.createElement(Input, {type: "text", bsStyle: (this.state.ac === "") ? null : validac, onChange: this.handleChange.bind(this, "ac"), label: "Armor Class", placeholder: this.props.character['charArmorClass']['score'], value: this.state.ac}), 
-        React.createElement(Input, {type: "text", bsStyle: (this.state.init === "") ? null : validinit, onChange: this.handleChange.bind(this, "init"), label: "initiative", placeholder: this.props.character['charInitiative']['score'], value: this.state.init}), 
-        React.createElement(Input, {type: "text", onChange: this.handleChange.bind(this, "speed"), label: "Speed (ft)", placeholder: this.props.character['charSpeed']['score'], value: this.state.speed}), 
-        React.createElement(Input, {type: "text", onChange: this.handleChange.bind(this, "hitdice"), label: "Total Hit Dice", placeholder: this.props.character['charHitPoints']['hitDiceTotal'], value: this.state.hitdice}), 
+        React.createElement(Input, {type: "text", bsStyle: (this.state.hp === "") ? null : validhp, onChange: this.handleChange.bind(this, "hp"), label: "Maximum Hit Points", placeholder: this.props.character.getIn(['charHitPoints', 'maximum']), value: this.state.hp}), 
+        React.createElement(Input, {type: "text", bsStyle: (this.state.ac === "") ? null : validac, onChange: this.handleChange.bind(this, "ac"), label: "Armor Class", placeholder: this.props.character.getIn(['charArmorClass', 'score']), value: this.state.ac}), 
+        React.createElement(Input, {type: "text", bsStyle: (this.state.init === "") ? null : validinit, onChange: this.handleChange.bind(this, "init"), label: "initiative", placeholder: this.props.character.getIn(['charInitiative', 'score']), value: this.state.init}), 
+        React.createElement(Input, {type: "text", onChange: this.handleChange.bind(this, "speed"), label: "Speed (ft)", placeholder: this.props.character.getIn(['charSpeed', 'score']), value: this.state.speed}), 
+        React.createElement(Input, {type: "text", onChange: this.handleChange.bind(this, "hitdice"), label: "Total Hit Dice", placeholder: this.props.character.getIn(['charHitPoints', 'hitDiceTotal']), value: this.state.hitdice}), 
         React.createElement(ButtonToolbar, null, 
           React.createElement(Button, {bsStyle: "danger", onClick: this.toggle}, "Close"), 
           React.createElement(Button, {bsStyle: "success", onClick: this.handleOk}, "Save")
@@ -2451,8 +2658,9 @@ var SettingsDefenses = React.createClass({displayName: "SettingsDefenses",
 
 module.exports = SettingsDefenses;
 
-},{"react":235,"react-bootstrap/lib/Button":39,"react-bootstrap/lib/ButtonToolbar":41,"react-bootstrap/lib/Input":47}],19:[function(require,module,exports){
+},{"react":238,"react-bootstrap/lib/Button":42,"react-bootstrap/lib/ButtonToolbar":44,"react-bootstrap/lib/Input":50}],20:[function(require,module,exports){
 var React = require('react');
+var Immutable = require('immutable');
 
 var Input = require('react-bootstrap/lib/Input');
 var ButtonToolbar = require('react-bootstrap/lib/ButtonToolbar');
@@ -2512,15 +2720,15 @@ var SettingsEquip = React.createClass({displayName: "SettingsEquip",
     if (e.target.value === -1) return;
 
     state.moneyIdx = e.target.value;
-    state.money = this.props.character['charEquipment']['money'][state.moneyIdx];
+    state.money = this.props.character.getIn(['charEquipment', 'money', state.moneyIdx]);
 
     this.setState(state);
   },
   handleSelect : function(e) {
     var idx = parseInt(e.target.value, 10);
-    var node = this.props.character['charEquipment']['otherEquipment'][idx];
-    var name = (idx === -1) ? "" : node.name;
-    var desc = (idx === -1) ? "" : node.desc;
+    var node = this.props.character.getIn(['charEquipment', 'otherEquipment', idx]);
+    var name = (idx === -1) ? "" : node.get('name');
+    var desc = (idx === -1) ? "" : node.get('desc');
     var state = {};
 
     state.idx = idx;
@@ -2532,14 +2740,17 @@ var SettingsEquip = React.createClass({displayName: "SettingsEquip",
   handleDelete : function() {
     var tmp = this.props.character;
     var path = "charEquipment.delete.";
-    var name = tmp['charEquipment']['otherEquipment'][this.state.idx].name;
+    var name = tmp.getIn(['charEquipment','otherEquipment',this.state.idx, 'name']);
     var equip;
 
     // if mistake, stop deleting!
     if (!confirm("Do you really want to get rid of\n '" + name + "'\n forever?")) return;
 
-    equip = tmp['charEquipment']['otherEquipment'].splice(this.state.idx, 1);
-    path += equip[0].name;
+    //equip = tmp['charEquipment']['otherEquipment'].splice(this.state.idx, 1);
+    tmp = tmp.updateIn(['charEquipment', 'otherEquipment'], function(list) {
+      return list.splice(this.state.idx, 1);
+    }.bind(this))
+    path += name;
 
     // save
     this.props.edit({ path : path, character : tmp });
@@ -2558,7 +2769,10 @@ var SettingsEquip = React.createClass({displayName: "SettingsEquip",
       data.desc = this.state.desc;
 
       path += "add." + this.state.name;
-      tmp['charEquipment']['otherEquipment'].push(data);
+      //tmp['charEquipment']['otherEquipment'].push(data);
+      tmp = tmp.updateIn(['charEquipment','otherEquipment'], function(list) {
+        return list.push(new Immutable.Map(data))
+      })
     }
 
     // edit
@@ -2566,8 +2780,14 @@ var SettingsEquip = React.createClass({displayName: "SettingsEquip",
       if (this.state.idx === -1) return;
 
       path += "edit." + this.state.newName + ".idx." + this.state.idx; 
-      tmp['charEquipment']['otherEquipment'][this.state.idx].name = this.state.newName;
-      tmp['charEquipment']['otherEquipment'][this.state.idx].desc = this.state.newDesc;
+      tmp = tmp.updateIn(['charEquipment', 'otherEquipment', this.state.idx], function(item) {
+        var clone = item;
+
+        clone = clone.set('name', this.state.newName);
+        clone = clone.set('desc', this.state.newDesc);
+
+        return clone;
+      }.bind(this))
     }
 
     // edit money
@@ -2576,8 +2796,12 @@ var SettingsEquip = React.createClass({displayName: "SettingsEquip",
       if (isNaN(parseInt(this.state.money, 10))) return;
 
       path += "edit.money." + this.state.moneyIdx + "." + this.state.money;
-      tmp['charEquipment']['money'][this.state.moneyIdx] = parseInt(this.state.money, 10);
-
+      //tmp['charEquipment']['money'][this.state.moneyIdx] = parseInt(this.state.money, 10);
+      tmp = tmp.updateIn(['charEquipment','money'], function(money) {
+        var mon = money;
+        mon = mon.set(this.state.moneyIdx, parseInt(this.state.money, 10));
+        return mon;
+      }.bind(this))
     }
 
     this.props.edit({ path : path, character : tmp });
@@ -2600,9 +2824,9 @@ var SettingsEquip = React.createClass({displayName: "SettingsEquip",
 
     // populate the select box
     var equips = [];
-    this.props.character['charEquipment']['otherEquipment'].forEach(function(equip, i) {
+    this.props.character.getIn(['charEquipment', 'otherEquipment']).forEach(function(equip, i) {
       equips.push(
-        React.createElement("option", {key: i, value: i}, equip.name)
+        React.createElement("option", {key: i, value: i}, equip.get('name'))
       );
     }); 
 
@@ -2674,8 +2898,9 @@ var SettingsEquip = React.createClass({displayName: "SettingsEquip",
 
 module.exports = SettingsEquip;
 
-},{"react":235,"react-bootstrap/lib/Button":39,"react-bootstrap/lib/ButtonToolbar":41,"react-bootstrap/lib/Col":42,"react-bootstrap/lib/Input":47,"react-bootstrap/lib/Row":59,"react-bootstrap/lib/TabPane":60,"react-bootstrap/lib/TabbedArea":61}],20:[function(require,module,exports){
+},{"immutable":38,"react":238,"react-bootstrap/lib/Button":42,"react-bootstrap/lib/ButtonToolbar":44,"react-bootstrap/lib/Col":45,"react-bootstrap/lib/Input":50,"react-bootstrap/lib/Row":62,"react-bootstrap/lib/TabPane":63,"react-bootstrap/lib/TabbedArea":64}],21:[function(require,module,exports){
 var React = require('react');
+var Immutable = require('immutable');
 
 var TabbedArea = require('react-bootstrap/lib/TabbedArea');
 var TabPane = require('react-bootstrap/lib/TabPane');
@@ -2696,10 +2921,12 @@ var SettingsFeatures = React.createClass({displayName: "SettingsFeatures",
     state.name = "";
     state.desc = "";
     state.charges = "";
+    state.display = "";
 
     state.newName = "";
     state.newDesc = "";
     state.newCharges = "";
+    state.newDisplay = "";
 
     state.chargeserror = false;
 
@@ -2722,10 +2949,12 @@ var SettingsFeatures = React.createClass({displayName: "SettingsFeatures",
     state.name = "";
     state.desc = "";
     state.charges = "";
+    state.display = "";
 
     state.newName = "";
     state.newDesc = "";
     state.newCharges = "";
+    state.newDisplay = "";
 
     state.chargeserror = false;
 
@@ -2760,36 +2989,36 @@ var SettingsFeatures = React.createClass({displayName: "SettingsFeatures",
   handleDelete : function() {
     var tmp = this.props.character;
     var path = "charFeatures.delete";
-    var name = tmp['charFeatures'][this.state.idx].name;
+    var name = tmp.getIn(['charFeatures', this.state.idx, 'name']);
     var feat;
     var clsCrgs;
 
     // if mistake, stop deleting!
     if (!confirm("Do you really want to get rid of\n '" + name + "'\n forever?")) return;
 
-    feat = tmp['charFeatures'].splice(this.state.idx, 1);
-    path += "." + feat[0].name;
+    // first check for class charges
+    feat = tmp.getIn(['charFeatures', this.state.idx]);
+    if (feat.get('idx') !== undefined) {
+      tmp = tmp.update('charClassCharges', function(list) {
+        return list.splice(feat.get('idx'), 1);
+      })
 
-    // if this feat is tied to class charges remove them too
-    // need to update the indexes of other class charges though
-    if (feat[0].idx !== undefined) {
-      clsCrgs = tmp['charClassCharges'].splice(feat[0].idx, 1);
-      path += ".clearClassCharges." + clsCrgs[0].charges;
-
-      // loop through all features and update
-      tmp['charFeatures'].forEach(function(feat,j) {
-        if (feat.idx) {
-          for (var i = 0; i < tmp['charClassCharges'].length; i++) {
-
-            if (tmp['charClassCharges'][i].name === feat.name) {
-              tmp['charFeatures'][j].idx = i;
-              break;
-            }
+      // update other class charges with new index
+      tmp.get('charClassCharges').forEach(function(charge, idx) {
+        tmp.get('charFeatures').forEach(function(feat, i) {
+          if (feat.get('name') === charge.get('name')) {
+            tmp = tmp.setIn(['charFeatures', i, 'idx'], idx);
           }
-        }
-      }.bind(this))
-
+        })
+      })
     }
+    
+    // splice the feat
+    tmp = tmp.update('charFeatures', function(list) {
+      return list.splice(this.state.idx, 1);
+    }.bind(this))
+
+    path += "." + name;
 
     // save and close
     this.props.edit({ path : path, character : tmp });
@@ -2798,16 +3027,17 @@ var SettingsFeatures = React.createClass({displayName: "SettingsFeatures",
   handleSelect : function(e) {
     var tmp = this.props.character;
     var idx = parseInt(e.target.value, 10);
-    var feat = tmp['charFeatures'][idx];
-    var charges = tmp['charClassCharges'];
-    var name = (idx === -1) ? "" : feat.name;
-    var desc = (idx === -1) ? "" : feat.desc;
-    var charge = feat.idx;
+    var feat = tmp.getIn(['charFeatures', idx]);
+    var charges = tmp.get('charClassCharges');
+    var name = (idx === -1) ? "" : feat.get('name');
+    var desc = (idx === -1) ? "" : feat.get('desc');
+    var charge = feat.get("idx");
     var state = {};
 
     if (charge !== undefined) {
       state.enableCharges = true;
-      state.newCharges = charges[charge]['charges'];  
+      state.newCharges = charges.getIn([charge, 'charges']);
+      state.newDisplay = charges.getIn([charge, 'display']);
     }
     
     state.idx = idx;
@@ -2838,32 +3068,58 @@ var SettingsFeatures = React.createClass({displayName: "SettingsFeatures",
         crgs.name = this.state.name;
         crgs.charges = this.state.charges;
         crgs.used = 0;
+        crgs.display = (this.state.display === "") 
+                       ? this.state.name
+                       : this.state.display;
 
         // push new class charges node and link with feature
-        tmp['charClassCharges'].push(crgs);
-        data.idx = tmp['charClassCharges'].length -1;
+        tmp = tmp.update('charClassCharges', function(list) {
+          return list.push(new Immutable.Map(crgs));
+        })
 
+        data.idx = tmp.get('charClassCharges').size - 1;
         path += ".withCharges." + this.state.charges;
       }
 
-      tmp['charFeatures'].push(data);
+      //tmp['charFeatures'].push(data);
+      tmp = tmp.update('charFeatures', function(list) {
+        return list.push(new Immutable.Map(data));
+      })
     }
 
     // editing existing feature
     else if (this.state.mode === 1) {
       if (this.state.edit === -1) return;
 
-      tmp['charFeatures'][this.state.idx].name = this.state.newName;
-      tmp['charFeatures'][this.state.idx].desc = this.state.newDesc;
+      tmp = tmp.update('charFeatures', function(list) {
+        return list.update(this.state.idx, function(feat) {
+          var clone = feat;
+
+          clone = clone.set('name', this.state.newName);
+          clone = clone.set('desc', this.state.newDesc);
+
+          return clone;
+        }.bind(this))
+      }.bind(this))
+
       path += ".edit." + this.state.newName;
 
       // handle class feature change
-      if (tmp['charFeatures'][this.state.idx].idx !== undefined) {
+      if (tmp.getIn(['charFeatures', this.state.idx, 'idx']) !== undefined) {
         if (this.state.chargeserror) return;
 
-        idx = tmp['charFeatures'][this.state.idx].idx;
-        tmp['charClassCharges'][idx].name = this.state.newName;
-        tmp['charClassCharges'][idx].charges = this.state.newCharges;
+        idx = tmp.getIn(['charFeatures', this.state.idx, 'idx']);
+        tmp = tmp.updateIn(['charClassCharges', idx], function(charge) {
+          var clone = charge;
+
+          clone = clone.set('name', this.state.newName);
+          clone = clone.set('desc', this.state.newDesc);
+          clone = clone.set('charges', this.state.newCharges);
+          clone = clone.set('display', this.state.newDisplay);
+
+          return clone;
+        }.bind(this));
+
         path += ".editCharges." + this.state.newCharges;
       }
     }
@@ -2881,6 +3137,7 @@ var SettingsFeatures = React.createClass({displayName: "SettingsFeatures",
         React.createElement(Input, {placeholder: "name", value: this.state.name, type: "text", label: "Feature Name", onChange: this.handleChange.bind(this, "name")}), 
         React.createElement(Input, {placeholder: "short description", value: this.state.desc, type: "textarea", label: "Feature Description", onChange: this.handleChange.bind(this, "desc")}), 
         React.createElement(Input, {type: "checkbox", label: "gives class charges?", checked: this.state.enableCharges, onChange: this.toggleCharges}), 
+        React.createElement(Input, {disabled: (this.state.enableCharges) ? false : true, placeholder: "Class Charges Name", type: "text", label: "Display Name", help: "If left blank, will use feature name", onChange: this.handleChange.bind(this, "display"), value: this.state.display}), 
         React.createElement(Input, {bsStyle: (this.state.charges === "") ? null : validcharges, disabled: (this.state.enableCharges) ? false : true, placeholder: "check box to enable", type: "text", label: "Number of Charges", help: "(Ki, Rages, Sorcery, etc)?", onChange: this.handleChange.bind(this, "charges"), value: this.state.charges}), 
         React.createElement(ButtonToolbar, null, 
           React.createElement(Button, {bsStyle: "danger", onClick: this.toggle}, "Close"), 
@@ -2895,9 +3152,9 @@ var SettingsFeatures = React.createClass({displayName: "SettingsFeatures",
 
     // set up features for box
     var features = [];
-    this.props.character['charFeatures'].forEach(function(feat, i) {
+    this.props.character.get('charFeatures').forEach(function(feat, i) {
       features.push(
-        React.createElement("option", {key: i, value: i}, feat.name)
+        React.createElement("option", {key: i, value: i}, feat.get('name'))
       );
     });
 
@@ -2919,6 +3176,7 @@ var SettingsFeatures = React.createClass({displayName: "SettingsFeatures",
         ), 
         React.createElement(Input, {disabled: (this.state.idx === -1) ? true : false, type: "text", onChange: this.handleChange.bind(this, "newName"), label: "New Feature Name", value: this.state.newName}), 
         React.createElement(Input, {disabled: (this.state.idx === -1) ? true : false, type: "textarea", onChange: this.handleChange.bind(this, "newDesc"), label: "New Feature Description", value: this.state.newDesc}), 
+        React.createElement(Input, {disabled: (this.state.enableCharges) ? false : true, placeholder: "New Class Charges Name", type: "text", label: "New Display Name", onChange: this.handleChange.bind(this, "newDisplay"), value: this.state.newDisplay}), 
         React.createElement(Input, {bsStyle: (this.state.newCharges === "") ? null : validcharges, disabled: (this.state.enableCharges) ? false : true, type: "text", onChange: this.handleChange.bind(this, "newCharges"), placeholder: "number of charges", label: "New Amount of Class Charges", value: this.state.newCharges}), 
         React.createElement(ButtonToolbar, null, 
           React.createElement(Button, {bsStyle: "danger", onClick: this.toggle}, "Close"), 
@@ -2946,7 +3204,7 @@ var SettingsFeatures = React.createClass({displayName: "SettingsFeatures",
 
 module.exports = SettingsFeatures;
 
-},{"react":235,"react-bootstrap/lib/Button":39,"react-bootstrap/lib/ButtonToolbar":41,"react-bootstrap/lib/Col":42,"react-bootstrap/lib/Input":47,"react-bootstrap/lib/Row":59,"react-bootstrap/lib/TabPane":60,"react-bootstrap/lib/TabbedArea":61}],21:[function(require,module,exports){
+},{"immutable":38,"react":238,"react-bootstrap/lib/Button":42,"react-bootstrap/lib/ButtonToolbar":44,"react-bootstrap/lib/Col":45,"react-bootstrap/lib/Input":50,"react-bootstrap/lib/Row":62,"react-bootstrap/lib/TabPane":63,"react-bootstrap/lib/TabbedArea":64}],22:[function(require,module,exports){
 var React = require('react');
 
 var Input = require('react-bootstrap/lib/Input');
@@ -3016,34 +3274,39 @@ var SettingsInfo = React.createClass({displayName: "SettingsInfo",
     var path = "charInfo.edit.";
 
     if (this.state.cls !== "") {
-      tmp['charInfo']['class'] = this.state.cls;
+      tmp = tmp.setIn(['charInfo', 'class'], this.state.cls);
       path += "class." + this.state.cls;
     }
 
     if (this.state.lvl !== "") {
       if (this.state.lvlerror) return;
-      tmp['charInfo']['level'] = this.state.lvl;
+      tmp = tmp.setIn(['charInfo', 'level'], this.state.lvl);
+      //tmp['charInfo']['level'] = this.state.lvl;
       path += "level." + this.state.lvl;
     }
 
     if (this.state.xp !== "") {
       if (this.state.xperror) return;
-      tmp['charInfo']['xp'] = this.state.xp;
+      tmp = tmp.setIn(['charInfo', 'xp'], this.state.xp);
+      //tmp['charInfo']['xp'] = this.state.xp;
       path += "xp." + this.state.xp;
     }
 
     if (this.state.bg !== "") {
-      tmp['charInfo']['background'] = this.state.bg;
+      tmp = tmp.setIn(['charInfo', 'background'], this.state.bg);
+      //tmp['charInfo']['background'] = this.state.bg;
       path += "background." + this.state.bg;
     }
 
     if (this.state.race !== "") {
-      tmp['charInfo']['race'] = this.state.race;
+      tmp = tmp.setIn(['charInfo', 'race'], this.state.race);
+      //tmp['charInfo']['race'] = this.state.race;
       path += "race." + this.state.race;
     }
 
     if (this.state.align !== "") {
-      tmp['charInfo']['alignment'] = this.state.align;
+      tmp = tmp.setIn(['charInfo', 'alignment'], this.state.align);
+      //tmp['charInfo']['alignment'] = this.state.align;
       path += "alignment." + this.state.align;
     }
 
@@ -3059,12 +3322,12 @@ var SettingsInfo = React.createClass({displayName: "SettingsInfo",
       React.createElement("div", {className: "settings-tear"}, 
         React.createElement("h3", null, "Edit Character Info"), 
         React.createElement("p", null, "Enter a new value for any Character Info. If a field is left blank and no new values are entered, nothing will be changed."), 
-        React.createElement(Input, {type: "text", onChange: this.handleChange.bind(this, "cls"), label: "Class", placeholder: this.props.character['charInfo']['class'], value: this.state.cls}), 
-        React.createElement(Input, {type: "text", onChange: this.handleChange.bind(this, "race"), label: "Race", placeholder: this.props.character['charInfo']['race'], value: this.state.race}), 
-        React.createElement(Input, {type: "text", bsStyle: (this.state.lvl === "") ? null : validlvl, onChange: this.handleChange.bind(this, "lvl"), label: "Level", placeholder: this.props.character['charInfo']['level'], value: this.state.lvl}), 
-        React.createElement(Input, {type: "text", bsStyle: (this.state.xp ==="") ? null : validxp, onChange: this.handleChange.bind(this, "xp"), label: "Xp", placeholder: this.props.character['charInfo']['xp'], value: this.state.xp}), 
-        React.createElement(Input, {type: "text", onChange: this.handleChange.bind(this, "bg"), label: "Background", placeholder: this.props.character['charInfo']['background'], value: this.state.bg}), 
-        React.createElement(Input, {type: "text", onChange: this.handleChange.bind(this, "align"), label: "Alignment", placeholder: this.props.character['charInfo']['alignment'], value: this.state.align}), 
+        React.createElement(Input, {type: "text", onChange: this.handleChange.bind(this, "cls"), label: "Class", placeholder: this.props.character.get('charInfo').get('class'), value: this.state.cls}), 
+        React.createElement(Input, {type: "text", onChange: this.handleChange.bind(this, "race"), label: "Race", placeholder: this.props.character.get('charInfo').get('race'), value: this.state.race}), 
+        React.createElement(Input, {type: "text", bsStyle: (this.state.lvl === "") ? null : validlvl, onChange: this.handleChange.bind(this, "lvl"), label: "Level", placeholder: this.props.character.get('charInfo').get('level'), value: this.state.lvl}), 
+        React.createElement(Input, {type: "text", bsStyle: (this.state.xp ==="") ? null : validxp, onChange: this.handleChange.bind(this, "xp"), label: "Xp", placeholder: this.props.character.get('charInfo').get('xp'), value: this.state.xp}), 
+        React.createElement(Input, {type: "text", onChange: this.handleChange.bind(this, "bg"), label: "Background", placeholder: this.props.character.get('charInfo').get('background'), value: this.state.bg}), 
+        React.createElement(Input, {type: "text", onChange: this.handleChange.bind(this, "align"), label: "Alignment", placeholder: this.props.character.get('charInfo').get('alignment'), value: this.state.align}), 
         React.createElement(ButtonToolbar, null, 
           React.createElement(Button, {bsStyle: "danger", onClick: this.toggle}, "Close"), 
           React.createElement(Button, {bsStyle: "success", onClick: this.handleOk}, "Save")
@@ -3076,8 +3339,9 @@ var SettingsInfo = React.createClass({displayName: "SettingsInfo",
 
 module.exports = SettingsInfo;
 
-},{"react":235,"react-bootstrap/lib/Button":39,"react-bootstrap/lib/ButtonToolbar":41,"react-bootstrap/lib/Input":47}],22:[function(require,module,exports){
+},{"react":238,"react-bootstrap/lib/Button":42,"react-bootstrap/lib/ButtonToolbar":44,"react-bootstrap/lib/Input":50}],23:[function(require,module,exports){
 var React = require('react');
+var Immutable = require('immutable');
 
 var Input = require('react-bootstrap/lib/Input');
 var ButtonToolbar = require('react-bootstrap/lib/ButtonToolbar');
@@ -3115,14 +3379,13 @@ var SettingsTraits = React.createClass({displayName: "SettingsTraits",
 
     this.setState(state);
   },
-  handleModeChange : function(mode) {
-    this.clearState();
-    this.setState({ mode : mode });
-
-  },
   componentDidUpdate : function() {
     // recalculate this 
     this.props.recalculate();
+  },
+  handleModeChange : function(mode) {
+    this.clearState();
+    this.setState({ mode : mode });
   },
   handleChange : function(cmp, e) {
     var node = {};
@@ -3131,9 +3394,9 @@ var SettingsTraits = React.createClass({displayName: "SettingsTraits",
   },
   handleSelect : function(e) {
     var idx = parseInt(e.target.value, 10);
-    var langs = this.props.character['charOtherProficiencies']['languages'][idx];
-    var name = (idx === -1) ? "" : langs.name;
-    var desc = (idx === -1) ? "" : langs.desc;
+    var langs = this.props.character.getIn(['charOtherProficiencies','languages']).get(idx);
+    var name = (idx === -1) ? "" : langs.get('name');
+    var desc = (idx === -1) ? "" : langs.get('desc');
     var state = {};
 
     state.idx = idx;
@@ -3145,14 +3408,17 @@ var SettingsTraits = React.createClass({displayName: "SettingsTraits",
   handleDelete : function() {
     var tmp = this.props.character;
     var path = "charOtherProficiencies.languages.delete";
-    var name = tmp['charOtherProficiencies']['languages'][this.state.idx].name;
+    var name = tmp.getIn(['charOtherProficiencies', 'languages']).get(this.state.idx).get('name');
     var langs;
 
     //if mistake, stop deleting!
     if (!confirm("Do you really want to get rid of\n '" + name + "'\n forever?")) return;
 
-    langs = tmp['charOtherProficiencies']['languages'].splice(this.state.idx, 1);
-    path += "." + langs[0].name;
+    //langs = tmp['charOtherProficiencies']['languages'].splice(this.state.idx, 1);
+    tmp = tmp.updateIn(['charOtherProficiencies', 'languages'], function(list) {
+      return list.splice(this.state.idx, 1);
+    }.bind(this))
+    path += "." + name;
 
     //save and close
     this.props.edit({ path : path, character : tmp });
@@ -3170,7 +3436,10 @@ var SettingsTraits = React.createClass({displayName: "SettingsTraits",
       data.name = this.state.name;
       data.desc = this.state.desc;
 
-      tmp['charOtherProficiencies']['languages'].push(data);
+      //tmp['charOtherProficiencies']['languages'].push(data);
+      tmp = tmp.updateIn(['charOtherProficiencies', 'languages'], function(list) {
+        return list.push(new Immutable.Map(data));
+      })
       path += ".add." + data.name;
     }
     
@@ -3179,11 +3448,23 @@ var SettingsTraits = React.createClass({displayName: "SettingsTraits",
       if (this.state.idx === -1) return;
 
       // make the changes
-      tmp['charOtherProficiencies']['languages'][this.state.idx].name = this.state.newName;
-      tmp['charOtherProficiencies']['languages'][this.state.idx].desc = this.state.newDesc;
+      //tmp['charOtherProficiencies']['languages'][this.state.idx].name = this.state.newName;
+      //tmp['charOtherProficiencies']['languages'][this.state.idx].desc = this.state.newDesc;
+
+      // the immutable way?
+      tmp = tmp.updateIn(['charOtherProficiencies', 'languages'], function(list) {
+        return list.update(this.state.idx, function(item) {
+          var clone = item;
+
+          clone = clone.set('name', this.state.newName);
+          clone = clone.set('desc', this.state.newDesc);
+
+          return clone;
+        }.bind(this))
+      }.bind(this))
 
       // log the changes made
-      path += ".edit." + tmp['charOtherProficiencies']['languages'][this.state.idx].name;
+      path += ".edit." + this.state.newName;
     } 
 
     // save and close
@@ -3204,12 +3485,11 @@ var SettingsTraits = React.createClass({displayName: "SettingsTraits",
     );
   },
   renderEdit : function() {
-
     // populate the select box
     var languages = [];
-    this.props.character['charOtherProficiencies']['languages'].forEach(function(langs, i) {
+    this.props.character.getIn(['charOtherProficiencies', 'languages']).forEach(function(langs, i) {
       languages.push(
-        React.createElement("option", {key: i, value: i}, langs.name)
+        React.createElement("option", {key: i, value: i}, langs.get('name'))
       );
     });
 
@@ -3257,8 +3537,9 @@ var SettingsTraits = React.createClass({displayName: "SettingsTraits",
 
 module.exports = SettingsTraits;
 
-},{"react":235,"react-bootstrap/lib/Button":39,"react-bootstrap/lib/ButtonToolbar":41,"react-bootstrap/lib/Col":42,"react-bootstrap/lib/Input":47,"react-bootstrap/lib/Row":59,"react-bootstrap/lib/TabPane":60,"react-bootstrap/lib/TabbedArea":61}],23:[function(require,module,exports){
+},{"immutable":38,"react":238,"react-bootstrap/lib/Button":42,"react-bootstrap/lib/ButtonToolbar":44,"react-bootstrap/lib/Col":45,"react-bootstrap/lib/Input":50,"react-bootstrap/lib/Row":62,"react-bootstrap/lib/TabPane":63,"react-bootstrap/lib/TabbedArea":64}],24:[function(require,module,exports){
 var React = require('react');
+var Immutable = require('immutable');
 
 var Input = require('react-bootstrap/lib/Input');
 var ButtonToolbar = require('react-bootstrap/lib/ButtonToolbar');
@@ -3310,9 +3591,9 @@ var SettingsTraits = React.createClass({displayName: "SettingsTraits",
   },
   handleSelect : function(e) {
     var idx = parseInt(e.target.value, 10);
-    var prof = this.props.character['charOtherProficiencies']['proficiencies'][idx];
-    var name = (idx === -1) ? "" : prof.name;
-    var desc = (idx === -1) ? "" : prof.desc;
+    var prof = this.props.character.getIn(['charOtherProficiencies', 'proficiencies']).get(idx);
+    var name = (idx === -1) ? "" : prof.get('name');
+    var desc = (idx === -1) ? "" : prof.get('desc');
     var state = {};
 
     state.idx = idx;
@@ -3324,14 +3605,17 @@ var SettingsTraits = React.createClass({displayName: "SettingsTraits",
   handleDelete : function() {
     var tmp = this.props.character;
     var path = "charOtherProficiencies.proficiencies.delete";
-    var name = tmp['charOtherProficiencies']['proficiencies'][this.state.idx].name;
-    var prof;
+    var name = tmp.getIn(['charOtherProficiencies', 'proficiencies']).get(this.state.idx).get('name');
+    var profs;
 
     // if mistake, stop deleting!
     if (!confirm("Do you really want to get rid of\n '" + name + "'\n forever?")) return;
 
-    prof = tmp['charOtherProficiencies']['proficiencies'].splice(this.state.idx, 1);
-    path += "." + prof.name;
+    //prof = tmp['charOtherProficiencies']['proficiencies'].splice(this.state.idx, 1);
+    //path += "." + prof.name;
+    profs = tmp.getIn(['charOtherProficiencies', 'proficiencies']).splice(this.state.idx, 1);
+    tmp = tmp.setIn(['charOtherProficiencies', 'proficiencies'], profs);
+    path += "." + name;
 
     // save and close
     this.props.edit({ path : path, character : tmp });
@@ -3349,7 +3633,10 @@ var SettingsTraits = React.createClass({displayName: "SettingsTraits",
       data.name = this.state.name;
       data.desc = this.state.desc;
 
-      tmp['charOtherProficiencies']['proficiencies'].push(data);
+      //tmp['charOtherProficiencies']['proficiencies'].push(data);
+      tmp = tmp.updateIn(['charOtherProficiencies', 'proficiencies'], function(list) {
+        return list.push(new Immutable.Map(data));
+      });
       path += ".add." + data.name;
     }
 
@@ -3358,11 +3645,23 @@ var SettingsTraits = React.createClass({displayName: "SettingsTraits",
       if (this.state.idx === -1) return;
 
       // make the changes
-      tmp['charOtherProficiencies']['proficiencies'][this.state.idx].name = this.state.newName;
-      tmp['charOtherProficiencies']['proficiencies'][this.state.idx].desc = this.state.newDesc;
+      //tmp['charOtherProficiencies']['proficiencies'][this.state.idx].name = this.state.newName;
+      //tmp['charOtherProficiencies']['proficiencies'][this.state.idx].desc = this.state.newDesc;
+
+      // make changes using Immutable
+      tmp = tmp.updateIn(['charOtherProficiencies', 'proficiencies'], function(list) {
+        return list.update(this.state.idx, function(item) {
+          var newItem = item;
+
+          newItem = newItem.set('name', this.state.newName);
+          newItem = newItem.set('desc', this.state.newDesc);
+
+          return newItem;
+        }.bind(this));
+      }.bind(this));
 
       // log the changes made
-      path += ".edit." + tmp['charOtherProficiencies']['proficiencies'][this.state.idx].name;
+      path += ".edit." + this.state.newName;
     }
       
     // save and close
@@ -3386,9 +3685,9 @@ var SettingsTraits = React.createClass({displayName: "SettingsTraits",
 
     // populate the select box
     var proficiencies = [];
-    this.props.character['charOtherProficiencies']['proficiencies'].forEach(function(prof, i) {
+    this.props.character.getIn(['charOtherProficiencies', 'proficiencies']).forEach(function(prof, i) {
       proficiencies.push(
-        React.createElement("option", {key: i, value: i}, prof.name)
+        React.createElement("option", {key: i, value: i}, prof.get('name'))
       );
     }); 
 
@@ -3436,8 +3735,9 @@ var SettingsTraits = React.createClass({displayName: "SettingsTraits",
 
 module.exports = SettingsTraits;
 
-},{"react":235,"react-bootstrap/lib/Button":39,"react-bootstrap/lib/ButtonToolbar":41,"react-bootstrap/lib/Col":42,"react-bootstrap/lib/Input":47,"react-bootstrap/lib/Row":59,"react-bootstrap/lib/TabPane":60,"react-bootstrap/lib/TabbedArea":61}],24:[function(require,module,exports){
+},{"immutable":38,"react":238,"react-bootstrap/lib/Button":42,"react-bootstrap/lib/ButtonToolbar":44,"react-bootstrap/lib/Col":45,"react-bootstrap/lib/Input":50,"react-bootstrap/lib/Row":62,"react-bootstrap/lib/TabPane":63,"react-bootstrap/lib/TabbedArea":64}],25:[function(require,module,exports){
 var React = require('react');
+var Immutable = require('immutable');
 
 var Input = require('react-bootstrap/lib/Input');
 var Button = require('react-bootstrap/lib/Button');
@@ -3494,9 +3794,9 @@ var ResistanceSettings = React.createClass({displayName: "ResistanceSettings",
   },
   handleSelect : function(e) {
     var idx = parseInt(e.target.value, 10);
-    var node = this.props.character['charResistances'][idx];
-    var name = (idx === -1) ? "" : node.name;
-    var desc = (idx === -1) ? "" : node.desc;
+    var node = this.props.character.get('charResistances').get(idx);
+    var name = (idx === -1) ? "" : node.get('name');
+    var desc = (idx === -1) ? "" : node.get('desc');
     var state = {};
 
     state.idx = idx;
@@ -3520,7 +3820,10 @@ var ResistanceSettings = React.createClass({displayName: "ResistanceSettings",
       res.name = this.state.name;
       res.desc = this.state.desc;
 
-      tmp['charResistances'].push(res);
+      //tmp['charResistances'].push(res);
+      tmp = tmp.update('charResistances', function(list) {
+        return list.push(new Immutable.Map(res))
+      })
     }
 
     // editing res
@@ -3530,9 +3833,20 @@ var ResistanceSettings = React.createClass({displayName: "ResistanceSettings",
 
       path += "edit." + this.state.newName;
 
-      res = tmp['charResistances'][this.state.idx];
-      res.name = this.state.newName;
-      res.desc = this.state.newDesc;
+      tmp = tmp.update('charResistances', function(list) {
+        return list.update(this.state.idx, function(item) {
+         var clone = item;
+         
+         clone = clone.set('name', this.state.newName); 
+         clone = clone.set('desc', this.state.newDesc);
+
+         return clone;
+        }.bind(this))
+      }.bind(this))
+
+      //res = tmp['charResistances'][this.state.idx];
+      //res.name = this.state.newName;
+      //res.desc = this.state.newDesc;
     }
 
     this.props.edit({ path : path, character : tmp });
@@ -3541,14 +3855,18 @@ var ResistanceSettings = React.createClass({displayName: "ResistanceSettings",
   handleDelete : function() {
     var tmp = this.props.character;
     var path = "charResistances.delete.";
-    var name = tmp['charResistances'][this.state.idx].name;
+    var name = tmp.getIn(['charResistances', this.state.idx, 'name']);
     var res;
 
     // if mistake, stop deleting!
     if (!confirm("Do you really want to get rid of\n '" + name + "'\n forever?")) return;
 
-    res = tmp['charResistances'].splice(this.state.idx, 1);
-    path += res[0].name;
+    //res = tmp['charResistances'].splice(this.state.idx, 1);
+    tmp = tmp.update('charResistances', function(list) {
+      return list.splice(this.state.idx, 1);
+    }.bind(this))
+
+    path += name;
 
     this.props.edit({ path : path, character : tmp });
     this.clearState();
@@ -3564,11 +3882,11 @@ var ResistanceSettings = React.createClass({displayName: "ResistanceSettings",
   },
   renderEdit : function() {
     var options = [];
-    this.props.character['charResistances'].forEach(function(res, i) {
+    this.props.character.get('charResistances').forEach(function(res, i) {
       options.push(
-        React.createElement("option", {key: i, value: i}, res.name)
-      );
-    }.bind(this));
+        React.createElement("option", {key: i, value: i}, res.get('name'))
+      )
+    })
 
     return(
       React.createElement("div", null, 
@@ -3612,7 +3930,7 @@ var ResistanceSettings = React.createClass({displayName: "ResistanceSettings",
 
 module.exports = ResistanceSettings;
 
-},{"react":235,"react-bootstrap/lib/Button":39,"react-bootstrap/lib/ButtonToolbar":41,"react-bootstrap/lib/Col":42,"react-bootstrap/lib/Grid":46,"react-bootstrap/lib/Input":47,"react-bootstrap/lib/Row":59,"react-bootstrap/lib/TabPane":60,"react-bootstrap/lib/TabbedArea":61}],25:[function(require,module,exports){
+},{"immutable":38,"react":238,"react-bootstrap/lib/Button":42,"react-bootstrap/lib/ButtonToolbar":44,"react-bootstrap/lib/Col":45,"react-bootstrap/lib/Grid":49,"react-bootstrap/lib/Input":50,"react-bootstrap/lib/Row":62,"react-bootstrap/lib/TabPane":63,"react-bootstrap/lib/TabbedArea":64}],26:[function(require,module,exports){
 var React = require('react');
 
 var Input = require('react-bootstrap/lib/Input');
@@ -3625,7 +3943,6 @@ var SettingsSavingThrows = React.createClass({displayName: "SettingsSavingThrows
   getInitialState : function() {
     var state = {};
 
-    state.profs = [];
     state['str'] = "";
     state['dex'] = "";
     state['con'] = "";
@@ -3639,12 +3956,6 @@ var SettingsSavingThrows = React.createClass({displayName: "SettingsSavingThrows
     state.interror = false;
     state.wiserror = false;
     state.chaerror = false;
-
-    Object.keys(this.props.character['charSavingThrows']).forEach(function(key) {
-      if (this.props.character['charSavingThrows'][key].proficient) {
-        state.profs.push(key);
-      }
-    }.bind(this))
 
     return (state);
   },
@@ -3691,16 +4002,7 @@ var SettingsSavingThrows = React.createClass({displayName: "SettingsSavingThrows
   },
   handleOk : function() {
     var tmp = this.props.character;
-    var path = "charSavingThrows.edit[";
-    var profBonus = tmp['charProficiencyBonus']['score'];
-    var prs = {};
-
-    prs['str'] = false;
-    prs['dex'] = false;
-    prs['con'] = false;
-    prs['int'] = false;
-    prs['wis'] = false;
-    prs['cha'] = false;
+    var path = "charSavingThrows.bonus.";
 
     if (
       this.state.strerror === true ||
@@ -3714,48 +4016,51 @@ var SettingsSavingThrows = React.createClass({displayName: "SettingsSavingThrows
       return;
     }
 
-    // get map ready
-    this.state.profs.forEach(function(prof) {
-      prs[prof] = true;
-    });
+    // handle adding bonuses to each saving throw that was entered
+    if (this.state['str'] !== "") {
+      tmp = tmp.setIn(['charSavingThrows', 'str', 'bonus'], this.state['str']);
+      path += 'str=' + this.state['str'] + ".";
 
-    path += this.state.profs.toString() + "]";
+    }
 
-    // map prof throws to character and calc new saving throw
-    Object.keys(prs).forEach(function(prof) {
+    if (this.state['dex'] !== "") {
+      tmp = tmp.setIn(['charSavingThrows', 'dex', 'bonus'], this.state['dex']);
+      path += 'dex=' + this.state['dex'] + ".";
+    }
 
-      // save proficient or not
-      tmp['charSavingThrows'][prof]['proficient'] = prs[prof];
+    if (this.state['con'] !== "") {
+      tmp = tmp.setIn(['charSavingThrows', 'con', 'bonus'], this.state['con']);
+      path += 'con=' + this.state['con'] + ".";
+    }
 
-      // save bonus
-      tmp['charSavingThrows'][prof]['bonus'] = 
-        (this.state[prof] === "")
-        ? tmp['charSavingThrows'][prof]['bonus']
-        : this.state[prof];
+    if (this.state['int'] !== "") {
+      tmp = tmp.setIn(['charSavingThrows', 'int', 'bonus'], this.state['int']);
+      path += 'int=' + this.state['int'] + ".";
+    }
 
-      // calculate new score
-      tmp['charSavingThrows'][prof]['score'] = 
-        tmp['charAbilities'][prof]['mod'] +
-        tmp['charSavingThrows'][prof]['bonus'] +
-        ((prs[prof]) ? profBonus : 0);
+    if (this.state['wis'] !== "") {
+      tmp = tmp.setIn(['charSavingThrows', 'wis', 'bonus'], this.state['wis']);
+      path += 'wis=' + this.state['wis'] + ".";
+    }
 
-    }.bind(this))
+    if (this.state['cha'] !== "") {
+      tmp = tmp.setIn(['charSavingThrows', 'cha', 'bonus'], this.state['cha']);
+      path += 'cha=' + this.state['cha'] + ".";
+    }
 
     // save
     this.props.edit({ path : path, character : tmp });
     this.clearState();
     this.toggle();
   },
-  handleProfSelect : function(e) {
-    //console.log(e.target.options);
-    var sel = [];
-    for(var i = 0; i < e.target.options.length; i++) {
-      if (e.target.options[i].selected) {
-        sel.push(e.target.options[i].value);
-      }
-    }
+  handleProfSelect : function(save, e) {
+    var tmp = this.props.character;
+    var path = "charSavingThrows.proficient.";
+    
+    tmp = tmp.setIn(['charSavingThrows', save, 'proficient'], e.target.checked);
+    path += save + "." + e.target.checked;
 
-    this.setState({ profs : sel });
+    this.props.edit({ path : path, character : tmp });
   },
   render : function() {
 
@@ -3766,47 +4071,44 @@ var SettingsSavingThrows = React.createClass({displayName: "SettingsSavingThrows
     var validwis = (this.state.wiserror) ? "error" : "success";
     var validcha = (this.state.chaerror) ? "error" : "success";
 
-    var prof = [];
-    Object.keys(this.props.character['charSavingThrows']).forEach(function(key) {
-      if (this.props.character['charSavingThrows'][key].proficient) {
-        prof.push(key);
-      }
-    }.bind(this));
+    // build checkbox list
+    var profs = [];
+    this.props.character.get('charSavingThrows').forEach(function(value, key) {
+      var checked = value.get('proficient');
+      profs.push(
+        React.createElement(Input, {type: "checkbox", key: "st"+key, label: key.toUpperCase(), checked: checked, onChange: this.handleProfSelect.bind(this, key)})
+      );
+    }, this)
 
     return (
       React.createElement("div", {className: "settings-tear"}, 
         React.createElement("h3", null, "Edit Saving Throws"), 
         React.createElement("p", null, "Edit the saving throws with which you are proficient and add any modifiers you may also have for that saving throw."), 
-        React.createElement(Input, {type: "select", ref: "profSelect", multiple: true, label: "Select Proficient Saving Throws", value: (this.state.profs.length === 0) ? prof : this.state.profs, onChange: this.handleProfSelect}, 
-          React.createElement("option", {value: "str"}, "Strength"), 
-          React.createElement("option", {value: "dex"}, "Dexterity"), 
-          React.createElement("option", {value: "con"}, "Constitution"), 
-          React.createElement("option", {value: "int"}, "Intelligence"), 
-          React.createElement("option", {value: "wis"}, "Wisdom"), 
-          React.createElement("option", {value: "cha"}, "Charisma")
+        React.createElement("div", {className: "multiselect-checkboxes"}, 
+          profs
         ), 
         React.createElement("p", null, "Have any other modifiers to saving throws? (Ex: Armor, Class Feature)"), 
         React.createElement(Input, null, 
           React.createElement(Row, null, 
             React.createElement(Col, {xs: 4}, 
-              React.createElement(Input, {type: "text", bsStyle: (this.state['str'] === "") ? null : validstr, onChange: this.handleChange.bind(this, 'str'), value: this.state['str'], placeholder: this.props.character['charSavingThrows']['str']['bonus'], label: "Strength"})
+              React.createElement(Input, {type: "text", bsStyle: (this.state['str'] === "") ? null : validstr, onChange: this.handleChange.bind(this, 'str'), value: this.state['str'], placeholder: this.props.character.getIn(['charSavingThrows', 'str', 'bonus']), label: "Strength"})
             ), 
             React.createElement(Col, {xs: 4}, 
-              React.createElement(Input, {type: "text", bsStyle: (this.state['dex'] === "") ? null : validdex, onChange: this.handleChange.bind(this, 'dex'), value: this.state['dex'], placeholder: this.props.character['charSavingThrows']['dex']['bonus'], label: "Dexterity"})
+              React.createElement(Input, {type: "text", bsStyle: (this.state['dex'] === "") ? null : validdex, onChange: this.handleChange.bind(this, 'dex'), value: this.state['dex'], placeholder: this.props.character.getIn(['charSavingThrows', 'dex', 'bonus']), label: "Dexterity"})
             ), 
             React.createElement(Col, {xs: 4}, 
-              React.createElement(Input, {type: "text", bsStyle: (this.state['con'] === "") ? null : validcon, onChange: this.handleChange.bind(this, 'con'), value: this.state['con'], placeholder: this.props.character['charSavingThrows']['con']['bonus'], label: "Constitution"})
+              React.createElement(Input, {type: "text", bsStyle: (this.state['con'] === "") ? null : validcon, onChange: this.handleChange.bind(this, 'con'), value: this.state['con'], placeholder: this.props.character.getIn(['charSavingThrows', 'con', 'bonus']), label: "Constitution"})
             )
           ), 
           React.createElement(Row, null, 
             React.createElement(Col, {xs: 4}, 
-              React.createElement(Input, {type: "text", bsStyle: (this.state['int'] === "") ? null : validint, onChange: this.handleChange.bind(this, 'int'), value: this.state['int'], placeholder: this.props.character['charSavingThrows']['int']['bonus'], label: "Intelligence"})
+              React.createElement(Input, {type: "text", bsStyle: (this.state['int'] === "") ? null : validint, onChange: this.handleChange.bind(this, 'int'), value: this.state['int'], placeholder: this.props.character.getIn(['charSavingThrows', 'int', 'bonus']), label: "Intelligence"})
             ), 
             React.createElement(Col, {xs: 4}, 
-              React.createElement(Input, {type: "text", bsStyle: (this.state['wis'] === "") ? null : validwis, onChange: this.handleChange.bind(this, 'wis'), value: this.state['wis'], placeholder: this.props.character['charSavingThrows']['wis']['bonus'], label: "Wisdom"})
+              React.createElement(Input, {type: "text", bsStyle: (this.state['wis'] === "") ? null : validwis, onChange: this.handleChange.bind(this, 'wis'), value: this.state['wis'], placeholder: this.props.character.getIn(['charSavingThrows', 'wis', 'bonus']), label: "Wisdom"})
             ), 
             React.createElement(Col, {xs: 4}, 
-              React.createElement(Input, {type: "text", bsStyle: (this.state['cha'] === "") ? null : validcha, onChange: this.handleChange.bind(this, 'cha'), value: this.state['cha'], placeholder: this.props.character['charSavingThrows']['cha']['bonus'], label: "Charisma"})
+              React.createElement(Input, {type: "text", bsStyle: (this.state['cha'] === "") ? null : validcha, onChange: this.handleChange.bind(this, 'cha'), value: this.state['cha'], placeholder: this.props.character.getIn(['charSavingThrows', 'cha', 'bonus']), label: "Charisma"})
             )
           )
         ), 
@@ -3821,7 +4123,7 @@ var SettingsSavingThrows = React.createClass({displayName: "SettingsSavingThrows
 
 module.exports = SettingsSavingThrows;
 
-},{"react":235,"react-bootstrap/lib/Button":39,"react-bootstrap/lib/ButtonToolbar":41,"react-bootstrap/lib/Col":42,"react-bootstrap/lib/Input":47,"react-bootstrap/lib/Row":59}],26:[function(require,module,exports){
+},{"react":238,"react-bootstrap/lib/Button":42,"react-bootstrap/lib/ButtonToolbar":44,"react-bootstrap/lib/Col":45,"react-bootstrap/lib/Input":50,"react-bootstrap/lib/Row":62}],27:[function(require,module,exports){
 var React = require('react');
 
 var Input = require('react-bootstrap/lib/Input');
@@ -3832,18 +4134,9 @@ var SettingsAbilities = React.createClass({displayName: "SettingsAbilities",
   getInitialState : function() {
     var state = {};
 
-    state.profs = [];
     state.bonus = "";
     state.bonuserror = false;
     state.idx = -1;
-
-    // default proficient
-    Object.keys(this.props.character['charSkills']).forEach(function(skill,i) {
-      var sk = this.props.character['charSkills'][skill]['trained'];
-      if (sk === true) {
-        state.profs.push(skill);
-      }
-    }.bind(this));
 
     return (state);
   },
@@ -3885,97 +4178,71 @@ var SettingsAbilities = React.createClass({displayName: "SettingsAbilities",
   },
   handleOk : function() {
     var tmp = this.props.character;
-    var path = "charSkills.edit.";
+    var path = "charSkills.bonuses.";
 
-    // handle bonuses first
+    if (this.state.idx === -1) return;
+
+    // only handle bonuses
     if (this.state.idx === "passive") {
       if (this.state.bonuserror) return;
       
-      // to handle me editing the data model after it's been pushed to Firebase (i'm an idiot)
-      tmp['charPassivePerception']['bonus'] = 
-        (tmp['charPassivePerception']['bonus'] !== undefined)
-        ? tmp['charPassivePerception']['bonus']
-        : 0;
-
-      tmp['charPassivePerception']['bonus'] = 
-        (this.state.bonus === "")
-        ? tmp['charPassivePerception']['bonus']
-        : this.state.bonus;
+      tmp = tmp.setIn(['charPassivePerception', 'bonus'], this.state.bonus);
+      path += "passivePerceptionBonus." + this.state.bonus;
     }
     else if (this.state.idx !== -1) {
       if (this.state.bonuserror) return;
 
-      // to handle me editing the data model after it's been pushed to Firebase (i'm an idiot)
-      tmp['charSkills'][this.state.idx]['bonus'] = 
-        (tmp['charSkills'][this.state.idx]['bonus'] !== undefined)
-        ? tmp['charSkills'][this.state.idx]['bonus']
-        : 0;
+      tmp = tmp.updateIn('charSkills', function(skills) {
+        return skills.update(this.state.idx, function(skill) {
+          return skill.set('bonus', this.state.bonus);
 
-      tmp['charSkills'][this.state.idx]['bonus'] = 
-        (this.state.bonus === "")
-        ? tmp['charSkills'][this.state.idx]['bonus']
-        : this.state.bonus;
+        }, this)
+      }, this)
     }
-
-    // handle proficient -- for right now, calculate new scores
-    //                   -- later, should only mark proficient and bonus
-    //                   -- in order for renderer to create score
-    Object.keys(tmp['charSkills']).forEach(function(skillName) {
-      var skill = tmp['charSkills'][skillName];
-      skill.trained = false;
-      for (var i = 0; i < this.state.profs.length; i++) {
-        if (this.state.profs[i] === skillName) {
-          skill.trained = true;
-        }
-      }
-
-      var abil = tmp['charAbilities'][skill.mod]['mod'];
-      var prof = tmp['charProficiencyBonus']['score'];
-
-      skill.score = abil + ((skill.trained) ? prof : 0) + skill.bonus;
-    }.bind(this));
-
-    // update passive perception
-    tmp['charPassivePerception']['score'] = 10
-      + tmp['charSkills']['Perception']['score']
-      + tmp['charPassivePerception']['bonus'];
 
     this.props.edit({ path : path, character : tmp });
     this.clearState();
   },
-  handleProfSelect : function(e) {
-    var sel = [];
-    for(var i = 0; i < e.target.options.length; i++) {
-      if (e.target.options[i].selected) {
-        sel.push(e.target.options[i].value);
-      }
-    }
-    console.log(sel);
-    this.setState({ profs : sel });
+  handleProfSelect : function(idx, e) {
+    var tmp = this.props.character;
+    var path = "charSkills.proficient.";
+    
+    tmp = tmp.update('charSkills', function(skills) {
+      return skills.update(idx, function(skill) {
+        path += skill.get('name');
+        return skill.set('trained', e.target.checked);
+      })
+    })
+
+    this.props.edit({ path : path, character : tmp });
   },
   render : function() {
 
     var validbonus = (this.state.bonuserror) ? "error" : "success";
 
     // loop through skills to make options
-    var skillOptions = [];
-    var profs = [];
-    Object.keys(this.props.character['charSkills']).forEach(function(skill, i) {
-      skillOptions.push(
-        React.createElement("option", {key: i, value: skill}, skill)
-      );
+    var skillSelect = [];
+    this.props.character.get('charSkills').forEach(function(skill, i) {
+      var checked = skill.get('trained');
 
-      if (this.props.character['charSkills'][skill].trained) {
-        profs.push(skill);
-      }
-    }.bind(this))
+      skillSelect.push(
+        React.createElement(Input, {key: i, type: "checkbox", checked: checked, label: skill.get('name'), onChange: this.handleProfSelect.bind(this, i)})
+      );
+    }, this);
+
+    var skillOptions = [];
+    this.props.character.get('charSkills').forEach(function(skill, i) {
+      skillOptions.push(
+        React.createElement("option", {key: i, value: i}, skill.get('name'))
+      );
+    });
 
     return (
       React.createElement("div", {className: "settings-tear"}, 
         React.createElement("h3", null, "Edit Skills"), 
         React.createElement("p", null, "Select which skills for which you are proficient."), 
-        React.createElement(Input, {type: "select", multiple: true, value: (this.state.profs.length === 0) ? profs : this.state.profs, onChange: this.handleProfSelect}, 
-          skillOptions
+        React.createElement("div", {className: "multiselect-checkboxes"}, 
+          skillSelect
         ), 
         React.createElement("p", null, "If you have any extra bonuses to add to any skill, or passive perception, select the relevant skill and type the bonus."), 
         React.createElement(Input, {type: "select", value: this.state.idx, onChange: this.handleSelect}, 
@@ -3995,8 +4262,9 @@ var SettingsAbilities = React.createClass({displayName: "SettingsAbilities",
 
 module.exports = SettingsAbilities;
 
-},{"react":235,"react-bootstrap/lib/Button":39,"react-bootstrap/lib/ButtonToolbar":41,"react-bootstrap/lib/Input":47}],27:[function(require,module,exports){
+},{"react":238,"react-bootstrap/lib/Button":42,"react-bootstrap/lib/ButtonToolbar":44,"react-bootstrap/lib/Input":50}],28:[function(require,module,exports){
 var React = require('react');
+var Immutable = require('immutable');
 
 var Input = require('react-bootstrap/lib/Input');
 var ButtonToolbar = require('react-bootstrap/lib/ButtonToolbar');
@@ -4041,6 +4309,7 @@ var SettingsSpells = React.createClass({displayName: "SettingsSpells",
     this.props.hatchToggle();
   },
   componentDidUpdate : function() {
+    // only recalculate if open?
     // recalculate this 
     this.props.recalculate();
   },
@@ -4101,18 +4370,18 @@ var SettingsSpells = React.createClass({displayName: "SettingsSpells",
 
     // user is editing spells
     else if (this.state.mode === 1) {
-      var tmp = this.props.character['charSpells'];
+      var tmp = this.props.character.get('charSpells');
       var parts = e.target.value.split("_");
       var lvl = parseInt(parts[0], 10);
       var idx = parseInt(parts[1], 10);
       var state = {};
 
-      state.newName = tmp[lvl].spells[idx].name;
-      state.newDesc = tmp[lvl].spells[idx].desc;
-      state.newCmp = tmp[lvl].spells[idx].cmp;
-      state.newCast = tmp[lvl].spells[idx].cast;
-      state.newDur = tmp[lvl].spells[idx].dur;
-      state.newRange = tmp[lvl].spells[idx].range;
+      state.newName = tmp.getIn([lvl, 'spells', idx, 'name']);
+      state.newDesc = tmp.getIn([lvl, 'spells', idx, 'desc']);
+      state.newCmp = tmp.getIn([lvl, 'spells', idx, 'cmp']);
+      state.newCast = tmp.getIn([lvl, 'spells', idx, 'cast']);
+      state.newDur = tmp.getIn([lvl, 'spells', idx, 'dur']);
+      state.newRange = tmp.getIn([lvl, 'spells', idx, 'range']);
       state.newLvl = lvl;
       state.idx = e.target.value;
 
@@ -4121,9 +4390,9 @@ var SettingsSpells = React.createClass({displayName: "SettingsSpells",
 
     // user is editing spell slots per level
     else if (this.state.mode === 2) {
-      var tmp = this.props.character['charSpells'];
+      var tmp = this.props.character.get('charSpells');
       var lvl = parseInt(e.target.value,10);
-      var slots = tmp[lvl].slots;
+      var slots = tmp.getIn([lvl, 'slots']);
 
       this.setState({ slotLvl : lvl, newSlots : slots });
     }
@@ -4134,13 +4403,16 @@ var SettingsSpells = React.createClass({displayName: "SettingsSpells",
     var path = "charSpells.delete.";
     var lvl = parseInt(this.state.idx.split("_")[0], 10);
     var idx = parseInt(this.state.idx.split("_")[1], 10);
-    var name = tmp['charSpells'][lvl]['spells'][idx].name;
+    var name = tmp.getIn(['charSpells', lvl, 'spells', idx, 'name']);
     var spell;
 
     if (!confirm("Do you really want to get rid of\n '" + name + "'\n forever?")) return;
 
-    spell = tmp['charSpells'][lvl]['spells'].splice(idx, 1)[0];
-    path += spell.name;
+    //spell = tmp['charSpells'][lvl]['spells'].splice(idx, 1)[0];
+    tmp = tmp.updateIn(['charSpells', lvl, 'spells'], function(list) {
+      return list.splice(idx)
+    })
+    path += name;
 
     this.props.edit({ path : path, character : tmp });
     this.clearState();
@@ -4160,9 +4432,13 @@ var SettingsSpells = React.createClass({displayName: "SettingsSpells",
       data.range = this.state.range;
       data.dur = this.state.dur;
       data.cmp = this.state.cmp;
+      data.prepared = false;
 
       path += ".add." + this.state.name + ".lvl." + this.state.lvl;
-      tmp['charSpells'][this.state.lvl]['spells'].push(data);
+      //tmp['charSpells'][this.state.lvl]['spells'].push(data);
+      tmp = tmp.updateIn(['charSpells', this.state.lvl, 'spells'], function(list) {
+        return list.push(new Immutable.Map(data));
+      })
     }
 
     // editing spells
@@ -4173,28 +4449,45 @@ var SettingsSpells = React.createClass({displayName: "SettingsSpells",
 
       // handle splicing and pushing to new lvl; then editing
       if (oldLvl !== this.state.newLvl) { 
-        path += ".edit.differentLvl." + this.state.newName + "." + this.state.newLvl;
-        spell = tmp['charSpells'][oldLvl]['spells'].splice(oldIdx, 1)[0];
+        path += ".edit.differentLvl." + this.state.newLvl + "." + this.state.newName;
 
-        spell.name = this.state.newName;
-        spell.desc = this.state.newDesc;
-        spell.range = this.state.newRange;
-        spell.cmp = this.state.newCmp;
-        spell.cast = this.state.newCast;
-        spell.dur = this.state.newDur;
+        // cache old spell
+        spell = tmp.getIn(['charSpells', oldLvl, 'spells', oldIdx]);
 
-        tmp['charSpells'][this.state.newLvl]['spells'].push(spell);
+        // delete old spell
+        tmp = tmp.updateIn(['charSpells', oldLvl, 'spells'], function(list) {
+          return list.splice(oldIdx, 1);
+        })
+
+        // update old spell => new spell
+        spell = spell.set('name', this.state.newName);
+        spell = spell.set('desc', this.state.newDesc);
+        spell = spell.set('range', this.state.newRange);
+        spell = spell.set('cmp', this.state.newCmp);
+        spell = spell.set('cast', this.state.newCast);
+        spell = spell.set('dur', this.state.newDur);
+
+        // put new spell in right level
+        tmp = tmp.updateIn(['charSpells', this.state.newLvl, 'spells'], function(list) {
+          return list.push(spell)
+        })
       }
 
       // otherwise just edit the node directly
       else {
         path += ".edit.sameLvl." + this.state.newName;
-        tmp['charSpells'][oldLvl]['spells'][oldIdx].name = this.state.newName;
-        tmp['charSpells'][oldLvl]['spells'][oldIdx].desc = this.state.newDesc;
-        tmp['charSpells'][oldLvl]['spells'][oldIdx].range = this.state.newRange;
-        tmp['charSpells'][oldLvl]['spells'][oldIdx].cmp = this.state.newCmp;
-        tmp['charSpells'][oldLvl]['spells'][oldIdx].cast = this.state.newCast;
-        tmp['charSpells'][oldLvl]['spells'][oldIdx].dur = this.state.newDur;
+        tmp = tmp.updateIn(['charSpells', oldLvl, 'spells', oldIdx], function(spell) {
+          var clone = spell;
+
+          clone = clone.set('name', this.state.newName);
+          clone = clone.set('desc', this.state.newDesc);
+          clone = clone.set('range', this.state.newRange);
+          clone = clone.set('cmp', this.state.newCmp);
+          clone = clone.set('cast', this.state.newCast);
+          clone = clone.set('dur', this.state.newDur);
+
+          return clone;
+        }.bind(this))
       }
     }
 
@@ -4207,7 +4500,8 @@ var SettingsSpells = React.createClass({displayName: "SettingsSpells",
       if (newSlots === "0") newSlots = 0; 
 
 
-      tmp['charSpells'][this.state.slotLvl]['slots'] = newSlots;
+      //tmp['charSpells'][this.state.slotLvl]['slots'] = newSlots;
+      tmp = tmp.setIn(['charSpells', this.state.slotLvl, 'slots'], newSlots);
       path += ".edit.spellSlots.level." + this.state.slotLvl + ".slots." + newSlots;
 
     }
@@ -4249,16 +4543,16 @@ var SettingsSpells = React.createClass({displayName: "SettingsSpells",
 
     // set up spells list
     var spells = [];
-    this.props.character['charSpells'].forEach(function(lvl, i) {
+    this.props.character.get('charSpells').forEach(function(lvl, i) {
       var group = [];
-      lvl.spells.forEach(function(sp, j) {
+      lvl.get('spells').forEach(function(sp, j) {
         group.push(
-          React.createElement("option", {key: "level"+i+"spell"+j, value: i+"_"+j, lvl: i}, sp.name)
+          React.createElement("option", {key: "level"+i+"spell"+j, value: i+"_"+j, lvl: i}, sp.get('name'))
         );
       });
 
       spells.push(
-        React.createElement("optgroup", {key: i, label: lvl.name}, 
+        React.createElement("optgroup", {key: i, label: lvl.get('name')}, 
           group
         )
       );
@@ -4322,7 +4616,7 @@ var SettingsSpells = React.createClass({displayName: "SettingsSpells",
           React.createElement("option", {value: 8}, "8th Level"), 
           React.createElement("option", {value: 9}, "9th Level")
         ), 
-        React.createElement(Input, {type: "text", label: "New Amount of Spell Slots", value: this.state.newSlots, onChange: this.handleChange.bind(this, "newSlots")}), 
+        React.createElement(Input, {type: "text", disabled: this.state.slotLvl === -1 ? true : false, label: "New Amount of Spell Slots", value: this.state.newSlots, onChange: this.handleChange.bind(this, "newSlots")}), 
         React.createElement(ButtonToolbar, null, 
           React.createElement(Button, {bsStyle: "danger", onClick: this.toggle}, "Close"), 
           React.createElement(Button, {bsStyle: "success", onClick: this.handleOk}, "Save")
@@ -4352,7 +4646,7 @@ var SettingsSpells = React.createClass({displayName: "SettingsSpells",
 
 module.exports = SettingsSpells;
 
-},{"react":235,"react-bootstrap/lib/Button":39,"react-bootstrap/lib/ButtonToolbar":41,"react-bootstrap/lib/Col":42,"react-bootstrap/lib/Input":47,"react-bootstrap/lib/Row":59,"react-bootstrap/lib/TabPane":60,"react-bootstrap/lib/TabbedArea":61}],28:[function(require,module,exports){
+},{"immutable":38,"react":238,"react-bootstrap/lib/Button":42,"react-bootstrap/lib/ButtonToolbar":44,"react-bootstrap/lib/Col":45,"react-bootstrap/lib/Input":50,"react-bootstrap/lib/Row":62,"react-bootstrap/lib/TabPane":63,"react-bootstrap/lib/TabbedArea":64}],29:[function(require,module,exports){
 var React = require('react');
 
 var Input = require('react-bootstrap/lib/Input');
@@ -4362,15 +4656,11 @@ var Button = require('react-bootstrap/lib/Button');
 var SettingsTraits = React.createClass({displayName: "SettingsTraits",
   getInitialState : function () {
     var state = {};
-    var copyPers = this.props.character['charTraits']['personalityTraits'];
-    var copyIdeals = this.props.character['charTraits']['ideals'];
-    var copyBonds = this.props.character['charTraits']['bonds'];
-    var copyFlaws = this.props.character['charTraits']['flaws'];
 
-    state.traits = copyPers;
-    state.ideals = copyIdeals;
-    state.bonds = copyBonds;
-    state.flaws = copyFlaws;
+    state.traits = "";
+    state.ideals = "";
+    state.bonds = "";
+    state.flaws = "";
 
     return (state);
   },
@@ -4387,22 +4677,22 @@ var SettingsTraits = React.createClass({displayName: "SettingsTraits",
     var path = "charTraits";
 
     if (this.state.traits !== "") {
-      tmp['charTraits']['personalityTraits'] = this.state.traits;
+      tmp = tmp.setIn(['charTraits', 'personalityTraits'], this.state.traits);
       path += ".personalityTraits." + this.state.traits;
     } 
 
     if (this.state.ideals !== "") {
-      tmp['charTraits']['ideals'] = this.state.ideals;
+      tmp = tmp.setIn(['charTraits', 'ideals'], this.state.ideals);
       path += ".ideals." + this.state.ideals;
     }
 
     if (this.state.bonds !== "") {
-      tmp['charTraits']['bonds'] = this.state.bonds;
+      tmp = tmp.setIn(['charTraits', 'bonds'], this.state.bonds);
       path += ".bonds." + this.state.bonds;
     }
 
     if (this.state.flaws !== "") {
-      tmp['charTraits']['flaws'] = this.state.flaws;
+      tmp = tmp.setIn(['charTraits', 'flaws'], this.state.flaws);
       path += ".flaws." + this.state.flaws;
     }
 
@@ -4414,10 +4704,10 @@ var SettingsTraits = React.createClass({displayName: "SettingsTraits",
       React.createElement("div", {className: "settings-tear", ref: "settings", activeOpen: true}, 
         React.createElement("h3", null, "Edit Character Traits"), 
         React.createElement("p", null, "Enter new info for any Character Traits. If a field is left blank and no new values are entered, nothing will be changed"), 
-        React.createElement(Input, {type: "textarea", onChange: this.handleChange.bind(this, "traits"), label: "Personality Traits", placeholder: this.props.character['charTraits']['personalityTraits'], value: this.state.traits}), 
-        React.createElement(Input, {type: "textarea", onChange: this.handleChange.bind(this, "ideals"), label: "Ideals", placeholder: this.props.character['charTraits']['ideals'], value: this.state.ideals}), 
-        React.createElement(Input, {type: "textarea", onChange: this.handleChange.bind(this, "bonds"), label: "Bonds", placeholder: this.props.character['charTraits']['bonds'], value: this.state.bonds}), 
-        React.createElement(Input, {type: "textarea", onChange: this.handleChange.bind(this, "flaws"), label: "Flaws", placeholder: this.props.character['charTraits']['flaws'], value: this.state.flaws}), 
+        React.createElement(Input, {type: "textarea", onChange: this.handleChange.bind(this, "traits"), label: "Personality Traits", placeholder: this.props.character.get('charTraits').get('personalityTraits'), value: this.state.traits}), 
+        React.createElement(Input, {type: "textarea", onChange: this.handleChange.bind(this, "ideals"), label: "Ideals", placeholder: this.props.character.get('charTraits').get('ideals'), value: this.state.ideals}), 
+        React.createElement(Input, {type: "textarea", onChange: this.handleChange.bind(this, "bonds"), label: "Bonds", placeholder: this.props.character.get('charTraits').get('bonds'), value: this.state.bonds}), 
+        React.createElement(Input, {type: "textarea", onChange: this.handleChange.bind(this, "flaws"), label: "Flaws", placeholder: this.props.character.get('charTraits').get('flaws'), value: this.state.flaws}), 
         React.createElement(ButtonToolbar, null, 
           React.createElement(Button, {bsStyle: "danger", onClick: this.toggle}, "Close"), 
           React.createElement(Button, {bsStyle: "success", onClick: this.handleOk}, "Save")
@@ -4429,16 +4719,32 @@ var SettingsTraits = React.createClass({displayName: "SettingsTraits",
 
 module.exports = SettingsTraits;
 
-},{"react":235,"react-bootstrap/lib/Button":39,"react-bootstrap/lib/ButtonToolbar":41,"react-bootstrap/lib/Input":47}],29:[function(require,module,exports){
+},{"react":238,"react-bootstrap/lib/Button":42,"react-bootstrap/lib/ButtonToolbar":44,"react-bootstrap/lib/Input":50}],30:[function(require,module,exports){
 var React = require('react');
 var PageHeader = require('react-bootstrap/lib/PageHeader');
+var Nav = require('react-bootstrap/lib/Nav');
+var NavItem = require('react-bootstrap/lib/NavItem');
+var Glyphicon = require('react-bootstrap/lib/Glyphicon');
 
 var Title = React.createClass({
   displayName : "Title",
+  handleSelect : function(key) {
+    // call props to pass to swiper
+    this.props.setNav(key);
+  },
   render : function() {
     return (
       React.createElement("div", {className: "container-fluid"}, 
-        React.createElement("h2", {onClick: this.props.toggleAppSettings}, this.props.character['charName'])
+        React.createElement("h2", {onClick: this.props.toggleAppSettings}, this.props.character.get('charName')), 
+        React.createElement(Nav, {bsStyle: "tabs", activeKey: this.props.activeNav || 0, onSelect: this.handleSelect}, 
+          React.createElement(NavItem, {eventKey: 0}, React.createElement(Glyphicon, {glyph: "info-sign"})), 
+          React.createElement(NavItem, {eventKey: 1}, React.createElement("div", {className: "icon-chart"})), 
+          React.createElement(NavItem, {eventKey: 2}, React.createElement("div", {className: "icon-shield"})), 
+          React.createElement(NavItem, {eventKey: 3}, React.createElement("div", {className: "icon-features"})), 
+          React.createElement(NavItem, {eventKey: 4}, React.createElement("div", {className: "icon-attack"})), 
+          React.createElement(NavItem, {eventKey: 5}, React.createElement("div", {className: "icon-repo"})), 
+          React.createElement(NavItem, {eventKey: 6}, React.createElement("div", {className: "icon-equipment"}))
+        )
       )
     );
   }
@@ -4447,7 +4753,7 @@ var Title = React.createClass({
 // return component
 module.exports = Title;
 
-},{"react":235,"react-bootstrap/lib/PageHeader":54}],30:[function(require,module,exports){
+},{"react":238,"react-bootstrap/lib/Glyphicon":48,"react-bootstrap/lib/Nav":53,"react-bootstrap/lib/NavItem":54,"react-bootstrap/lib/PageHeader":57}],31:[function(require,module,exports){
 var React = require('react');
 var EventListener = require('react-bootstrap/lib/utils/EventListener');
 
@@ -4490,7 +4796,7 @@ var HelpTooltip = React.createClass({displayName: "HelpTooltip",
 
 module.exports = HelpTooltip;
 
-},{"react":235,"react-bootstrap/lib/utils/EventListener":65}],31:[function(require,module,exports){
+},{"react":238,"react-bootstrap/lib/utils/EventListener":68}],32:[function(require,module,exports){
 module.exports = {
   "charName" : "Loading...",
   "charInfo" : {
@@ -4683,144 +4989,163 @@ module.exports = {
     "proficiencies" : []
   },
   "charResistances" : [],
-  "charSkills" : {
-    "Acrobatics" : {
+  "charSkills" : [
+    {
       "mod" : "dex",  
       "trained" : false,
       "bonus" : 0,
       "score" : 0,
+      "name" : "Acrobatics",
       "derivatives" : []
     },
-    "Animal Handling" : {
+    {
       "mod" : "wis",
       "trained" : false,
       "bonus" : 0,
       "score" : 0,
+      "name" : "Animal Handling",
       "derivatives" : []
     },
-    "Arcana" : {
+    {
       "mod" : "int",
       "trained" : false,
       "bonus" : 0,
       "score" : 0,
+      "name" : "Arcana",
       "derivatives" : []
     },
-    "Athletics" : {
+    {
       "mod" : "str",
       "trained" : false,
       "bonus" : 0,
       "score" : 0,
+      "name" : "Athletics",
       "derivatives" : []
     },
-    "Deception" : {
+    {
       "mod" : "cha",
       "trained" : false,
       "bonus" : 0,
       "score" : 0,
+      "name" : "Deception",
       "derivatives" : []
     },
-    "History" : {
+    {
       "mod" : "int",
       "trained" : false,
       "bonus" : 0,
       "score" : 0,
+      "name" : "History",
       "derivatives" : []
     },
-    "Insight" : {
+    {
       "mod" : "wis",
       "trained" : false,
       "bonus" : 0,
       "score" : 0,
+      "name" : "Insight",
       "derivatives" : []
     },
-    "Intimidation" : {
+    {
       "mod" : "cha",
       "trained" : false,
       "bonus" : 0,
       "score" : 0,
+      "name" : "Intimidation",
       "derivatives" : []
     },
-    "Investigation" : {
+    {
       "mod" : "int",
       "trained" : false,
       "bonus" : 0,
       "score" : 0,
+      "name" : "Investigation",
       "derivatives" : []
     },
-    "Medicine" : {
+    {
       "mod" : "wis",
       "trained" : false,
       "bonus" : 0,
       "score" : 0,
+      "name" : "Medicine",
       "derivatives" : []
     },
-    "Nature" : {
+    {
       "mod" : "int",
       "trained" : false,
       "bonus" : 0,
       "score" : 0,
+      "name" : "Nature",
       "derivatives" : []
     },
-    "Perception" : {
+    {
       "mod" : "wis",
       "trained" : false,
       "bonus" : 0,
       "score" : 0,
+      "name" : "Perception",
       "derivatives" : []
     },
-    "Performance" : {
+    {
       "mod" : "cha",
       "trained" : false,
       "bonus" : 0,
       "score" : 0,
+      "name" : "Performance",
       "derivatives" : []
     },
-    "Persuasion" : {
+    {
       "mod" : "cha",
       "trained" : false,
       "bonus" : 0,
       "score" : 0,
+      "name" : "Persuasion",
       "derivatives" : []
     },
-    "Religion" : {
+    {
       "mod" : "int",
       "trained" : false,
       "bonus" : 0,
       "score" : 0,
+      "name" : "Religion",
       "derivatives" : []
     },
-    "Sleight of Hand" : {
+    {
       "mod" : "dex",
       "trained" : false,
       "bonus" : 0,
       "score" : 0,
+      "name" : "Sleight of Hand",
       "derivatives" : []
     },
-    "Stealth" : {
+    {
       "mod" : "dex",
       "trained" : false,
       "bonus" : 0,
       "score" : 0,
+      "name" : "Stealth",
       "derivatives" : []
     },
-    "Survival" : {
+    {
       "mod" : "wis",
       "trained" : false,
       "bonus" : 0,
       "score" : 0,
+      "name" : "Survival",
       "derivatives" : []
     }
-  },
+  ],
   "charFeatures" : []
 };
 
-},{}],32:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 // config? and preferences?
 require('fastclick')(document.body);
 
 // main requires
 var React = require('react');
 var Firebase = require('firebase');
+var Immutable = require('immutable');
 //var wan = require('./data/wan');
 var blank = require('./data/blank');
 var chardb = new Firebase("https://character-db.firebaseio.com/");
@@ -4830,14 +5155,18 @@ var snap;
 var Title = require('./components/title');
 var ContentArea = require('./components/content-area');
 var AppSettings = require('./components/app-settings');
+var Affix = require('./components/affix');
 
 var Modal = require('react-bootstrap/lib/Modal');
 var Alert = require('react-bootstrap/lib/Alert');
 var OverlayMixin = require('react-bootstrap/lib/OverlayMixin');
 var Button = require('react-bootstrap/lib/Button');
 var Input = require('react-bootstrap/lib/Input');
+var Nav = require('react-bootstrap/lib/Nav');
+var NavItem = require('react-bootstrap/lib/NavItem');
+var Glyphicon = require('react-bootstrap/lib/Glyphicon');
 
-//React.initializeTouchEvents(true);
+React.initializeTouchEvents(true);
 
 // initial character status and app preferences
 var initStatus = {};
@@ -4884,9 +5213,10 @@ var Character = React.createClass({
   getInitialState : function() {
     var state = {};
 
-    state.character = blank;
-    state.preferences = prefs;
-    state.status = status;
+    state.character = new Immutable.fromJS(blank);
+    state.preferences = new Immutable.fromJS(prefs);
+    //state.status = status;
+    state.activeNav = 0;
     state.needsName = false;
     state.name = "";
     state.dead = false;
@@ -4920,6 +5250,7 @@ var Character = React.createClass({
         // quick fix for augmenting character data structure already in the db
         character['charResistances'] = character['charResistances'] ? character['charResistances'] : [];
         character['charHitPoints']['hitDiceCurrent'] = character['charHitPoints']['hitDiceCurrent'] !== undefined ? character['charHitPoints']['hitDiceCurrent'] : character['charInfo']['level'];
+        character['charPassivePerception']['bonus'] = character['charPassivePerception']['bonus'] === undefined ? 0 : character['charPassivePerception']['bonus'];
 
         // spell slots quick fix
         if (character['charSpells'][1]['used'] === undefined) {
@@ -4928,21 +5259,64 @@ var Character = React.createClass({
           }
         }
 
+        // spell quick fix for prepared
+        if (character['charSpells'][0]['spells'][0] && character['charSpells'][0]['spells'][0]['prepared'] === undefined) {
+          for (var i = 0; i < 10; i++) {
+            for (var j = 0; j < character['charSpells'][i]['spells'].length; j++) {
+              character['charSpells'][i]['spells'][j]['prepared'] = false;
+            }
+          }
+        }
+
         // class charges quick fix
         if (character['charClassCharges'][0] && character['charClassCharges'][0]['used'] === undefined) {
           for (var i = 0; i < character['charClassCharges'].length; i++) {
             character['charClassCharges'][i]['used'] = 0;
+            character['charClassCharges'][i]['display'] = character['charClassCharges']['name'];
           }
         }
 
+        // class charges quick fix 2 -- diff display names
+        if (character['charClassCharges'][0]['display'] === undefined) {
+          for (var i = 0; i < character['charClassCharges'].length; i++) {
+            character['charClassCharges'][i]['display'] = character['charClassCharges'][i]['name'];
+          } 
+        }
+
+        // convert character skills to array with names as elements
+        // and confirm that skills have bonus property
+        if (character['charSkills'].length === undefined) {
+          var skills = [];
+          Object.keys(character['charSkills']).forEach(function(key) {
+            var sk = character['charSkills'][key];
+            sk.name = key;
+            sk.bonus = sk.bonus === undefined ? 0 : sk.bonus;
+
+            skills.push(sk);
+          });
+
+          skills.sort(function(a, b) {
+            if (a.name > b.name) return 1;
+            if (a.name < b.name) return -1
+
+            return 0;
+          });
+          //console.log(skills);
+          character['charSkills'] = skills;
+        }
+        
+
         document.title = character['charName'];
-        this.setState({ character : character,  preferences : loadedprefs });
+        var out = this.state.character.mergeDeep(character);
+        loadedprefs = this.state.preferences.mergeDeep(loadedprefs);
+
+        this.setState({ character : out,  preferences : loadedprefs });
       }
       else {
         blank['charName'] = "Tap Me! To Create a new Character!";
-
+        character = this.state.character.mergeDeep(blank);
         document.title = "New Character";
-        this.setState({ character : blank });
+        this.setState({ character : character });
       }
     }.bind(this));
   },
@@ -4953,6 +5327,12 @@ var Character = React.createClass({
       touchToDrag : false
     });
   },
+
+  //************************* DEBUG *****************************************//
+  componentDidUpdate: function (prevProps, prevState) {
+    window.character = this.state.character;
+  },
+  //************************* DEBUG *****************************************//
   createNewCharacter : function() {
     this.setState({ needsName : true });
     snap.close();
@@ -5065,35 +5445,47 @@ var Character = React.createClass({
       )
     );
   },
+  setNav : function(key) {
+    this.setState({ activeNav : key });
+  },
   editCharacter : function(data) {
     console.log("received from: ", data.path);
-    console.log("         data:");
-    console.log(data.character);
+    //console.log("         data:");
+    //console.log(data.character);
+
     this.setState({ character : data.character });
+    //this.setState({ character : data.character });
 
     var date = +new Date;
     var out = {};
-    out.character = JSON.stringify(data.character);
+    out.character = JSON.stringify(data.character.toJS());
     out['last_edited'] = date;
     out['date_created'] = (data.path === "characterCreation") ? date : "for all time";
 
     // save to firebase
-    chardb.child(data.character['charName'].toLowerCase().replace(" ", "-")).update(out);
+    chardb.child(data.character.get('charName').toLowerCase().replace(" ", "-")).update(out, function(err) {
+      if (!err) {
+        console.log("save success: ", data.path);
+      }
+      else {
+        console.error(err);
+      }
+    });
 
-    if (data.character['charHitPoints']['deathSaves']['failures'] >= 3) {
-      var dead_date = +new Date;
-      console.log("CHARACTER DIED!", dead_date);
-      this.setState({ dead : true });
+    //if (data.character['charHitPoints']['deathSaves']['failures'] >= 3) {
+    //  var dead_date = +new Date;
+    //  console.log("CHARACTER DIED!", dead_date);
+    //  this.setState({ dead : true });
 
-      chardb.child(data.character['charName'].toLowerCase().replace(" ", "-")).update({ "date_of_death" : date });
-    }
+    //  chardb.child(data.character['charName'].toLowerCase().replace(" ", "-")).update({ "date_of_death" : date });
+    //}
   },
   editCharacterStatus : function(data) {
     console.log("received status from: ", data.path);
     console.log("             updated:");
     console.log(data.status);
     console.warn("this function has not yet been fully implemented. Nothing is saved. Does this function need to exist?");
-    this.setState({ status : data.status });
+    //this.setState({ status : data.status });
 
     // save to local storage only? or to firebase as well?
     //localStore.setItem("__character_status", JSON.stringify(this.state.status));
@@ -5110,11 +5502,29 @@ var Character = React.createClass({
     out['pref_last_edited'] = date;
     
     // save to database
-    chardb.child(this.state.character['charName'].toLowerCase().replace(" ", "-")).update(out);
+    chardb.child(this.state.character.get('charName').toLowerCase().replace(" ", "-")).update(out, function(err) {
+      if (!err) {
+        console.log("preference save success: ", data.path);
+      }
+      else {
+        console.error(err);
+      }
+    });
   },
   render : function() {
     return (
       React.createElement("div", null, 
+        React.createElement(Affix, {threshold: 50}, 
+          React.createElement(Nav, {bsStyle: "tabs", activeKey: this.state.activeNav, onSelect: this.setNav}, 
+            React.createElement(NavItem, {eventKey: 0}, React.createElement(Glyphicon, {glyph: "info-sign"})), 
+            React.createElement(NavItem, {eventKey: 1}, React.createElement("div", {className: "icon-chart"})), 
+            React.createElement(NavItem, {eventKey: 2}, React.createElement("div", {className: "icon-shield"})), 
+            React.createElement(NavItem, {eventKey: 3}, React.createElement("div", {className: "icon-features"})), 
+            React.createElement(NavItem, {eventKey: 4}, React.createElement("div", {className: "icon-attack"})), 
+            React.createElement(NavItem, {eventKey: 5}, React.createElement("div", {className: "icon-repo"})), 
+            React.createElement(NavItem, {eventKey: 6}, React.createElement("div", {className: "icon-equipment"}))
+          )
+        ), 
         React.createElement("div", {className: "snap-drawers"}, 
           React.createElement("div", {className: "snap-drawer snap-drawer-left inverse"}, 
             React.createElement(AppSettings, {handleNewCharacter: this.createNewCharacter})
@@ -5124,11 +5534,13 @@ var Character = React.createClass({
           React.createElement(Title, {
             character: this.state.character, edit: this.editCharacter, 
             preferences: this.state.preferences, editPreferences: this.editPreferences, 
-            toggleAppSettings: this.toggleAppSettings}
+            toggleAppSettings: this.toggleAppSettings, 
+            activeNav: this.state.activeNav, setNav: this.setNav}
           ), 
           React.createElement(ContentArea, {
             character: this.state.character, edit: this.editCharacter, 
-            preferences: this.state.preferences, editPreferences: this.editPreferences}
+            preferences: this.state.preferences, editPreferences: this.editPreferences, 
+            activeNav: this.state.activeNav, setNav: this.setNav}
           )
         )
       )
@@ -5140,7 +5552,4872 @@ var Character = React.createClass({
 // render Character
 React.render(React.createElement(Character, null), document.body);
 
-},{"./components/app-settings":1,"./components/content-area":2,"./components/title":29,"./data/blank":31,"fastclick":34,"firebase":35,"react":235,"react-bootstrap/lib/Alert":37,"react-bootstrap/lib/Button":39,"react-bootstrap/lib/Input":47,"react-bootstrap/lib/Modal":49,"react-bootstrap/lib/OverlayMixin":52}],33:[function(require,module,exports){
+},{"./components/affix":1,"./components/app-settings":2,"./components/content-area":3,"./components/title":30,"./data/blank":32,"fastclick":36,"firebase":37,"immutable":38,"react":238,"react-bootstrap/lib/Alert":40,"react-bootstrap/lib/Button":42,"react-bootstrap/lib/Glyphicon":48,"react-bootstrap/lib/Input":50,"react-bootstrap/lib/Modal":52,"react-bootstrap/lib/Nav":53,"react-bootstrap/lib/NavItem":54,"react-bootstrap/lib/OverlayMixin":55}],34:[function(require,module,exports){
+/**
+ *  Copyright (c) 2014, Facebook, Inc.
+ *  All rights reserved.
+ *
+ *  This source code is licensed under the BSD-style license found in the
+ *  LICENSE file in the root directory of this source tree. An additional grant
+ *  of patent rights can be found in the PATENTS file in the same directory.
+ */
+(function (global, factory) {
+  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
+  typeof define === 'function' && define.amd ? define(factory) :
+  global.Immutable = factory()
+}(this, function () { 'use strict';var SLICE$0 = Array.prototype.slice;
+
+  function createClass(ctor, superClass) {
+    if (superClass) {
+      ctor.prototype = Object.create(superClass.prototype);
+    }
+    ctor.prototype.constructor = ctor;
+  }
+
+  // Used for setting prototype methods that IE8 chokes on.
+  var DELETE = 'delete';
+
+  // Constants describing the size of trie nodes.
+  var SHIFT = 5; // Resulted in best performance after ______?
+  var SIZE = 1 << SHIFT;
+  var MASK = SIZE - 1;
+
+  // A consistent shared value representing "not set" which equals nothing other
+  // than itself, and nothing that could be provided externally.
+  var NOT_SET = {};
+
+  // Boolean references, Rough equivalent of `bool &`.
+  var CHANGE_LENGTH = { value: false };
+  var DID_ALTER = { value: false };
+
+  function MakeRef(ref) {
+    ref.value = false;
+    return ref;
+  }
+
+  function SetRef(ref) {
+    ref && (ref.value = true);
+  }
+
+  // A function which returns a value representing an "owner" for transient writes
+  // to tries. The return value will only ever equal itself, and will not equal
+  // the return of any subsequent call of this function.
+  function OwnerID() {}
+
+  // http://jsperf.com/copy-array-inline
+  function arrCopy(arr, offset) {
+    offset = offset || 0;
+    var len = Math.max(0, arr.length - offset);
+    var newArr = new Array(len);
+    for (var ii = 0; ii < len; ii++) {
+      newArr[ii] = arr[ii + offset];
+    }
+    return newArr;
+  }
+
+  function ensureSize(iter) {
+    if (iter.size === undefined) {
+      iter.size = iter.__iterate(returnTrue);
+    }
+    return iter.size;
+  }
+
+  function wrapIndex(iter, index) {
+    return index >= 0 ? (+index) : ensureSize(iter) + (+index);
+  }
+
+  function returnTrue() {
+    return true;
+  }
+
+  function wholeSlice(begin, end, size) {
+    return (begin === 0 || (size !== undefined && begin <= -size)) &&
+      (end === undefined || (size !== undefined && end >= size));
+  }
+
+  function resolveBegin(begin, size) {
+    return resolveIndex(begin, size, 0);
+  }
+
+  function resolveEnd(end, size) {
+    return resolveIndex(end, size, size);
+  }
+
+  function resolveIndex(index, size, defaultIndex) {
+    return index === undefined ?
+      defaultIndex :
+      index < 0 ?
+        Math.max(0, size + index) :
+        size === undefined ?
+          index :
+          Math.min(size, index);
+  }
+
+  function Iterable(value) {
+      return isIterable(value) ? value : Seq(value);
+    }
+
+
+  createClass(KeyedIterable, Iterable);
+    function KeyedIterable(value) {
+      return isKeyed(value) ? value : KeyedSeq(value);
+    }
+
+
+  createClass(IndexedIterable, Iterable);
+    function IndexedIterable(value) {
+      return isIndexed(value) ? value : IndexedSeq(value);
+    }
+
+
+  createClass(SetIterable, Iterable);
+    function SetIterable(value) {
+      return isIterable(value) && !isAssociative(value) ? value : SetSeq(value);
+    }
+
+
+
+  function isIterable(maybeIterable) {
+    return !!(maybeIterable && maybeIterable[IS_ITERABLE_SENTINEL]);
+  }
+
+  function isKeyed(maybeKeyed) {
+    return !!(maybeKeyed && maybeKeyed[IS_KEYED_SENTINEL]);
+  }
+
+  function isIndexed(maybeIndexed) {
+    return !!(maybeIndexed && maybeIndexed[IS_INDEXED_SENTINEL]);
+  }
+
+  function isAssociative(maybeAssociative) {
+    return isKeyed(maybeAssociative) || isIndexed(maybeAssociative);
+  }
+
+  function isOrdered(maybeOrdered) {
+    return !!(maybeOrdered && maybeOrdered[IS_ORDERED_SENTINEL]);
+  }
+
+  Iterable.isIterable = isIterable;
+  Iterable.isKeyed = isKeyed;
+  Iterable.isIndexed = isIndexed;
+  Iterable.isAssociative = isAssociative;
+  Iterable.isOrdered = isOrdered;
+
+  Iterable.Keyed = KeyedIterable;
+  Iterable.Indexed = IndexedIterable;
+  Iterable.Set = SetIterable;
+
+
+  var IS_ITERABLE_SENTINEL = '@@__IMMUTABLE_ITERABLE__@@';
+  var IS_KEYED_SENTINEL = '@@__IMMUTABLE_KEYED__@@';
+  var IS_INDEXED_SENTINEL = '@@__IMMUTABLE_INDEXED__@@';
+  var IS_ORDERED_SENTINEL = '@@__IMMUTABLE_ORDERED__@@';
+
+  /* global Symbol */
+
+  var ITERATE_KEYS = 0;
+  var ITERATE_VALUES = 1;
+  var ITERATE_ENTRIES = 2;
+
+  var REAL_ITERATOR_SYMBOL = typeof Symbol === 'function' && Symbol.iterator;
+  var FAUX_ITERATOR_SYMBOL = '@@iterator';
+
+  var ITERATOR_SYMBOL = REAL_ITERATOR_SYMBOL || FAUX_ITERATOR_SYMBOL;
+
+
+  function Iterator(next) {
+      this.next = next;
+    }
+
+    Iterator.prototype.toString = function() {
+      return '[Iterator]';
+    };
+
+
+  Iterator.KEYS = ITERATE_KEYS;
+  Iterator.VALUES = ITERATE_VALUES;
+  Iterator.ENTRIES = ITERATE_ENTRIES;
+
+  Iterator.prototype.inspect =
+  Iterator.prototype.toSource = function () { return this.toString(); }
+  Iterator.prototype[ITERATOR_SYMBOL] = function () {
+    return this;
+  };
+
+
+  function iteratorValue(type, k, v, iteratorResult) {
+    var value = type === 0 ? k : type === 1 ? v : [k, v];
+    iteratorResult ? (iteratorResult.value = value) : (iteratorResult = {
+      value: value, done: false
+    });
+    return iteratorResult;
+  }
+
+  function iteratorDone() {
+    return { value: undefined, done: true };
+  }
+
+  function hasIterator(maybeIterable) {
+    return !!getIteratorFn(maybeIterable);
+  }
+
+  function isIterator(maybeIterator) {
+    return maybeIterator && typeof maybeIterator.next === 'function';
+  }
+
+  function getIterator(iterable) {
+    var iteratorFn = getIteratorFn(iterable);
+    return iteratorFn && iteratorFn.call(iterable);
+  }
+
+  function getIteratorFn(iterable) {
+    var iteratorFn = iterable && (
+      (REAL_ITERATOR_SYMBOL && iterable[REAL_ITERATOR_SYMBOL]) ||
+      iterable[FAUX_ITERATOR_SYMBOL]
+    );
+    if (typeof iteratorFn === 'function') {
+      return iteratorFn;
+    }
+  }
+
+  function isArrayLike(value) {
+    return value && typeof value.length === 'number';
+  }
+
+  createClass(Seq, Iterable);
+    function Seq(value) {
+      return value === null || value === undefined ? emptySequence() :
+        isIterable(value) ? value.toSeq() : seqFromValue(value);
+    }
+
+    Seq.of = function(/*...values*/) {
+      return Seq(arguments);
+    };
+
+    Seq.prototype.toSeq = function() {
+      return this;
+    };
+
+    Seq.prototype.toString = function() {
+      return this.__toString('Seq {', '}');
+    };
+
+    Seq.prototype.cacheResult = function() {
+      if (!this._cache && this.__iterateUncached) {
+        this._cache = this.entrySeq().toArray();
+        this.size = this._cache.length;
+      }
+      return this;
+    };
+
+    // abstract __iterateUncached(fn, reverse)
+
+    Seq.prototype.__iterate = function(fn, reverse) {
+      return seqIterate(this, fn, reverse, true);
+    };
+
+    // abstract __iteratorUncached(type, reverse)
+
+    Seq.prototype.__iterator = function(type, reverse) {
+      return seqIterator(this, type, reverse, true);
+    };
+
+
+
+  createClass(KeyedSeq, Seq);
+    function KeyedSeq(value) {
+      return value === null || value === undefined ?
+        emptySequence().toKeyedSeq() :
+        isIterable(value) ?
+          (isKeyed(value) ? value.toSeq() : value.fromEntrySeq()) :
+          keyedSeqFromValue(value);
+    }
+
+    KeyedSeq.of = function(/*...values*/) {
+      return KeyedSeq(arguments);
+    };
+
+    KeyedSeq.prototype.toKeyedSeq = function() {
+      return this;
+    };
+
+    KeyedSeq.prototype.toSeq = function() {
+      return this;
+    };
+
+
+
+  createClass(IndexedSeq, Seq);
+    function IndexedSeq(value) {
+      return value === null || value === undefined ? emptySequence() :
+        !isIterable(value) ? indexedSeqFromValue(value) :
+        isKeyed(value) ? value.entrySeq() : value.toIndexedSeq();
+    }
+
+    IndexedSeq.of = function(/*...values*/) {
+      return IndexedSeq(arguments);
+    };
+
+    IndexedSeq.prototype.toIndexedSeq = function() {
+      return this;
+    };
+
+    IndexedSeq.prototype.toString = function() {
+      return this.__toString('Seq [', ']');
+    };
+
+    IndexedSeq.prototype.__iterate = function(fn, reverse) {
+      return seqIterate(this, fn, reverse, false);
+    };
+
+    IndexedSeq.prototype.__iterator = function(type, reverse) {
+      return seqIterator(this, type, reverse, false);
+    };
+
+
+
+  createClass(SetSeq, Seq);
+    function SetSeq(value) {
+      return (
+        value === null || value === undefined ? emptySequence() :
+        !isIterable(value) ? indexedSeqFromValue(value) :
+        isKeyed(value) ? value.entrySeq() : value
+      ).toSetSeq();
+    }
+
+    SetSeq.of = function(/*...values*/) {
+      return SetSeq(arguments);
+    };
+
+    SetSeq.prototype.toSetSeq = function() {
+      return this;
+    };
+
+
+
+  Seq.isSeq = isSeq;
+  Seq.Keyed = KeyedSeq;
+  Seq.Set = SetSeq;
+  Seq.Indexed = IndexedSeq;
+
+  var IS_SEQ_SENTINEL = '@@__IMMUTABLE_SEQ__@@';
+
+  Seq.prototype[IS_SEQ_SENTINEL] = true;
+
+
+
+  // #pragma Root Sequences
+
+  createClass(ArraySeq, IndexedSeq);
+    function ArraySeq(array) {
+      this._array = array;
+      this.size = array.length;
+    }
+
+    ArraySeq.prototype.get = function(index, notSetValue) {
+      return this.has(index) ? this._array[wrapIndex(this, index)] : notSetValue;
+    };
+
+    ArraySeq.prototype.__iterate = function(fn, reverse) {
+      var array = this._array;
+      var maxIndex = array.length - 1;
+      for (var ii = 0; ii <= maxIndex; ii++) {
+        if (fn(array[reverse ? maxIndex - ii : ii], ii, this) === false) {
+          return ii + 1;
+        }
+      }
+      return ii;
+    };
+
+    ArraySeq.prototype.__iterator = function(type, reverse) {
+      var array = this._array;
+      var maxIndex = array.length - 1;
+      var ii = 0;
+      return new Iterator(function() 
+        {return ii > maxIndex ?
+          iteratorDone() :
+          iteratorValue(type, ii, array[reverse ? maxIndex - ii++ : ii++])}
+      );
+    };
+
+
+
+  createClass(ObjectSeq, KeyedSeq);
+    function ObjectSeq(object) {
+      var keys = Object.keys(object);
+      this._object = object;
+      this._keys = keys;
+      this.size = keys.length;
+    }
+
+    ObjectSeq.prototype.get = function(key, notSetValue) {
+      if (notSetValue !== undefined && !this.has(key)) {
+        return notSetValue;
+      }
+      return this._object[key];
+    };
+
+    ObjectSeq.prototype.has = function(key) {
+      return this._object.hasOwnProperty(key);
+    };
+
+    ObjectSeq.prototype.__iterate = function(fn, reverse) {
+      var object = this._object;
+      var keys = this._keys;
+      var maxIndex = keys.length - 1;
+      for (var ii = 0; ii <= maxIndex; ii++) {
+        var key = keys[reverse ? maxIndex - ii : ii];
+        if (fn(object[key], key, this) === false) {
+          return ii + 1;
+        }
+      }
+      return ii;
+    };
+
+    ObjectSeq.prototype.__iterator = function(type, reverse) {
+      var object = this._object;
+      var keys = this._keys;
+      var maxIndex = keys.length - 1;
+      var ii = 0;
+      return new Iterator(function()  {
+        var key = keys[reverse ? maxIndex - ii : ii];
+        return ii++ > maxIndex ?
+          iteratorDone() :
+          iteratorValue(type, key, object[key]);
+      });
+    };
+
+  ObjectSeq.prototype[IS_ORDERED_SENTINEL] = true;
+
+
+  createClass(IterableSeq, IndexedSeq);
+    function IterableSeq(iterable) {
+      this._iterable = iterable;
+      this.size = iterable.length || iterable.size;
+    }
+
+    IterableSeq.prototype.__iterateUncached = function(fn, reverse) {
+      if (reverse) {
+        return this.cacheResult().__iterate(fn, reverse);
+      }
+      var iterable = this._iterable;
+      var iterator = getIterator(iterable);
+      var iterations = 0;
+      if (isIterator(iterator)) {
+        var step;
+        while (!(step = iterator.next()).done) {
+          if (fn(step.value, iterations++, this) === false) {
+            break;
+          }
+        }
+      }
+      return iterations;
+    };
+
+    IterableSeq.prototype.__iteratorUncached = function(type, reverse) {
+      if (reverse) {
+        return this.cacheResult().__iterator(type, reverse);
+      }
+      var iterable = this._iterable;
+      var iterator = getIterator(iterable);
+      if (!isIterator(iterator)) {
+        return new Iterator(iteratorDone);
+      }
+      var iterations = 0;
+      return new Iterator(function()  {
+        var step = iterator.next();
+        return step.done ? step : iteratorValue(type, iterations++, step.value);
+      });
+    };
+
+
+
+  createClass(IteratorSeq, IndexedSeq);
+    function IteratorSeq(iterator) {
+      this._iterator = iterator;
+      this._iteratorCache = [];
+    }
+
+    IteratorSeq.prototype.__iterateUncached = function(fn, reverse) {
+      if (reverse) {
+        return this.cacheResult().__iterate(fn, reverse);
+      }
+      var iterator = this._iterator;
+      var cache = this._iteratorCache;
+      var iterations = 0;
+      while (iterations < cache.length) {
+        if (fn(cache[iterations], iterations++, this) === false) {
+          return iterations;
+        }
+      }
+      var step;
+      while (!(step = iterator.next()).done) {
+        var val = step.value;
+        cache[iterations] = val;
+        if (fn(val, iterations++, this) === false) {
+          break;
+        }
+      }
+      return iterations;
+    };
+
+    IteratorSeq.prototype.__iteratorUncached = function(type, reverse) {
+      if (reverse) {
+        return this.cacheResult().__iterator(type, reverse);
+      }
+      var iterator = this._iterator;
+      var cache = this._iteratorCache;
+      var iterations = 0;
+      return new Iterator(function()  {
+        if (iterations >= cache.length) {
+          var step = iterator.next();
+          if (step.done) {
+            return step;
+          }
+          cache[iterations] = step.value;
+        }
+        return iteratorValue(type, iterations, cache[iterations++]);
+      });
+    };
+
+
+
+
+  // # pragma Helper functions
+
+  function isSeq(maybeSeq) {
+    return !!(maybeSeq && maybeSeq[IS_SEQ_SENTINEL]);
+  }
+
+  var EMPTY_SEQ;
+
+  function emptySequence() {
+    return EMPTY_SEQ || (EMPTY_SEQ = new ArraySeq([]));
+  }
+
+  function keyedSeqFromValue(value) {
+    var seq =
+      Array.isArray(value) ? new ArraySeq(value).fromEntrySeq() :
+      isIterator(value) ? new IteratorSeq(value).fromEntrySeq() :
+      hasIterator(value) ? new IterableSeq(value).fromEntrySeq() :
+      typeof value === 'object' ? new ObjectSeq(value) :
+      undefined;
+    if (!seq) {
+      throw new TypeError(
+        'Expected Array or iterable object of [k, v] entries, '+
+        'or keyed object: ' + value
+      );
+    }
+    return seq;
+  }
+
+  function indexedSeqFromValue(value) {
+    var seq = maybeIndexedSeqFromValue(value);
+    if (!seq) {
+      throw new TypeError(
+        'Expected Array or iterable object of values: ' + value
+      );
+    }
+    return seq;
+  }
+
+  function seqFromValue(value) {
+    var seq = maybeIndexedSeqFromValue(value) ||
+      (typeof value === 'object' && new ObjectSeq(value));
+    if (!seq) {
+      throw new TypeError(
+        'Expected Array or iterable object of values, or keyed object: ' + value
+      );
+    }
+    return seq;
+  }
+
+  function maybeIndexedSeqFromValue(value) {
+    return (
+      isArrayLike(value) ? new ArraySeq(value) :
+      isIterator(value) ? new IteratorSeq(value) :
+      hasIterator(value) ? new IterableSeq(value) :
+      undefined
+    );
+  }
+
+  function seqIterate(seq, fn, reverse, useKeys) {
+    var cache = seq._cache;
+    if (cache) {
+      var maxIndex = cache.length - 1;
+      for (var ii = 0; ii <= maxIndex; ii++) {
+        var entry = cache[reverse ? maxIndex - ii : ii];
+        if (fn(entry[1], useKeys ? entry[0] : ii, seq) === false) {
+          return ii + 1;
+        }
+      }
+      return ii;
+    }
+    return seq.__iterateUncached(fn, reverse);
+  }
+
+  function seqIterator(seq, type, reverse, useKeys) {
+    var cache = seq._cache;
+    if (cache) {
+      var maxIndex = cache.length - 1;
+      var ii = 0;
+      return new Iterator(function()  {
+        var entry = cache[reverse ? maxIndex - ii : ii];
+        return ii++ > maxIndex ?
+          iteratorDone() :
+          iteratorValue(type, useKeys ? entry[0] : ii - 1, entry[1]);
+      });
+    }
+    return seq.__iteratorUncached(type, reverse);
+  }
+
+  createClass(Collection, Iterable);
+    function Collection() {
+      throw TypeError('Abstract');
+    }
+
+
+  createClass(KeyedCollection, Collection);function KeyedCollection() {}
+
+  createClass(IndexedCollection, Collection);function IndexedCollection() {}
+
+  createClass(SetCollection, Collection);function SetCollection() {}
+
+
+  Collection.Keyed = KeyedCollection;
+  Collection.Indexed = IndexedCollection;
+  Collection.Set = SetCollection;
+
+  /**
+   * An extension of the "same-value" algorithm as [described for use by ES6 Map
+   * and Set](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map#Key_equality)
+   *
+   * NaN is considered the same as NaN, however -0 and 0 are considered the same
+   * value, which is different from the algorithm described by
+   * [`Object.is`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is).
+   *
+   * This is extended further to allow Objects to describe the values they
+   * represent, by way of `valueOf` or `equals` (and `hashCode`).
+   *
+   * Note: because of this extension, the key equality of Immutable.Map and the
+   * value equality of Immutable.Set will differ from ES6 Map and Set.
+   *
+   * ### Defining custom values
+   *
+   * The easiest way to describe the value an object represents is by implementing
+   * `valueOf`. For example, `Date` represents a value by returning a unix
+   * timestamp for `valueOf`:
+   *
+   *     var date1 = new Date(1234567890000); // Fri Feb 13 2009 ...
+   *     var date2 = new Date(1234567890000);
+   *     date1.valueOf(); // 1234567890000
+   *     assert( date1 !== date2 );
+   *     assert( Immutable.is( date1, date2 ) );
+   *
+   * Note: overriding `valueOf` may have other implications if you use this object
+   * where JavaScript expects a primitive, such as implicit string coercion.
+   *
+   * For more complex types, especially collections, implementing `valueOf` may
+   * not be performant. An alternative is to implement `equals` and `hashCode`.
+   *
+   * `equals` takes another object, presumably of similar type, and returns true
+   * if the it is equal. Equality is symmetrical, so the same result should be
+   * returned if this and the argument are flipped.
+   *
+   *     assert( a.equals(b) === b.equals(a) );
+   *
+   * `hashCode` returns a 32bit integer number representing the object which will
+   * be used to determine how to store the value object in a Map or Set. You must
+   * provide both or neither methods, one must not exist without the other.
+   *
+   * Also, an important relationship between these methods must be upheld: if two
+   * values are equal, they *must* return the same hashCode. If the values are not
+   * equal, they might have the same hashCode; this is called a hash collision,
+   * and while undesirable for performance reasons, it is acceptable.
+   *
+   *     if (a.equals(b)) {
+   *       assert( a.hashCode() === b.hashCode() );
+   *     }
+   *
+   * All Immutable collections implement `equals` and `hashCode`.
+   *
+   */
+  function is(valueA, valueB) {
+    if (valueA === valueB || (valueA !== valueA && valueB !== valueB)) {
+      return true;
+    }
+    if (!valueA || !valueB) {
+      return false;
+    }
+    if (typeof valueA.valueOf === 'function' &&
+        typeof valueB.valueOf === 'function') {
+      valueA = valueA.valueOf();
+      valueB = valueB.valueOf();
+    }
+    return typeof valueA.equals === 'function' &&
+      typeof valueB.equals === 'function' ?
+        valueA.equals(valueB) :
+        valueA === valueB || (valueA !== valueA && valueB !== valueB);
+  }
+
+  function fromJS(json, converter) {
+    return converter ?
+      fromJSWith(converter, json, '', {'': json}) :
+      fromJSDefault(json);
+  }
+
+  function fromJSWith(converter, json, key, parentJSON) {
+    if (Array.isArray(json)) {
+      return converter.call(parentJSON, key, IndexedSeq(json).map(function(v, k)  {return fromJSWith(converter, v, k, json)}));
+    }
+    if (isPlainObj(json)) {
+      return converter.call(parentJSON, key, KeyedSeq(json).map(function(v, k)  {return fromJSWith(converter, v, k, json)}));
+    }
+    return json;
+  }
+
+  function fromJSDefault(json) {
+    if (Array.isArray(json)) {
+      return IndexedSeq(json).map(fromJSDefault).toList();
+    }
+    if (isPlainObj(json)) {
+      return KeyedSeq(json).map(fromJSDefault).toMap();
+    }
+    return json;
+  }
+
+  function isPlainObj(value) {
+    return value && value.constructor === Object;
+  }
+
+  var Math__imul =
+    typeof Math.imul === 'function' && Math.imul(0xffffffff, 2) === -2 ?
+    Math.imul :
+    function Math__imul(a, b) {
+      a = a | 0; // int
+      b = b | 0; // int
+      var c = a & 0xffff;
+      var d = b & 0xffff;
+      // Shift by 0 fixes the sign on the high part.
+      return (c * d) + ((((a >>> 16) * d + c * (b >>> 16)) << 16) >>> 0) | 0; // int
+    };
+
+  // v8 has an optimization for storing 31-bit signed numbers.
+  // Values which have either 00 or 11 as the high order bits qualify.
+  // This function drops the highest order bit in a signed number, maintaining
+  // the sign bit.
+  function smi(i32) {
+    return ((i32 >>> 1) & 0x40000000) | (i32 & 0xBFFFFFFF);
+  }
+
+  function hash(o) {
+    if (o === false || o === null || o === undefined) {
+      return 0;
+    }
+    if (typeof o.valueOf === 'function') {
+      o = o.valueOf();
+      if (o === false || o === null || o === undefined) {
+        return 0;
+      }
+    }
+    if (o === true) {
+      return 1;
+    }
+    var type = typeof o;
+    if (type === 'number') {
+      var h = o | 0;
+      if (h !== o) {
+        h ^= o * 0xFFFFFFFF;
+      }
+      while (o > 0xFFFFFFFF) {
+        o /= 0xFFFFFFFF;
+        h ^= o;
+      }
+      return smi(h);
+    }
+    if (type === 'string') {
+      return o.length > STRING_HASH_CACHE_MIN_STRLEN ? cachedHashString(o) : hashString(o);
+    }
+    if (typeof o.hashCode === 'function') {
+      return o.hashCode();
+    }
+    return hashJSObj(o);
+  }
+
+  function cachedHashString(string) {
+    var hash = stringHashCache[string];
+    if (hash === undefined) {
+      hash = hashString(string);
+      if (STRING_HASH_CACHE_SIZE === STRING_HASH_CACHE_MAX_SIZE) {
+        STRING_HASH_CACHE_SIZE = 0;
+        stringHashCache = {};
+      }
+      STRING_HASH_CACHE_SIZE++;
+      stringHashCache[string] = hash;
+    }
+    return hash;
+  }
+
+  // http://jsperf.com/hashing-strings
+  function hashString(string) {
+    // This is the hash from JVM
+    // The hash code for a string is computed as
+    // s[0] * 31 ^ (n - 1) + s[1] * 31 ^ (n - 2) + ... + s[n - 1],
+    // where s[i] is the ith character of the string and n is the length of
+    // the string. We "mod" the result to make it between 0 (inclusive) and 2^31
+    // (exclusive) by dropping high bits.
+    var hash = 0;
+    for (var ii = 0; ii < string.length; ii++) {
+      hash = 31 * hash + string.charCodeAt(ii) | 0;
+    }
+    return smi(hash);
+  }
+
+  function hashJSObj(obj) {
+    var hash = weakMap && weakMap.get(obj);
+    if (hash) return hash;
+
+    hash = obj[UID_HASH_KEY];
+    if (hash) return hash;
+
+    if (!canDefineProperty) {
+      hash = obj.propertyIsEnumerable && obj.propertyIsEnumerable[UID_HASH_KEY];
+      if (hash) return hash;
+
+      hash = getIENodeHash(obj);
+      if (hash) return hash;
+    }
+
+    if (Object.isExtensible && !Object.isExtensible(obj)) {
+      throw new Error('Non-extensible objects are not allowed as keys.');
+    }
+
+    hash = ++objHashUID;
+    if (objHashUID & 0x40000000) {
+      objHashUID = 0;
+    }
+
+    if (weakMap) {
+      weakMap.set(obj, hash);
+    } else if (canDefineProperty) {
+      Object.defineProperty(obj, UID_HASH_KEY, {
+        'enumerable': false,
+        'configurable': false,
+        'writable': false,
+        'value': hash
+      });
+    } else if (obj.propertyIsEnumerable &&
+               obj.propertyIsEnumerable === obj.constructor.prototype.propertyIsEnumerable) {
+      // Since we can't define a non-enumerable property on the object
+      // we'll hijack one of the less-used non-enumerable properties to
+      // save our hash on it. Since this is a function it will not show up in
+      // `JSON.stringify` which is what we want.
+      obj.propertyIsEnumerable = function() {
+        return this.constructor.prototype.propertyIsEnumerable.apply(this, arguments);
+      };
+      obj.propertyIsEnumerable[UID_HASH_KEY] = hash;
+    } else if (obj.nodeType) {
+      // At this point we couldn't get the IE `uniqueID` to use as a hash
+      // and we couldn't use a non-enumerable property to exploit the
+      // dontEnum bug so we simply add the `UID_HASH_KEY` on the node
+      // itself.
+      obj[UID_HASH_KEY] = hash;
+    } else {
+      throw new Error('Unable to set a non-enumerable property on object.');
+    }
+
+    return hash;
+  }
+
+  // True if Object.defineProperty works as expected. IE8 fails this test.
+  var canDefineProperty = (function() {
+    try {
+      Object.defineProperty({}, 'x', {});
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }());
+
+  // IE has a `uniqueID` property on DOM nodes. We can construct the hash from it
+  // and avoid memory leaks from the IE cloneNode bug.
+  function getIENodeHash(node) {
+    if (node && node.nodeType > 0) {
+      switch (node.nodeType) {
+        case 1: // Element
+          return node.uniqueID;
+        case 9: // Document
+          return node.documentElement && node.documentElement.uniqueID;
+      }
+    }
+  }
+
+  // If possible, use a WeakMap.
+  var weakMap = typeof WeakMap === 'function' && new WeakMap();
+
+  var objHashUID = 0;
+
+  var UID_HASH_KEY = '__immutablehash__';
+  if (typeof Symbol === 'function') {
+    UID_HASH_KEY = Symbol(UID_HASH_KEY);
+  }
+
+  var STRING_HASH_CACHE_MIN_STRLEN = 16;
+  var STRING_HASH_CACHE_MAX_SIZE = 255;
+  var STRING_HASH_CACHE_SIZE = 0;
+  var stringHashCache = {};
+
+  function invariant(condition, error) {
+    if (!condition) throw new Error(error);
+  }
+
+  function assertNotInfinite(size) {
+    invariant(
+      size !== Infinity,
+      'Cannot perform this action with an infinite size.'
+    );
+  }
+
+  createClass(ToKeyedSequence, KeyedSeq);
+    function ToKeyedSequence(indexed, useKeys) {
+      this._iter = indexed;
+      this._useKeys = useKeys;
+      this.size = indexed.size;
+    }
+
+    ToKeyedSequence.prototype.get = function(key, notSetValue) {
+      return this._iter.get(key, notSetValue);
+    };
+
+    ToKeyedSequence.prototype.has = function(key) {
+      return this._iter.has(key);
+    };
+
+    ToKeyedSequence.prototype.valueSeq = function() {
+      return this._iter.valueSeq();
+    };
+
+    ToKeyedSequence.prototype.reverse = function() {var this$0 = this;
+      var reversedSequence = reverseFactory(this, true);
+      if (!this._useKeys) {
+        reversedSequence.valueSeq = function()  {return this$0._iter.toSeq().reverse()};
+      }
+      return reversedSequence;
+    };
+
+    ToKeyedSequence.prototype.map = function(mapper, context) {var this$0 = this;
+      var mappedSequence = mapFactory(this, mapper, context);
+      if (!this._useKeys) {
+        mappedSequence.valueSeq = function()  {return this$0._iter.toSeq().map(mapper, context)};
+      }
+      return mappedSequence;
+    };
+
+    ToKeyedSequence.prototype.__iterate = function(fn, reverse) {var this$0 = this;
+      var ii;
+      return this._iter.__iterate(
+        this._useKeys ?
+          function(v, k)  {return fn(v, k, this$0)} :
+          ((ii = reverse ? resolveSize(this) : 0),
+            function(v ) {return fn(v, reverse ? --ii : ii++, this$0)}),
+        reverse
+      );
+    };
+
+    ToKeyedSequence.prototype.__iterator = function(type, reverse) {
+      if (this._useKeys) {
+        return this._iter.__iterator(type, reverse);
+      }
+      var iterator = this._iter.__iterator(ITERATE_VALUES, reverse);
+      var ii = reverse ? resolveSize(this) : 0;
+      return new Iterator(function()  {
+        var step = iterator.next();
+        return step.done ? step :
+          iteratorValue(type, reverse ? --ii : ii++, step.value, step);
+      });
+    };
+
+  ToKeyedSequence.prototype[IS_ORDERED_SENTINEL] = true;
+
+
+  createClass(ToIndexedSequence, IndexedSeq);
+    function ToIndexedSequence(iter) {
+      this._iter = iter;
+      this.size = iter.size;
+    }
+
+    ToIndexedSequence.prototype.contains = function(value) {
+      return this._iter.contains(value);
+    };
+
+    ToIndexedSequence.prototype.__iterate = function(fn, reverse) {var this$0 = this;
+      var iterations = 0;
+      return this._iter.__iterate(function(v ) {return fn(v, iterations++, this$0)}, reverse);
+    };
+
+    ToIndexedSequence.prototype.__iterator = function(type, reverse) {
+      var iterator = this._iter.__iterator(ITERATE_VALUES, reverse);
+      var iterations = 0;
+      return new Iterator(function()  {
+        var step = iterator.next();
+        return step.done ? step :
+          iteratorValue(type, iterations++, step.value, step)
+      });
+    };
+
+
+
+  createClass(ToSetSequence, SetSeq);
+    function ToSetSequence(iter) {
+      this._iter = iter;
+      this.size = iter.size;
+    }
+
+    ToSetSequence.prototype.has = function(key) {
+      return this._iter.contains(key);
+    };
+
+    ToSetSequence.prototype.__iterate = function(fn, reverse) {var this$0 = this;
+      return this._iter.__iterate(function(v ) {return fn(v, v, this$0)}, reverse);
+    };
+
+    ToSetSequence.prototype.__iterator = function(type, reverse) {
+      var iterator = this._iter.__iterator(ITERATE_VALUES, reverse);
+      return new Iterator(function()  {
+        var step = iterator.next();
+        return step.done ? step :
+          iteratorValue(type, step.value, step.value, step);
+      });
+    };
+
+
+
+  createClass(FromEntriesSequence, KeyedSeq);
+    function FromEntriesSequence(entries) {
+      this._iter = entries;
+      this.size = entries.size;
+    }
+
+    FromEntriesSequence.prototype.entrySeq = function() {
+      return this._iter.toSeq();
+    };
+
+    FromEntriesSequence.prototype.__iterate = function(fn, reverse) {var this$0 = this;
+      return this._iter.__iterate(function(entry ) {
+        // Check if entry exists first so array access doesn't throw for holes
+        // in the parent iteration.
+        if (entry) {
+          validateEntry(entry);
+          return fn(entry[1], entry[0], this$0);
+        }
+      }, reverse);
+    };
+
+    FromEntriesSequence.prototype.__iterator = function(type, reverse) {
+      var iterator = this._iter.__iterator(ITERATE_VALUES, reverse);
+      return new Iterator(function()  {
+        while (true) {
+          var step = iterator.next();
+          if (step.done) {
+            return step;
+          }
+          var entry = step.value;
+          // Check if entry exists first so array access doesn't throw for holes
+          // in the parent iteration.
+          if (entry) {
+            validateEntry(entry);
+            return type === ITERATE_ENTRIES ? step :
+              iteratorValue(type, entry[0], entry[1], step);
+          }
+        }
+      });
+    };
+
+
+  ToIndexedSequence.prototype.cacheResult =
+  ToKeyedSequence.prototype.cacheResult =
+  ToSetSequence.prototype.cacheResult =
+  FromEntriesSequence.prototype.cacheResult =
+    cacheResultThrough;
+
+
+  function flipFactory(iterable) {
+    var flipSequence = makeSequence(iterable);
+    flipSequence._iter = iterable;
+    flipSequence.size = iterable.size;
+    flipSequence.flip = function()  {return iterable};
+    flipSequence.reverse = function () {
+      var reversedSequence = iterable.reverse.apply(this); // super.reverse()
+      reversedSequence.flip = function()  {return iterable.reverse()};
+      return reversedSequence;
+    };
+    flipSequence.has = function(key ) {return iterable.contains(key)};
+    flipSequence.contains = function(key ) {return iterable.has(key)};
+    flipSequence.cacheResult = cacheResultThrough;
+    flipSequence.__iterateUncached = function (fn, reverse) {var this$0 = this;
+      return iterable.__iterate(function(v, k)  {return fn(k, v, this$0) !== false}, reverse);
+    }
+    flipSequence.__iteratorUncached = function(type, reverse) {
+      if (type === ITERATE_ENTRIES) {
+        var iterator = iterable.__iterator(type, reverse);
+        return new Iterator(function()  {
+          var step = iterator.next();
+          if (!step.done) {
+            var k = step.value[0];
+            step.value[0] = step.value[1];
+            step.value[1] = k;
+          }
+          return step;
+        });
+      }
+      return iterable.__iterator(
+        type === ITERATE_VALUES ? ITERATE_KEYS : ITERATE_VALUES,
+        reverse
+      );
+    }
+    return flipSequence;
+  }
+
+
+  function mapFactory(iterable, mapper, context) {
+    var mappedSequence = makeSequence(iterable);
+    mappedSequence.size = iterable.size;
+    mappedSequence.has = function(key ) {return iterable.has(key)};
+    mappedSequence.get = function(key, notSetValue)  {
+      var v = iterable.get(key, NOT_SET);
+      return v === NOT_SET ?
+        notSetValue :
+        mapper.call(context, v, key, iterable);
+    };
+    mappedSequence.__iterateUncached = function (fn, reverse) {var this$0 = this;
+      return iterable.__iterate(
+        function(v, k, c)  {return fn(mapper.call(context, v, k, c), k, this$0) !== false},
+        reverse
+      );
+    }
+    mappedSequence.__iteratorUncached = function (type, reverse) {
+      var iterator = iterable.__iterator(ITERATE_ENTRIES, reverse);
+      return new Iterator(function()  {
+        var step = iterator.next();
+        if (step.done) {
+          return step;
+        }
+        var entry = step.value;
+        var key = entry[0];
+        return iteratorValue(
+          type,
+          key,
+          mapper.call(context, entry[1], key, iterable),
+          step
+        );
+      });
+    }
+    return mappedSequence;
+  }
+
+
+  function reverseFactory(iterable, useKeys) {
+    var reversedSequence = makeSequence(iterable);
+    reversedSequence._iter = iterable;
+    reversedSequence.size = iterable.size;
+    reversedSequence.reverse = function()  {return iterable};
+    if (iterable.flip) {
+      reversedSequence.flip = function () {
+        var flipSequence = flipFactory(iterable);
+        flipSequence.reverse = function()  {return iterable.flip()};
+        return flipSequence;
+      };
+    }
+    reversedSequence.get = function(key, notSetValue) 
+      {return iterable.get(useKeys ? key : -1 - key, notSetValue)};
+    reversedSequence.has = function(key )
+      {return iterable.has(useKeys ? key : -1 - key)};
+    reversedSequence.contains = function(value ) {return iterable.contains(value)};
+    reversedSequence.cacheResult = cacheResultThrough;
+    reversedSequence.__iterate = function (fn, reverse) {var this$0 = this;
+      return iterable.__iterate(function(v, k)  {return fn(v, k, this$0)}, !reverse);
+    };
+    reversedSequence.__iterator =
+      function(type, reverse)  {return iterable.__iterator(type, !reverse)};
+    return reversedSequence;
+  }
+
+
+  function filterFactory(iterable, predicate, context, useKeys) {
+    var filterSequence = makeSequence(iterable);
+    if (useKeys) {
+      filterSequence.has = function(key ) {
+        var v = iterable.get(key, NOT_SET);
+        return v !== NOT_SET && !!predicate.call(context, v, key, iterable);
+      };
+      filterSequence.get = function(key, notSetValue)  {
+        var v = iterable.get(key, NOT_SET);
+        return v !== NOT_SET && predicate.call(context, v, key, iterable) ?
+          v : notSetValue;
+      };
+    }
+    filterSequence.__iterateUncached = function (fn, reverse) {var this$0 = this;
+      var iterations = 0;
+      iterable.__iterate(function(v, k, c)  {
+        if (predicate.call(context, v, k, c)) {
+          iterations++;
+          return fn(v, useKeys ? k : iterations - 1, this$0);
+        }
+      }, reverse);
+      return iterations;
+    };
+    filterSequence.__iteratorUncached = function (type, reverse) {
+      var iterator = iterable.__iterator(ITERATE_ENTRIES, reverse);
+      var iterations = 0;
+      return new Iterator(function()  {
+        while (true) {
+          var step = iterator.next();
+          if (step.done) {
+            return step;
+          }
+          var entry = step.value;
+          var key = entry[0];
+          var value = entry[1];
+          if (predicate.call(context, value, key, iterable)) {
+            return iteratorValue(type, useKeys ? key : iterations++, value, step);
+          }
+        }
+      });
+    }
+    return filterSequence;
+  }
+
+
+  function countByFactory(iterable, grouper, context) {
+    var groups = Map().asMutable();
+    iterable.__iterate(function(v, k)  {
+      groups.update(
+        grouper.call(context, v, k, iterable),
+        0,
+        function(a ) {return a + 1}
+      );
+    });
+    return groups.asImmutable();
+  }
+
+
+  function groupByFactory(iterable, grouper, context) {
+    var isKeyedIter = isKeyed(iterable);
+    var groups = (isOrdered(iterable) ? OrderedMap() : Map()).asMutable();
+    iterable.__iterate(function(v, k)  {
+      groups.update(
+        grouper.call(context, v, k, iterable),
+        function(a ) {return (a = a || [], a.push(isKeyedIter ? [k, v] : v), a)}
+      );
+    });
+    var coerce = iterableClass(iterable);
+    return groups.map(function(arr ) {return reify(iterable, coerce(arr))});
+  }
+
+
+  function sliceFactory(iterable, begin, end, useKeys) {
+    var originalSize = iterable.size;
+
+    if (wholeSlice(begin, end, originalSize)) {
+      return iterable;
+    }
+
+    var resolvedBegin = resolveBegin(begin, originalSize);
+    var resolvedEnd = resolveEnd(end, originalSize);
+
+    // begin or end will be NaN if they were provided as negative numbers and
+    // this iterable's size is unknown. In that case, cache first so there is
+    // a known size.
+    if (resolvedBegin !== resolvedBegin || resolvedEnd !== resolvedEnd) {
+      return sliceFactory(iterable.toSeq().cacheResult(), begin, end, useKeys);
+    }
+
+    var sliceSize = resolvedEnd - resolvedBegin;
+    if (sliceSize < 0) {
+      sliceSize = 0;
+    }
+
+    var sliceSeq = makeSequence(iterable);
+
+    sliceSeq.size = sliceSize === 0 ? sliceSize : iterable.size && sliceSize || undefined;
+
+    if (!useKeys && isSeq(iterable) && sliceSize >= 0) {
+      sliceSeq.get = function (index, notSetValue) {
+        index = wrapIndex(this, index);
+        return index >= 0 && index < sliceSize ?
+          iterable.get(index + resolvedBegin, notSetValue) :
+          notSetValue;
+      }
+    }
+
+    sliceSeq.__iterateUncached = function(fn, reverse) {var this$0 = this;
+      if (sliceSize === 0) {
+        return 0;
+      }
+      if (reverse) {
+        return this.cacheResult().__iterate(fn, reverse);
+      }
+      var skipped = 0;
+      var isSkipping = true;
+      var iterations = 0;
+      iterable.__iterate(function(v, k)  {
+        if (!(isSkipping && (isSkipping = skipped++ < resolvedBegin))) {
+          iterations++;
+          return fn(v, useKeys ? k : iterations - 1, this$0) !== false &&
+                 iterations !== sliceSize;
+        }
+      });
+      return iterations;
+    };
+
+    sliceSeq.__iteratorUncached = function(type, reverse) {
+      if (sliceSize && reverse) {
+        return this.cacheResult().__iterator(type, reverse);
+      }
+      // Don't bother instantiating parent iterator if taking 0.
+      var iterator = sliceSize && iterable.__iterator(type, reverse);
+      var skipped = 0;
+      var iterations = 0;
+      return new Iterator(function()  {
+        while (skipped++ !== resolvedBegin) {
+          iterator.next();
+        }
+        if (++iterations > sliceSize) {
+          return iteratorDone();
+        }
+        var step = iterator.next();
+        if (useKeys || type === ITERATE_VALUES) {
+          return step;
+        } else if (type === ITERATE_KEYS) {
+          return iteratorValue(type, iterations - 1, undefined, step);
+        } else {
+          return iteratorValue(type, iterations - 1, step.value[1], step);
+        }
+      });
+    }
+
+    return sliceSeq;
+  }
+
+
+  function takeWhileFactory(iterable, predicate, context) {
+    var takeSequence = makeSequence(iterable);
+    takeSequence.__iterateUncached = function(fn, reverse) {var this$0 = this;
+      if (reverse) {
+        return this.cacheResult().__iterate(fn, reverse);
+      }
+      var iterations = 0;
+      iterable.__iterate(function(v, k, c) 
+        {return predicate.call(context, v, k, c) && ++iterations && fn(v, k, this$0)}
+      );
+      return iterations;
+    };
+    takeSequence.__iteratorUncached = function(type, reverse) {var this$0 = this;
+      if (reverse) {
+        return this.cacheResult().__iterator(type, reverse);
+      }
+      var iterator = iterable.__iterator(ITERATE_ENTRIES, reverse);
+      var iterating = true;
+      return new Iterator(function()  {
+        if (!iterating) {
+          return iteratorDone();
+        }
+        var step = iterator.next();
+        if (step.done) {
+          return step;
+        }
+        var entry = step.value;
+        var k = entry[0];
+        var v = entry[1];
+        if (!predicate.call(context, v, k, this$0)) {
+          iterating = false;
+          return iteratorDone();
+        }
+        return type === ITERATE_ENTRIES ? step :
+          iteratorValue(type, k, v, step);
+      });
+    };
+    return takeSequence;
+  }
+
+
+  function skipWhileFactory(iterable, predicate, context, useKeys) {
+    var skipSequence = makeSequence(iterable);
+    skipSequence.__iterateUncached = function (fn, reverse) {var this$0 = this;
+      if (reverse) {
+        return this.cacheResult().__iterate(fn, reverse);
+      }
+      var isSkipping = true;
+      var iterations = 0;
+      iterable.__iterate(function(v, k, c)  {
+        if (!(isSkipping && (isSkipping = predicate.call(context, v, k, c)))) {
+          iterations++;
+          return fn(v, useKeys ? k : iterations - 1, this$0);
+        }
+      });
+      return iterations;
+    };
+    skipSequence.__iteratorUncached = function(type, reverse) {var this$0 = this;
+      if (reverse) {
+        return this.cacheResult().__iterator(type, reverse);
+      }
+      var iterator = iterable.__iterator(ITERATE_ENTRIES, reverse);
+      var skipping = true;
+      var iterations = 0;
+      return new Iterator(function()  {
+        var step, k, v;
+        do {
+          step = iterator.next();
+          if (step.done) {
+            if (useKeys || type === ITERATE_VALUES) {
+              return step;
+            } else if (type === ITERATE_KEYS) {
+              return iteratorValue(type, iterations++, undefined, step);
+            } else {
+              return iteratorValue(type, iterations++, step.value[1], step);
+            }
+          }
+          var entry = step.value;
+          k = entry[0];
+          v = entry[1];
+          skipping && (skipping = predicate.call(context, v, k, this$0));
+        } while (skipping);
+        return type === ITERATE_ENTRIES ? step :
+          iteratorValue(type, k, v, step);
+      });
+    };
+    return skipSequence;
+  }
+
+
+  function concatFactory(iterable, values) {
+    var isKeyedIterable = isKeyed(iterable);
+    var iters = [iterable].concat(values).map(function(v ) {
+      if (!isIterable(v)) {
+        v = isKeyedIterable ?
+          keyedSeqFromValue(v) :
+          indexedSeqFromValue(Array.isArray(v) ? v : [v]);
+      } else if (isKeyedIterable) {
+        v = KeyedIterable(v);
+      }
+      return v;
+    }).filter(function(v ) {return v.size !== 0});
+
+    if (iters.length === 0) {
+      return iterable;
+    }
+
+    if (iters.length === 1) {
+      var singleton = iters[0];
+      if (singleton === iterable ||
+          isKeyedIterable && isKeyed(singleton) ||
+          isIndexed(iterable) && isIndexed(singleton)) {
+        return singleton;
+      }
+    }
+
+    var concatSeq = new ArraySeq(iters);
+    if (isKeyedIterable) {
+      concatSeq = concatSeq.toKeyedSeq();
+    } else if (!isIndexed(iterable)) {
+      concatSeq = concatSeq.toSetSeq();
+    }
+    concatSeq = concatSeq.flatten(true);
+    concatSeq.size = iters.reduce(
+      function(sum, seq)  {
+        if (sum !== undefined) {
+          var size = seq.size;
+          if (size !== undefined) {
+            return sum + size;
+          }
+        }
+      },
+      0
+    );
+    return concatSeq;
+  }
+
+
+  function flattenFactory(iterable, depth, useKeys) {
+    var flatSequence = makeSequence(iterable);
+    flatSequence.__iterateUncached = function(fn, reverse) {
+      var iterations = 0;
+      var stopped = false;
+      function flatDeep(iter, currentDepth) {var this$0 = this;
+        iter.__iterate(function(v, k)  {
+          if ((!depth || currentDepth < depth) && isIterable(v)) {
+            flatDeep(v, currentDepth + 1);
+          } else if (fn(v, useKeys ? k : iterations++, this$0) === false) {
+            stopped = true;
+          }
+          return !stopped;
+        }, reverse);
+      }
+      flatDeep(iterable, 0);
+      return iterations;
+    }
+    flatSequence.__iteratorUncached = function(type, reverse) {
+      var iterator = iterable.__iterator(type, reverse);
+      var stack = [];
+      var iterations = 0;
+      return new Iterator(function()  {
+        while (iterator) {
+          var step = iterator.next();
+          if (step.done !== false) {
+            iterator = stack.pop();
+            continue;
+          }
+          var v = step.value;
+          if (type === ITERATE_ENTRIES) {
+            v = v[1];
+          }
+          if ((!depth || stack.length < depth) && isIterable(v)) {
+            stack.push(iterator);
+            iterator = v.__iterator(type, reverse);
+          } else {
+            return useKeys ? step : iteratorValue(type, iterations++, v, step);
+          }
+        }
+        return iteratorDone();
+      });
+    }
+    return flatSequence;
+  }
+
+
+  function flatMapFactory(iterable, mapper, context) {
+    var coerce = iterableClass(iterable);
+    return iterable.toSeq().map(
+      function(v, k)  {return coerce(mapper.call(context, v, k, iterable))}
+    ).flatten(true);
+  }
+
+
+  function interposeFactory(iterable, separator) {
+    var interposedSequence = makeSequence(iterable);
+    interposedSequence.size = iterable.size && iterable.size * 2 -1;
+    interposedSequence.__iterateUncached = function(fn, reverse) {var this$0 = this;
+      var iterations = 0;
+      iterable.__iterate(function(v, k) 
+        {return (!iterations || fn(separator, iterations++, this$0) !== false) &&
+        fn(v, iterations++, this$0) !== false},
+        reverse
+      );
+      return iterations;
+    };
+    interposedSequence.__iteratorUncached = function(type, reverse) {
+      var iterator = iterable.__iterator(ITERATE_VALUES, reverse);
+      var iterations = 0;
+      var step;
+      return new Iterator(function()  {
+        if (!step || iterations % 2) {
+          step = iterator.next();
+          if (step.done) {
+            return step;
+          }
+        }
+        return iterations % 2 ?
+          iteratorValue(type, iterations++, separator) :
+          iteratorValue(type, iterations++, step.value, step);
+      });
+    };
+    return interposedSequence;
+  }
+
+
+  function sortFactory(iterable, comparator, mapper) {
+    if (!comparator) {
+      comparator = defaultComparator;
+    }
+    var isKeyedIterable = isKeyed(iterable);
+    var index = 0;
+    var entries = iterable.toSeq().map(
+      function(v, k)  {return [k, v, index++, mapper ? mapper(v, k, iterable) : v]}
+    ).toArray();
+    entries.sort(function(a, b)  {return comparator(a[3], b[3]) || a[2] - b[2]}).forEach(
+      isKeyedIterable ?
+      function(v, i)  { entries[i].length = 2; } :
+      function(v, i)  { entries[i] = v[1]; }
+    );
+    return isKeyedIterable ? KeyedSeq(entries) :
+      isIndexed(iterable) ? IndexedSeq(entries) :
+      SetSeq(entries);
+  }
+
+
+  function maxFactory(iterable, comparator, mapper) {
+    if (!comparator) {
+      comparator = defaultComparator;
+    }
+    if (mapper) {
+      var entry = iterable.toSeq()
+        .map(function(v, k)  {return [v, mapper(v, k, iterable)]})
+        .reduce(function(a, b)  {return maxCompare(comparator, a[1], b[1]) ? b : a});
+      return entry && entry[0];
+    } else {
+      return iterable.reduce(function(a, b)  {return maxCompare(comparator, a, b) ? b : a});
+    }
+  }
+
+  function maxCompare(comparator, a, b) {
+    var comp = comparator(b, a);
+    // b is considered the new max if the comparator declares them equal, but
+    // they are not equal and b is in fact a nullish value.
+    return (comp === 0 && b !== a && (b === undefined || b === null || b !== b)) || comp > 0;
+  }
+
+
+  function zipWithFactory(keyIter, zipper, iters) {
+    var zipSequence = makeSequence(keyIter);
+    zipSequence.size = new ArraySeq(iters).map(function(i ) {return i.size}).min();
+    // Note: this a generic base implementation of __iterate in terms of
+    // __iterator which may be more generically useful in the future.
+    zipSequence.__iterate = function(fn, reverse) {
+      /* generic:
+      var iterator = this.__iterator(ITERATE_ENTRIES, reverse);
+      var step;
+      var iterations = 0;
+      while (!(step = iterator.next()).done) {
+        iterations++;
+        if (fn(step.value[1], step.value[0], this) === false) {
+          break;
+        }
+      }
+      return iterations;
+      */
+      // indexed:
+      var iterator = this.__iterator(ITERATE_VALUES, reverse);
+      var step;
+      var iterations = 0;
+      while (!(step = iterator.next()).done) {
+        if (fn(step.value, iterations++, this) === false) {
+          break;
+        }
+      }
+      return iterations;
+    };
+    zipSequence.__iteratorUncached = function(type, reverse) {
+      var iterators = iters.map(function(i )
+        {return (i = Iterable(i), getIterator(reverse ? i.reverse() : i))}
+      );
+      var iterations = 0;
+      var isDone = false;
+      return new Iterator(function()  {
+        var steps;
+        if (!isDone) {
+          steps = iterators.map(function(i ) {return i.next()});
+          isDone = steps.some(function(s ) {return s.done});
+        }
+        if (isDone) {
+          return iteratorDone();
+        }
+        return iteratorValue(
+          type,
+          iterations++,
+          zipper.apply(null, steps.map(function(s ) {return s.value}))
+        );
+      });
+    };
+    return zipSequence
+  }
+
+
+  // #pragma Helper Functions
+
+  function reify(iter, seq) {
+    return isSeq(iter) ? seq : iter.constructor(seq);
+  }
+
+  function validateEntry(entry) {
+    if (entry !== Object(entry)) {
+      throw new TypeError('Expected [K, V] tuple: ' + entry);
+    }
+  }
+
+  function resolveSize(iter) {
+    assertNotInfinite(iter.size);
+    return ensureSize(iter);
+  }
+
+  function iterableClass(iterable) {
+    return isKeyed(iterable) ? KeyedIterable :
+      isIndexed(iterable) ? IndexedIterable :
+      SetIterable;
+  }
+
+  function makeSequence(iterable) {
+    return Object.create(
+      (
+        isKeyed(iterable) ? KeyedSeq :
+        isIndexed(iterable) ? IndexedSeq :
+        SetSeq
+      ).prototype
+    );
+  }
+
+  function cacheResultThrough() {
+    if (this._iter.cacheResult) {
+      this._iter.cacheResult();
+      this.size = this._iter.size;
+      return this;
+    } else {
+      return Seq.prototype.cacheResult.call(this);
+    }
+  }
+
+  function defaultComparator(a, b) {
+    return a > b ? 1 : a < b ? -1 : 0;
+  }
+
+  function forceIterator(keyPath) {
+    var iter = getIterator(keyPath);
+    if (!iter) {
+      // Array might not be iterable in this environment, so we need a fallback
+      // to our wrapped type.
+      if (!isArrayLike(keyPath)) {
+        throw new TypeError('Expected iterable or array-like: ' + keyPath);
+      }
+      iter = getIterator(Iterable(keyPath));
+    }
+    return iter;
+  }
+
+  createClass(Map, KeyedCollection);
+
+    // @pragma Construction
+
+    function Map(value) {
+      return value === null || value === undefined ? emptyMap() :
+        isMap(value) ? value :
+        emptyMap().withMutations(function(map ) {
+          var iter = KeyedIterable(value);
+          assertNotInfinite(iter.size);
+          iter.forEach(function(v, k)  {return map.set(k, v)});
+        });
+    }
+
+    Map.prototype.toString = function() {
+      return this.__toString('Map {', '}');
+    };
+
+    // @pragma Access
+
+    Map.prototype.get = function(k, notSetValue) {
+      return this._root ?
+        this._root.get(0, undefined, k, notSetValue) :
+        notSetValue;
+    };
+
+    // @pragma Modification
+
+    Map.prototype.set = function(k, v) {
+      return updateMap(this, k, v);
+    };
+
+    Map.prototype.setIn = function(keyPath, v) {
+      return this.updateIn(keyPath, NOT_SET, function()  {return v});
+    };
+
+    Map.prototype.remove = function(k) {
+      return updateMap(this, k, NOT_SET);
+    };
+
+    Map.prototype.deleteIn = function(keyPath) {
+      return this.updateIn(keyPath, function()  {return NOT_SET});
+    };
+
+    Map.prototype.update = function(k, notSetValue, updater) {
+      return arguments.length === 1 ?
+        k(this) :
+        this.updateIn([k], notSetValue, updater);
+    };
+
+    Map.prototype.updateIn = function(keyPath, notSetValue, updater) {
+      if (!updater) {
+        updater = notSetValue;
+        notSetValue = undefined;
+      }
+      var updatedValue = updateInDeepMap(
+        this,
+        forceIterator(keyPath),
+        notSetValue,
+        updater
+      );
+      return updatedValue === NOT_SET ? undefined : updatedValue;
+    };
+
+    Map.prototype.clear = function() {
+      if (this.size === 0) {
+        return this;
+      }
+      if (this.__ownerID) {
+        this.size = 0;
+        this._root = null;
+        this.__hash = undefined;
+        this.__altered = true;
+        return this;
+      }
+      return emptyMap();
+    };
+
+    // @pragma Composition
+
+    Map.prototype.merge = function(/*...iters*/) {
+      return mergeIntoMapWith(this, undefined, arguments);
+    };
+
+    Map.prototype.mergeWith = function(merger) {var iters = SLICE$0.call(arguments, 1);
+      return mergeIntoMapWith(this, merger, iters);
+    };
+
+    Map.prototype.mergeIn = function(keyPath) {var iters = SLICE$0.call(arguments, 1);
+      return this.updateIn(keyPath, emptyMap(), function(m ) {return m.merge.apply(m, iters)});
+    };
+
+    Map.prototype.mergeDeep = function(/*...iters*/) {
+      return mergeIntoMapWith(this, deepMerger(undefined), arguments);
+    };
+
+    Map.prototype.mergeDeepWith = function(merger) {var iters = SLICE$0.call(arguments, 1);
+      return mergeIntoMapWith(this, deepMerger(merger), iters);
+    };
+
+    Map.prototype.mergeDeepIn = function(keyPath) {var iters = SLICE$0.call(arguments, 1);
+      return this.updateIn(keyPath, emptyMap(), function(m ) {return m.mergeDeep.apply(m, iters)});
+    };
+
+    Map.prototype.sort = function(comparator) {
+      // Late binding
+      return OrderedMap(sortFactory(this, comparator));
+    };
+
+    Map.prototype.sortBy = function(mapper, comparator) {
+      // Late binding
+      return OrderedMap(sortFactory(this, comparator, mapper));
+    };
+
+    // @pragma Mutability
+
+    Map.prototype.withMutations = function(fn) {
+      var mutable = this.asMutable();
+      fn(mutable);
+      return mutable.wasAltered() ? mutable.__ensureOwner(this.__ownerID) : this;
+    };
+
+    Map.prototype.asMutable = function() {
+      return this.__ownerID ? this : this.__ensureOwner(new OwnerID());
+    };
+
+    Map.prototype.asImmutable = function() {
+      return this.__ensureOwner();
+    };
+
+    Map.prototype.wasAltered = function() {
+      return this.__altered;
+    };
+
+    Map.prototype.__iterator = function(type, reverse) {
+      return new MapIterator(this, type, reverse);
+    };
+
+    Map.prototype.__iterate = function(fn, reverse) {var this$0 = this;
+      var iterations = 0;
+      this._root && this._root.iterate(function(entry ) {
+        iterations++;
+        return fn(entry[1], entry[0], this$0);
+      }, reverse);
+      return iterations;
+    };
+
+    Map.prototype.__ensureOwner = function(ownerID) {
+      if (ownerID === this.__ownerID) {
+        return this;
+      }
+      if (!ownerID) {
+        this.__ownerID = ownerID;
+        this.__altered = false;
+        return this;
+      }
+      return makeMap(this.size, this._root, ownerID, this.__hash);
+    };
+
+
+  function isMap(maybeMap) {
+    return !!(maybeMap && maybeMap[IS_MAP_SENTINEL]);
+  }
+
+  Map.isMap = isMap;
+
+  var IS_MAP_SENTINEL = '@@__IMMUTABLE_MAP__@@';
+
+  var MapPrototype = Map.prototype;
+  MapPrototype[IS_MAP_SENTINEL] = true;
+  MapPrototype[DELETE] = MapPrototype.remove;
+  MapPrototype.removeIn = MapPrototype.deleteIn;
+
+
+  // #pragma Trie Nodes
+
+
+
+    function ArrayMapNode(ownerID, entries) {
+      this.ownerID = ownerID;
+      this.entries = entries;
+    }
+
+    ArrayMapNode.prototype.get = function(shift, keyHash, key, notSetValue) {
+      var entries = this.entries;
+      for (var ii = 0, len = entries.length; ii < len; ii++) {
+        if (is(key, entries[ii][0])) {
+          return entries[ii][1];
+        }
+      }
+      return notSetValue;
+    };
+
+    ArrayMapNode.prototype.update = function(ownerID, shift, keyHash, key, value, didChangeSize, didAlter) {
+      var removed = value === NOT_SET;
+
+      var entries = this.entries;
+      var idx = 0;
+      for (var len = entries.length; idx < len; idx++) {
+        if (is(key, entries[idx][0])) {
+          break;
+        }
+      }
+      var exists = idx < len;
+
+      if (exists ? entries[idx][1] === value : removed) {
+        return this;
+      }
+
+      SetRef(didAlter);
+      (removed || !exists) && SetRef(didChangeSize);
+
+      if (removed && entries.length === 1) {
+        return; // undefined
+      }
+
+      if (!exists && !removed && entries.length >= MAX_ARRAY_MAP_SIZE) {
+        return createNodes(ownerID, entries, key, value);
+      }
+
+      var isEditable = ownerID && ownerID === this.ownerID;
+      var newEntries = isEditable ? entries : arrCopy(entries);
+
+      if (exists) {
+        if (removed) {
+          idx === len - 1 ? newEntries.pop() : (newEntries[idx] = newEntries.pop());
+        } else {
+          newEntries[idx] = [key, value];
+        }
+      } else {
+        newEntries.push([key, value]);
+      }
+
+      if (isEditable) {
+        this.entries = newEntries;
+        return this;
+      }
+
+      return new ArrayMapNode(ownerID, newEntries);
+    };
+
+
+
+
+    function BitmapIndexedNode(ownerID, bitmap, nodes) {
+      this.ownerID = ownerID;
+      this.bitmap = bitmap;
+      this.nodes = nodes;
+    }
+
+    BitmapIndexedNode.prototype.get = function(shift, keyHash, key, notSetValue) {
+      if (keyHash === undefined) {
+        keyHash = hash(key);
+      }
+      var bit = (1 << ((shift === 0 ? keyHash : keyHash >>> shift) & MASK));
+      var bitmap = this.bitmap;
+      return (bitmap & bit) === 0 ? notSetValue :
+        this.nodes[popCount(bitmap & (bit - 1))].get(shift + SHIFT, keyHash, key, notSetValue);
+    };
+
+    BitmapIndexedNode.prototype.update = function(ownerID, shift, keyHash, key, value, didChangeSize, didAlter) {
+      if (keyHash === undefined) {
+        keyHash = hash(key);
+      }
+      var keyHashFrag = (shift === 0 ? keyHash : keyHash >>> shift) & MASK;
+      var bit = 1 << keyHashFrag;
+      var bitmap = this.bitmap;
+      var exists = (bitmap & bit) !== 0;
+
+      if (!exists && value === NOT_SET) {
+        return this;
+      }
+
+      var idx = popCount(bitmap & (bit - 1));
+      var nodes = this.nodes;
+      var node = exists ? nodes[idx] : undefined;
+      var newNode = updateNode(node, ownerID, shift + SHIFT, keyHash, key, value, didChangeSize, didAlter);
+
+      if (newNode === node) {
+        return this;
+      }
+
+      if (!exists && newNode && nodes.length >= MAX_BITMAP_INDEXED_SIZE) {
+        return expandNodes(ownerID, nodes, bitmap, keyHashFrag, newNode);
+      }
+
+      if (exists && !newNode && nodes.length === 2 && isLeafNode(nodes[idx ^ 1])) {
+        return nodes[idx ^ 1];
+      }
+
+      if (exists && newNode && nodes.length === 1 && isLeafNode(newNode)) {
+        return newNode;
+      }
+
+      var isEditable = ownerID && ownerID === this.ownerID;
+      var newBitmap = exists ? newNode ? bitmap : bitmap ^ bit : bitmap | bit;
+      var newNodes = exists ? newNode ?
+        setIn(nodes, idx, newNode, isEditable) :
+        spliceOut(nodes, idx, isEditable) :
+        spliceIn(nodes, idx, newNode, isEditable);
+
+      if (isEditable) {
+        this.bitmap = newBitmap;
+        this.nodes = newNodes;
+        return this;
+      }
+
+      return new BitmapIndexedNode(ownerID, newBitmap, newNodes);
+    };
+
+
+
+
+    function HashArrayMapNode(ownerID, count, nodes) {
+      this.ownerID = ownerID;
+      this.count = count;
+      this.nodes = nodes;
+    }
+
+    HashArrayMapNode.prototype.get = function(shift, keyHash, key, notSetValue) {
+      if (keyHash === undefined) {
+        keyHash = hash(key);
+      }
+      var idx = (shift === 0 ? keyHash : keyHash >>> shift) & MASK;
+      var node = this.nodes[idx];
+      return node ? node.get(shift + SHIFT, keyHash, key, notSetValue) : notSetValue;
+    };
+
+    HashArrayMapNode.prototype.update = function(ownerID, shift, keyHash, key, value, didChangeSize, didAlter) {
+      if (keyHash === undefined) {
+        keyHash = hash(key);
+      }
+      var idx = (shift === 0 ? keyHash : keyHash >>> shift) & MASK;
+      var removed = value === NOT_SET;
+      var nodes = this.nodes;
+      var node = nodes[idx];
+
+      if (removed && !node) {
+        return this;
+      }
+
+      var newNode = updateNode(node, ownerID, shift + SHIFT, keyHash, key, value, didChangeSize, didAlter);
+      if (newNode === node) {
+        return this;
+      }
+
+      var newCount = this.count;
+      if (!node) {
+        newCount++;
+      } else if (!newNode) {
+        newCount--;
+        if (newCount < MIN_HASH_ARRAY_MAP_SIZE) {
+          return packNodes(ownerID, nodes, newCount, idx);
+        }
+      }
+
+      var isEditable = ownerID && ownerID === this.ownerID;
+      var newNodes = setIn(nodes, idx, newNode, isEditable);
+
+      if (isEditable) {
+        this.count = newCount;
+        this.nodes = newNodes;
+        return this;
+      }
+
+      return new HashArrayMapNode(ownerID, newCount, newNodes);
+    };
+
+
+
+
+    function HashCollisionNode(ownerID, keyHash, entries) {
+      this.ownerID = ownerID;
+      this.keyHash = keyHash;
+      this.entries = entries;
+    }
+
+    HashCollisionNode.prototype.get = function(shift, keyHash, key, notSetValue) {
+      var entries = this.entries;
+      for (var ii = 0, len = entries.length; ii < len; ii++) {
+        if (is(key, entries[ii][0])) {
+          return entries[ii][1];
+        }
+      }
+      return notSetValue;
+    };
+
+    HashCollisionNode.prototype.update = function(ownerID, shift, keyHash, key, value, didChangeSize, didAlter) {
+      if (keyHash === undefined) {
+        keyHash = hash(key);
+      }
+
+      var removed = value === NOT_SET;
+
+      if (keyHash !== this.keyHash) {
+        if (removed) {
+          return this;
+        }
+        SetRef(didAlter);
+        SetRef(didChangeSize);
+        return mergeIntoNode(this, ownerID, shift, keyHash, [key, value]);
+      }
+
+      var entries = this.entries;
+      var idx = 0;
+      for (var len = entries.length; idx < len; idx++) {
+        if (is(key, entries[idx][0])) {
+          break;
+        }
+      }
+      var exists = idx < len;
+
+      if (exists ? entries[idx][1] === value : removed) {
+        return this;
+      }
+
+      SetRef(didAlter);
+      (removed || !exists) && SetRef(didChangeSize);
+
+      if (removed && len === 2) {
+        return new ValueNode(ownerID, this.keyHash, entries[idx ^ 1]);
+      }
+
+      var isEditable = ownerID && ownerID === this.ownerID;
+      var newEntries = isEditable ? entries : arrCopy(entries);
+
+      if (exists) {
+        if (removed) {
+          idx === len - 1 ? newEntries.pop() : (newEntries[idx] = newEntries.pop());
+        } else {
+          newEntries[idx] = [key, value];
+        }
+      } else {
+        newEntries.push([key, value]);
+      }
+
+      if (isEditable) {
+        this.entries = newEntries;
+        return this;
+      }
+
+      return new HashCollisionNode(ownerID, this.keyHash, newEntries);
+    };
+
+
+
+
+    function ValueNode(ownerID, keyHash, entry) {
+      this.ownerID = ownerID;
+      this.keyHash = keyHash;
+      this.entry = entry;
+    }
+
+    ValueNode.prototype.get = function(shift, keyHash, key, notSetValue) {
+      return is(key, this.entry[0]) ? this.entry[1] : notSetValue;
+    };
+
+    ValueNode.prototype.update = function(ownerID, shift, keyHash, key, value, didChangeSize, didAlter) {
+      var removed = value === NOT_SET;
+      var keyMatch = is(key, this.entry[0]);
+      if (keyMatch ? value === this.entry[1] : removed) {
+        return this;
+      }
+
+      SetRef(didAlter);
+
+      if (removed) {
+        SetRef(didChangeSize);
+        return; // undefined
+      }
+
+      if (keyMatch) {
+        if (ownerID && ownerID === this.ownerID) {
+          this.entry[1] = value;
+          return this;
+        }
+        return new ValueNode(ownerID, this.keyHash, [key, value]);
+      }
+
+      SetRef(didChangeSize);
+      return mergeIntoNode(this, ownerID, shift, hash(key), [key, value]);
+    };
+
+
+
+  // #pragma Iterators
+
+  ArrayMapNode.prototype.iterate =
+  HashCollisionNode.prototype.iterate = function (fn, reverse) {
+    var entries = this.entries;
+    for (var ii = 0, maxIndex = entries.length - 1; ii <= maxIndex; ii++) {
+      if (fn(entries[reverse ? maxIndex - ii : ii]) === false) {
+        return false;
+      }
+    }
+  }
+
+  BitmapIndexedNode.prototype.iterate =
+  HashArrayMapNode.prototype.iterate = function (fn, reverse) {
+    var nodes = this.nodes;
+    for (var ii = 0, maxIndex = nodes.length - 1; ii <= maxIndex; ii++) {
+      var node = nodes[reverse ? maxIndex - ii : ii];
+      if (node && node.iterate(fn, reverse) === false) {
+        return false;
+      }
+    }
+  }
+
+  ValueNode.prototype.iterate = function (fn, reverse) {
+    return fn(this.entry);
+  }
+
+  createClass(MapIterator, Iterator);
+
+    function MapIterator(map, type, reverse) {
+      this._type = type;
+      this._reverse = reverse;
+      this._stack = map._root && mapIteratorFrame(map._root);
+    }
+
+    MapIterator.prototype.next = function() {
+      var type = this._type;
+      var stack = this._stack;
+      while (stack) {
+        var node = stack.node;
+        var index = stack.index++;
+        var maxIndex;
+        if (node.entry) {
+          if (index === 0) {
+            return mapIteratorValue(type, node.entry);
+          }
+        } else if (node.entries) {
+          maxIndex = node.entries.length - 1;
+          if (index <= maxIndex) {
+            return mapIteratorValue(type, node.entries[this._reverse ? maxIndex - index : index]);
+          }
+        } else {
+          maxIndex = node.nodes.length - 1;
+          if (index <= maxIndex) {
+            var subNode = node.nodes[this._reverse ? maxIndex - index : index];
+            if (subNode) {
+              if (subNode.entry) {
+                return mapIteratorValue(type, subNode.entry);
+              }
+              stack = this._stack = mapIteratorFrame(subNode, stack);
+            }
+            continue;
+          }
+        }
+        stack = this._stack = this._stack.__prev;
+      }
+      return iteratorDone();
+    };
+
+
+  function mapIteratorValue(type, entry) {
+    return iteratorValue(type, entry[0], entry[1]);
+  }
+
+  function mapIteratorFrame(node, prev) {
+    return {
+      node: node,
+      index: 0,
+      __prev: prev
+    };
+  }
+
+  function makeMap(size, root, ownerID, hash) {
+    var map = Object.create(MapPrototype);
+    map.size = size;
+    map._root = root;
+    map.__ownerID = ownerID;
+    map.__hash = hash;
+    map.__altered = false;
+    return map;
+  }
+
+  var EMPTY_MAP;
+  function emptyMap() {
+    return EMPTY_MAP || (EMPTY_MAP = makeMap(0));
+  }
+
+  function updateMap(map, k, v) {
+    var newRoot;
+    var newSize;
+    if (!map._root) {
+      if (v === NOT_SET) {
+        return map;
+      }
+      newSize = 1;
+      newRoot = new ArrayMapNode(map.__ownerID, [[k, v]]);
+    } else {
+      var didChangeSize = MakeRef(CHANGE_LENGTH);
+      var didAlter = MakeRef(DID_ALTER);
+      newRoot = updateNode(map._root, map.__ownerID, 0, undefined, k, v, didChangeSize, didAlter);
+      if (!didAlter.value) {
+        return map;
+      }
+      newSize = map.size + (didChangeSize.value ? v === NOT_SET ? -1 : 1 : 0);
+    }
+    if (map.__ownerID) {
+      map.size = newSize;
+      map._root = newRoot;
+      map.__hash = undefined;
+      map.__altered = true;
+      return map;
+    }
+    return newRoot ? makeMap(newSize, newRoot) : emptyMap();
+  }
+
+  function updateNode(node, ownerID, shift, keyHash, key, value, didChangeSize, didAlter) {
+    if (!node) {
+      if (value === NOT_SET) {
+        return node;
+      }
+      SetRef(didAlter);
+      SetRef(didChangeSize);
+      return new ValueNode(ownerID, keyHash, [key, value]);
+    }
+    return node.update(ownerID, shift, keyHash, key, value, didChangeSize, didAlter);
+  }
+
+  function isLeafNode(node) {
+    return node.constructor === ValueNode || node.constructor === HashCollisionNode;
+  }
+
+  function mergeIntoNode(node, ownerID, shift, keyHash, entry) {
+    if (node.keyHash === keyHash) {
+      return new HashCollisionNode(ownerID, keyHash, [node.entry, entry]);
+    }
+
+    var idx1 = (shift === 0 ? node.keyHash : node.keyHash >>> shift) & MASK;
+    var idx2 = (shift === 0 ? keyHash : keyHash >>> shift) & MASK;
+
+    var newNode;
+    var nodes = idx1 === idx2 ?
+      [mergeIntoNode(node, ownerID, shift + SHIFT, keyHash, entry)] :
+      ((newNode = new ValueNode(ownerID, keyHash, entry)), idx1 < idx2 ? [node, newNode] : [newNode, node]);
+
+    return new BitmapIndexedNode(ownerID, (1 << idx1) | (1 << idx2), nodes);
+  }
+
+  function createNodes(ownerID, entries, key, value) {
+    if (!ownerID) {
+      ownerID = new OwnerID();
+    }
+    var node = new ValueNode(ownerID, hash(key), [key, value]);
+    for (var ii = 0; ii < entries.length; ii++) {
+      var entry = entries[ii];
+      node = node.update(ownerID, 0, undefined, entry[0], entry[1]);
+    }
+    return node;
+  }
+
+  function packNodes(ownerID, nodes, count, excluding) {
+    var bitmap = 0;
+    var packedII = 0;
+    var packedNodes = new Array(count);
+    for (var ii = 0, bit = 1, len = nodes.length; ii < len; ii++, bit <<= 1) {
+      var node = nodes[ii];
+      if (node !== undefined && ii !== excluding) {
+        bitmap |= bit;
+        packedNodes[packedII++] = node;
+      }
+    }
+    return new BitmapIndexedNode(ownerID, bitmap, packedNodes);
+  }
+
+  function expandNodes(ownerID, nodes, bitmap, including, node) {
+    var count = 0;
+    var expandedNodes = new Array(SIZE);
+    for (var ii = 0; bitmap !== 0; ii++, bitmap >>>= 1) {
+      expandedNodes[ii] = bitmap & 1 ? nodes[count++] : undefined;
+    }
+    expandedNodes[including] = node;
+    return new HashArrayMapNode(ownerID, count + 1, expandedNodes);
+  }
+
+  function mergeIntoMapWith(map, merger, iterables) {
+    var iters = [];
+    for (var ii = 0; ii < iterables.length; ii++) {
+      var value = iterables[ii];
+      var iter = KeyedIterable(value);
+      if (!isIterable(value)) {
+        iter = iter.map(function(v ) {return fromJS(v)});
+      }
+      iters.push(iter);
+    }
+    return mergeIntoCollectionWith(map, merger, iters);
+  }
+
+  function deepMerger(merger) {
+    return function(existing, value) 
+      {return existing && existing.mergeDeepWith && isIterable(value) ?
+        existing.mergeDeepWith(merger, value) :
+        merger ? merger(existing, value) : value};
+  }
+
+  function mergeIntoCollectionWith(collection, merger, iters) {
+    iters = iters.filter(function(x ) {return x.size !== 0});
+    if (iters.length === 0) {
+      return collection;
+    }
+    if (collection.size === 0 && iters.length === 1) {
+      return collection.constructor(iters[0]);
+    }
+    return collection.withMutations(function(collection ) {
+      var mergeIntoMap = merger ?
+        function(value, key)  {
+          collection.update(key, NOT_SET, function(existing )
+            {return existing === NOT_SET ? value : merger(existing, value)}
+          );
+        } :
+        function(value, key)  {
+          collection.set(key, value);
+        }
+      for (var ii = 0; ii < iters.length; ii++) {
+        iters[ii].forEach(mergeIntoMap);
+      }
+    });
+  }
+
+  function updateInDeepMap(existing, keyPathIter, notSetValue, updater) {
+    var isNotSet = existing === NOT_SET;
+    var step = keyPathIter.next();
+    if (step.done) {
+      var existingValue = isNotSet ? notSetValue : existing;
+      var newValue = updater(existingValue);
+      return newValue === existingValue ? existing : newValue;
+    }
+    invariant(
+      isNotSet || (existing && existing.set),
+      'invalid keyPath'
+    );
+    var key = step.value;
+    var nextExisting = isNotSet ? NOT_SET : existing.get(key, NOT_SET);
+    var nextUpdated = updateInDeepMap(
+      nextExisting,
+      keyPathIter,
+      notSetValue,
+      updater
+    );
+    return nextUpdated === nextExisting ? existing :
+      nextUpdated === NOT_SET ? existing.remove(key) :
+      (isNotSet ? emptyMap() : existing).set(key, nextUpdated);
+  }
+
+  function popCount(x) {
+    x = x - ((x >> 1) & 0x55555555);
+    x = (x & 0x33333333) + ((x >> 2) & 0x33333333);
+    x = (x + (x >> 4)) & 0x0f0f0f0f;
+    x = x + (x >> 8);
+    x = x + (x >> 16);
+    return x & 0x7f;
+  }
+
+  function setIn(array, idx, val, canEdit) {
+    var newArray = canEdit ? array : arrCopy(array);
+    newArray[idx] = val;
+    return newArray;
+  }
+
+  function spliceIn(array, idx, val, canEdit) {
+    var newLen = array.length + 1;
+    if (canEdit && idx + 1 === newLen) {
+      array[idx] = val;
+      return array;
+    }
+    var newArray = new Array(newLen);
+    var after = 0;
+    for (var ii = 0; ii < newLen; ii++) {
+      if (ii === idx) {
+        newArray[ii] = val;
+        after = -1;
+      } else {
+        newArray[ii] = array[ii + after];
+      }
+    }
+    return newArray;
+  }
+
+  function spliceOut(array, idx, canEdit) {
+    var newLen = array.length - 1;
+    if (canEdit && idx === newLen) {
+      array.pop();
+      return array;
+    }
+    var newArray = new Array(newLen);
+    var after = 0;
+    for (var ii = 0; ii < newLen; ii++) {
+      if (ii === idx) {
+        after = 1;
+      }
+      newArray[ii] = array[ii + after];
+    }
+    return newArray;
+  }
+
+  var MAX_ARRAY_MAP_SIZE = SIZE / 4;
+  var MAX_BITMAP_INDEXED_SIZE = SIZE / 2;
+  var MIN_HASH_ARRAY_MAP_SIZE = SIZE / 4;
+
+  createClass(List, IndexedCollection);
+
+    // @pragma Construction
+
+    function List(value) {
+      var empty = emptyList();
+      if (value === null || value === undefined) {
+        return empty;
+      }
+      if (isList(value)) {
+        return value;
+      }
+      var iter = IndexedIterable(value);
+      var size = iter.size;
+      if (size === 0) {
+        return empty;
+      }
+      assertNotInfinite(size);
+      if (size > 0 && size < SIZE) {
+        return makeList(0, size, SHIFT, null, new VNode(iter.toArray()));
+      }
+      return empty.withMutations(function(list ) {
+        list.setSize(size);
+        iter.forEach(function(v, i)  {return list.set(i, v)});
+      });
+    }
+
+    List.of = function(/*...values*/) {
+      return this(arguments);
+    };
+
+    List.prototype.toString = function() {
+      return this.__toString('List [', ']');
+    };
+
+    // @pragma Access
+
+    List.prototype.get = function(index, notSetValue) {
+      index = wrapIndex(this, index);
+      if (index < 0 || index >= this.size) {
+        return notSetValue;
+      }
+      index += this._origin;
+      var node = listNodeFor(this, index);
+      return node && node.array[index & MASK];
+    };
+
+    // @pragma Modification
+
+    List.prototype.set = function(index, value) {
+      return updateList(this, index, value);
+    };
+
+    List.prototype.remove = function(index) {
+      return !this.has(index) ? this :
+        index === 0 ? this.shift() :
+        index === this.size - 1 ? this.pop() :
+        this.splice(index, 1);
+    };
+
+    List.prototype.clear = function() {
+      if (this.size === 0) {
+        return this;
+      }
+      if (this.__ownerID) {
+        this.size = this._origin = this._capacity = 0;
+        this._level = SHIFT;
+        this._root = this._tail = null;
+        this.__hash = undefined;
+        this.__altered = true;
+        return this;
+      }
+      return emptyList();
+    };
+
+    List.prototype.push = function(/*...values*/) {
+      var values = arguments;
+      var oldSize = this.size;
+      return this.withMutations(function(list ) {
+        setListBounds(list, 0, oldSize + values.length);
+        for (var ii = 0; ii < values.length; ii++) {
+          list.set(oldSize + ii, values[ii]);
+        }
+      });
+    };
+
+    List.prototype.pop = function() {
+      return setListBounds(this, 0, -1);
+    };
+
+    List.prototype.unshift = function(/*...values*/) {
+      var values = arguments;
+      return this.withMutations(function(list ) {
+        setListBounds(list, -values.length);
+        for (var ii = 0; ii < values.length; ii++) {
+          list.set(ii, values[ii]);
+        }
+      });
+    };
+
+    List.prototype.shift = function() {
+      return setListBounds(this, 1);
+    };
+
+    // @pragma Composition
+
+    List.prototype.merge = function(/*...iters*/) {
+      return mergeIntoListWith(this, undefined, arguments);
+    };
+
+    List.prototype.mergeWith = function(merger) {var iters = SLICE$0.call(arguments, 1);
+      return mergeIntoListWith(this, merger, iters);
+    };
+
+    List.prototype.mergeDeep = function(/*...iters*/) {
+      return mergeIntoListWith(this, deepMerger(undefined), arguments);
+    };
+
+    List.prototype.mergeDeepWith = function(merger) {var iters = SLICE$0.call(arguments, 1);
+      return mergeIntoListWith(this, deepMerger(merger), iters);
+    };
+
+    List.prototype.setSize = function(size) {
+      return setListBounds(this, 0, size);
+    };
+
+    // @pragma Iteration
+
+    List.prototype.slice = function(begin, end) {
+      var size = this.size;
+      if (wholeSlice(begin, end, size)) {
+        return this;
+      }
+      return setListBounds(
+        this,
+        resolveBegin(begin, size),
+        resolveEnd(end, size)
+      );
+    };
+
+    List.prototype.__iterator = function(type, reverse) {
+      var index = 0;
+      var values = iterateList(this, reverse);
+      return new Iterator(function()  {
+        var value = values();
+        return value === DONE ?
+          iteratorDone() :
+          iteratorValue(type, index++, value);
+      });
+    };
+
+    List.prototype.__iterate = function(fn, reverse) {
+      var index = 0;
+      var values = iterateList(this, reverse);
+      var value;
+      while ((value = values()) !== DONE) {
+        if (fn(value, index++, this) === false) {
+          break;
+        }
+      }
+      return index;
+    };
+
+    List.prototype.__ensureOwner = function(ownerID) {
+      if (ownerID === this.__ownerID) {
+        return this;
+      }
+      if (!ownerID) {
+        this.__ownerID = ownerID;
+        return this;
+      }
+      return makeList(this._origin, this._capacity, this._level, this._root, this._tail, ownerID, this.__hash);
+    };
+
+
+  function isList(maybeList) {
+    return !!(maybeList && maybeList[IS_LIST_SENTINEL]);
+  }
+
+  List.isList = isList;
+
+  var IS_LIST_SENTINEL = '@@__IMMUTABLE_LIST__@@';
+
+  var ListPrototype = List.prototype;
+  ListPrototype[IS_LIST_SENTINEL] = true;
+  ListPrototype[DELETE] = ListPrototype.remove;
+  ListPrototype.setIn = MapPrototype.setIn;
+  ListPrototype.deleteIn =
+  ListPrototype.removeIn = MapPrototype.removeIn;
+  ListPrototype.update = MapPrototype.update;
+  ListPrototype.updateIn = MapPrototype.updateIn;
+  ListPrototype.mergeIn = MapPrototype.mergeIn;
+  ListPrototype.mergeDeepIn = MapPrototype.mergeDeepIn;
+  ListPrototype.withMutations = MapPrototype.withMutations;
+  ListPrototype.asMutable = MapPrototype.asMutable;
+  ListPrototype.asImmutable = MapPrototype.asImmutable;
+  ListPrototype.wasAltered = MapPrototype.wasAltered;
+
+
+
+    function VNode(array, ownerID) {
+      this.array = array;
+      this.ownerID = ownerID;
+    }
+
+    // TODO: seems like these methods are very similar
+
+    VNode.prototype.removeBefore = function(ownerID, level, index) {
+      if (index === level ? 1 << level : 0 || this.array.length === 0) {
+        return this;
+      }
+      var originIndex = (index >>> level) & MASK;
+      if (originIndex >= this.array.length) {
+        return new VNode([], ownerID);
+      }
+      var removingFirst = originIndex === 0;
+      var newChild;
+      if (level > 0) {
+        var oldChild = this.array[originIndex];
+        newChild = oldChild && oldChild.removeBefore(ownerID, level - SHIFT, index);
+        if (newChild === oldChild && removingFirst) {
+          return this;
+        }
+      }
+      if (removingFirst && !newChild) {
+        return this;
+      }
+      var editable = editableVNode(this, ownerID);
+      if (!removingFirst) {
+        for (var ii = 0; ii < originIndex; ii++) {
+          editable.array[ii] = undefined;
+        }
+      }
+      if (newChild) {
+        editable.array[originIndex] = newChild;
+      }
+      return editable;
+    };
+
+    VNode.prototype.removeAfter = function(ownerID, level, index) {
+      if (index === level ? 1 << level : 0 || this.array.length === 0) {
+        return this;
+      }
+      var sizeIndex = ((index - 1) >>> level) & MASK;
+      if (sizeIndex >= this.array.length) {
+        return this;
+      }
+      var removingLast = sizeIndex === this.array.length - 1;
+      var newChild;
+      if (level > 0) {
+        var oldChild = this.array[sizeIndex];
+        newChild = oldChild && oldChild.removeAfter(ownerID, level - SHIFT, index);
+        if (newChild === oldChild && removingLast) {
+          return this;
+        }
+      }
+      if (removingLast && !newChild) {
+        return this;
+      }
+      var editable = editableVNode(this, ownerID);
+      if (!removingLast) {
+        editable.array.pop();
+      }
+      if (newChild) {
+        editable.array[sizeIndex] = newChild;
+      }
+      return editable;
+    };
+
+
+
+  var DONE = {};
+
+  function iterateList(list, reverse) {
+    var left = list._origin;
+    var right = list._capacity;
+    var tailPos = getTailOffset(right);
+    var tail = list._tail;
+
+    return iterateNodeOrLeaf(list._root, list._level, 0);
+
+    function iterateNodeOrLeaf(node, level, offset) {
+      return level === 0 ?
+        iterateLeaf(node, offset) :
+        iterateNode(node, level, offset);
+    }
+
+    function iterateLeaf(node, offset) {
+      var array = offset === tailPos ? tail && tail.array : node && node.array;
+      var from = offset > left ? 0 : left - offset;
+      var to = right - offset;
+      if (to > SIZE) {
+        to = SIZE;
+      }
+      return function()  {
+        if (from === to) {
+          return DONE;
+        }
+        var idx = reverse ? --to : from++;
+        return array && array[idx];
+      };
+    }
+
+    function iterateNode(node, level, offset) {
+      var values;
+      var array = node && node.array;
+      var from = offset > left ? 0 : (left - offset) >> level;
+      var to = ((right - offset) >> level) + 1;
+      if (to > SIZE) {
+        to = SIZE;
+      }
+      return function()  {
+        do {
+          if (values) {
+            var value = values();
+            if (value !== DONE) {
+              return value;
+            }
+            values = null;
+          }
+          if (from === to) {
+            return DONE;
+          }
+          var idx = reverse ? --to : from++;
+          values = iterateNodeOrLeaf(
+            array && array[idx], level - SHIFT, offset + (idx << level)
+          );
+        } while (true);
+      };
+    }
+  }
+
+  function makeList(origin, capacity, level, root, tail, ownerID, hash) {
+    var list = Object.create(ListPrototype);
+    list.size = capacity - origin;
+    list._origin = origin;
+    list._capacity = capacity;
+    list._level = level;
+    list._root = root;
+    list._tail = tail;
+    list.__ownerID = ownerID;
+    list.__hash = hash;
+    list.__altered = false;
+    return list;
+  }
+
+  var EMPTY_LIST;
+  function emptyList() {
+    return EMPTY_LIST || (EMPTY_LIST = makeList(0, 0, SHIFT));
+  }
+
+  function updateList(list, index, value) {
+    index = wrapIndex(list, index);
+
+    if (index >= list.size || index < 0) {
+      return list.withMutations(function(list ) {
+        index < 0 ?
+          setListBounds(list, index).set(0, value) :
+          setListBounds(list, 0, index + 1).set(index, value)
+      });
+    }
+
+    index += list._origin;
+
+    var newTail = list._tail;
+    var newRoot = list._root;
+    var didAlter = MakeRef(DID_ALTER);
+    if (index >= getTailOffset(list._capacity)) {
+      newTail = updateVNode(newTail, list.__ownerID, 0, index, value, didAlter);
+    } else {
+      newRoot = updateVNode(newRoot, list.__ownerID, list._level, index, value, didAlter);
+    }
+
+    if (!didAlter.value) {
+      return list;
+    }
+
+    if (list.__ownerID) {
+      list._root = newRoot;
+      list._tail = newTail;
+      list.__hash = undefined;
+      list.__altered = true;
+      return list;
+    }
+    return makeList(list._origin, list._capacity, list._level, newRoot, newTail);
+  }
+
+  function updateVNode(node, ownerID, level, index, value, didAlter) {
+    var idx = (index >>> level) & MASK;
+    var nodeHas = node && idx < node.array.length;
+    if (!nodeHas && value === undefined) {
+      return node;
+    }
+
+    var newNode;
+
+    if (level > 0) {
+      var lowerNode = node && node.array[idx];
+      var newLowerNode = updateVNode(lowerNode, ownerID, level - SHIFT, index, value, didAlter);
+      if (newLowerNode === lowerNode) {
+        return node;
+      }
+      newNode = editableVNode(node, ownerID);
+      newNode.array[idx] = newLowerNode;
+      return newNode;
+    }
+
+    if (nodeHas && node.array[idx] === value) {
+      return node;
+    }
+
+    SetRef(didAlter);
+
+    newNode = editableVNode(node, ownerID);
+    if (value === undefined && idx === newNode.array.length - 1) {
+      newNode.array.pop();
+    } else {
+      newNode.array[idx] = value;
+    }
+    return newNode;
+  }
+
+  function editableVNode(node, ownerID) {
+    if (ownerID && node && ownerID === node.ownerID) {
+      return node;
+    }
+    return new VNode(node ? node.array.slice() : [], ownerID);
+  }
+
+  function listNodeFor(list, rawIndex) {
+    if (rawIndex >= getTailOffset(list._capacity)) {
+      return list._tail;
+    }
+    if (rawIndex < 1 << (list._level + SHIFT)) {
+      var node = list._root;
+      var level = list._level;
+      while (node && level > 0) {
+        node = node.array[(rawIndex >>> level) & MASK];
+        level -= SHIFT;
+      }
+      return node;
+    }
+  }
+
+  function setListBounds(list, begin, end) {
+    var owner = list.__ownerID || new OwnerID();
+    var oldOrigin = list._origin;
+    var oldCapacity = list._capacity;
+    var newOrigin = oldOrigin + begin;
+    var newCapacity = end === undefined ? oldCapacity : end < 0 ? oldCapacity + end : oldOrigin + end;
+    if (newOrigin === oldOrigin && newCapacity === oldCapacity) {
+      return list;
+    }
+
+    // If it's going to end after it starts, it's empty.
+    if (newOrigin >= newCapacity) {
+      return list.clear();
+    }
+
+    var newLevel = list._level;
+    var newRoot = list._root;
+
+    // New origin might require creating a higher root.
+    var offsetShift = 0;
+    while (newOrigin + offsetShift < 0) {
+      newRoot = new VNode(newRoot && newRoot.array.length ? [undefined, newRoot] : [], owner);
+      newLevel += SHIFT;
+      offsetShift += 1 << newLevel;
+    }
+    if (offsetShift) {
+      newOrigin += offsetShift;
+      oldOrigin += offsetShift;
+      newCapacity += offsetShift;
+      oldCapacity += offsetShift;
+    }
+
+    var oldTailOffset = getTailOffset(oldCapacity);
+    var newTailOffset = getTailOffset(newCapacity);
+
+    // New size might require creating a higher root.
+    while (newTailOffset >= 1 << (newLevel + SHIFT)) {
+      newRoot = new VNode(newRoot && newRoot.array.length ? [newRoot] : [], owner);
+      newLevel += SHIFT;
+    }
+
+    // Locate or create the new tail.
+    var oldTail = list._tail;
+    var newTail = newTailOffset < oldTailOffset ?
+      listNodeFor(list, newCapacity - 1) :
+      newTailOffset > oldTailOffset ? new VNode([], owner) : oldTail;
+
+    // Merge Tail into tree.
+    if (oldTail && newTailOffset > oldTailOffset && newOrigin < oldCapacity && oldTail.array.length) {
+      newRoot = editableVNode(newRoot, owner);
+      var node = newRoot;
+      for (var level = newLevel; level > SHIFT; level -= SHIFT) {
+        var idx = (oldTailOffset >>> level) & MASK;
+        node = node.array[idx] = editableVNode(node.array[idx], owner);
+      }
+      node.array[(oldTailOffset >>> SHIFT) & MASK] = oldTail;
+    }
+
+    // If the size has been reduced, there's a chance the tail needs to be trimmed.
+    if (newCapacity < oldCapacity) {
+      newTail = newTail && newTail.removeAfter(owner, 0, newCapacity);
+    }
+
+    // If the new origin is within the tail, then we do not need a root.
+    if (newOrigin >= newTailOffset) {
+      newOrigin -= newTailOffset;
+      newCapacity -= newTailOffset;
+      newLevel = SHIFT;
+      newRoot = null;
+      newTail = newTail && newTail.removeBefore(owner, 0, newOrigin);
+
+    // Otherwise, if the root has been trimmed, garbage collect.
+    } else if (newOrigin > oldOrigin || newTailOffset < oldTailOffset) {
+      offsetShift = 0;
+
+      // Identify the new top root node of the subtree of the old root.
+      while (newRoot) {
+        var beginIndex = (newOrigin >>> newLevel) & MASK;
+        if (beginIndex !== (newTailOffset >>> newLevel) & MASK) {
+          break;
+        }
+        if (beginIndex) {
+          offsetShift += (1 << newLevel) * beginIndex;
+        }
+        newLevel -= SHIFT;
+        newRoot = newRoot.array[beginIndex];
+      }
+
+      // Trim the new sides of the new root.
+      if (newRoot && newOrigin > oldOrigin) {
+        newRoot = newRoot.removeBefore(owner, newLevel, newOrigin - offsetShift);
+      }
+      if (newRoot && newTailOffset < oldTailOffset) {
+        newRoot = newRoot.removeAfter(owner, newLevel, newTailOffset - offsetShift);
+      }
+      if (offsetShift) {
+        newOrigin -= offsetShift;
+        newCapacity -= offsetShift;
+      }
+    }
+
+    if (list.__ownerID) {
+      list.size = newCapacity - newOrigin;
+      list._origin = newOrigin;
+      list._capacity = newCapacity;
+      list._level = newLevel;
+      list._root = newRoot;
+      list._tail = newTail;
+      list.__hash = undefined;
+      list.__altered = true;
+      return list;
+    }
+    return makeList(newOrigin, newCapacity, newLevel, newRoot, newTail);
+  }
+
+  function mergeIntoListWith(list, merger, iterables) {
+    var iters = [];
+    var maxSize = 0;
+    for (var ii = 0; ii < iterables.length; ii++) {
+      var value = iterables[ii];
+      var iter = IndexedIterable(value);
+      if (iter.size > maxSize) {
+        maxSize = iter.size;
+      }
+      if (!isIterable(value)) {
+        iter = iter.map(function(v ) {return fromJS(v)});
+      }
+      iters.push(iter);
+    }
+    if (maxSize > list.size) {
+      list = list.setSize(maxSize);
+    }
+    return mergeIntoCollectionWith(list, merger, iters);
+  }
+
+  function getTailOffset(size) {
+    return size < SIZE ? 0 : (((size - 1) >>> SHIFT) << SHIFT);
+  }
+
+  createClass(OrderedMap, Map);
+
+    // @pragma Construction
+
+    function OrderedMap(value) {
+      return value === null || value === undefined ? emptyOrderedMap() :
+        isOrderedMap(value) ? value :
+        emptyOrderedMap().withMutations(function(map ) {
+          var iter = KeyedIterable(value);
+          assertNotInfinite(iter.size);
+          iter.forEach(function(v, k)  {return map.set(k, v)});
+        });
+    }
+
+    OrderedMap.of = function(/*...values*/) {
+      return this(arguments);
+    };
+
+    OrderedMap.prototype.toString = function() {
+      return this.__toString('OrderedMap {', '}');
+    };
+
+    // @pragma Access
+
+    OrderedMap.prototype.get = function(k, notSetValue) {
+      var index = this._map.get(k);
+      return index !== undefined ? this._list.get(index)[1] : notSetValue;
+    };
+
+    // @pragma Modification
+
+    OrderedMap.prototype.clear = function() {
+      if (this.size === 0) {
+        return this;
+      }
+      if (this.__ownerID) {
+        this.size = 0;
+        this._map.clear();
+        this._list.clear();
+        return this;
+      }
+      return emptyOrderedMap();
+    };
+
+    OrderedMap.prototype.set = function(k, v) {
+      return updateOrderedMap(this, k, v);
+    };
+
+    OrderedMap.prototype.remove = function(k) {
+      return updateOrderedMap(this, k, NOT_SET);
+    };
+
+    OrderedMap.prototype.wasAltered = function() {
+      return this._map.wasAltered() || this._list.wasAltered();
+    };
+
+    OrderedMap.prototype.__iterate = function(fn, reverse) {var this$0 = this;
+      return this._list.__iterate(
+        function(entry ) {return entry && fn(entry[1], entry[0], this$0)},
+        reverse
+      );
+    };
+
+    OrderedMap.prototype.__iterator = function(type, reverse) {
+      return this._list.fromEntrySeq().__iterator(type, reverse);
+    };
+
+    OrderedMap.prototype.__ensureOwner = function(ownerID) {
+      if (ownerID === this.__ownerID) {
+        return this;
+      }
+      var newMap = this._map.__ensureOwner(ownerID);
+      var newList = this._list.__ensureOwner(ownerID);
+      if (!ownerID) {
+        this.__ownerID = ownerID;
+        this._map = newMap;
+        this._list = newList;
+        return this;
+      }
+      return makeOrderedMap(newMap, newList, ownerID, this.__hash);
+    };
+
+
+  function isOrderedMap(maybeOrderedMap) {
+    return isMap(maybeOrderedMap) && isOrdered(maybeOrderedMap);
+  }
+
+  OrderedMap.isOrderedMap = isOrderedMap;
+
+  OrderedMap.prototype[IS_ORDERED_SENTINEL] = true;
+  OrderedMap.prototype[DELETE] = OrderedMap.prototype.remove;
+
+
+
+  function makeOrderedMap(map, list, ownerID, hash) {
+    var omap = Object.create(OrderedMap.prototype);
+    omap.size = map ? map.size : 0;
+    omap._map = map;
+    omap._list = list;
+    omap.__ownerID = ownerID;
+    omap.__hash = hash;
+    return omap;
+  }
+
+  var EMPTY_ORDERED_MAP;
+  function emptyOrderedMap() {
+    return EMPTY_ORDERED_MAP || (EMPTY_ORDERED_MAP = makeOrderedMap(emptyMap(), emptyList()));
+  }
+
+  function updateOrderedMap(omap, k, v) {
+    var map = omap._map;
+    var list = omap._list;
+    var i = map.get(k);
+    var has = i !== undefined;
+    var newMap;
+    var newList;
+    if (v === NOT_SET) { // removed
+      if (!has) {
+        return omap;
+      }
+      if (list.size >= SIZE && list.size >= map.size * 2) {
+        newList = list.filter(function(entry, idx)  {return entry !== undefined && i !== idx});
+        newMap = newList.toKeyedSeq().map(function(entry ) {return entry[0]}).flip().toMap();
+        if (omap.__ownerID) {
+          newMap.__ownerID = newList.__ownerID = omap.__ownerID;
+        }
+      } else {
+        newMap = map.remove(k);
+        newList = i === list.size - 1 ? list.pop() : list.set(i, undefined);
+      }
+    } else {
+      if (has) {
+        if (v === list.get(i)[1]) {
+          return omap;
+        }
+        newMap = map;
+        newList = list.set(i, [k, v]);
+      } else {
+        newMap = map.set(k, list.size);
+        newList = list.set(list.size, [k, v]);
+      }
+    }
+    if (omap.__ownerID) {
+      omap.size = newMap.size;
+      omap._map = newMap;
+      omap._list = newList;
+      omap.__hash = undefined;
+      return omap;
+    }
+    return makeOrderedMap(newMap, newList);
+  }
+
+  createClass(Stack, IndexedCollection);
+
+    // @pragma Construction
+
+    function Stack(value) {
+      return value === null || value === undefined ? emptyStack() :
+        isStack(value) ? value :
+        emptyStack().unshiftAll(value);
+    }
+
+    Stack.of = function(/*...values*/) {
+      return this(arguments);
+    };
+
+    Stack.prototype.toString = function() {
+      return this.__toString('Stack [', ']');
+    };
+
+    // @pragma Access
+
+    Stack.prototype.get = function(index, notSetValue) {
+      var head = this._head;
+      while (head && index--) {
+        head = head.next;
+      }
+      return head ? head.value : notSetValue;
+    };
+
+    Stack.prototype.peek = function() {
+      return this._head && this._head.value;
+    };
+
+    // @pragma Modification
+
+    Stack.prototype.push = function(/*...values*/) {
+      if (arguments.length === 0) {
+        return this;
+      }
+      var newSize = this.size + arguments.length;
+      var head = this._head;
+      for (var ii = arguments.length - 1; ii >= 0; ii--) {
+        head = {
+          value: arguments[ii],
+          next: head
+        };
+      }
+      if (this.__ownerID) {
+        this.size = newSize;
+        this._head = head;
+        this.__hash = undefined;
+        this.__altered = true;
+        return this;
+      }
+      return makeStack(newSize, head);
+    };
+
+    Stack.prototype.pushAll = function(iter) {
+      iter = IndexedIterable(iter);
+      if (iter.size === 0) {
+        return this;
+      }
+      assertNotInfinite(iter.size);
+      var newSize = this.size;
+      var head = this._head;
+      iter.reverse().forEach(function(value ) {
+        newSize++;
+        head = {
+          value: value,
+          next: head
+        };
+      });
+      if (this.__ownerID) {
+        this.size = newSize;
+        this._head = head;
+        this.__hash = undefined;
+        this.__altered = true;
+        return this;
+      }
+      return makeStack(newSize, head);
+    };
+
+    Stack.prototype.pop = function() {
+      return this.slice(1);
+    };
+
+    Stack.prototype.unshift = function(/*...values*/) {
+      return this.push.apply(this, arguments);
+    };
+
+    Stack.prototype.unshiftAll = function(iter) {
+      return this.pushAll(iter);
+    };
+
+    Stack.prototype.shift = function() {
+      return this.pop.apply(this, arguments);
+    };
+
+    Stack.prototype.clear = function() {
+      if (this.size === 0) {
+        return this;
+      }
+      if (this.__ownerID) {
+        this.size = 0;
+        this._head = undefined;
+        this.__hash = undefined;
+        this.__altered = true;
+        return this;
+      }
+      return emptyStack();
+    };
+
+    Stack.prototype.slice = function(begin, end) {
+      if (wholeSlice(begin, end, this.size)) {
+        return this;
+      }
+      var resolvedBegin = resolveBegin(begin, this.size);
+      var resolvedEnd = resolveEnd(end, this.size);
+      if (resolvedEnd !== this.size) {
+        // super.slice(begin, end);
+        return IndexedCollection.prototype.slice.call(this, begin, end);
+      }
+      var newSize = this.size - resolvedBegin;
+      var head = this._head;
+      while (resolvedBegin--) {
+        head = head.next;
+      }
+      if (this.__ownerID) {
+        this.size = newSize;
+        this._head = head;
+        this.__hash = undefined;
+        this.__altered = true;
+        return this;
+      }
+      return makeStack(newSize, head);
+    };
+
+    // @pragma Mutability
+
+    Stack.prototype.__ensureOwner = function(ownerID) {
+      if (ownerID === this.__ownerID) {
+        return this;
+      }
+      if (!ownerID) {
+        this.__ownerID = ownerID;
+        this.__altered = false;
+        return this;
+      }
+      return makeStack(this.size, this._head, ownerID, this.__hash);
+    };
+
+    // @pragma Iteration
+
+    Stack.prototype.__iterate = function(fn, reverse) {
+      if (reverse) {
+        return this.toSeq().cacheResult.__iterate(fn, reverse);
+      }
+      var iterations = 0;
+      var node = this._head;
+      while (node) {
+        if (fn(node.value, iterations++, this) === false) {
+          break;
+        }
+        node = node.next;
+      }
+      return iterations;
+    };
+
+    Stack.prototype.__iterator = function(type, reverse) {
+      if (reverse) {
+        return this.toSeq().cacheResult().__iterator(type, reverse);
+      }
+      var iterations = 0;
+      var node = this._head;
+      return new Iterator(function()  {
+        if (node) {
+          var value = node.value;
+          node = node.next;
+          return iteratorValue(type, iterations++, value);
+        }
+        return iteratorDone();
+      });
+    };
+
+
+  function isStack(maybeStack) {
+    return !!(maybeStack && maybeStack[IS_STACK_SENTINEL]);
+  }
+
+  Stack.isStack = isStack;
+
+  var IS_STACK_SENTINEL = '@@__IMMUTABLE_STACK__@@';
+
+  var StackPrototype = Stack.prototype;
+  StackPrototype[IS_STACK_SENTINEL] = true;
+  StackPrototype.withMutations = MapPrototype.withMutations;
+  StackPrototype.asMutable = MapPrototype.asMutable;
+  StackPrototype.asImmutable = MapPrototype.asImmutable;
+  StackPrototype.wasAltered = MapPrototype.wasAltered;
+
+
+  function makeStack(size, head, ownerID, hash) {
+    var map = Object.create(StackPrototype);
+    map.size = size;
+    map._head = head;
+    map.__ownerID = ownerID;
+    map.__hash = hash;
+    map.__altered = false;
+    return map;
+  }
+
+  var EMPTY_STACK;
+  function emptyStack() {
+    return EMPTY_STACK || (EMPTY_STACK = makeStack(0));
+  }
+
+  createClass(Set, SetCollection);
+
+    // @pragma Construction
+
+    function Set(value) {
+      return value === null || value === undefined ? emptySet() :
+        isSet(value) ? value :
+        emptySet().withMutations(function(set ) {
+          var iter = SetIterable(value);
+          assertNotInfinite(iter.size);
+          iter.forEach(function(v ) {return set.add(v)});
+        });
+    }
+
+    Set.of = function(/*...values*/) {
+      return this(arguments);
+    };
+
+    Set.fromKeys = function(value) {
+      return this(KeyedIterable(value).keySeq());
+    };
+
+    Set.prototype.toString = function() {
+      return this.__toString('Set {', '}');
+    };
+
+    // @pragma Access
+
+    Set.prototype.has = function(value) {
+      return this._map.has(value);
+    };
+
+    // @pragma Modification
+
+    Set.prototype.add = function(value) {
+      return updateSet(this, this._map.set(value, true));
+    };
+
+    Set.prototype.remove = function(value) {
+      return updateSet(this, this._map.remove(value));
+    };
+
+    Set.prototype.clear = function() {
+      return updateSet(this, this._map.clear());
+    };
+
+    // @pragma Composition
+
+    Set.prototype.union = function() {var iters = SLICE$0.call(arguments, 0);
+      iters = iters.filter(function(x ) {return x.size !== 0});
+      if (iters.length === 0) {
+        return this;
+      }
+      if (this.size === 0 && iters.length === 1) {
+        return this.constructor(iters[0]);
+      }
+      return this.withMutations(function(set ) {
+        for (var ii = 0; ii < iters.length; ii++) {
+          SetIterable(iters[ii]).forEach(function(value ) {return set.add(value)});
+        }
+      });
+    };
+
+    Set.prototype.intersect = function() {var iters = SLICE$0.call(arguments, 0);
+      if (iters.length === 0) {
+        return this;
+      }
+      iters = iters.map(function(iter ) {return SetIterable(iter)});
+      var originalSet = this;
+      return this.withMutations(function(set ) {
+        originalSet.forEach(function(value ) {
+          if (!iters.every(function(iter ) {return iter.contains(value)})) {
+            set.remove(value);
+          }
+        });
+      });
+    };
+
+    Set.prototype.subtract = function() {var iters = SLICE$0.call(arguments, 0);
+      if (iters.length === 0) {
+        return this;
+      }
+      iters = iters.map(function(iter ) {return SetIterable(iter)});
+      var originalSet = this;
+      return this.withMutations(function(set ) {
+        originalSet.forEach(function(value ) {
+          if (iters.some(function(iter ) {return iter.contains(value)})) {
+            set.remove(value);
+          }
+        });
+      });
+    };
+
+    Set.prototype.merge = function() {
+      return this.union.apply(this, arguments);
+    };
+
+    Set.prototype.mergeWith = function(merger) {var iters = SLICE$0.call(arguments, 1);
+      return this.union.apply(this, iters);
+    };
+
+    Set.prototype.sort = function(comparator) {
+      // Late binding
+      return OrderedSet(sortFactory(this, comparator));
+    };
+
+    Set.prototype.sortBy = function(mapper, comparator) {
+      // Late binding
+      return OrderedSet(sortFactory(this, comparator, mapper));
+    };
+
+    Set.prototype.wasAltered = function() {
+      return this._map.wasAltered();
+    };
+
+    Set.prototype.__iterate = function(fn, reverse) {var this$0 = this;
+      return this._map.__iterate(function(_, k)  {return fn(k, k, this$0)}, reverse);
+    };
+
+    Set.prototype.__iterator = function(type, reverse) {
+      return this._map.map(function(_, k)  {return k}).__iterator(type, reverse);
+    };
+
+    Set.prototype.__ensureOwner = function(ownerID) {
+      if (ownerID === this.__ownerID) {
+        return this;
+      }
+      var newMap = this._map.__ensureOwner(ownerID);
+      if (!ownerID) {
+        this.__ownerID = ownerID;
+        this._map = newMap;
+        return this;
+      }
+      return this.__make(newMap, ownerID);
+    };
+
+
+  function isSet(maybeSet) {
+    return !!(maybeSet && maybeSet[IS_SET_SENTINEL]);
+  }
+
+  Set.isSet = isSet;
+
+  var IS_SET_SENTINEL = '@@__IMMUTABLE_SET__@@';
+
+  var SetPrototype = Set.prototype;
+  SetPrototype[IS_SET_SENTINEL] = true;
+  SetPrototype[DELETE] = SetPrototype.remove;
+  SetPrototype.mergeDeep = SetPrototype.merge;
+  SetPrototype.mergeDeepWith = SetPrototype.mergeWith;
+  SetPrototype.withMutations = MapPrototype.withMutations;
+  SetPrototype.asMutable = MapPrototype.asMutable;
+  SetPrototype.asImmutable = MapPrototype.asImmutable;
+
+  SetPrototype.__empty = emptySet;
+  SetPrototype.__make = makeSet;
+
+  function updateSet(set, newMap) {
+    if (set.__ownerID) {
+      set.size = newMap.size;
+      set._map = newMap;
+      return set;
+    }
+    return newMap === set._map ? set :
+      newMap.size === 0 ? set.__empty() :
+      set.__make(newMap);
+  }
+
+  function makeSet(map, ownerID) {
+    var set = Object.create(SetPrototype);
+    set.size = map ? map.size : 0;
+    set._map = map;
+    set.__ownerID = ownerID;
+    return set;
+  }
+
+  var EMPTY_SET;
+  function emptySet() {
+    return EMPTY_SET || (EMPTY_SET = makeSet(emptyMap()));
+  }
+
+  createClass(OrderedSet, Set);
+
+    // @pragma Construction
+
+    function OrderedSet(value) {
+      return value === null || value === undefined ? emptyOrderedSet() :
+        isOrderedSet(value) ? value :
+        emptyOrderedSet().withMutations(function(set ) {
+          var iter = SetIterable(value);
+          assertNotInfinite(iter.size);
+          iter.forEach(function(v ) {return set.add(v)});
+        });
+    }
+
+    OrderedSet.of = function(/*...values*/) {
+      return this(arguments);
+    };
+
+    OrderedSet.fromKeys = function(value) {
+      return this(KeyedIterable(value).keySeq());
+    };
+
+    OrderedSet.prototype.toString = function() {
+      return this.__toString('OrderedSet {', '}');
+    };
+
+
+  function isOrderedSet(maybeOrderedSet) {
+    return isSet(maybeOrderedSet) && isOrdered(maybeOrderedSet);
+  }
+
+  OrderedSet.isOrderedSet = isOrderedSet;
+
+  var OrderedSetPrototype = OrderedSet.prototype;
+  OrderedSetPrototype[IS_ORDERED_SENTINEL] = true;
+
+  OrderedSetPrototype.__empty = emptyOrderedSet;
+  OrderedSetPrototype.__make = makeOrderedSet;
+
+  function makeOrderedSet(map, ownerID) {
+    var set = Object.create(OrderedSetPrototype);
+    set.size = map ? map.size : 0;
+    set._map = map;
+    set.__ownerID = ownerID;
+    return set;
+  }
+
+  var EMPTY_ORDERED_SET;
+  function emptyOrderedSet() {
+    return EMPTY_ORDERED_SET || (EMPTY_ORDERED_SET = makeOrderedSet(emptyOrderedMap()));
+  }
+
+  createClass(Record, KeyedCollection);
+
+    function Record(defaultValues, name) {
+      var RecordType = function Record(values) {
+        if (!(this instanceof RecordType)) {
+          return new RecordType(values);
+        }
+        this._map = Map(values);
+      };
+
+      var keys = Object.keys(defaultValues);
+
+      var RecordTypePrototype = RecordType.prototype = Object.create(RecordPrototype);
+      RecordTypePrototype.constructor = RecordType;
+      name && (RecordTypePrototype._name = name);
+      RecordTypePrototype._defaultValues = defaultValues;
+      RecordTypePrototype._keys = keys;
+      RecordTypePrototype.size = keys.length;
+
+      try {
+        keys.forEach(function(key ) {
+          Object.defineProperty(RecordType.prototype, key, {
+            get: function() {
+              return this.get(key);
+            },
+            set: function(value) {
+              invariant(this.__ownerID, 'Cannot set on an immutable record.');
+              this.set(key, value);
+            }
+          });
+        });
+      } catch (error) {
+        // Object.defineProperty failed. Probably IE8.
+      }
+
+      return RecordType;
+    }
+
+    Record.prototype.toString = function() {
+      return this.__toString(recordName(this) + ' {', '}');
+    };
+
+    // @pragma Access
+
+    Record.prototype.has = function(k) {
+      return this._defaultValues.hasOwnProperty(k);
+    };
+
+    Record.prototype.get = function(k, notSetValue) {
+      if (!this.has(k)) {
+        return notSetValue;
+      }
+      var defaultVal = this._defaultValues[k];
+      return this._map ? this._map.get(k, defaultVal) : defaultVal;
+    };
+
+    // @pragma Modification
+
+    Record.prototype.clear = function() {
+      if (this.__ownerID) {
+        this._map && this._map.clear();
+        return this;
+      }
+      var SuperRecord = Object.getPrototypeOf(this).constructor;
+      return SuperRecord._empty || (SuperRecord._empty = makeRecord(this, emptyMap()));
+    };
+
+    Record.prototype.set = function(k, v) {
+      if (!this.has(k)) {
+        throw new Error('Cannot set unknown key "' + k + '" on ' + recordName(this));
+      }
+      var newMap = this._map && this._map.set(k, v);
+      if (this.__ownerID || newMap === this._map) {
+        return this;
+      }
+      return makeRecord(this, newMap);
+    };
+
+    Record.prototype.remove = function(k) {
+      if (!this.has(k)) {
+        return this;
+      }
+      var newMap = this._map && this._map.remove(k);
+      if (this.__ownerID || newMap === this._map) {
+        return this;
+      }
+      return makeRecord(this, newMap);
+    };
+
+    Record.prototype.wasAltered = function() {
+      return this._map.wasAltered();
+    };
+
+    Record.prototype.__iterator = function(type, reverse) {var this$0 = this;
+      return KeyedIterable(this._defaultValues).map(function(_, k)  {return this$0.get(k)}).__iterator(type, reverse);
+    };
+
+    Record.prototype.__iterate = function(fn, reverse) {var this$0 = this;
+      return KeyedIterable(this._defaultValues).map(function(_, k)  {return this$0.get(k)}).__iterate(fn, reverse);
+    };
+
+    Record.prototype.__ensureOwner = function(ownerID) {
+      if (ownerID === this.__ownerID) {
+        return this;
+      }
+      var newMap = this._map && this._map.__ensureOwner(ownerID);
+      if (!ownerID) {
+        this.__ownerID = ownerID;
+        this._map = newMap;
+        return this;
+      }
+      return makeRecord(this, newMap, ownerID);
+    };
+
+
+  var RecordPrototype = Record.prototype;
+  RecordPrototype[DELETE] = RecordPrototype.remove;
+  RecordPrototype.deleteIn =
+  RecordPrototype.removeIn = MapPrototype.removeIn;
+  RecordPrototype.merge = MapPrototype.merge;
+  RecordPrototype.mergeWith = MapPrototype.mergeWith;
+  RecordPrototype.mergeIn = MapPrototype.mergeIn;
+  RecordPrototype.mergeDeep = MapPrototype.mergeDeep;
+  RecordPrototype.mergeDeepWith = MapPrototype.mergeDeepWith;
+  RecordPrototype.mergeDeepIn = MapPrototype.mergeDeepIn;
+  RecordPrototype.setIn = MapPrototype.setIn;
+  RecordPrototype.update = MapPrototype.update;
+  RecordPrototype.updateIn = MapPrototype.updateIn;
+  RecordPrototype.withMutations = MapPrototype.withMutations;
+  RecordPrototype.asMutable = MapPrototype.asMutable;
+  RecordPrototype.asImmutable = MapPrototype.asImmutable;
+
+
+  function makeRecord(likeRecord, map, ownerID) {
+    var record = Object.create(Object.getPrototypeOf(likeRecord));
+    record._map = map;
+    record.__ownerID = ownerID;
+    return record;
+  }
+
+  function recordName(record) {
+    return record._name || record.constructor.name;
+  }
+
+  function deepEqual(a, b) {
+    if (a === b) {
+      return true;
+    }
+
+    if (
+      !isIterable(b) ||
+      a.size !== undefined && b.size !== undefined && a.size !== b.size ||
+      a.__hash !== undefined && b.__hash !== undefined && a.__hash !== b.__hash ||
+      isKeyed(a) !== isKeyed(b) ||
+      isIndexed(a) !== isIndexed(b) ||
+      isOrdered(a) !== isOrdered(b)
+    ) {
+      return false;
+    }
+
+    if (a.size === 0 && b.size === 0) {
+      return true;
+    }
+
+    var notAssociative = !isAssociative(a);
+
+    if (isOrdered(a)) {
+      var entries = a.entries();
+      return b.every(function(v, k)  {
+        var entry = entries.next().value;
+        return entry && is(entry[1], v) && (notAssociative || is(entry[0], k));
+      }) && entries.next().done;
+    }
+
+    var flipped = false;
+
+    if (a.size === undefined) {
+      if (b.size === undefined) {
+        a.cacheResult();
+      } else {
+        flipped = true;
+        var _ = a;
+        a = b;
+        b = _;
+      }
+    }
+
+    var allEqual = true;
+    var bSize = b.__iterate(function(v, k)  {
+      if (notAssociative ? !a.has(v) :
+          flipped ? !is(v, a.get(k, NOT_SET)) : !is(a.get(k, NOT_SET), v)) {
+        allEqual = false;
+        return false;
+      }
+    });
+
+    return allEqual && a.size === bSize;
+  }
+
+  createClass(Range, IndexedSeq);
+
+    function Range(start, end, step) {
+      if (!(this instanceof Range)) {
+        return new Range(start, end, step);
+      }
+      invariant(step !== 0, 'Cannot step a Range by 0');
+      start = start || 0;
+      if (end === undefined) {
+        end = Infinity;
+      }
+      step = step === undefined ? 1 : Math.abs(step);
+      if (end < start) {
+        step = -step;
+      }
+      this._start = start;
+      this._end = end;
+      this._step = step;
+      this.size = Math.max(0, Math.ceil((end - start) / step - 1) + 1);
+      if (this.size === 0) {
+        if (EMPTY_RANGE) {
+          return EMPTY_RANGE;
+        }
+        EMPTY_RANGE = this;
+      }
+    }
+
+    Range.prototype.toString = function() {
+      if (this.size === 0) {
+        return 'Range []';
+      }
+      return 'Range [ ' +
+        this._start + '...' + this._end +
+        (this._step > 1 ? ' by ' + this._step : '') +
+      ' ]';
+    };
+
+    Range.prototype.get = function(index, notSetValue) {
+      return this.has(index) ?
+        this._start + wrapIndex(this, index) * this._step :
+        notSetValue;
+    };
+
+    Range.prototype.contains = function(searchValue) {
+      var possibleIndex = (searchValue - this._start) / this._step;
+      return possibleIndex >= 0 &&
+        possibleIndex < this.size &&
+        possibleIndex === Math.floor(possibleIndex);
+    };
+
+    Range.prototype.slice = function(begin, end) {
+      if (wholeSlice(begin, end, this.size)) {
+        return this;
+      }
+      begin = resolveBegin(begin, this.size);
+      end = resolveEnd(end, this.size);
+      if (end <= begin) {
+        return new Range(0, 0);
+      }
+      return new Range(this.get(begin, this._end), this.get(end, this._end), this._step);
+    };
+
+    Range.prototype.indexOf = function(searchValue) {
+      var offsetValue = searchValue - this._start;
+      if (offsetValue % this._step === 0) {
+        var index = offsetValue / this._step;
+        if (index >= 0 && index < this.size) {
+          return index
+        }
+      }
+      return -1;
+    };
+
+    Range.prototype.lastIndexOf = function(searchValue) {
+      return this.indexOf(searchValue);
+    };
+
+    Range.prototype.__iterate = function(fn, reverse) {
+      var maxIndex = this.size - 1;
+      var step = this._step;
+      var value = reverse ? this._start + maxIndex * step : this._start;
+      for (var ii = 0; ii <= maxIndex; ii++) {
+        if (fn(value, ii, this) === false) {
+          return ii + 1;
+        }
+        value += reverse ? -step : step;
+      }
+      return ii;
+    };
+
+    Range.prototype.__iterator = function(type, reverse) {
+      var maxIndex = this.size - 1;
+      var step = this._step;
+      var value = reverse ? this._start + maxIndex * step : this._start;
+      var ii = 0;
+      return new Iterator(function()  {
+        var v = value;
+        value += reverse ? -step : step;
+        return ii > maxIndex ? iteratorDone() : iteratorValue(type, ii++, v);
+      });
+    };
+
+    Range.prototype.equals = function(other) {
+      return other instanceof Range ?
+        this._start === other._start &&
+        this._end === other._end &&
+        this._step === other._step :
+        deepEqual(this, other);
+    };
+
+
+  var EMPTY_RANGE;
+
+  createClass(Repeat, IndexedSeq);
+
+    function Repeat(value, times) {
+      if (!(this instanceof Repeat)) {
+        return new Repeat(value, times);
+      }
+      this._value = value;
+      this.size = times === undefined ? Infinity : Math.max(0, times);
+      if (this.size === 0) {
+        if (EMPTY_REPEAT) {
+          return EMPTY_REPEAT;
+        }
+        EMPTY_REPEAT = this;
+      }
+    }
+
+    Repeat.prototype.toString = function() {
+      if (this.size === 0) {
+        return 'Repeat []';
+      }
+      return 'Repeat [ ' + this._value + ' ' + this.size + ' times ]';
+    };
+
+    Repeat.prototype.get = function(index, notSetValue) {
+      return this.has(index) ? this._value : notSetValue;
+    };
+
+    Repeat.prototype.contains = function(searchValue) {
+      return is(this._value, searchValue);
+    };
+
+    Repeat.prototype.slice = function(begin, end) {
+      var size = this.size;
+      return wholeSlice(begin, end, size) ? this :
+        new Repeat(this._value, resolveEnd(end, size) - resolveBegin(begin, size));
+    };
+
+    Repeat.prototype.reverse = function() {
+      return this;
+    };
+
+    Repeat.prototype.indexOf = function(searchValue) {
+      if (is(this._value, searchValue)) {
+        return 0;
+      }
+      return -1;
+    };
+
+    Repeat.prototype.lastIndexOf = function(searchValue) {
+      if (is(this._value, searchValue)) {
+        return this.size;
+      }
+      return -1;
+    };
+
+    Repeat.prototype.__iterate = function(fn, reverse) {
+      for (var ii = 0; ii < this.size; ii++) {
+        if (fn(this._value, ii, this) === false) {
+          return ii + 1;
+        }
+      }
+      return ii;
+    };
+
+    Repeat.prototype.__iterator = function(type, reverse) {var this$0 = this;
+      var ii = 0;
+      return new Iterator(function() 
+        {return ii < this$0.size ? iteratorValue(type, ii++, this$0._value) : iteratorDone()}
+      );
+    };
+
+    Repeat.prototype.equals = function(other) {
+      return other instanceof Repeat ?
+        is(this._value, other._value) :
+        deepEqual(other);
+    };
+
+
+  var EMPTY_REPEAT;
+
+  /**
+   * Contributes additional methods to a constructor
+   */
+  function mixin(ctor, methods) {
+    var keyCopier = function(key ) { ctor.prototype[key] = methods[key]; };
+    Object.keys(methods).forEach(keyCopier);
+    Object.getOwnPropertySymbols &&
+      Object.getOwnPropertySymbols(methods).forEach(keyCopier);
+    return ctor;
+  }
+
+  Iterable.Iterator = Iterator;
+
+  mixin(Iterable, {
+
+    // ### Conversion to other types
+
+    toArray: function() {
+      assertNotInfinite(this.size);
+      var array = new Array(this.size || 0);
+      this.valueSeq().__iterate(function(v, i)  { array[i] = v; });
+      return array;
+    },
+
+    toIndexedSeq: function() {
+      return new ToIndexedSequence(this);
+    },
+
+    toJS: function() {
+      return this.toSeq().map(
+        function(value ) {return value && typeof value.toJS === 'function' ? value.toJS() : value}
+      ).__toJS();
+    },
+
+    toJSON: function() {
+      return this.toSeq().map(
+        function(value ) {return value && typeof value.toJSON === 'function' ? value.toJSON() : value}
+      ).__toJS();
+    },
+
+    toKeyedSeq: function() {
+      return new ToKeyedSequence(this, true);
+    },
+
+    toMap: function() {
+      // Use Late Binding here to solve the circular dependency.
+      return Map(this.toKeyedSeq());
+    },
+
+    toObject: function() {
+      assertNotInfinite(this.size);
+      var object = {};
+      this.__iterate(function(v, k)  { object[k] = v; });
+      return object;
+    },
+
+    toOrderedMap: function() {
+      // Use Late Binding here to solve the circular dependency.
+      return OrderedMap(this.toKeyedSeq());
+    },
+
+    toOrderedSet: function() {
+      // Use Late Binding here to solve the circular dependency.
+      return OrderedSet(isKeyed(this) ? this.valueSeq() : this);
+    },
+
+    toSet: function() {
+      // Use Late Binding here to solve the circular dependency.
+      return Set(isKeyed(this) ? this.valueSeq() : this);
+    },
+
+    toSetSeq: function() {
+      return new ToSetSequence(this);
+    },
+
+    toSeq: function() {
+      return isIndexed(this) ? this.toIndexedSeq() :
+        isKeyed(this) ? this.toKeyedSeq() :
+        this.toSetSeq();
+    },
+
+    toStack: function() {
+      // Use Late Binding here to solve the circular dependency.
+      return Stack(isKeyed(this) ? this.valueSeq() : this);
+    },
+
+    toList: function() {
+      // Use Late Binding here to solve the circular dependency.
+      return List(isKeyed(this) ? this.valueSeq() : this);
+    },
+
+
+    // ### Common JavaScript methods and properties
+
+    toString: function() {
+      return '[Iterable]';
+    },
+
+    __toString: function(head, tail) {
+      if (this.size === 0) {
+        return head + tail;
+      }
+      return head + ' ' + this.toSeq().map(this.__toStringMapper).join(', ') + ' ' + tail;
+    },
+
+
+    // ### ES6 Collection methods (ES6 Array and Map)
+
+    concat: function() {var values = SLICE$0.call(arguments, 0);
+      return reify(this, concatFactory(this, values));
+    },
+
+    contains: function(searchValue) {
+      return this.some(function(value ) {return is(value, searchValue)});
+    },
+
+    entries: function() {
+      return this.__iterator(ITERATE_ENTRIES);
+    },
+
+    every: function(predicate, context) {
+      assertNotInfinite(this.size);
+      var returnValue = true;
+      this.__iterate(function(v, k, c)  {
+        if (!predicate.call(context, v, k, c)) {
+          returnValue = false;
+          return false;
+        }
+      });
+      return returnValue;
+    },
+
+    filter: function(predicate, context) {
+      return reify(this, filterFactory(this, predicate, context, true));
+    },
+
+    find: function(predicate, context, notSetValue) {
+      var entry = this.findEntry(predicate, context);
+      return entry ? entry[1] : notSetValue;
+    },
+
+    findEntry: function(predicate, context) {
+      var found;
+      this.__iterate(function(v, k, c)  {
+        if (predicate.call(context, v, k, c)) {
+          found = [k, v];
+          return false;
+        }
+      });
+      return found;
+    },
+
+    findLastEntry: function(predicate, context) {
+      return this.toSeq().reverse().findEntry(predicate, context);
+    },
+
+    forEach: function(sideEffect, context) {
+      assertNotInfinite(this.size);
+      return this.__iterate(context ? sideEffect.bind(context) : sideEffect);
+    },
+
+    join: function(separator) {
+      assertNotInfinite(this.size);
+      separator = separator !== undefined ? '' + separator : ',';
+      var joined = '';
+      var isFirst = true;
+      this.__iterate(function(v ) {
+        isFirst ? (isFirst = false) : (joined += separator);
+        joined += v !== null && v !== undefined ? v : '';
+      });
+      return joined;
+    },
+
+    keys: function() {
+      return this.__iterator(ITERATE_KEYS);
+    },
+
+    map: function(mapper, context) {
+      return reify(this, mapFactory(this, mapper, context));
+    },
+
+    reduce: function(reducer, initialReduction, context) {
+      assertNotInfinite(this.size);
+      var reduction;
+      var useFirst;
+      if (arguments.length < 2) {
+        useFirst = true;
+      } else {
+        reduction = initialReduction;
+      }
+      this.__iterate(function(v, k, c)  {
+        if (useFirst) {
+          useFirst = false;
+          reduction = v;
+        } else {
+          reduction = reducer.call(context, reduction, v, k, c);
+        }
+      });
+      return reduction;
+    },
+
+    reduceRight: function(reducer, initialReduction, context) {
+      var reversed = this.toKeyedSeq().reverse();
+      return reversed.reduce.apply(reversed, arguments);
+    },
+
+    reverse: function() {
+      return reify(this, reverseFactory(this, true));
+    },
+
+    slice: function(begin, end) {
+      return reify(this, sliceFactory(this, begin, end, true));
+    },
+
+    some: function(predicate, context) {
+      return !this.every(not(predicate), context);
+    },
+
+    sort: function(comparator) {
+      return reify(this, sortFactory(this, comparator));
+    },
+
+    values: function() {
+      return this.__iterator(ITERATE_VALUES);
+    },
+
+
+    // ### More sequential methods
+
+    butLast: function() {
+      return this.slice(0, -1);
+    },
+
+    isEmpty: function() {
+      return this.size !== undefined ? this.size === 0 : !this.some(function()  {return true});
+    },
+
+    count: function(predicate, context) {
+      return ensureSize(
+        predicate ? this.toSeq().filter(predicate, context) : this
+      );
+    },
+
+    countBy: function(grouper, context) {
+      return countByFactory(this, grouper, context);
+    },
+
+    equals: function(other) {
+      return deepEqual(this, other);
+    },
+
+    entrySeq: function() {
+      var iterable = this;
+      if (iterable._cache) {
+        // We cache as an entries array, so we can just return the cache!
+        return new ArraySeq(iterable._cache);
+      }
+      var entriesSequence = iterable.toSeq().map(entryMapper).toIndexedSeq();
+      entriesSequence.fromEntrySeq = function()  {return iterable.toSeq()};
+      return entriesSequence;
+    },
+
+    filterNot: function(predicate, context) {
+      return this.filter(not(predicate), context);
+    },
+
+    findLast: function(predicate, context, notSetValue) {
+      return this.toKeyedSeq().reverse().find(predicate, context, notSetValue);
+    },
+
+    first: function() {
+      return this.find(returnTrue);
+    },
+
+    flatMap: function(mapper, context) {
+      return reify(this, flatMapFactory(this, mapper, context));
+    },
+
+    flatten: function(depth) {
+      return reify(this, flattenFactory(this, depth, true));
+    },
+
+    fromEntrySeq: function() {
+      return new FromEntriesSequence(this);
+    },
+
+    get: function(searchKey, notSetValue) {
+      return this.find(function(_, key)  {return is(key, searchKey)}, undefined, notSetValue);
+    },
+
+    getIn: function(searchKeyPath, notSetValue) {
+      var nested = this;
+      // Note: in an ES6 environment, we would prefer:
+      // for (var key of searchKeyPath) {
+      var iter = forceIterator(searchKeyPath);
+      var step;
+      while (!(step = iter.next()).done) {
+        var key = step.value;
+        nested = nested && nested.get ? nested.get(key, NOT_SET) : NOT_SET;
+        if (nested === NOT_SET) {
+          return notSetValue;
+        }
+      }
+      return nested;
+    },
+
+    groupBy: function(grouper, context) {
+      return groupByFactory(this, grouper, context);
+    },
+
+    has: function(searchKey) {
+      return this.get(searchKey, NOT_SET) !== NOT_SET;
+    },
+
+    hasIn: function(searchKeyPath) {
+      return this.getIn(searchKeyPath, NOT_SET) !== NOT_SET;
+    },
+
+    isSubset: function(iter) {
+      iter = typeof iter.contains === 'function' ? iter : Iterable(iter);
+      return this.every(function(value ) {return iter.contains(value)});
+    },
+
+    isSuperset: function(iter) {
+      return iter.isSubset(this);
+    },
+
+    keySeq: function() {
+      return this.toSeq().map(keyMapper).toIndexedSeq();
+    },
+
+    last: function() {
+      return this.toSeq().reverse().first();
+    },
+
+    max: function(comparator) {
+      return maxFactory(this, comparator);
+    },
+
+    maxBy: function(mapper, comparator) {
+      return maxFactory(this, comparator, mapper);
+    },
+
+    min: function(comparator) {
+      return maxFactory(this, comparator ? neg(comparator) : defaultNegComparator);
+    },
+
+    minBy: function(mapper, comparator) {
+      return maxFactory(this, comparator ? neg(comparator) : defaultNegComparator, mapper);
+    },
+
+    rest: function() {
+      return this.slice(1);
+    },
+
+    skip: function(amount) {
+      return this.slice(Math.max(0, amount));
+    },
+
+    skipLast: function(amount) {
+      return reify(this, this.toSeq().reverse().skip(amount).reverse());
+    },
+
+    skipWhile: function(predicate, context) {
+      return reify(this, skipWhileFactory(this, predicate, context, true));
+    },
+
+    skipUntil: function(predicate, context) {
+      return this.skipWhile(not(predicate), context);
+    },
+
+    sortBy: function(mapper, comparator) {
+      return reify(this, sortFactory(this, comparator, mapper));
+    },
+
+    take: function(amount) {
+      return this.slice(0, Math.max(0, amount));
+    },
+
+    takeLast: function(amount) {
+      return reify(this, this.toSeq().reverse().take(amount).reverse());
+    },
+
+    takeWhile: function(predicate, context) {
+      return reify(this, takeWhileFactory(this, predicate, context));
+    },
+
+    takeUntil: function(predicate, context) {
+      return this.takeWhile(not(predicate), context);
+    },
+
+    valueSeq: function() {
+      return this.toIndexedSeq();
+    },
+
+
+    // ### Hashable Object
+
+    hashCode: function() {
+      return this.__hash || (this.__hash = hashIterable(this));
+    },
+
+
+    // ### Internal
+
+    // abstract __iterate(fn, reverse)
+
+    // abstract __iterator(type, reverse)
+  });
+
+  // var IS_ITERABLE_SENTINEL = '@@__IMMUTABLE_ITERABLE__@@';
+  // var IS_KEYED_SENTINEL = '@@__IMMUTABLE_KEYED__@@';
+  // var IS_INDEXED_SENTINEL = '@@__IMMUTABLE_INDEXED__@@';
+  // var IS_ORDERED_SENTINEL = '@@__IMMUTABLE_ORDERED__@@';
+
+  var IterablePrototype = Iterable.prototype;
+  IterablePrototype[IS_ITERABLE_SENTINEL] = true;
+  IterablePrototype[ITERATOR_SYMBOL] = IterablePrototype.values;
+  IterablePrototype.__toJS = IterablePrototype.toArray;
+  IterablePrototype.__toStringMapper = quoteString;
+  IterablePrototype.inspect =
+  IterablePrototype.toSource = function() { return this.toString(); };
+  IterablePrototype.chain = IterablePrototype.flatMap;
+
+  // Temporary warning about using length
+  (function () {
+    try {
+      Object.defineProperty(IterablePrototype, 'length', {
+        get: function () {
+          if (!Iterable.noLengthWarning) {
+            var stack;
+            try {
+              throw new Error();
+            } catch (error) {
+              stack = error.stack;
+            }
+            if (stack.indexOf('_wrapObject') === -1) {
+              console && console.warn && console.warn(
+                'iterable.length has been deprecated, '+
+                'use iterable.size or iterable.count(). '+
+                'This warning will become a silent error in a future version. ' +
+                stack
+              );
+              return this.size;
+            }
+          }
+        }
+      });
+    } catch (e) {}
+  })();
+
+
+
+  mixin(KeyedIterable, {
+
+    // ### More sequential methods
+
+    flip: function() {
+      return reify(this, flipFactory(this));
+    },
+
+    findKey: function(predicate, context) {
+      var entry = this.findEntry(predicate, context);
+      return entry && entry[0];
+    },
+
+    findLastKey: function(predicate, context) {
+      return this.toSeq().reverse().findKey(predicate, context);
+    },
+
+    keyOf: function(searchValue) {
+      return this.findKey(function(value ) {return is(value, searchValue)});
+    },
+
+    lastKeyOf: function(searchValue) {
+      return this.findLastKey(function(value ) {return is(value, searchValue)});
+    },
+
+    mapEntries: function(mapper, context) {var this$0 = this;
+      var iterations = 0;
+      return reify(this,
+        this.toSeq().map(
+          function(v, k)  {return mapper.call(context, [k, v], iterations++, this$0)}
+        ).fromEntrySeq()
+      );
+    },
+
+    mapKeys: function(mapper, context) {var this$0 = this;
+      return reify(this,
+        this.toSeq().flip().map(
+          function(k, v)  {return mapper.call(context, k, v, this$0)}
+        ).flip()
+      );
+    },
+
+  });
+
+  var KeyedIterablePrototype = KeyedIterable.prototype;
+  KeyedIterablePrototype[IS_KEYED_SENTINEL] = true;
+  KeyedIterablePrototype[ITERATOR_SYMBOL] = IterablePrototype.entries;
+  KeyedIterablePrototype.__toJS = IterablePrototype.toObject;
+  KeyedIterablePrototype.__toStringMapper = function(v, k)  {return k + ': ' + quoteString(v)};
+
+
+
+  mixin(IndexedIterable, {
+
+    // ### Conversion to other types
+
+    toKeyedSeq: function() {
+      return new ToKeyedSequence(this, false);
+    },
+
+
+    // ### ES6 Collection methods (ES6 Array and Map)
+
+    filter: function(predicate, context) {
+      return reify(this, filterFactory(this, predicate, context, false));
+    },
+
+    findIndex: function(predicate, context) {
+      var entry = this.findEntry(predicate, context);
+      return entry ? entry[0] : -1;
+    },
+
+    indexOf: function(searchValue) {
+      var key = this.toKeyedSeq().keyOf(searchValue);
+      return key === undefined ? -1 : key;
+    },
+
+    lastIndexOf: function(searchValue) {
+      return this.toSeq().reverse().indexOf(searchValue);
+    },
+
+    reverse: function() {
+      return reify(this, reverseFactory(this, false));
+    },
+
+    slice: function(begin, end) {
+      return reify(this, sliceFactory(this, begin, end, false));
+    },
+
+    splice: function(index, removeNum /*, ...values*/) {
+      var numArgs = arguments.length;
+      removeNum = Math.max(removeNum | 0, 0);
+      if (numArgs === 0 || (numArgs === 2 && !removeNum)) {
+        return this;
+      }
+      index = resolveBegin(index, this.size);
+      var spliced = this.slice(0, index);
+      return reify(
+        this,
+        numArgs === 1 ?
+          spliced :
+          spliced.concat(arrCopy(arguments, 2), this.slice(index + removeNum))
+      );
+    },
+
+
+    // ### More collection methods
+
+    findLastIndex: function(predicate, context) {
+      var key = this.toKeyedSeq().findLastKey(predicate, context);
+      return key === undefined ? -1 : key;
+    },
+
+    first: function() {
+      return this.get(0);
+    },
+
+    flatten: function(depth) {
+      return reify(this, flattenFactory(this, depth, false));
+    },
+
+    get: function(index, notSetValue) {
+      index = wrapIndex(this, index);
+      return (index < 0 || (this.size === Infinity ||
+          (this.size !== undefined && index > this.size))) ?
+        notSetValue :
+        this.find(function(_, key)  {return key === index}, undefined, notSetValue);
+    },
+
+    has: function(index) {
+      index = wrapIndex(this, index);
+      return index >= 0 && (this.size !== undefined ?
+        this.size === Infinity || index < this.size :
+        this.indexOf(index) !== -1
+      );
+    },
+
+    interpose: function(separator) {
+      return reify(this, interposeFactory(this, separator));
+    },
+
+    interleave: function(/*...iterables*/) {
+      var iterables = [this].concat(arrCopy(arguments));
+      var zipped = zipWithFactory(this.toSeq(), IndexedSeq.of, iterables);
+      var interleaved = zipped.flatten(true);
+      if (zipped.size) {
+        interleaved.size = zipped.size * iterables.length;
+      }
+      return reify(this, interleaved);
+    },
+
+    last: function() {
+      return this.get(-1);
+    },
+
+    skipWhile: function(predicate, context) {
+      return reify(this, skipWhileFactory(this, predicate, context, false));
+    },
+
+    zip: function(/*, ...iterables */) {
+      var iterables = [this].concat(arrCopy(arguments));
+      return reify(this, zipWithFactory(this, defaultZipper, iterables));
+    },
+
+    zipWith: function(zipper/*, ...iterables */) {
+      var iterables = arrCopy(arguments);
+      iterables[0] = this;
+      return reify(this, zipWithFactory(this, zipper, iterables));
+    },
+
+  });
+
+  IndexedIterable.prototype[IS_INDEXED_SENTINEL] = true;
+  IndexedIterable.prototype[IS_ORDERED_SENTINEL] = true;
+
+
+
+  mixin(SetIterable, {
+
+    // ### ES6 Collection methods (ES6 Array and Map)
+
+    get: function(value, notSetValue) {
+      return this.has(value) ? value : notSetValue;
+    },
+
+    contains: function(value) {
+      return this.has(value);
+    },
+
+
+    // ### More sequential methods
+
+    keySeq: function() {
+      return this.valueSeq();
+    },
+
+  });
+
+  SetIterable.prototype.has = IterablePrototype.contains;
+
+
+  // Mixin subclasses
+
+  mixin(KeyedSeq, KeyedIterable.prototype);
+  mixin(IndexedSeq, IndexedIterable.prototype);
+  mixin(SetSeq, SetIterable.prototype);
+
+  mixin(KeyedCollection, KeyedIterable.prototype);
+  mixin(IndexedCollection, IndexedIterable.prototype);
+  mixin(SetCollection, SetIterable.prototype);
+
+
+  // #pragma Helper functions
+
+  function keyMapper(v, k) {
+    return k;
+  }
+
+  function entryMapper(v, k) {
+    return [k, v];
+  }
+
+  function not(predicate) {
+    return function() {
+      return !predicate.apply(this, arguments);
+    }
+  }
+
+  function neg(predicate) {
+    return function() {
+      return -predicate.apply(this, arguments);
+    }
+  }
+
+  function quoteString(value) {
+    return typeof value === 'string' ? JSON.stringify(value) : value;
+  }
+
+  function defaultZipper() {
+    return arrCopy(arguments);
+  }
+
+  function defaultNegComparator(a, b) {
+    return a < b ? 1 : a > b ? -1 : 0;
+  }
+
+  function hashIterable(iterable) {
+    if (iterable.size === Infinity) {
+      return 0;
+    }
+    var ordered = isOrdered(iterable);
+    var keyed = isKeyed(iterable);
+    var h = ordered ? 1 : 0;
+    var size = iterable.__iterate(
+      keyed ?
+        ordered ?
+          function(v, k)  { h = 31 * h + hashMerge(hash(v), hash(k)) | 0; } :
+          function(v, k)  { h = h + hashMerge(hash(v), hash(k)) | 0; } :
+        ordered ?
+          function(v ) { h = 31 * h + hash(v) | 0; } :
+          function(v ) { h = h + hash(v) | 0; }
+    );
+    return murmurHashOfSize(size, h);
+  }
+
+  function murmurHashOfSize(size, h) {
+    h = Math__imul(h, 0xCC9E2D51);
+    h = Math__imul(h << 15 | h >>> -15, 0x1B873593);
+    h = Math__imul(h << 13 | h >>> -13, 5);
+    h = (h + 0xE6546B64 | 0) ^ size;
+    h = Math__imul(h ^ h >>> 16, 0x85EBCA6B);
+    h = Math__imul(h ^ h >>> 13, 0xC2B2AE35);
+    h = smi(h ^ h >>> 16);
+    return h;
+  }
+
+  function hashMerge(a, b) {
+    return a ^ b + 0x9E3779B9 + (a << 6) + (a >> 2) | 0; // int
+  }
+
+  var Immutable = {
+
+    Iterable: Iterable,
+
+    Seq: Seq,
+    Collection: Collection,
+    Map: Map,
+    OrderedMap: OrderedMap,
+    List: List,
+    Stack: Stack,
+    Set: Set,
+    OrderedSet: OrderedSet,
+
+    Record: Record,
+    Range: Range,
+    Repeat: Repeat,
+
+    is: is,
+    fromJS: fromJS,
+
+  };
+
+  return Immutable;
+
+}));
+},{}],35:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -5199,7 +10476,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],34:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 ;(function () {
 	'use strict';
 
@@ -6042,7 +11319,7 @@ process.umask = function() { return 0; };
 	}
 }());
 
-},{}],35:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 /*! @license Firebase v2.2.0 - License: https://www.firebase.com/terms/terms-of-service.html */ (function() {var h,aa=this;function m(a){return void 0!==a}function ba(){}function ca(a){a.Ob=function(){return a.kf?a.kf:a.kf=new a}}
 function da(a){var b=typeof a;if("object"==b)if(a){if(a instanceof Array)return"array";if(a instanceof Object)return b;var c=Object.prototype.toString.call(a);if("[object Window]"==c)return"object";if("[object Array]"==c||"number"==typeof a.length&&"undefined"!=typeof a.splice&&"undefined"!=typeof a.propertyIsEnumerable&&!a.propertyIsEnumerable("splice"))return"array";if("[object Function]"==c||"undefined"!=typeof a.call&&"undefined"!=typeof a.propertyIsEnumerable&&!a.propertyIsEnumerable("call"))return"function"}else return"null";
 else if("function"==b&&"undefined"==typeof a.call)return"object";return b}function ea(a){return"array"==da(a)}function fa(a){var b=da(a);return"array"==b||"object"==b&&"number"==typeof a.length}function p(a){return"string"==typeof a}function ga(a){return"number"==typeof a}function ha(a){return"function"==da(a)}function ia(a){var b=typeof a;return"object"==b&&null!=a||"function"==b}function ja(a,b,c){return a.call.apply(a.bind,arguments)}
@@ -6293,7 +11570,9 @@ R.prototype.Ne=function(a,b){E("Firebase.resetPassword",2,2,arguments.length);J(
 function nb(a,b){y(!b||!0===a||!1===a,"Can't turn on custom loggers persistently.");!0===a?("undefined"!==typeof console&&("function"===typeof console.log?lb=q(console.log,console):"object"===typeof console.log&&(lb=function(a){console.log(a)})),b&&v.set("logging_enabled",!0)):a?lb=a:(lb=null,v.remove("logging_enabled"))}R.enableLogging=nb;R.ServerValue={TIMESTAMP:{".sv":"timestamp"}};R.SDK_VERSION="2.2.0";R.INTERNAL=Y;R.Context=Wh;R.TEST_ACCESS=$;})();
 module.exports = Firebase;
 
-},{}],36:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
+arguments[4][34][0].apply(exports,arguments)
+},{"dup":34}],39:[function(require,module,exports){
 var React = require('react');
 var PanelGroup = require('./PanelGroup');
 
@@ -6308,7 +11587,7 @@ var Accordion = React.createClass({displayName: "Accordion",
 });
 
 module.exports = Accordion;
-},{"./PanelGroup":56,"react":235}],37:[function(require,module,exports){
+},{"./PanelGroup":59,"react":238}],40:[function(require,module,exports){
 var React = require('react');
 var joinClasses = require('./utils/joinClasses');
 var classSet = require('./utils/classSet');
@@ -6368,7 +11647,7 @@ var Alert = React.createClass({displayName: "Alert",
 });
 
 module.exports = Alert;
-},{"./BootstrapMixin":38,"./utils/classSet":69,"./utils/joinClasses":73,"react":235}],38:[function(require,module,exports){
+},{"./BootstrapMixin":41,"./utils/classSet":72,"./utils/joinClasses":76,"react":238}],41:[function(require,module,exports){
 var React = require('react');
 var constants = require('./constants');
 
@@ -6404,7 +11683,7 @@ var BootstrapMixin = {
 };
 
 module.exports = BootstrapMixin;
-},{"./constants":63,"react":235}],39:[function(require,module,exports){
+},{"./constants":66,"react":238}],42:[function(require,module,exports){
 var React = require('react');
 var joinClasses = require('./utils/joinClasses');
 var classSet = require('./utils/classSet');
@@ -6493,7 +11772,7 @@ var Button = React.createClass({displayName: "Button",
 
 module.exports = Button;
 
-},{"./BootstrapMixin":38,"./utils/classSet":69,"./utils/joinClasses":73,"react":235}],40:[function(require,module,exports){
+},{"./BootstrapMixin":41,"./utils/classSet":72,"./utils/joinClasses":76,"react":238}],43:[function(require,module,exports){
 var React = require('react');
 var joinClasses = require('./utils/joinClasses');
 var classSet = require('./utils/classSet');
@@ -6531,7 +11810,7 @@ var ButtonGroup = React.createClass({displayName: "ButtonGroup",
 });
 
 module.exports = ButtonGroup;
-},{"./BootstrapMixin":38,"./Button":39,"./utils/classSet":69,"./utils/joinClasses":73,"react":235}],41:[function(require,module,exports){
+},{"./BootstrapMixin":41,"./Button":42,"./utils/classSet":72,"./utils/joinClasses":76,"react":238}],44:[function(require,module,exports){
 var React = require('react');
 var joinClasses = require('./utils/joinClasses');
 var classSet = require('./utils/classSet');
@@ -6562,7 +11841,7 @@ var ButtonToolbar = React.createClass({displayName: "ButtonToolbar",
 });
 
 module.exports = ButtonToolbar;
-},{"./BootstrapMixin":38,"./Button":39,"./utils/classSet":69,"./utils/joinClasses":73,"react":235}],42:[function(require,module,exports){
+},{"./BootstrapMixin":41,"./Button":42,"./utils/classSet":72,"./utils/joinClasses":76,"react":238}],45:[function(require,module,exports){
 var React = require('react');
 var joinClasses = require('./utils/joinClasses');
 var classSet = require('./utils/classSet');
@@ -6637,7 +11916,7 @@ var Col = React.createClass({displayName: "Col",
 });
 
 module.exports = Col;
-},{"./constants":63,"./utils/classSet":69,"./utils/joinClasses":73,"react":235}],43:[function(require,module,exports){
+},{"./constants":66,"./utils/classSet":72,"./utils/joinClasses":76,"react":238}],46:[function(require,module,exports){
 var React = require('react');
 var TransitionEvents = require('./utils/TransitionEvents');
 
@@ -6759,7 +12038,7 @@ var CollapsableMixin = {
 
 module.exports = CollapsableMixin;
 
-},{"./utils/TransitionEvents":67,"react":235}],44:[function(require,module,exports){
+},{"./utils/TransitionEvents":70,"react":238}],47:[function(require,module,exports){
 /*global document */
 // TODO: listen for onTransitionEnd to remove el
 function getElementsAndSelf (root, classes){
@@ -6830,7 +12109,7 @@ module.exports = {
   }
 };
 
-},{}],45:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 var React = require('react');
 var joinClasses = require('./utils/joinClasses');
 var classSet = require('./utils/classSet');
@@ -6864,7 +12143,7 @@ var Glyphicon = React.createClass({displayName: "Glyphicon",
 });
 
 module.exports = Glyphicon;
-},{"./BootstrapMixin":38,"./constants":63,"./utils/classSet":69,"./utils/joinClasses":73,"react":235}],46:[function(require,module,exports){
+},{"./BootstrapMixin":41,"./constants":66,"./utils/classSet":72,"./utils/joinClasses":76,"react":238}],49:[function(require,module,exports){
 var React = require('react');
 var joinClasses = require('./utils/joinClasses');
 
@@ -6895,7 +12174,7 @@ var Grid = React.createClass({displayName: "Grid",
 });
 
 module.exports = Grid;
-},{"./utils/joinClasses":73,"react":235}],47:[function(require,module,exports){
+},{"./utils/joinClasses":76,"react":238}],50:[function(require,module,exports){
 var React = require('react');
 var joinClasses = require('./utils/joinClasses');
 var classSet = require('./utils/classSet');
@@ -7153,7 +12432,7 @@ var Input = React.createClass({displayName: "Input",
 
 module.exports = Input;
 
-},{"./Button":39,"./utils/classSet":69,"./utils/joinClasses":73,"react":235}],48:[function(require,module,exports){
+},{"./Button":42,"./utils/classSet":72,"./utils/joinClasses":76,"react":238}],51:[function(require,module,exports){
 // https://www.npmjs.org/package/react-interpolate-component
 'use strict';
 
@@ -7237,7 +12516,7 @@ var Interpolate = React.createClass({
 
 module.exports = Interpolate;
 
-},{"./utils/Object.assign":66,"./utils/ValidComponentChildren":68,"react":235}],49:[function(require,module,exports){
+},{"./utils/Object.assign":69,"./utils/ValidComponentChildren":71,"react":238}],52:[function(require,module,exports){
 /* global document:false */
 
 var React = require('react');
@@ -7401,7 +12680,7 @@ var Modal = React.createClass({displayName: "Modal",
 
 module.exports = Modal;
 
-},{"./BootstrapMixin":38,"./FadeMixin":44,"./utils/EventListener":65,"./utils/classSet":69,"./utils/joinClasses":73,"react":235}],50:[function(require,module,exports){
+},{"./BootstrapMixin":41,"./FadeMixin":47,"./utils/EventListener":68,"./utils/classSet":72,"./utils/joinClasses":76,"react":238}],53:[function(require,module,exports){
 var React = require('react');
 var joinClasses = require('./utils/joinClasses');
 var BootstrapMixin = require('./BootstrapMixin');
@@ -7515,7 +12794,7 @@ var Nav = React.createClass({displayName: "Nav",
 
 module.exports = Nav;
 
-},{"./BootstrapMixin":38,"./CollapsableMixin":43,"./utils/ValidComponentChildren":68,"./utils/classSet":69,"./utils/cloneWithProps":70,"./utils/createChainedFunction":71,"./utils/domUtils":72,"./utils/joinClasses":73,"react":235}],51:[function(require,module,exports){
+},{"./BootstrapMixin":41,"./CollapsableMixin":46,"./utils/ValidComponentChildren":71,"./utils/classSet":72,"./utils/cloneWithProps":73,"./utils/createChainedFunction":74,"./utils/domUtils":75,"./utils/joinClasses":76,"react":238}],54:[function(require,module,exports){
 var React = require('react');
 var joinClasses = require('./utils/joinClasses');
 var classSet = require('./utils/classSet');
@@ -7580,7 +12859,7 @@ var NavItem = React.createClass({displayName: "NavItem",
 });
 
 module.exports = NavItem;
-},{"./BootstrapMixin":38,"./utils/classSet":69,"./utils/joinClasses":73,"react":235}],52:[function(require,module,exports){
+},{"./BootstrapMixin":41,"./utils/classSet":72,"./utils/joinClasses":76,"react":238}],55:[function(require,module,exports){
 var React = require('react');
 var CustomPropTypes = require('./utils/CustomPropTypes');
 
@@ -7666,7 +12945,7 @@ module.exports = {
   }
 };
 
-},{"./utils/CustomPropTypes":64,"react":235}],53:[function(require,module,exports){
+},{"./utils/CustomPropTypes":67,"react":238}],56:[function(require,module,exports){
 var React = require('react');
 var OverlayMixin = require('./OverlayMixin');
 var domUtils = require('./utils/domUtils');
@@ -7894,7 +13173,7 @@ var OverlayTrigger = React.createClass({displayName: "OverlayTrigger",
 });
 
 module.exports = OverlayTrigger;
-},{"./OverlayMixin":52,"./utils/Object.assign":66,"./utils/cloneWithProps":70,"./utils/createChainedFunction":71,"./utils/domUtils":72,"react":235}],54:[function(require,module,exports){
+},{"./OverlayMixin":55,"./utils/Object.assign":69,"./utils/cloneWithProps":73,"./utils/createChainedFunction":74,"./utils/domUtils":75,"react":238}],57:[function(require,module,exports){
 var React = require('react');
 var joinClasses = require('./utils/joinClasses');
 
@@ -7910,7 +13189,7 @@ var PageHeader = React.createClass({displayName: "PageHeader",
 });
 
 module.exports = PageHeader;
-},{"./utils/joinClasses":73,"react":235}],55:[function(require,module,exports){
+},{"./utils/joinClasses":76,"react":238}],58:[function(require,module,exports){
 var React = require('react');
 var joinClasses = require('./utils/joinClasses');
 var classSet = require('./utils/classSet');
@@ -8110,7 +13389,7 @@ var Panel = React.createClass({displayName: "Panel",
 
 module.exports = Panel;
 
-},{"./BootstrapMixin":38,"./CollapsableMixin":43,"./utils/classSet":69,"./utils/cloneWithProps":70,"./utils/joinClasses":73,"react":235}],56:[function(require,module,exports){
+},{"./BootstrapMixin":41,"./CollapsableMixin":46,"./utils/classSet":72,"./utils/cloneWithProps":73,"./utils/joinClasses":76,"react":238}],59:[function(require,module,exports){
 var React = require('react');
 var joinClasses = require('./utils/joinClasses');
 var classSet = require('./utils/classSet');
@@ -8197,7 +13476,7 @@ var PanelGroup = React.createClass({displayName: "PanelGroup",
 });
 
 module.exports = PanelGroup;
-},{"./BootstrapMixin":38,"./utils/ValidComponentChildren":68,"./utils/classSet":69,"./utils/cloneWithProps":70,"./utils/joinClasses":73,"react":235}],57:[function(require,module,exports){
+},{"./BootstrapMixin":41,"./utils/ValidComponentChildren":71,"./utils/classSet":72,"./utils/cloneWithProps":73,"./utils/joinClasses":76,"react":238}],60:[function(require,module,exports){
 var React = require('react');
 var joinClasses = require('./utils/joinClasses');
 var classSet = require('./utils/classSet');
@@ -8256,7 +13535,7 @@ var Popover = React.createClass({displayName: "Popover",
 });
 
 module.exports = Popover;
-},{"./BootstrapMixin":38,"./utils/classSet":69,"./utils/joinClasses":73,"react":235}],58:[function(require,module,exports){
+},{"./BootstrapMixin":41,"./utils/classSet":72,"./utils/joinClasses":76,"react":238}],61:[function(require,module,exports){
 var React = require('react');
 var joinClasses = require('./utils/joinClasses');
 var Interpolate = require('./Interpolate');
@@ -8391,7 +13670,7 @@ var ProgressBar = React.createClass({displayName: "ProgressBar",
 
 module.exports = ProgressBar;
 
-},{"./BootstrapMixin":38,"./Interpolate":48,"./utils/ValidComponentChildren":68,"./utils/classSet":69,"./utils/cloneWithProps":70,"./utils/joinClasses":73,"react":235}],59:[function(require,module,exports){
+},{"./BootstrapMixin":41,"./Interpolate":51,"./utils/ValidComponentChildren":71,"./utils/classSet":72,"./utils/cloneWithProps":73,"./utils/joinClasses":76,"react":238}],62:[function(require,module,exports){
 var React = require('react');
 var joinClasses = require('./utils/joinClasses');
 
@@ -8418,7 +13697,7 @@ var Row = React.createClass({displayName: "Row",
 });
 
 module.exports = Row;
-},{"./utils/joinClasses":73,"react":235}],60:[function(require,module,exports){
+},{"./utils/joinClasses":76,"react":238}],63:[function(require,module,exports){
 var React = require('react');
 var joinClasses = require('./utils/joinClasses');
 var classSet = require('./utils/classSet');
@@ -8501,7 +13780,7 @@ var TabPane = React.createClass({displayName: "TabPane",
 });
 
 module.exports = TabPane;
-},{"./utils/TransitionEvents":67,"./utils/classSet":69,"./utils/joinClasses":73,"react":235}],61:[function(require,module,exports){
+},{"./utils/TransitionEvents":70,"./utils/classSet":72,"./utils/joinClasses":76,"react":238}],64:[function(require,module,exports){
 var React = require('react');
 var BootstrapMixin = require('./BootstrapMixin');
 var cloneWithProps = require('./utils/cloneWithProps');
@@ -8641,7 +13920,7 @@ var TabbedArea = React.createClass({displayName: "TabbedArea",
 });
 
 module.exports = TabbedArea;
-},{"./BootstrapMixin":38,"./Nav":50,"./NavItem":51,"./utils/ValidComponentChildren":68,"./utils/cloneWithProps":70,"react":235}],62:[function(require,module,exports){
+},{"./BootstrapMixin":41,"./Nav":53,"./NavItem":54,"./utils/ValidComponentChildren":71,"./utils/cloneWithProps":73,"react":238}],65:[function(require,module,exports){
 var React = require('react');
 var joinClasses = require('./utils/joinClasses');
 var classSet = require('./utils/classSet');
@@ -8691,7 +13970,7 @@ var Tooltip = React.createClass({displayName: "Tooltip",
 });
 
 module.exports = Tooltip;
-},{"./BootstrapMixin":38,"./utils/classSet":69,"./utils/joinClasses":73,"react":235}],63:[function(require,module,exports){
+},{"./BootstrapMixin":41,"./utils/classSet":72,"./utils/joinClasses":76,"react":238}],66:[function(require,module,exports){
 module.exports = {
   CLASSES: {
     'alert': 'alert',
@@ -8994,7 +14273,7 @@ module.exports = {
   ]
 };
 
-},{}],64:[function(require,module,exports){
+},{}],67:[function(require,module,exports){
 var React = require('react');
 
 var ANONYMOUS = '<<anonymous>>';
@@ -9057,7 +14336,7 @@ function createMountableChecker() {
 }
 
 module.exports = CustomPropTypes;
-},{"react":235}],65:[function(require,module,exports){
+},{"react":238}],68:[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
  *
@@ -9113,7 +14392,7 @@ var EventListener = {
 
 module.exports = EventListener;
 
-},{}],66:[function(require,module,exports){
+},{}],69:[function(require,module,exports){
 /**
  * Copyright 2014, Facebook, Inc.
  * All rights reserved.
@@ -9162,7 +14441,7 @@ function assign(target, sources) {
 
 module.exports = assign;
 
-},{}],67:[function(require,module,exports){
+},{}],70:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -9277,7 +14556,7 @@ var ReactTransitionEvents = {
 
 module.exports = ReactTransitionEvents;
 
-},{}],68:[function(require,module,exports){
+},{}],71:[function(require,module,exports){
 var React = require('react');
 
 /**
@@ -9368,7 +14647,7 @@ module.exports = {
   numberOf: numberOfValidComponents,
   hasValidComponent: hasValidComponent
 };
-},{"react":235}],69:[function(require,module,exports){
+},{"react":238}],72:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -9408,7 +14687,7 @@ function cx(classNames) {
 }
 
 module.exports = cx;
-},{}],70:[function(require,module,exports){
+},{}],73:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -9552,7 +14831,7 @@ function cloneWithProps(child, props) {
 }
 
 module.exports = cloneWithProps;
-},{"./Object.assign":66,"./joinClasses":73,"react":235}],71:[function(require,module,exports){
+},{"./Object.assign":69,"./joinClasses":76,"react":238}],74:[function(require,module,exports){
 /**
  * Safe chained function
  *
@@ -9578,7 +14857,7 @@ function createChainedFunction(one, two) {
 }
 
 module.exports = createChainedFunction;
-},{}],72:[function(require,module,exports){
+},{}],75:[function(require,module,exports){
 
 /**
  * Shortcut to compute element style
@@ -9688,7 +14967,7 @@ module.exports = {
   getPosition: getPosition,
   offsetParent: offsetParent
 };
-},{}],73:[function(require,module,exports){
+},{}],76:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -9730,10 +15009,10 @@ function joinClasses(className/*, ... */) {
 
 module.exports = joinClasses;
 
-},{}],74:[function(require,module,exports){
+},{}],77:[function(require,module,exports){
 module.exports = require('./lib/ReactWithAddons');
 
-},{"./lib/ReactWithAddons":165}],75:[function(require,module,exports){
+},{"./lib/ReactWithAddons":168}],78:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -9760,7 +15039,7 @@ var AutoFocusMixin = {
 
 module.exports = AutoFocusMixin;
 
-},{"./focusNode":199}],76:[function(require,module,exports){
+},{"./focusNode":202}],79:[function(require,module,exports){
 /**
  * Copyright 2013 Facebook, Inc.
  * All rights reserved.
@@ -9982,7 +15261,7 @@ var BeforeInputEventPlugin = {
 
 module.exports = BeforeInputEventPlugin;
 
-},{"./EventConstants":90,"./EventPropagators":95,"./ExecutionEnvironment":96,"./SyntheticInputEvent":175,"./keyOf":221}],77:[function(require,module,exports){
+},{"./EventConstants":93,"./EventPropagators":98,"./ExecutionEnvironment":99,"./SyntheticInputEvent":178,"./keyOf":224}],80:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -10094,7 +15373,7 @@ var CSSCore = {
 module.exports = CSSCore;
 
 }).call(this,require('_process'))
-},{"./invariant":214,"_process":33}],78:[function(require,module,exports){
+},{"./invariant":217,"_process":35}],81:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -10213,7 +15492,7 @@ var CSSProperty = {
 
 module.exports = CSSProperty;
 
-},{}],79:[function(require,module,exports){
+},{}],82:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -10348,7 +15627,7 @@ var CSSPropertyOperations = {
 module.exports = CSSPropertyOperations;
 
 }).call(this,require('_process'))
-},{"./CSSProperty":78,"./ExecutionEnvironment":96,"./camelizeStyleName":186,"./dangerousStyleValue":193,"./hyphenateStyleName":212,"./memoizeStringOnly":223,"./warning":234,"_process":33}],80:[function(require,module,exports){
+},{"./CSSProperty":81,"./ExecutionEnvironment":99,"./camelizeStyleName":189,"./dangerousStyleValue":196,"./hyphenateStyleName":215,"./memoizeStringOnly":226,"./warning":237,"_process":35}],83:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -10448,7 +15727,7 @@ PooledClass.addPoolingTo(CallbackQueue);
 module.exports = CallbackQueue;
 
 }).call(this,require('_process'))
-},{"./Object.assign":102,"./PooledClass":103,"./invariant":214,"_process":33}],81:[function(require,module,exports){
+},{"./Object.assign":105,"./PooledClass":106,"./invariant":217,"_process":35}],84:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -10830,7 +16109,7 @@ var ChangeEventPlugin = {
 
 module.exports = ChangeEventPlugin;
 
-},{"./EventConstants":90,"./EventPluginHub":92,"./EventPropagators":95,"./ExecutionEnvironment":96,"./ReactUpdates":164,"./SyntheticEvent":173,"./isEventSupported":215,"./isTextInputElement":217,"./keyOf":221}],82:[function(require,module,exports){
+},{"./EventConstants":93,"./EventPluginHub":95,"./EventPropagators":98,"./ExecutionEnvironment":99,"./ReactUpdates":167,"./SyntheticEvent":176,"./isEventSupported":218,"./isTextInputElement":220,"./keyOf":224}],85:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -10855,7 +16134,7 @@ var ClientReactRootIndex = {
 
 module.exports = ClientReactRootIndex;
 
-},{}],83:[function(require,module,exports){
+},{}],86:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -11114,7 +16393,7 @@ var CompositionEventPlugin = {
 
 module.exports = CompositionEventPlugin;
 
-},{"./EventConstants":90,"./EventPropagators":95,"./ExecutionEnvironment":96,"./ReactInputSelection":138,"./SyntheticCompositionEvent":171,"./getTextContentAccessor":209,"./keyOf":221}],84:[function(require,module,exports){
+},{"./EventConstants":93,"./EventPropagators":98,"./ExecutionEnvironment":99,"./ReactInputSelection":141,"./SyntheticCompositionEvent":174,"./getTextContentAccessor":212,"./keyOf":224}],87:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -11289,7 +16568,7 @@ var DOMChildrenOperations = {
 module.exports = DOMChildrenOperations;
 
 }).call(this,require('_process'))
-},{"./Danger":87,"./ReactMultiChildUpdateTypes":145,"./getTextContentAccessor":209,"./invariant":214,"_process":33}],85:[function(require,module,exports){
+},{"./Danger":90,"./ReactMultiChildUpdateTypes":148,"./getTextContentAccessor":212,"./invariant":217,"_process":35}],88:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -11588,7 +16867,7 @@ var DOMProperty = {
 module.exports = DOMProperty;
 
 }).call(this,require('_process'))
-},{"./invariant":214,"_process":33}],86:[function(require,module,exports){
+},{"./invariant":217,"_process":35}],89:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -11785,7 +17064,7 @@ var DOMPropertyOperations = {
 module.exports = DOMPropertyOperations;
 
 }).call(this,require('_process'))
-},{"./DOMProperty":85,"./escapeTextForBrowser":197,"./memoizeStringOnly":223,"./warning":234,"_process":33}],87:[function(require,module,exports){
+},{"./DOMProperty":88,"./escapeTextForBrowser":200,"./memoizeStringOnly":226,"./warning":237,"_process":35}],90:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -11971,7 +17250,7 @@ var Danger = {
 module.exports = Danger;
 
 }).call(this,require('_process'))
-},{"./ExecutionEnvironment":96,"./createNodesFromMarkup":191,"./emptyFunction":195,"./getMarkupWrap":206,"./invariant":214,"_process":33}],88:[function(require,module,exports){
+},{"./ExecutionEnvironment":99,"./createNodesFromMarkup":194,"./emptyFunction":198,"./getMarkupWrap":209,"./invariant":217,"_process":35}],91:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -12011,7 +17290,7 @@ var DefaultEventPluginOrder = [
 
 module.exports = DefaultEventPluginOrder;
 
-},{"./keyOf":221}],89:[function(require,module,exports){
+},{"./keyOf":224}],92:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -12151,7 +17430,7 @@ var EnterLeaveEventPlugin = {
 
 module.exports = EnterLeaveEventPlugin;
 
-},{"./EventConstants":90,"./EventPropagators":95,"./ReactMount":143,"./SyntheticMouseEvent":177,"./keyOf":221}],90:[function(require,module,exports){
+},{"./EventConstants":93,"./EventPropagators":98,"./ReactMount":146,"./SyntheticMouseEvent":180,"./keyOf":224}],93:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -12223,7 +17502,7 @@ var EventConstants = {
 
 module.exports = EventConstants;
 
-},{"./keyMirror":220}],91:[function(require,module,exports){
+},{"./keyMirror":223}],94:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -12313,7 +17592,7 @@ var EventListener = {
 module.exports = EventListener;
 
 }).call(this,require('_process'))
-},{"./emptyFunction":195,"_process":33}],92:[function(require,module,exports){
+},{"./emptyFunction":198,"_process":35}],95:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -12589,7 +17868,7 @@ var EventPluginHub = {
 module.exports = EventPluginHub;
 
 }).call(this,require('_process'))
-},{"./EventPluginRegistry":93,"./EventPluginUtils":94,"./accumulateInto":183,"./forEachAccumulated":200,"./invariant":214,"_process":33}],93:[function(require,module,exports){
+},{"./EventPluginRegistry":96,"./EventPluginUtils":97,"./accumulateInto":186,"./forEachAccumulated":203,"./invariant":217,"_process":35}],96:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -12869,7 +18148,7 @@ var EventPluginRegistry = {
 module.exports = EventPluginRegistry;
 
 }).call(this,require('_process'))
-},{"./invariant":214,"_process":33}],94:[function(require,module,exports){
+},{"./invariant":217,"_process":35}],97:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -13090,7 +18369,7 @@ var EventPluginUtils = {
 module.exports = EventPluginUtils;
 
 }).call(this,require('_process'))
-},{"./EventConstants":90,"./invariant":214,"_process":33}],95:[function(require,module,exports){
+},{"./EventConstants":93,"./invariant":217,"_process":35}],98:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -13232,7 +18511,7 @@ var EventPropagators = {
 module.exports = EventPropagators;
 
 }).call(this,require('_process'))
-},{"./EventConstants":90,"./EventPluginHub":92,"./accumulateInto":183,"./forEachAccumulated":200,"_process":33}],96:[function(require,module,exports){
+},{"./EventConstants":93,"./EventPluginHub":95,"./accumulateInto":186,"./forEachAccumulated":203,"_process":35}],99:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -13277,7 +18556,7 @@ var ExecutionEnvironment = {
 
 module.exports = ExecutionEnvironment;
 
-},{}],97:[function(require,module,exports){
+},{}],100:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -13469,7 +18748,7 @@ var HTMLDOMPropertyConfig = {
 
 module.exports = HTMLDOMPropertyConfig;
 
-},{"./DOMProperty":85,"./ExecutionEnvironment":96}],98:[function(require,module,exports){
+},{"./DOMProperty":88,"./ExecutionEnvironment":99}],101:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -13510,7 +18789,7 @@ var LinkedStateMixin = {
 
 module.exports = LinkedStateMixin;
 
-},{"./ReactLink":141,"./ReactStateSetters":158}],99:[function(require,module,exports){
+},{"./ReactLink":144,"./ReactStateSetters":161}],102:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -13666,7 +18945,7 @@ var LinkedValueUtils = {
 module.exports = LinkedValueUtils;
 
 }).call(this,require('_process'))
-},{"./ReactPropTypes":152,"./invariant":214,"_process":33}],100:[function(require,module,exports){
+},{"./ReactPropTypes":155,"./invariant":217,"_process":35}],103:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014, Facebook, Inc.
@@ -13716,7 +18995,7 @@ var LocalEventTrapMixin = {
 module.exports = LocalEventTrapMixin;
 
 }).call(this,require('_process'))
-},{"./ReactBrowserEventEmitter":106,"./accumulateInto":183,"./forEachAccumulated":200,"./invariant":214,"_process":33}],101:[function(require,module,exports){
+},{"./ReactBrowserEventEmitter":109,"./accumulateInto":186,"./forEachAccumulated":203,"./invariant":217,"_process":35}],104:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -13774,7 +19053,7 @@ var MobileSafariClickEventPlugin = {
 
 module.exports = MobileSafariClickEventPlugin;
 
-},{"./EventConstants":90,"./emptyFunction":195}],102:[function(require,module,exports){
+},{"./EventConstants":93,"./emptyFunction":198}],105:[function(require,module,exports){
 /**
  * Copyright 2014, Facebook, Inc.
  * All rights reserved.
@@ -13821,7 +19100,7 @@ function assign(target, sources) {
 
 module.exports = assign;
 
-},{}],103:[function(require,module,exports){
+},{}],106:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -13937,7 +19216,7 @@ var PooledClass = {
 module.exports = PooledClass;
 
 }).call(this,require('_process'))
-},{"./invariant":214,"_process":33}],104:[function(require,module,exports){
+},{"./invariant":217,"_process":35}],107:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -14125,7 +19404,7 @@ React.version = '0.12.2';
 module.exports = React;
 
 }).call(this,require('_process'))
-},{"./DOMPropertyOperations":86,"./EventPluginUtils":94,"./ExecutionEnvironment":96,"./Object.assign":102,"./ReactChildren":109,"./ReactComponent":110,"./ReactCompositeComponent":113,"./ReactContext":114,"./ReactCurrentOwner":115,"./ReactDOM":116,"./ReactDOMComponent":118,"./ReactDefaultInjection":128,"./ReactElement":131,"./ReactElementValidator":132,"./ReactInstanceHandles":139,"./ReactLegacyElement":140,"./ReactMount":143,"./ReactMultiChild":144,"./ReactPerf":148,"./ReactPropTypes":152,"./ReactServerRendering":156,"./ReactTextComponent":160,"./deprecated":194,"./onlyChild":225,"_process":33}],105:[function(require,module,exports){
+},{"./DOMPropertyOperations":89,"./EventPluginUtils":97,"./ExecutionEnvironment":99,"./Object.assign":105,"./ReactChildren":112,"./ReactComponent":113,"./ReactCompositeComponent":116,"./ReactContext":117,"./ReactCurrentOwner":118,"./ReactDOM":119,"./ReactDOMComponent":121,"./ReactDefaultInjection":131,"./ReactElement":134,"./ReactElementValidator":135,"./ReactInstanceHandles":142,"./ReactLegacyElement":143,"./ReactMount":146,"./ReactMultiChild":147,"./ReactPerf":151,"./ReactPropTypes":155,"./ReactServerRendering":159,"./ReactTextComponent":163,"./deprecated":197,"./onlyChild":228,"_process":35}],108:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -14168,7 +19447,7 @@ var ReactBrowserComponentMixin = {
 module.exports = ReactBrowserComponentMixin;
 
 }).call(this,require('_process'))
-},{"./ReactEmptyComponent":133,"./ReactMount":143,"./invariant":214,"_process":33}],106:[function(require,module,exports){
+},{"./ReactEmptyComponent":136,"./ReactMount":146,"./invariant":217,"_process":35}],109:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -14523,7 +19802,7 @@ var ReactBrowserEventEmitter = assign({}, ReactEventEmitterMixin, {
 
 module.exports = ReactBrowserEventEmitter;
 
-},{"./EventConstants":90,"./EventPluginHub":92,"./EventPluginRegistry":93,"./Object.assign":102,"./ReactEventEmitterMixin":135,"./ViewportMetrics":182,"./isEventSupported":215}],107:[function(require,module,exports){
+},{"./EventConstants":93,"./EventPluginHub":95,"./EventPluginRegistry":96,"./Object.assign":105,"./ReactEventEmitterMixin":138,"./ViewportMetrics":185,"./isEventSupported":218}],110:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -14590,7 +19869,7 @@ var ReactCSSTransitionGroup = React.createClass({
 
 module.exports = ReactCSSTransitionGroup;
 
-},{"./Object.assign":102,"./React":104,"./ReactCSSTransitionGroupChild":108,"./ReactTransitionGroup":163}],108:[function(require,module,exports){
+},{"./Object.assign":105,"./React":107,"./ReactCSSTransitionGroupChild":111,"./ReactTransitionGroup":166}],111:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -14725,7 +20004,7 @@ var ReactCSSTransitionGroupChild = React.createClass({
 module.exports = ReactCSSTransitionGroupChild;
 
 }).call(this,require('_process'))
-},{"./CSSCore":77,"./React":104,"./ReactTransitionEvents":162,"./onlyChild":225,"_process":33}],109:[function(require,module,exports){
+},{"./CSSCore":80,"./React":107,"./ReactTransitionEvents":165,"./onlyChild":228,"_process":35}],112:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -14875,7 +20154,7 @@ var ReactChildren = {
 module.exports = ReactChildren;
 
 }).call(this,require('_process'))
-},{"./PooledClass":103,"./traverseAllChildren":232,"./warning":234,"_process":33}],110:[function(require,module,exports){
+},{"./PooledClass":106,"./traverseAllChildren":235,"./warning":237,"_process":35}],113:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -15318,7 +20597,7 @@ var ReactComponent = {
 module.exports = ReactComponent;
 
 }).call(this,require('_process'))
-},{"./Object.assign":102,"./ReactElement":131,"./ReactOwner":147,"./ReactUpdates":164,"./invariant":214,"./keyMirror":220,"_process":33}],111:[function(require,module,exports){
+},{"./Object.assign":105,"./ReactElement":134,"./ReactOwner":150,"./ReactUpdates":167,"./invariant":217,"./keyMirror":223,"_process":35}],114:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -15440,7 +20719,7 @@ var ReactComponentBrowserEnvironment = {
 module.exports = ReactComponentBrowserEnvironment;
 
 }).call(this,require('_process'))
-},{"./ReactDOMIDOperations":120,"./ReactMarkupChecksum":142,"./ReactMount":143,"./ReactPerf":148,"./ReactReconcileTransaction":154,"./getReactRootElementInContainer":208,"./invariant":214,"./setInnerHTML":228,"_process":33}],112:[function(require,module,exports){
+},{"./ReactDOMIDOperations":123,"./ReactMarkupChecksum":145,"./ReactMount":146,"./ReactPerf":151,"./ReactReconcileTransaction":157,"./getReactRootElementInContainer":211,"./invariant":217,"./setInnerHTML":231,"_process":35}],115:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -15489,7 +20768,7 @@ var ReactComponentWithPureRenderMixin = {
 
 module.exports = ReactComponentWithPureRenderMixin;
 
-},{"./shallowEqual":229}],113:[function(require,module,exports){
+},{"./shallowEqual":232}],116:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -16929,7 +22208,7 @@ var ReactCompositeComponent = {
 module.exports = ReactCompositeComponent;
 
 }).call(this,require('_process'))
-},{"./Object.assign":102,"./ReactComponent":110,"./ReactContext":114,"./ReactCurrentOwner":115,"./ReactElement":131,"./ReactElementValidator":132,"./ReactEmptyComponent":133,"./ReactErrorUtils":134,"./ReactLegacyElement":140,"./ReactOwner":147,"./ReactPerf":148,"./ReactPropTransferer":149,"./ReactPropTypeLocationNames":150,"./ReactPropTypeLocations":151,"./ReactUpdates":164,"./instantiateReactComponent":213,"./invariant":214,"./keyMirror":220,"./keyOf":221,"./mapObject":222,"./monitorCodeUse":224,"./shouldUpdateReactComponent":230,"./warning":234,"_process":33}],114:[function(require,module,exports){
+},{"./Object.assign":105,"./ReactComponent":113,"./ReactContext":117,"./ReactCurrentOwner":118,"./ReactElement":134,"./ReactElementValidator":135,"./ReactEmptyComponent":136,"./ReactErrorUtils":137,"./ReactLegacyElement":143,"./ReactOwner":150,"./ReactPerf":151,"./ReactPropTransferer":152,"./ReactPropTypeLocationNames":153,"./ReactPropTypeLocations":154,"./ReactUpdates":167,"./instantiateReactComponent":216,"./invariant":217,"./keyMirror":223,"./keyOf":224,"./mapObject":225,"./monitorCodeUse":227,"./shouldUpdateReactComponent":233,"./warning":237,"_process":35}],117:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -16991,7 +22270,7 @@ var ReactContext = {
 
 module.exports = ReactContext;
 
-},{"./Object.assign":102}],115:[function(require,module,exports){
+},{"./Object.assign":105}],118:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -17025,7 +22304,7 @@ var ReactCurrentOwner = {
 
 module.exports = ReactCurrentOwner;
 
-},{}],116:[function(require,module,exports){
+},{}],119:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -17208,7 +22487,7 @@ var ReactDOM = mapObject({
 module.exports = ReactDOM;
 
 }).call(this,require('_process'))
-},{"./ReactElement":131,"./ReactElementValidator":132,"./ReactLegacyElement":140,"./mapObject":222,"_process":33}],117:[function(require,module,exports){
+},{"./ReactElement":134,"./ReactElementValidator":135,"./ReactLegacyElement":143,"./mapObject":225,"_process":35}],120:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -17273,7 +22552,7 @@ var ReactDOMButton = ReactCompositeComponent.createClass({
 
 module.exports = ReactDOMButton;
 
-},{"./AutoFocusMixin":75,"./ReactBrowserComponentMixin":105,"./ReactCompositeComponent":113,"./ReactDOM":116,"./ReactElement":131,"./keyMirror":220}],118:[function(require,module,exports){
+},{"./AutoFocusMixin":78,"./ReactBrowserComponentMixin":108,"./ReactCompositeComponent":116,"./ReactDOM":119,"./ReactElement":134,"./keyMirror":223}],121:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -17760,7 +23039,7 @@ assign(
 module.exports = ReactDOMComponent;
 
 }).call(this,require('_process'))
-},{"./CSSPropertyOperations":79,"./DOMProperty":85,"./DOMPropertyOperations":86,"./Object.assign":102,"./ReactBrowserComponentMixin":105,"./ReactBrowserEventEmitter":106,"./ReactComponent":110,"./ReactMount":143,"./ReactMultiChild":144,"./ReactPerf":148,"./escapeTextForBrowser":197,"./invariant":214,"./isEventSupported":215,"./keyOf":221,"./monitorCodeUse":224,"_process":33}],119:[function(require,module,exports){
+},{"./CSSPropertyOperations":82,"./DOMProperty":88,"./DOMPropertyOperations":89,"./Object.assign":105,"./ReactBrowserComponentMixin":108,"./ReactBrowserEventEmitter":109,"./ReactComponent":113,"./ReactMount":146,"./ReactMultiChild":147,"./ReactPerf":151,"./escapeTextForBrowser":200,"./invariant":217,"./isEventSupported":218,"./keyOf":224,"./monitorCodeUse":227,"_process":35}],122:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -17810,7 +23089,7 @@ var ReactDOMForm = ReactCompositeComponent.createClass({
 
 module.exports = ReactDOMForm;
 
-},{"./EventConstants":90,"./LocalEventTrapMixin":100,"./ReactBrowserComponentMixin":105,"./ReactCompositeComponent":113,"./ReactDOM":116,"./ReactElement":131}],120:[function(require,module,exports){
+},{"./EventConstants":93,"./LocalEventTrapMixin":103,"./ReactBrowserComponentMixin":108,"./ReactCompositeComponent":116,"./ReactDOM":119,"./ReactElement":134}],123:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -17996,7 +23275,7 @@ var ReactDOMIDOperations = {
 module.exports = ReactDOMIDOperations;
 
 }).call(this,require('_process'))
-},{"./CSSPropertyOperations":79,"./DOMChildrenOperations":84,"./DOMPropertyOperations":86,"./ReactMount":143,"./ReactPerf":148,"./invariant":214,"./setInnerHTML":228,"_process":33}],121:[function(require,module,exports){
+},{"./CSSPropertyOperations":82,"./DOMChildrenOperations":87,"./DOMPropertyOperations":89,"./ReactMount":146,"./ReactPerf":151,"./invariant":217,"./setInnerHTML":231,"_process":35}],124:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -18044,7 +23323,7 @@ var ReactDOMImg = ReactCompositeComponent.createClass({
 
 module.exports = ReactDOMImg;
 
-},{"./EventConstants":90,"./LocalEventTrapMixin":100,"./ReactBrowserComponentMixin":105,"./ReactCompositeComponent":113,"./ReactDOM":116,"./ReactElement":131}],122:[function(require,module,exports){
+},{"./EventConstants":93,"./LocalEventTrapMixin":103,"./ReactBrowserComponentMixin":108,"./ReactCompositeComponent":116,"./ReactDOM":119,"./ReactElement":134}],125:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -18222,7 +23501,7 @@ var ReactDOMInput = ReactCompositeComponent.createClass({
 module.exports = ReactDOMInput;
 
 }).call(this,require('_process'))
-},{"./AutoFocusMixin":75,"./DOMPropertyOperations":86,"./LinkedValueUtils":99,"./Object.assign":102,"./ReactBrowserComponentMixin":105,"./ReactCompositeComponent":113,"./ReactDOM":116,"./ReactElement":131,"./ReactMount":143,"./ReactUpdates":164,"./invariant":214,"_process":33}],123:[function(require,module,exports){
+},{"./AutoFocusMixin":78,"./DOMPropertyOperations":89,"./LinkedValueUtils":102,"./Object.assign":105,"./ReactBrowserComponentMixin":108,"./ReactCompositeComponent":116,"./ReactDOM":119,"./ReactElement":134,"./ReactMount":146,"./ReactUpdates":167,"./invariant":217,"_process":35}],126:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -18275,7 +23554,7 @@ var ReactDOMOption = ReactCompositeComponent.createClass({
 module.exports = ReactDOMOption;
 
 }).call(this,require('_process'))
-},{"./ReactBrowserComponentMixin":105,"./ReactCompositeComponent":113,"./ReactDOM":116,"./ReactElement":131,"./warning":234,"_process":33}],124:[function(require,module,exports){
+},{"./ReactBrowserComponentMixin":108,"./ReactCompositeComponent":116,"./ReactDOM":119,"./ReactElement":134,"./warning":237,"_process":35}],127:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -18459,7 +23738,7 @@ var ReactDOMSelect = ReactCompositeComponent.createClass({
 
 module.exports = ReactDOMSelect;
 
-},{"./AutoFocusMixin":75,"./LinkedValueUtils":99,"./Object.assign":102,"./ReactBrowserComponentMixin":105,"./ReactCompositeComponent":113,"./ReactDOM":116,"./ReactElement":131,"./ReactUpdates":164}],125:[function(require,module,exports){
+},{"./AutoFocusMixin":78,"./LinkedValueUtils":102,"./Object.assign":105,"./ReactBrowserComponentMixin":108,"./ReactCompositeComponent":116,"./ReactDOM":119,"./ReactElement":134,"./ReactUpdates":167}],128:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -18668,7 +23947,7 @@ var ReactDOMSelection = {
 
 module.exports = ReactDOMSelection;
 
-},{"./ExecutionEnvironment":96,"./getNodeForCharacterOffset":207,"./getTextContentAccessor":209}],126:[function(require,module,exports){
+},{"./ExecutionEnvironment":99,"./getNodeForCharacterOffset":210,"./getTextContentAccessor":212}],129:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -18809,7 +24088,7 @@ var ReactDOMTextarea = ReactCompositeComponent.createClass({
 module.exports = ReactDOMTextarea;
 
 }).call(this,require('_process'))
-},{"./AutoFocusMixin":75,"./DOMPropertyOperations":86,"./LinkedValueUtils":99,"./Object.assign":102,"./ReactBrowserComponentMixin":105,"./ReactCompositeComponent":113,"./ReactDOM":116,"./ReactElement":131,"./ReactUpdates":164,"./invariant":214,"./warning":234,"_process":33}],127:[function(require,module,exports){
+},{"./AutoFocusMixin":78,"./DOMPropertyOperations":89,"./LinkedValueUtils":102,"./Object.assign":105,"./ReactBrowserComponentMixin":108,"./ReactCompositeComponent":116,"./ReactDOM":119,"./ReactElement":134,"./ReactUpdates":167,"./invariant":217,"./warning":237,"_process":35}],130:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -18882,7 +24161,7 @@ var ReactDefaultBatchingStrategy = {
 
 module.exports = ReactDefaultBatchingStrategy;
 
-},{"./Object.assign":102,"./ReactUpdates":164,"./Transaction":181,"./emptyFunction":195}],128:[function(require,module,exports){
+},{"./Object.assign":105,"./ReactUpdates":167,"./Transaction":184,"./emptyFunction":198}],131:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -19011,7 +24290,7 @@ module.exports = {
 };
 
 }).call(this,require('_process'))
-},{"./BeforeInputEventPlugin":76,"./ChangeEventPlugin":81,"./ClientReactRootIndex":82,"./CompositionEventPlugin":83,"./DefaultEventPluginOrder":88,"./EnterLeaveEventPlugin":89,"./ExecutionEnvironment":96,"./HTMLDOMPropertyConfig":97,"./MobileSafariClickEventPlugin":101,"./ReactBrowserComponentMixin":105,"./ReactComponentBrowserEnvironment":111,"./ReactDOMButton":117,"./ReactDOMComponent":118,"./ReactDOMForm":119,"./ReactDOMImg":121,"./ReactDOMInput":122,"./ReactDOMOption":123,"./ReactDOMSelect":124,"./ReactDOMTextarea":126,"./ReactDefaultBatchingStrategy":127,"./ReactDefaultPerf":129,"./ReactEventListener":136,"./ReactInjection":137,"./ReactInstanceHandles":139,"./ReactMount":143,"./SVGDOMPropertyConfig":166,"./SelectEventPlugin":167,"./ServerReactRootIndex":168,"./SimpleEventPlugin":169,"./createFullPageComponent":190,"_process":33}],129:[function(require,module,exports){
+},{"./BeforeInputEventPlugin":79,"./ChangeEventPlugin":84,"./ClientReactRootIndex":85,"./CompositionEventPlugin":86,"./DefaultEventPluginOrder":91,"./EnterLeaveEventPlugin":92,"./ExecutionEnvironment":99,"./HTMLDOMPropertyConfig":100,"./MobileSafariClickEventPlugin":104,"./ReactBrowserComponentMixin":108,"./ReactComponentBrowserEnvironment":114,"./ReactDOMButton":120,"./ReactDOMComponent":121,"./ReactDOMForm":122,"./ReactDOMImg":124,"./ReactDOMInput":125,"./ReactDOMOption":126,"./ReactDOMSelect":127,"./ReactDOMTextarea":129,"./ReactDefaultBatchingStrategy":130,"./ReactDefaultPerf":132,"./ReactEventListener":139,"./ReactInjection":140,"./ReactInstanceHandles":142,"./ReactMount":146,"./SVGDOMPropertyConfig":169,"./SelectEventPlugin":170,"./ServerReactRootIndex":171,"./SimpleEventPlugin":172,"./createFullPageComponent":193,"_process":35}],132:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -19271,7 +24550,7 @@ var ReactDefaultPerf = {
 
 module.exports = ReactDefaultPerf;
 
-},{"./DOMProperty":85,"./ReactDefaultPerfAnalysis":130,"./ReactMount":143,"./ReactPerf":148,"./performanceNow":227}],130:[function(require,module,exports){
+},{"./DOMProperty":88,"./ReactDefaultPerfAnalysis":133,"./ReactMount":146,"./ReactPerf":151,"./performanceNow":230}],133:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -19477,7 +24756,7 @@ var ReactDefaultPerfAnalysis = {
 
 module.exports = ReactDefaultPerfAnalysis;
 
-},{"./Object.assign":102}],131:[function(require,module,exports){
+},{"./Object.assign":105}],134:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014, Facebook, Inc.
@@ -19723,7 +25002,7 @@ ReactElement.isValidElement = function(object) {
 module.exports = ReactElement;
 
 }).call(this,require('_process'))
-},{"./ReactContext":114,"./ReactCurrentOwner":115,"./warning":234,"_process":33}],132:[function(require,module,exports){
+},{"./ReactContext":117,"./ReactCurrentOwner":118,"./warning":237,"_process":35}],135:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014, Facebook, Inc.
@@ -20005,7 +25284,7 @@ var ReactElementValidator = {
 module.exports = ReactElementValidator;
 
 }).call(this,require('_process'))
-},{"./ReactCurrentOwner":115,"./ReactElement":131,"./ReactPropTypeLocations":151,"./monitorCodeUse":224,"./warning":234,"_process":33}],133:[function(require,module,exports){
+},{"./ReactCurrentOwner":118,"./ReactElement":134,"./ReactPropTypeLocations":154,"./monitorCodeUse":227,"./warning":237,"_process":35}],136:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014, Facebook, Inc.
@@ -20082,7 +25361,7 @@ var ReactEmptyComponent = {
 module.exports = ReactEmptyComponent;
 
 }).call(this,require('_process'))
-},{"./ReactElement":131,"./invariant":214,"_process":33}],134:[function(require,module,exports){
+},{"./ReactElement":134,"./invariant":217,"_process":35}],137:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -20114,7 +25393,7 @@ var ReactErrorUtils = {
 
 module.exports = ReactErrorUtils;
 
-},{}],135:[function(require,module,exports){
+},{}],138:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -20164,7 +25443,7 @@ var ReactEventEmitterMixin = {
 
 module.exports = ReactEventEmitterMixin;
 
-},{"./EventPluginHub":92}],136:[function(require,module,exports){
+},{"./EventPluginHub":95}],139:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -20348,7 +25627,7 @@ var ReactEventListener = {
 
 module.exports = ReactEventListener;
 
-},{"./EventListener":91,"./ExecutionEnvironment":96,"./Object.assign":102,"./PooledClass":103,"./ReactInstanceHandles":139,"./ReactMount":143,"./ReactUpdates":164,"./getEventTarget":205,"./getUnboundedScrollPosition":210}],137:[function(require,module,exports){
+},{"./EventListener":94,"./ExecutionEnvironment":99,"./Object.assign":105,"./PooledClass":106,"./ReactInstanceHandles":142,"./ReactMount":146,"./ReactUpdates":167,"./getEventTarget":208,"./getUnboundedScrollPosition":213}],140:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -20388,7 +25667,7 @@ var ReactInjection = {
 
 module.exports = ReactInjection;
 
-},{"./DOMProperty":85,"./EventPluginHub":92,"./ReactBrowserEventEmitter":106,"./ReactComponent":110,"./ReactCompositeComponent":113,"./ReactEmptyComponent":133,"./ReactNativeComponent":146,"./ReactPerf":148,"./ReactRootIndex":155,"./ReactUpdates":164}],138:[function(require,module,exports){
+},{"./DOMProperty":88,"./EventPluginHub":95,"./ReactBrowserEventEmitter":109,"./ReactComponent":113,"./ReactCompositeComponent":116,"./ReactEmptyComponent":136,"./ReactNativeComponent":149,"./ReactPerf":151,"./ReactRootIndex":158,"./ReactUpdates":167}],141:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -20524,7 +25803,7 @@ var ReactInputSelection = {
 
 module.exports = ReactInputSelection;
 
-},{"./ReactDOMSelection":125,"./containsNode":188,"./focusNode":199,"./getActiveElement":201}],139:[function(require,module,exports){
+},{"./ReactDOMSelection":128,"./containsNode":191,"./focusNode":202,"./getActiveElement":204}],142:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -20859,7 +26138,7 @@ var ReactInstanceHandles = {
 module.exports = ReactInstanceHandles;
 
 }).call(this,require('_process'))
-},{"./ReactRootIndex":155,"./invariant":214,"_process":33}],140:[function(require,module,exports){
+},{"./ReactRootIndex":158,"./invariant":217,"_process":35}],143:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014, Facebook, Inc.
@@ -21106,7 +26385,7 @@ ReactLegacyElementFactory._isLegacyCallWarningEnabled = true;
 module.exports = ReactLegacyElementFactory;
 
 }).call(this,require('_process'))
-},{"./ReactCurrentOwner":115,"./invariant":214,"./monitorCodeUse":224,"./warning":234,"_process":33}],141:[function(require,module,exports){
+},{"./ReactCurrentOwner":118,"./invariant":217,"./monitorCodeUse":227,"./warning":237,"_process":35}],144:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -21179,7 +26458,7 @@ ReactLink.PropTypes = {
 
 module.exports = ReactLink;
 
-},{"./React":104}],142:[function(require,module,exports){
+},{"./React":107}],145:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -21227,7 +26506,7 @@ var ReactMarkupChecksum = {
 
 module.exports = ReactMarkupChecksum;
 
-},{"./adler32":184}],143:[function(require,module,exports){
+},{"./adler32":187}],146:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -21925,7 +27204,7 @@ ReactMount.renderComponent = deprecated(
 module.exports = ReactMount;
 
 }).call(this,require('_process'))
-},{"./DOMProperty":85,"./ReactBrowserEventEmitter":106,"./ReactCurrentOwner":115,"./ReactElement":131,"./ReactInstanceHandles":139,"./ReactLegacyElement":140,"./ReactPerf":148,"./containsNode":188,"./deprecated":194,"./getReactRootElementInContainer":208,"./instantiateReactComponent":213,"./invariant":214,"./shouldUpdateReactComponent":230,"./warning":234,"_process":33}],144:[function(require,module,exports){
+},{"./DOMProperty":88,"./ReactBrowserEventEmitter":109,"./ReactCurrentOwner":118,"./ReactElement":134,"./ReactInstanceHandles":142,"./ReactLegacyElement":143,"./ReactPerf":151,"./containsNode":191,"./deprecated":197,"./getReactRootElementInContainer":211,"./instantiateReactComponent":216,"./invariant":217,"./shouldUpdateReactComponent":233,"./warning":237,"_process":35}],147:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -22353,7 +27632,7 @@ var ReactMultiChild = {
 
 module.exports = ReactMultiChild;
 
-},{"./ReactComponent":110,"./ReactMultiChildUpdateTypes":145,"./flattenChildren":198,"./instantiateReactComponent":213,"./shouldUpdateReactComponent":230}],145:[function(require,module,exports){
+},{"./ReactComponent":113,"./ReactMultiChildUpdateTypes":148,"./flattenChildren":201,"./instantiateReactComponent":216,"./shouldUpdateReactComponent":233}],148:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -22386,7 +27665,7 @@ var ReactMultiChildUpdateTypes = keyMirror({
 
 module.exports = ReactMultiChildUpdateTypes;
 
-},{"./keyMirror":220}],146:[function(require,module,exports){
+},{"./keyMirror":223}],149:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014, Facebook, Inc.
@@ -22459,7 +27738,7 @@ var ReactNativeComponent = {
 module.exports = ReactNativeComponent;
 
 }).call(this,require('_process'))
-},{"./Object.assign":102,"./invariant":214,"_process":33}],147:[function(require,module,exports){
+},{"./Object.assign":105,"./invariant":217,"_process":35}],150:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -22615,7 +27894,7 @@ var ReactOwner = {
 module.exports = ReactOwner;
 
 }).call(this,require('_process'))
-},{"./emptyObject":196,"./invariant":214,"_process":33}],148:[function(require,module,exports){
+},{"./emptyObject":199,"./invariant":217,"_process":35}],151:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -22699,7 +27978,7 @@ function _noMeasure(objName, fnName, func) {
 module.exports = ReactPerf;
 
 }).call(this,require('_process'))
-},{"_process":33}],149:[function(require,module,exports){
+},{"_process":35}],152:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -22866,7 +28145,7 @@ var ReactPropTransferer = {
 module.exports = ReactPropTransferer;
 
 }).call(this,require('_process'))
-},{"./Object.assign":102,"./emptyFunction":195,"./invariant":214,"./joinClasses":219,"./warning":234,"_process":33}],150:[function(require,module,exports){
+},{"./Object.assign":105,"./emptyFunction":198,"./invariant":217,"./joinClasses":222,"./warning":237,"_process":35}],153:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -22894,7 +28173,7 @@ if ("production" !== process.env.NODE_ENV) {
 module.exports = ReactPropTypeLocationNames;
 
 }).call(this,require('_process'))
-},{"_process":33}],151:[function(require,module,exports){
+},{"_process":35}],154:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -22918,7 +28197,7 @@ var ReactPropTypeLocations = keyMirror({
 
 module.exports = ReactPropTypeLocations;
 
-},{"./keyMirror":220}],152:[function(require,module,exports){
+},{"./keyMirror":223}],155:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -23272,7 +28551,7 @@ function getPreciseType(propValue) {
 
 module.exports = ReactPropTypes;
 
-},{"./ReactElement":131,"./ReactPropTypeLocationNames":150,"./deprecated":194,"./emptyFunction":195}],153:[function(require,module,exports){
+},{"./ReactElement":134,"./ReactPropTypeLocationNames":153,"./deprecated":197,"./emptyFunction":198}],156:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -23328,7 +28607,7 @@ PooledClass.addPoolingTo(ReactPutListenerQueue);
 
 module.exports = ReactPutListenerQueue;
 
-},{"./Object.assign":102,"./PooledClass":103,"./ReactBrowserEventEmitter":106}],154:[function(require,module,exports){
+},{"./Object.assign":105,"./PooledClass":106,"./ReactBrowserEventEmitter":109}],157:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -23504,7 +28783,7 @@ PooledClass.addPoolingTo(ReactReconcileTransaction);
 
 module.exports = ReactReconcileTransaction;
 
-},{"./CallbackQueue":80,"./Object.assign":102,"./PooledClass":103,"./ReactBrowserEventEmitter":106,"./ReactInputSelection":138,"./ReactPutListenerQueue":153,"./Transaction":181}],155:[function(require,module,exports){
+},{"./CallbackQueue":83,"./Object.assign":105,"./PooledClass":106,"./ReactBrowserEventEmitter":109,"./ReactInputSelection":141,"./ReactPutListenerQueue":156,"./Transaction":184}],158:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -23535,7 +28814,7 @@ var ReactRootIndex = {
 
 module.exports = ReactRootIndex;
 
-},{}],156:[function(require,module,exports){
+},{}],159:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -23615,7 +28894,7 @@ module.exports = {
 };
 
 }).call(this,require('_process'))
-},{"./ReactElement":131,"./ReactInstanceHandles":139,"./ReactMarkupChecksum":142,"./ReactServerRenderingTransaction":157,"./instantiateReactComponent":213,"./invariant":214,"_process":33}],157:[function(require,module,exports){
+},{"./ReactElement":134,"./ReactInstanceHandles":142,"./ReactMarkupChecksum":145,"./ReactServerRenderingTransaction":160,"./instantiateReactComponent":216,"./invariant":217,"_process":35}],160:[function(require,module,exports){
 /**
  * Copyright 2014, Facebook, Inc.
  * All rights reserved.
@@ -23728,7 +29007,7 @@ PooledClass.addPoolingTo(ReactServerRenderingTransaction);
 
 module.exports = ReactServerRenderingTransaction;
 
-},{"./CallbackQueue":80,"./Object.assign":102,"./PooledClass":103,"./ReactPutListenerQueue":153,"./Transaction":181,"./emptyFunction":195}],158:[function(require,module,exports){
+},{"./CallbackQueue":83,"./Object.assign":105,"./PooledClass":106,"./ReactPutListenerQueue":156,"./Transaction":184,"./emptyFunction":198}],161:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -23834,7 +29113,7 @@ ReactStateSetters.Mixin = {
 
 module.exports = ReactStateSetters;
 
-},{}],159:[function(require,module,exports){
+},{}],162:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -24246,7 +29525,7 @@ for (eventType in topLevelTypes) {
 
 module.exports = ReactTestUtils;
 
-},{"./EventConstants":90,"./EventPluginHub":92,"./EventPropagators":95,"./Object.assign":102,"./React":104,"./ReactBrowserEventEmitter":106,"./ReactElement":131,"./ReactMount":143,"./ReactTextComponent":160,"./ReactUpdates":164,"./SyntheticEvent":173}],160:[function(require,module,exports){
+},{"./EventConstants":93,"./EventPluginHub":95,"./EventPropagators":98,"./Object.assign":105,"./React":107,"./ReactBrowserEventEmitter":109,"./ReactElement":134,"./ReactMount":146,"./ReactTextComponent":163,"./ReactUpdates":167,"./SyntheticEvent":176}],163:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -24352,7 +29631,7 @@ ReactTextComponentFactory.type = ReactTextComponent;
 
 module.exports = ReactTextComponentFactory;
 
-},{"./DOMPropertyOperations":86,"./Object.assign":102,"./ReactComponent":110,"./ReactElement":131,"./escapeTextForBrowser":197}],161:[function(require,module,exports){
+},{"./DOMPropertyOperations":89,"./Object.assign":105,"./ReactComponent":113,"./ReactElement":134,"./escapeTextForBrowser":200}],164:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -24453,7 +29732,7 @@ var ReactTransitionChildMapping = {
 
 module.exports = ReactTransitionChildMapping;
 
-},{"./ReactChildren":109}],162:[function(require,module,exports){
+},{"./ReactChildren":112}],165:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -24564,7 +29843,7 @@ var ReactTransitionEvents = {
 
 module.exports = ReactTransitionEvents;
 
-},{"./ExecutionEnvironment":96}],163:[function(require,module,exports){
+},{"./ExecutionEnvironment":99}],166:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -24753,7 +30032,7 @@ var ReactTransitionGroup = React.createClass({
 
 module.exports = ReactTransitionGroup;
 
-},{"./Object.assign":102,"./React":104,"./ReactTransitionChildMapping":161,"./cloneWithProps":187,"./emptyFunction":195}],164:[function(require,module,exports){
+},{"./Object.assign":105,"./React":107,"./ReactTransitionChildMapping":164,"./cloneWithProps":190,"./emptyFunction":198}],167:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -25043,7 +30322,7 @@ var ReactUpdates = {
 module.exports = ReactUpdates;
 
 }).call(this,require('_process'))
-},{"./CallbackQueue":80,"./Object.assign":102,"./PooledClass":103,"./ReactCurrentOwner":115,"./ReactPerf":148,"./Transaction":181,"./invariant":214,"./warning":234,"_process":33}],165:[function(require,module,exports){
+},{"./CallbackQueue":83,"./Object.assign":105,"./PooledClass":106,"./ReactCurrentOwner":118,"./ReactPerf":151,"./Transaction":184,"./invariant":217,"./warning":237,"_process":35}],168:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -25097,7 +30376,7 @@ if ("production" !== process.env.NODE_ENV) {
 module.exports = React;
 
 }).call(this,require('_process'))
-},{"./LinkedStateMixin":98,"./React":104,"./ReactCSSTransitionGroup":107,"./ReactComponentWithPureRenderMixin":112,"./ReactDefaultPerf":129,"./ReactTestUtils":159,"./ReactTransitionGroup":163,"./ReactUpdates":164,"./cloneWithProps":187,"./cx":192,"./update":233,"_process":33}],166:[function(require,module,exports){
+},{"./LinkedStateMixin":101,"./React":107,"./ReactCSSTransitionGroup":110,"./ReactComponentWithPureRenderMixin":115,"./ReactDefaultPerf":132,"./ReactTestUtils":162,"./ReactTransitionGroup":166,"./ReactUpdates":167,"./cloneWithProps":190,"./cx":195,"./update":236,"_process":35}],169:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -25189,7 +30468,7 @@ var SVGDOMPropertyConfig = {
 
 module.exports = SVGDOMPropertyConfig;
 
-},{"./DOMProperty":85}],167:[function(require,module,exports){
+},{"./DOMProperty":88}],170:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -25384,7 +30663,7 @@ var SelectEventPlugin = {
 
 module.exports = SelectEventPlugin;
 
-},{"./EventConstants":90,"./EventPropagators":95,"./ReactInputSelection":138,"./SyntheticEvent":173,"./getActiveElement":201,"./isTextInputElement":217,"./keyOf":221,"./shallowEqual":229}],168:[function(require,module,exports){
+},{"./EventConstants":93,"./EventPropagators":98,"./ReactInputSelection":141,"./SyntheticEvent":176,"./getActiveElement":204,"./isTextInputElement":220,"./keyOf":224,"./shallowEqual":232}],171:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -25415,7 +30694,7 @@ var ServerReactRootIndex = {
 
 module.exports = ServerReactRootIndex;
 
-},{}],169:[function(require,module,exports){
+},{}],172:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -25843,7 +31122,7 @@ var SimpleEventPlugin = {
 module.exports = SimpleEventPlugin;
 
 }).call(this,require('_process'))
-},{"./EventConstants":90,"./EventPluginUtils":94,"./EventPropagators":95,"./SyntheticClipboardEvent":170,"./SyntheticDragEvent":172,"./SyntheticEvent":173,"./SyntheticFocusEvent":174,"./SyntheticKeyboardEvent":176,"./SyntheticMouseEvent":177,"./SyntheticTouchEvent":178,"./SyntheticUIEvent":179,"./SyntheticWheelEvent":180,"./getEventCharCode":202,"./invariant":214,"./keyOf":221,"./warning":234,"_process":33}],170:[function(require,module,exports){
+},{"./EventConstants":93,"./EventPluginUtils":97,"./EventPropagators":98,"./SyntheticClipboardEvent":173,"./SyntheticDragEvent":175,"./SyntheticEvent":176,"./SyntheticFocusEvent":177,"./SyntheticKeyboardEvent":179,"./SyntheticMouseEvent":180,"./SyntheticTouchEvent":181,"./SyntheticUIEvent":182,"./SyntheticWheelEvent":183,"./getEventCharCode":205,"./invariant":217,"./keyOf":224,"./warning":237,"_process":35}],173:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -25889,7 +31168,7 @@ SyntheticEvent.augmentClass(SyntheticClipboardEvent, ClipboardEventInterface);
 module.exports = SyntheticClipboardEvent;
 
 
-},{"./SyntheticEvent":173}],171:[function(require,module,exports){
+},{"./SyntheticEvent":176}],174:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -25935,7 +31214,7 @@ SyntheticEvent.augmentClass(
 module.exports = SyntheticCompositionEvent;
 
 
-},{"./SyntheticEvent":173}],172:[function(require,module,exports){
+},{"./SyntheticEvent":176}],175:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -25974,7 +31253,7 @@ SyntheticMouseEvent.augmentClass(SyntheticDragEvent, DragEventInterface);
 
 module.exports = SyntheticDragEvent;
 
-},{"./SyntheticMouseEvent":177}],173:[function(require,module,exports){
+},{"./SyntheticMouseEvent":180}],176:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -26132,7 +31411,7 @@ PooledClass.addPoolingTo(SyntheticEvent, PooledClass.threeArgumentPooler);
 
 module.exports = SyntheticEvent;
 
-},{"./Object.assign":102,"./PooledClass":103,"./emptyFunction":195,"./getEventTarget":205}],174:[function(require,module,exports){
+},{"./Object.assign":105,"./PooledClass":106,"./emptyFunction":198,"./getEventTarget":208}],177:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -26171,7 +31450,7 @@ SyntheticUIEvent.augmentClass(SyntheticFocusEvent, FocusEventInterface);
 
 module.exports = SyntheticFocusEvent;
 
-},{"./SyntheticUIEvent":179}],175:[function(require,module,exports){
+},{"./SyntheticUIEvent":182}],178:[function(require,module,exports){
 /**
  * Copyright 2013 Facebook, Inc.
  * All rights reserved.
@@ -26218,7 +31497,7 @@ SyntheticEvent.augmentClass(
 module.exports = SyntheticInputEvent;
 
 
-},{"./SyntheticEvent":173}],176:[function(require,module,exports){
+},{"./SyntheticEvent":176}],179:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -26305,7 +31584,7 @@ SyntheticUIEvent.augmentClass(SyntheticKeyboardEvent, KeyboardEventInterface);
 
 module.exports = SyntheticKeyboardEvent;
 
-},{"./SyntheticUIEvent":179,"./getEventCharCode":202,"./getEventKey":203,"./getEventModifierState":204}],177:[function(require,module,exports){
+},{"./SyntheticUIEvent":182,"./getEventCharCode":205,"./getEventKey":206,"./getEventModifierState":207}],180:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -26388,7 +31667,7 @@ SyntheticUIEvent.augmentClass(SyntheticMouseEvent, MouseEventInterface);
 
 module.exports = SyntheticMouseEvent;
 
-},{"./SyntheticUIEvent":179,"./ViewportMetrics":182,"./getEventModifierState":204}],178:[function(require,module,exports){
+},{"./SyntheticUIEvent":182,"./ViewportMetrics":185,"./getEventModifierState":207}],181:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -26436,7 +31715,7 @@ SyntheticUIEvent.augmentClass(SyntheticTouchEvent, TouchEventInterface);
 
 module.exports = SyntheticTouchEvent;
 
-},{"./SyntheticUIEvent":179,"./getEventModifierState":204}],179:[function(require,module,exports){
+},{"./SyntheticUIEvent":182,"./getEventModifierState":207}],182:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -26498,7 +31777,7 @@ SyntheticEvent.augmentClass(SyntheticUIEvent, UIEventInterface);
 
 module.exports = SyntheticUIEvent;
 
-},{"./SyntheticEvent":173,"./getEventTarget":205}],180:[function(require,module,exports){
+},{"./SyntheticEvent":176,"./getEventTarget":208}],183:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -26559,7 +31838,7 @@ SyntheticMouseEvent.augmentClass(SyntheticWheelEvent, WheelEventInterface);
 
 module.exports = SyntheticWheelEvent;
 
-},{"./SyntheticMouseEvent":177}],181:[function(require,module,exports){
+},{"./SyntheticMouseEvent":180}],184:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -26800,7 +32079,7 @@ var Transaction = {
 module.exports = Transaction;
 
 }).call(this,require('_process'))
-},{"./invariant":214,"_process":33}],182:[function(require,module,exports){
+},{"./invariant":217,"_process":35}],185:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -26832,7 +32111,7 @@ var ViewportMetrics = {
 
 module.exports = ViewportMetrics;
 
-},{"./getUnboundedScrollPosition":210}],183:[function(require,module,exports){
+},{"./getUnboundedScrollPosition":213}],186:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014, Facebook, Inc.
@@ -26898,7 +32177,7 @@ function accumulateInto(current, next) {
 module.exports = accumulateInto;
 
 }).call(this,require('_process'))
-},{"./invariant":214,"_process":33}],184:[function(require,module,exports){
+},{"./invariant":217,"_process":35}],187:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -26932,7 +32211,7 @@ function adler32(data) {
 
 module.exports = adler32;
 
-},{}],185:[function(require,module,exports){
+},{}],188:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -26964,7 +32243,7 @@ function camelize(string) {
 
 module.exports = camelize;
 
-},{}],186:[function(require,module,exports){
+},{}],189:[function(require,module,exports){
 /**
  * Copyright 2014, Facebook, Inc.
  * All rights reserved.
@@ -27006,7 +32285,7 @@ function camelizeStyleName(string) {
 
 module.exports = camelizeStyleName;
 
-},{"./camelize":185}],187:[function(require,module,exports){
+},{"./camelize":188}],190:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -27065,7 +32344,7 @@ function cloneWithProps(child, props) {
 module.exports = cloneWithProps;
 
 }).call(this,require('_process'))
-},{"./ReactElement":131,"./ReactPropTransferer":149,"./keyOf":221,"./warning":234,"_process":33}],188:[function(require,module,exports){
+},{"./ReactElement":134,"./ReactPropTransferer":152,"./keyOf":224,"./warning":237,"_process":35}],191:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -27109,7 +32388,7 @@ function containsNode(outerNode, innerNode) {
 
 module.exports = containsNode;
 
-},{"./isTextNode":218}],189:[function(require,module,exports){
+},{"./isTextNode":221}],192:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -27195,7 +32474,7 @@ function createArrayFrom(obj) {
 
 module.exports = createArrayFrom;
 
-},{"./toArray":231}],190:[function(require,module,exports){
+},{"./toArray":234}],193:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -27256,7 +32535,7 @@ function createFullPageComponent(tag) {
 module.exports = createFullPageComponent;
 
 }).call(this,require('_process'))
-},{"./ReactCompositeComponent":113,"./ReactElement":131,"./invariant":214,"_process":33}],191:[function(require,module,exports){
+},{"./ReactCompositeComponent":116,"./ReactElement":134,"./invariant":217,"_process":35}],194:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -27346,7 +32625,7 @@ function createNodesFromMarkup(markup, handleScript) {
 module.exports = createNodesFromMarkup;
 
 }).call(this,require('_process'))
-},{"./ExecutionEnvironment":96,"./createArrayFrom":189,"./getMarkupWrap":206,"./invariant":214,"_process":33}],192:[function(require,module,exports){
+},{"./ExecutionEnvironment":99,"./createArrayFrom":192,"./getMarkupWrap":209,"./invariant":217,"_process":35}],195:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -27385,7 +32664,7 @@ function cx(classNames) {
 
 module.exports = cx;
 
-},{}],193:[function(require,module,exports){
+},{}],196:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -27443,7 +32722,7 @@ function dangerousStyleValue(name, value) {
 
 module.exports = dangerousStyleValue;
 
-},{"./CSSProperty":78}],194:[function(require,module,exports){
+},{"./CSSProperty":81}],197:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -27494,7 +32773,7 @@ function deprecated(namespace, oldName, newName, ctx, fn) {
 module.exports = deprecated;
 
 }).call(this,require('_process'))
-},{"./Object.assign":102,"./warning":234,"_process":33}],195:[function(require,module,exports){
+},{"./Object.assign":105,"./warning":237,"_process":35}],198:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -27528,7 +32807,7 @@ emptyFunction.thatReturnsArgument = function(arg) { return arg; };
 
 module.exports = emptyFunction;
 
-},{}],196:[function(require,module,exports){
+},{}],199:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -27552,7 +32831,7 @@ if ("production" !== process.env.NODE_ENV) {
 module.exports = emptyObject;
 
 }).call(this,require('_process'))
-},{"_process":33}],197:[function(require,module,exports){
+},{"_process":35}],200:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -27593,7 +32872,7 @@ function escapeTextForBrowser(text) {
 
 module.exports = escapeTextForBrowser;
 
-},{}],198:[function(require,module,exports){
+},{}],201:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -27662,7 +32941,7 @@ function flattenChildren(children) {
 module.exports = flattenChildren;
 
 }).call(this,require('_process'))
-},{"./ReactTextComponent":160,"./traverseAllChildren":232,"./warning":234,"_process":33}],199:[function(require,module,exports){
+},{"./ReactTextComponent":163,"./traverseAllChildren":235,"./warning":237,"_process":35}],202:[function(require,module,exports){
 /**
  * Copyright 2014, Facebook, Inc.
  * All rights reserved.
@@ -27691,7 +32970,7 @@ function focusNode(node) {
 
 module.exports = focusNode;
 
-},{}],200:[function(require,module,exports){
+},{}],203:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -27722,7 +33001,7 @@ var forEachAccumulated = function(arr, cb, scope) {
 
 module.exports = forEachAccumulated;
 
-},{}],201:[function(require,module,exports){
+},{}],204:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -27751,7 +33030,7 @@ function getActiveElement() /*?DOMElement*/ {
 
 module.exports = getActiveElement;
 
-},{}],202:[function(require,module,exports){
+},{}],205:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -27803,7 +33082,7 @@ function getEventCharCode(nativeEvent) {
 
 module.exports = getEventCharCode;
 
-},{}],203:[function(require,module,exports){
+},{}],206:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -27908,7 +33187,7 @@ function getEventKey(nativeEvent) {
 
 module.exports = getEventKey;
 
-},{"./getEventCharCode":202}],204:[function(require,module,exports){
+},{"./getEventCharCode":205}],207:[function(require,module,exports){
 /**
  * Copyright 2013 Facebook, Inc.
  * All rights reserved.
@@ -27955,7 +33234,7 @@ function getEventModifierState(nativeEvent) {
 
 module.exports = getEventModifierState;
 
-},{}],205:[function(require,module,exports){
+},{}],208:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -27986,7 +33265,7 @@ function getEventTarget(nativeEvent) {
 
 module.exports = getEventTarget;
 
-},{}],206:[function(require,module,exports){
+},{}],209:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -28103,7 +33382,7 @@ function getMarkupWrap(nodeName) {
 module.exports = getMarkupWrap;
 
 }).call(this,require('_process'))
-},{"./ExecutionEnvironment":96,"./invariant":214,"_process":33}],207:[function(require,module,exports){
+},{"./ExecutionEnvironment":99,"./invariant":217,"_process":35}],210:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -28178,7 +33457,7 @@ function getNodeForCharacterOffset(root, offset) {
 
 module.exports = getNodeForCharacterOffset;
 
-},{}],208:[function(require,module,exports){
+},{}],211:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -28213,7 +33492,7 @@ function getReactRootElementInContainer(container) {
 
 module.exports = getReactRootElementInContainer;
 
-},{}],209:[function(require,module,exports){
+},{}],212:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -28250,7 +33529,7 @@ function getTextContentAccessor() {
 
 module.exports = getTextContentAccessor;
 
-},{"./ExecutionEnvironment":96}],210:[function(require,module,exports){
+},{"./ExecutionEnvironment":99}],213:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -28290,7 +33569,7 @@ function getUnboundedScrollPosition(scrollable) {
 
 module.exports = getUnboundedScrollPosition;
 
-},{}],211:[function(require,module,exports){
+},{}],214:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -28323,7 +33602,7 @@ function hyphenate(string) {
 
 module.exports = hyphenate;
 
-},{}],212:[function(require,module,exports){
+},{}],215:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -28364,7 +33643,7 @@ function hyphenateStyleName(string) {
 
 module.exports = hyphenateStyleName;
 
-},{"./hyphenate":211}],213:[function(require,module,exports){
+},{"./hyphenate":214}],216:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -28478,7 +33757,7 @@ function instantiateReactComponent(element, parentCompositeType) {
 module.exports = instantiateReactComponent;
 
 }).call(this,require('_process'))
-},{"./ReactElement":131,"./ReactEmptyComponent":133,"./ReactLegacyElement":140,"./ReactNativeComponent":146,"./warning":234,"_process":33}],214:[function(require,module,exports){
+},{"./ReactElement":134,"./ReactEmptyComponent":136,"./ReactLegacyElement":143,"./ReactNativeComponent":149,"./warning":237,"_process":35}],217:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -28535,7 +33814,7 @@ var invariant = function(condition, format, a, b, c, d, e, f) {
 module.exports = invariant;
 
 }).call(this,require('_process'))
-},{"_process":33}],215:[function(require,module,exports){
+},{"_process":35}],218:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -28600,7 +33879,7 @@ function isEventSupported(eventNameSuffix, capture) {
 
 module.exports = isEventSupported;
 
-},{"./ExecutionEnvironment":96}],216:[function(require,module,exports){
+},{"./ExecutionEnvironment":99}],219:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -28628,7 +33907,7 @@ function isNode(object) {
 
 module.exports = isNode;
 
-},{}],217:[function(require,module,exports){
+},{}],220:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -28672,7 +33951,7 @@ function isTextInputElement(elem) {
 
 module.exports = isTextInputElement;
 
-},{}],218:[function(require,module,exports){
+},{}],221:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -28697,7 +33976,7 @@ function isTextNode(object) {
 
 module.exports = isTextNode;
 
-},{"./isNode":216}],219:[function(require,module,exports){
+},{"./isNode":219}],222:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -28738,7 +34017,7 @@ function joinClasses(className/*, ... */) {
 
 module.exports = joinClasses;
 
-},{}],220:[function(require,module,exports){
+},{}],223:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -28793,7 +34072,7 @@ var keyMirror = function(obj) {
 module.exports = keyMirror;
 
 }).call(this,require('_process'))
-},{"./invariant":214,"_process":33}],221:[function(require,module,exports){
+},{"./invariant":217,"_process":35}],224:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -28829,7 +34108,7 @@ var keyOf = function(oneKeyObj) {
 
 module.exports = keyOf;
 
-},{}],222:[function(require,module,exports){
+},{}],225:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -28882,7 +34161,7 @@ function mapObject(object, callback, context) {
 
 module.exports = mapObject;
 
-},{}],223:[function(require,module,exports){
+},{}],226:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -28916,7 +34195,7 @@ function memoizeStringOnly(callback) {
 
 module.exports = memoizeStringOnly;
 
-},{}],224:[function(require,module,exports){
+},{}],227:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014, Facebook, Inc.
@@ -28950,7 +34229,7 @@ function monitorCodeUse(eventName, data) {
 module.exports = monitorCodeUse;
 
 }).call(this,require('_process'))
-},{"./invariant":214,"_process":33}],225:[function(require,module,exports){
+},{"./invariant":217,"_process":35}],228:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -28990,7 +34269,7 @@ function onlyChild(children) {
 module.exports = onlyChild;
 
 }).call(this,require('_process'))
-},{"./ReactElement":131,"./invariant":214,"_process":33}],226:[function(require,module,exports){
+},{"./ReactElement":134,"./invariant":217,"_process":35}],229:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -29018,7 +34297,7 @@ if (ExecutionEnvironment.canUseDOM) {
 
 module.exports = performance || {};
 
-},{"./ExecutionEnvironment":96}],227:[function(require,module,exports){
+},{"./ExecutionEnvironment":99}],230:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -29046,7 +34325,7 @@ var performanceNow = performance.now.bind(performance);
 
 module.exports = performanceNow;
 
-},{"./performance":226}],228:[function(require,module,exports){
+},{"./performance":229}],231:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -29124,7 +34403,7 @@ if (ExecutionEnvironment.canUseDOM) {
 
 module.exports = setInnerHTML;
 
-},{"./ExecutionEnvironment":96}],229:[function(require,module,exports){
+},{"./ExecutionEnvironment":99}],232:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -29168,7 +34447,7 @@ function shallowEqual(objA, objB) {
 
 module.exports = shallowEqual;
 
-},{}],230:[function(require,module,exports){
+},{}],233:[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -29206,7 +34485,7 @@ function shouldUpdateReactComponent(prevElement, nextElement) {
 
 module.exports = shouldUpdateReactComponent;
 
-},{}],231:[function(require,module,exports){
+},{}],234:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014, Facebook, Inc.
@@ -29278,7 +34557,7 @@ function toArray(obj) {
 module.exports = toArray;
 
 }).call(this,require('_process'))
-},{"./invariant":214,"_process":33}],232:[function(require,module,exports){
+},{"./invariant":217,"_process":35}],235:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -29461,7 +34740,7 @@ function traverseAllChildren(children, callback, traverseContext) {
 module.exports = traverseAllChildren;
 
 }).call(this,require('_process'))
-},{"./ReactElement":131,"./ReactInstanceHandles":139,"./invariant":214,"_process":33}],233:[function(require,module,exports){
+},{"./ReactElement":134,"./ReactInstanceHandles":142,"./invariant":217,"_process":35}],236:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -29629,7 +34908,7 @@ function update(value, spec) {
 module.exports = update;
 
 }).call(this,require('_process'))
-},{"./Object.assign":102,"./invariant":214,"./keyOf":221,"_process":33}],234:[function(require,module,exports){
+},{"./Object.assign":105,"./invariant":217,"./keyOf":224,"_process":35}],237:[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014, Facebook, Inc.
@@ -29674,7 +34953,7 @@ if ("production" !== process.env.NODE_ENV) {
 module.exports = warning;
 
 }).call(this,require('_process'))
-},{"./emptyFunction":195,"_process":33}],235:[function(require,module,exports){
+},{"./emptyFunction":198,"_process":35}],238:[function(require,module,exports){
 module.exports = require('./lib/React');
 
-},{"./lib/React":104}]},{},[32]);
+},{"./lib/React":107}]},{},[33]);

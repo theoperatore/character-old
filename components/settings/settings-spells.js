@@ -1,4 +1,5 @@
 var React = require('react');
+var Immutable = require('immutable');
 
 var Input = require('react-bootstrap/lib/Input');
 var ButtonToolbar = require('react-bootstrap/lib/ButtonToolbar');
@@ -43,6 +44,7 @@ var SettingsSpells = React.createClass({
     this.props.hatchToggle();
   },
   componentDidUpdate : function() {
+    // only recalculate if open?
     // recalculate this 
     this.props.recalculate();
   },
@@ -103,18 +105,18 @@ var SettingsSpells = React.createClass({
 
     // user is editing spells
     else if (this.state.mode === 1) {
-      var tmp = this.props.character['charSpells'];
+      var tmp = this.props.character.get('charSpells');
       var parts = e.target.value.split("_");
       var lvl = parseInt(parts[0], 10);
       var idx = parseInt(parts[1], 10);
       var state = {};
 
-      state.newName = tmp[lvl].spells[idx].name;
-      state.newDesc = tmp[lvl].spells[idx].desc;
-      state.newCmp = tmp[lvl].spells[idx].cmp;
-      state.newCast = tmp[lvl].spells[idx].cast;
-      state.newDur = tmp[lvl].spells[idx].dur;
-      state.newRange = tmp[lvl].spells[idx].range;
+      state.newName = tmp.getIn([lvl, 'spells', idx, 'name']);
+      state.newDesc = tmp.getIn([lvl, 'spells', idx, 'desc']);
+      state.newCmp = tmp.getIn([lvl, 'spells', idx, 'cmp']);
+      state.newCast = tmp.getIn([lvl, 'spells', idx, 'cast']);
+      state.newDur = tmp.getIn([lvl, 'spells', idx, 'dur']);
+      state.newRange = tmp.getIn([lvl, 'spells', idx, 'range']);
       state.newLvl = lvl;
       state.idx = e.target.value;
 
@@ -123,9 +125,9 @@ var SettingsSpells = React.createClass({
 
     // user is editing spell slots per level
     else if (this.state.mode === 2) {
-      var tmp = this.props.character['charSpells'];
+      var tmp = this.props.character.get('charSpells');
       var lvl = parseInt(e.target.value,10);
-      var slots = tmp[lvl].slots;
+      var slots = tmp.getIn([lvl, 'slots']);
 
       this.setState({ slotLvl : lvl, newSlots : slots });
     }
@@ -136,13 +138,16 @@ var SettingsSpells = React.createClass({
     var path = "charSpells.delete.";
     var lvl = parseInt(this.state.idx.split("_")[0], 10);
     var idx = parseInt(this.state.idx.split("_")[1], 10);
-    var name = tmp['charSpells'][lvl]['spells'][idx].name;
+    var name = tmp.getIn(['charSpells', lvl, 'spells', idx, 'name']);
     var spell;
 
     if (!confirm("Do you really want to get rid of\n '" + name + "'\n forever?")) return;
 
-    spell = tmp['charSpells'][lvl]['spells'].splice(idx, 1)[0];
-    path += spell.name;
+    //spell = tmp['charSpells'][lvl]['spells'].splice(idx, 1)[0];
+    tmp = tmp.updateIn(['charSpells', lvl, 'spells'], function(list) {
+      return list.splice(idx)
+    })
+    path += name;
 
     this.props.edit({ path : path, character : tmp });
     this.clearState();
@@ -162,9 +167,13 @@ var SettingsSpells = React.createClass({
       data.range = this.state.range;
       data.dur = this.state.dur;
       data.cmp = this.state.cmp;
+      data.prepared = false;
 
       path += ".add." + this.state.name + ".lvl." + this.state.lvl;
-      tmp['charSpells'][this.state.lvl]['spells'].push(data);
+      //tmp['charSpells'][this.state.lvl]['spells'].push(data);
+      tmp = tmp.updateIn(['charSpells', this.state.lvl, 'spells'], function(list) {
+        return list.push(new Immutable.Map(data));
+      })
     }
 
     // editing spells
@@ -175,28 +184,45 @@ var SettingsSpells = React.createClass({
 
       // handle splicing and pushing to new lvl; then editing
       if (oldLvl !== this.state.newLvl) { 
-        path += ".edit.differentLvl." + this.state.newName + "." + this.state.newLvl;
-        spell = tmp['charSpells'][oldLvl]['spells'].splice(oldIdx, 1)[0];
+        path += ".edit.differentLvl." + this.state.newLvl + "." + this.state.newName;
 
-        spell.name = this.state.newName;
-        spell.desc = this.state.newDesc;
-        spell.range = this.state.newRange;
-        spell.cmp = this.state.newCmp;
-        spell.cast = this.state.newCast;
-        spell.dur = this.state.newDur;
+        // cache old spell
+        spell = tmp.getIn(['charSpells', oldLvl, 'spells', oldIdx]);
 
-        tmp['charSpells'][this.state.newLvl]['spells'].push(spell);
+        // delete old spell
+        tmp = tmp.updateIn(['charSpells', oldLvl, 'spells'], function(list) {
+          return list.splice(oldIdx, 1);
+        })
+
+        // update old spell => new spell
+        spell = spell.set('name', this.state.newName);
+        spell = spell.set('desc', this.state.newDesc);
+        spell = spell.set('range', this.state.newRange);
+        spell = spell.set('cmp', this.state.newCmp);
+        spell = spell.set('cast', this.state.newCast);
+        spell = spell.set('dur', this.state.newDur);
+
+        // put new spell in right level
+        tmp = tmp.updateIn(['charSpells', this.state.newLvl, 'spells'], function(list) {
+          return list.push(spell)
+        })
       }
 
       // otherwise just edit the node directly
       else {
         path += ".edit.sameLvl." + this.state.newName;
-        tmp['charSpells'][oldLvl]['spells'][oldIdx].name = this.state.newName;
-        tmp['charSpells'][oldLvl]['spells'][oldIdx].desc = this.state.newDesc;
-        tmp['charSpells'][oldLvl]['spells'][oldIdx].range = this.state.newRange;
-        tmp['charSpells'][oldLvl]['spells'][oldIdx].cmp = this.state.newCmp;
-        tmp['charSpells'][oldLvl]['spells'][oldIdx].cast = this.state.newCast;
-        tmp['charSpells'][oldLvl]['spells'][oldIdx].dur = this.state.newDur;
+        tmp = tmp.updateIn(['charSpells', oldLvl, 'spells', oldIdx], function(spell) {
+          var clone = spell;
+
+          clone = clone.set('name', this.state.newName);
+          clone = clone.set('desc', this.state.newDesc);
+          clone = clone.set('range', this.state.newRange);
+          clone = clone.set('cmp', this.state.newCmp);
+          clone = clone.set('cast', this.state.newCast);
+          clone = clone.set('dur', this.state.newDur);
+
+          return clone;
+        }.bind(this))
       }
     }
 
@@ -209,7 +235,8 @@ var SettingsSpells = React.createClass({
       if (newSlots === "0") newSlots = 0; 
 
 
-      tmp['charSpells'][this.state.slotLvl]['slots'] = newSlots;
+      //tmp['charSpells'][this.state.slotLvl]['slots'] = newSlots;
+      tmp = tmp.setIn(['charSpells', this.state.slotLvl, 'slots'], newSlots);
       path += ".edit.spellSlots.level." + this.state.slotLvl + ".slots." + newSlots;
 
     }
@@ -251,16 +278,16 @@ var SettingsSpells = React.createClass({
 
     // set up spells list
     var spells = [];
-    this.props.character['charSpells'].forEach(function(lvl, i) {
+    this.props.character.get('charSpells').forEach(function(lvl, i) {
       var group = [];
-      lvl.spells.forEach(function(sp, j) {
+      lvl.get('spells').forEach(function(sp, j) {
         group.push(
-          <option key={"level"+i+"spell"+j} value={i+"_"+j} lvl={i}>{sp.name}</option>
+          <option key={"level"+i+"spell"+j} value={i+"_"+j} lvl={i}>{sp.get('name')}</option>
         );
       });
 
       spells.push(
-        <optgroup key={i} label={lvl.name}>
+        <optgroup key={i} label={lvl.get('name')}>
           {group}
         </optgroup>
       );
@@ -324,7 +351,7 @@ var SettingsSpells = React.createClass({
           <option value={8}>{"8th Level"}</option>
           <option value={9}>{"9th Level"}</option>
         </Input>
-        <Input type="text" label={"New Amount of Spell Slots"} value={this.state.newSlots} onChange={this.handleChange.bind(this, "newSlots")}/>
+        <Input type="text" disabled={this.state.slotLvl === -1 ? true : false} label={"New Amount of Spell Slots"} value={this.state.newSlots} onChange={this.handleChange.bind(this, "newSlots")}/>
         <ButtonToolbar>
           <Button bsStyle="danger" onClick={this.toggle}>Close</Button>
           <Button bsStyle="success" onClick={this.handleOk}>Save</Button>

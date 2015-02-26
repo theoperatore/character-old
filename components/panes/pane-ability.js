@@ -22,32 +22,33 @@ var Ability = React.createClass({
     this.refs.settings.toggle(idx);
   },
   render : function() {
+    var prof = this.props.character.getIn(['charProficiencyBonus', 'score']);
+    var abil = this.props.character.get('charAbilities');
+    var passivePerception = 10;
 
+    // loop through skills object -- the skill's score should pull mod from
+    // relevent ability score and add in proficiency bonus if trained
     var skills = [];
-    var skillNames = Object.keys(this.props.character['charSkills']);
-    for (var i = 0, j = 1; j < skillNames.length; j+=2, i+=2) {
-      var sk1 = skillNames[i];
-      var sk2 = skillNames[j];
-      var skill1 = this.props.character['charSkills'][sk1];
-      var skill2 = this.props.character['charSkills'][sk2];
+    this.props.character.get('charSkills').forEach(function(skill, key) {
+      var score = abil.get(skill.get('mod')).get('mod');
+      
+      score += skill.get('trained') ? prof : 0;
+      score += skill.get('bonus');
+
+      if (skill.get('name') === "Perception") {
+        passivePerception += score;
+        passivePerception += this.props.character.getIn(['charPassivePerception', 'bonus']);
+      }
 
       skills.push(
-        <Row key={i}>
-          <Col xs={6}>
-            <div className="card">
-              <p>{sk1}</p>
-              <h3 className={(skill1.trained === true) ? "trained" : ""}>{skill1.score}</h3>
-            </div>
-          </Col>
-          <Col xs={6}>
-            <div className="card">
-              <p>{sk2}</p>
-              <h3 className={(skill2.trained === true) ? "trained" : ""}>{skill2.score}</h3>
-            </div>
-          </Col>
-        </Row>
-      )
-    }
+        <Col key={key} xs={6}>
+          <div className="card">
+            <p>{skill.get('name') + " (" + skill.get('mod') + ")"}</p>
+            <h3 className={(skill.get('trained') === true) ? "trained" : ""}>{score}</h3>
+          </div>
+        </Col>
+      );
+    }, this)
 
     return (
       <HatchGroup ref="settings">
@@ -64,22 +65,22 @@ var Ability = React.createClass({
                 <Col xs={4}>
                   <div className="card">
                     <p>STR</p>
-                    <h3 className="bg-success">{this.props.character['charAbilities']['str']['mod']}</h3>
-                    <p>{this.props.character['charAbilities']['str']['score']}</p>
+                    <h3 className="bg-success">{this.props.character.getIn(['charAbilities', 'str', 'mod'])}</h3>
+                    <p>{this.props.character.getIn(['charAbilities', 'str','score'])}</p>
                   </div>
                 </Col>
                 <Col xs={4}>
                   <div className="card">
                     <p>DEX</p>
-                    <h3 className="bg-success">{this.props.character['charAbilities']['dex']['mod']}</h3>
-                    <p>{this.props.character['charAbilities']['dex']['score']}</p>
+                    <h3 className="bg-success">{this.props.character.getIn(['charAbilities', 'dex','mod'])}</h3>
+                    <p>{this.props.character.getIn(['charAbilities', 'dex','score'])}</p>
                   </div>
                 </Col>
                 <Col xs={4}>
                   <div className="card">
                     <p>CON</p>
-                    <h3 className="bg-success">{this.props.character['charAbilities']['con']['mod']}</h3>
-                    <p>{this.props.character['charAbilities']['con']['score']}</p>
+                    <h3 className="bg-success">{this.props.character.getIn(['charAbilities', 'con','mod'])}</h3>
+                    <p>{this.props.character.getIn(['charAbilities', 'con','score'])}</p>
                   </div>
                 </Col>
               </Row>
@@ -87,22 +88,22 @@ var Ability = React.createClass({
                 <Col xs={4}>
                   <div className="card">
                     <p>INT</p>
-                    <h3 className="bg-success">{this.props.character['charAbilities']['int']['mod']}</h3>
-                    <p>{this.props.character['charAbilities']['int']['score']}</p>
+                    <h3 className="bg-success">{this.props.character.getIn(['charAbilities', 'int','mod'])}</h3>
+                    <p>{this.props.character.getIn(['charAbilities', 'int','score'])}</p>
                   </div>
                 </Col>
                 <Col xs={4}>
                   <div className="card">
                     <p>WIS</p>
-                    <h3 className="bg-success">{this.props.character['charAbilities']['wis']['mod']}</h3>
-                    <p>{this.props.character['charAbilities']['wis']['score']}</p>
+                    <h3 className="bg-success">{this.props.character.getIn(['charAbilities', 'wis','mod'])}</h3>
+                    <p>{this.props.character.getIn(['charAbilities', 'wis','score'])}</p>
                   </div>
                 </Col>
                 <Col xs={4}>
                   <div className="card">
                     <p>CHA</p>
-                    <h3 className="bg-success">{this.props.character['charAbilities']['cha']['mod']}</h3>
-                    <p>{this.props.character['charAbilities']['cha']['score']}</p>
+                    <h3 className="bg-success">{this.props.character.getIn(['charAbilities', 'cha','mod'])}</h3>
+                    <p>{this.props.character.getIn(['charAbilities', 'cha','score'])}</p>
                   </div>
                 </Col>
               </Row>
@@ -115,13 +116,13 @@ var Ability = React.createClass({
                 <Col xs={6}>
                   <div className="card">
                     <p>Proficiency Bonus</p>
-                    <h3 className="trained">{this.props.character['charProficiencyBonus']['score']}</h3>
+                    <h3 className="trained">{this.props.character.getIn(['charProficiencyBonus', 'score'])}</h3>
                   </div>
                 </Col>
                 <Col xs={6}>
                   <div className="card">
                     <p>Passive Perception</p>
-                    <h3>{this.props.character['charPassivePerception']['score']}</h3>
+                    <h3>{passivePerception}</h3>
                   </div>
                 </Col>
               </Row>
@@ -136,7 +137,9 @@ var Ability = React.createClass({
         <div className="hatch-cover">
           <Panel>
             <Grid fluid>
-              {skills}
+              <Row>
+                {skills}
+              </Row>
             </Grid>
           </Panel>
         </div>

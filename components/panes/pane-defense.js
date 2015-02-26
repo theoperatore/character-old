@@ -1,4 +1,5 @@
 var React = require('react');
+var Immutable = require('immutable');
 var HelpTooltip = require('../tooltips/help');
 var RestConfig = require('../popovers/rest');
 var SettingsDefenses = require('../settings/settings-defenses');
@@ -47,25 +48,32 @@ var Defense = React.createClass({
   handleDeathSaves : function(cmp, e) {
     var tmp = this.props.character;
     var path = "charDefenses." + cmp + ".total.";
+    var curr;
     if (cmp === "successes") {
+      curr = tmp.getIn(['charHitPoints', 'deathSaves', 'successes']);
+
       if (e.target.checked) {
-        tmp['charHitPoints']['deathSaves']['successes'] += 1;
+        curr += 1;
       }
       else {
-        tmp['charHitPoints']['deathSaves']['successes'] -= 1;
+        curr -=1;
       }
 
-      path += tmp['charHitPoints']['deathSaves']['successes'];
+      path += curr;
+      tmp = tmp.setIn(['charHitPoints', 'deathSaves', 'successes'], curr);
     }
     else if (cmp === "failures") {
+      curr = tmp.getIn(['charHitPoints', 'deathSaves', 'failures']);
+
       if (e.target.checked) {
-        tmp['charHitPoints']['deathSaves']['failures'] += 1;
+        curr += 1;
       }
       else {
-        tmp['charHitPoints']['deathSaves']['failures'] -= 1;
+        curr -= 1;
       }
 
-      path += tmp['charHitPoints']['deathSaves']['failures'];
+      path += curr;
+      tmp = tmp.setIn(['charHitPoints', 'deathSaves', 'failures'], curr);
     }
 
     this.props.edit({ path : path, character : tmp });
@@ -76,47 +84,80 @@ var Defense = React.createClass({
     var amount = parseInt(this.state.dmg, 10);
     var temp = parseInt(this.state.temp, 10);
     var diff;
+    var curr;
+    var currt;
+    var max;
 
     if (mode === "heal") {
-
       if (isNaN(amount)) return;
+
+      curr = data.getIn(['charHitPoints', 'current']);
+      max = data.getIn(['charHitPoints', 'maximum']);
 
       path += "hpHeal." + amount;
-      data['charHitPoints']['current'] = 
-        (data['charHitPoints']['current'] + amount >= data['charHitPoints']['maximum'])
-        ? data['charHitPoints']['maximum']
-        : data['charHitPoints']['current'] + amount;
+      curr = (curr + amount >= max) ? max : curr + amount;
+      data = data.setIn(['charHitPoints', 'current'], curr);
+
+      //data['charHitPoints']['current'] = 
+      //  (data['charHitPoints']['current'] + amount >= data['charHitPoints']['maximum'])
+      //  ? data['charHitPoints']['maximum']
+      //  : data['charHitPoints']['current'] + amount;
     }
     else if (mode === "dmg") {
-
       if (isNaN(amount)) return;
 
+      curr = data.getIn(['charHitPoints', 'current']);
+      currt = data.getIn(['charHitPoints', 'temporary']);
+
       path += "hpDamage." + amount;
-      if (data['charHitPoints']['temporary'] !== 0) {
-        diff = data['charHitPoints']['temporary'] - amount;
+
+      if (currt !== 0) {
+        diff = currt - amount;
 
         if (diff < 0) {
-          data['charHitPoints']['temporary'] = 0;
-          data['charHitPoints']['current'] += diff;         
+          curr += diff;
+          currt = 0;
         }
         else if (diff >= 0) {
-          data['charHitPoints']['temporary'] = diff;
+          currt = diff;
         }
+
+        data = data.setIn(['charHitPoints', 'current'], curr);
+        data = data.setIn(['charHitPoints', 'temporary'], currt);
+
       }
       else {
-        data['charHitPoints']['current'] -= amount;
+        curr -= amount;
+        data = data.setIn(['charHitPoints', 'current'], curr);
       }
+
+      //if (data['charHitPoints']['temporary'] !== 0) {
+      //  diff = data['charHitPoints']['temporary'] - amount;
+      //
+      //  if (diff < 0) {
+      //    data['charHitPoints']['temporary'] = 0;
+      //    data['charHitPoints']['current'] += diff;         
+      //  }
+      //  else if (diff >= 0) {
+      //    data['charHitPoints']['temporary'] = diff;
+      //  }
+      //}
+      //else {
+      //  data['charHitPoints']['current'] -= amount;
+      //}
     }
     else if (mode === "temp") {
       if (isNaN(temp)) return;
 
       path += "tempHP." + temp;
-      data['charHitPoints']['temporary'] = temp;
+      //data['charHitPoints']['temporary'] = temp;
+      data = data.setIn(['charHitPoints', 'temporary'], temp);
     }
     else if (mode === "clear") {
 
       path += "tempHP.clear";
-      data['charHitPoints']['temporary'] = 0;
+      //data['charHitPoints']['temporary'] = 0;
+      data = data.setIn(['charHitPoints', 'temporary'], 0);
 
     }
 
@@ -128,9 +169,9 @@ var Defense = React.createClass({
   },
 
   render : function() {
-    var curr = this.props.character['charHitPoints']['current'];
-    var max  = this.props.character['charHitPoints']['maximum'];
-    var temp = this.props.character['charHitPoints']['temporary'];
+    var curr = this.props.character.getIn(['charHitPoints', 'current']);
+    var max  = this.props.character.getIn(['charHitPoints', 'maximum']);
+    var temp = this.props.character.getIn(['charHitPoints', 'temporary']);
     var hpPercent = Math.floor((curr / max) * 100);
     var tempPercent = Math.floor((temp / max) * 100);
     var hpStyle = "success";
@@ -164,10 +205,10 @@ var Defense = React.createClass({
     );
 
     var resistances = [];
-    this.props.character['charResistances'].forEach(function(res, i) {
+    this.props.character.get('charResistances').forEach(function(res, i) {
       resistances.push(
-        <Panel3d key={"res" + i} title={res.name} className="list-header">
-          <p>{res.desc}</p>
+        <Panel3d key={"res" + i} title={res.get('name')} className="list-header">
+          <p>{res.get('desc')}</p>
         </Panel3d>
       );
     });
@@ -175,18 +216,28 @@ var Defense = React.createClass({
     var successes = [];
     var failures = [];
     for (var i = 0; i < 3; i++) {
-      var checked = i < this.props.character['charHitPoints']['deathSaves']['successes'];
+      var checked = i < this.props.character.getIn(['charHitPoints', 'deathSaves', 'successes']);
       successes.push(
         <Col key={"successes" + i} xs={4}><input onChange={this.handleDeathSaves.bind(this, "successes")}  checked={checked} className="chkbox-lg" type="checkbox" /></Col>
       );
     }
 
     for (var i = 0; i < 3; i++) {
-      var checked = i < this.props.character['charHitPoints']['deathSaves']['failures'];
+      var checked = i < this.props.character.getIn(['charHitPoints', 'deathSaves', 'failures']);
       failures.push(
         <Col key={"failures" + i} xs={4}><input onChange={this.handleDeathSaves.bind(this, "failures")} checked={checked} className="chkbox-lg" type="checkbox" /></Col>
       );
     }
+
+    // calculate saving throws
+    var st = {};
+    var abil = this.props.character.get('charAbilities');
+    var prof = this.props.character.getIn(['charProficiencyBonus', 'score']);
+    this.props.character.get('charSavingThrows').forEach(function(saves, key) {
+      st[key] = abil.getIn([key, 'mod']);
+      st[key] += saves.get('proficient') ? prof : 0;
+      st[key] += saves.get('bonus');
+    })
 
     return (
       <HatchGroup ref="settings">
@@ -228,7 +279,7 @@ var Defense = React.createClass({
                 <Col xs={12}>
                   <div className="card">
                     <p>Armor Class</p>
-                    <h3 className="shield">{this.props.character['charArmorClass']['score']}</h3>
+                    <h3 className="shield">{this.props.character.getIn(['charArmorClass', 'score'])}</h3>
                   </div>
                 </Col>
               </Row>
@@ -236,7 +287,7 @@ var Defense = React.createClass({
                 <Col xs={4}>
                   <div className="card">
                     <p>Initiative</p>
-                    <h3>{this.props.character['charInitiative']['score']}</h3>
+                    <h3>{this.props.character.getIn(['charInitiative', 'score'])}</h3>
                   </div>
                 </Col>
                 <Col xs={4}>
@@ -254,7 +305,7 @@ var Defense = React.createClass({
                 <Col xs={4}>
                   <div className="card">
                     <p>Speed</p>
-                    <h3>{this.props.character['charSpeed']['score']}</h3>
+                    <h3>{this.props.character.getIn(['charSpeed', 'score'])}</h3>
                   </div>
                 </Col>
               </Row>
@@ -262,8 +313,8 @@ var Defense = React.createClass({
                 <Col xs={12}>
                   <div>
                     <p>Hit Dice</p>
-                    <h3>{this.props.character['charHitPoints']['hitDiceTotal']}</h3>
-                    <p>{this.props.character['charHitPoints']['hitDiceCurrent']} / {this.props.character['charInfo']['level']}</p>
+                    <h3>{this.props.character.getIn(['charHitPoints', 'hitDiceTotal'])}</h3>
+                    <p>{this.props.character.getIn(['charHitPoints', 'hitDiceCurrent'])} / {this.props.character.getIn(['charInfo', 'level'])}</p>
                   </div>
                 </Col>
               </Row>
@@ -312,19 +363,19 @@ var Defense = React.createClass({
                 <Col xs={4}>
                   <div className="card">
                     <p>STR</p>
-                    <h3 className={(this.props.character['charSavingThrows']['str']['proficient'] === true) ? "trained" : ""}>{this.props.character['charSavingThrows']['str']['score']}</h3>
+                    <h3 className={(this.props.character.getIn(['charSavingThrows', 'str', 'proficient']) === true) ? "trained" : ""}>{st['str']}</h3>
                   </div>
                 </Col>
                 <Col xs={4}>
                   <div className="card">
                     <p>DEX</p>
-                    <h3 className={(this.props.character['charSavingThrows']['dex']['proficient'] === true) ? "trained" : ""}>{this.props.character['charSavingThrows']['dex']['score']}</h3>
+                    <h3 className={(this.props.character.getIn(['charSavingThrows', 'dex', 'proficient']) === true) ? "trained" : ""}>{st['dex']}</h3>
                   </div>
                 </Col>
                 <Col xs={4}>
                   <div className="card">
                     <p>CON</p>
-                    <h3 className={(this.props.character['charSavingThrows']['con']['proficient'] === true) ? "trained" : ""}>{this.props.character['charSavingThrows']['con']['score']}</h3>
+                    <h3 className={(this.props.character.getIn(['charSavingThrows', 'con', 'proficient']) === true) ? "trained" : ""}>{st['con']}</h3>
                   </div>
                 </Col>
               </Row>
@@ -332,19 +383,19 @@ var Defense = React.createClass({
                 <Col xs={4}>
                   <div className="card">
                     <p>INT</p>
-                    <h3 className={(this.props.character['charSavingThrows']['int']['proficient'] === true) ? "trained" : ""}>{this.props.character['charSavingThrows']['int']['score']}</h3>
+                    <h3 className={(this.props.character.getIn(['charSavingThrows', 'int', 'proficient']) === true) ? "trained" : ""}>{st['int']}</h3>
                   </div>
                 </Col>
                 <Col xs={4}>
                   <div className="card">
                     <p>WIS</p>
-                    <h3 className={(this.props.character['charSavingThrows']['wis']['proficient'] === true) ? "trained" : ""}>{this.props.character['charSavingThrows']['wis']['score']}</h3>
+                    <h3 className={(this.props.character.getIn(['charSavingThrows', 'wis', 'proficient']) === true) ? "trained" : ""}>{st['wis']}</h3>
                   </div>
                 </Col>
                 <Col xs={4}>
                   <div className="card">
                     <p>CHA</p>
-                    <h3 className={(this.props.character['charSavingThrows']['cha']['proficient'] === true) ? "trained" : ""}>{this.props.character['charSavingThrows']['cha']['score']}</h3>
+                    <h3 className={(this.props.character.getIn(['charSavingThrows', 'cha', 'proficient']) === true) ? "trained" : ""}>{st['cha']}</h3>
                   </div>
                 </Col>
               </Row>

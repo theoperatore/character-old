@@ -18,11 +18,12 @@ Fix / Do now:
 - ~~hit dice -- figure out how they really work: roll + CON mod.~~
   - ~~long rest gives _some_ hitdice. get up to half hitdice total.~~
   - ~~remaining / total~~
-- spells slots be it's own block, not in spell list
-- prepared spell toggle
+- ~~spells slots be it's own block, not in spell list~~
+  - decide if slots to be like class charges, or interwoven with associated level
+- ~~prepared spell toggle~~
 - ~~editing money~~
-- Switch to computing all scores on state updates, don't use score (allow character updates to trigger true re-renders)
-- Should prolly use React Immutability Helpers...
+- ~~Switch to computing all scores on state updates, don't use score (allow character updates to trigger true re-renders)~~
+- ~~Should prolly use React Immutability Helpers...~~ (switched to Immutable.js)
 - ~~Switch to translate3d for settings menus~~
 
 Non-Important stuff:

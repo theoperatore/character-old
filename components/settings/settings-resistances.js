@@ -1,4 +1,5 @@
 var React = require('react');
+var Immutable = require('immutable');
 
 var Input = require('react-bootstrap/lib/Input');
 var Button = require('react-bootstrap/lib/Button');
@@ -55,9 +56,9 @@ var ResistanceSettings = React.createClass({
   },
   handleSelect : function(e) {
     var idx = parseInt(e.target.value, 10);
-    var node = this.props.character['charResistances'][idx];
-    var name = (idx === -1) ? "" : node.name;
-    var desc = (idx === -1) ? "" : node.desc;
+    var node = this.props.character.get('charResistances').get(idx);
+    var name = (idx === -1) ? "" : node.get('name');
+    var desc = (idx === -1) ? "" : node.get('desc');
     var state = {};
 
     state.idx = idx;
@@ -81,7 +82,10 @@ var ResistanceSettings = React.createClass({
       res.name = this.state.name;
       res.desc = this.state.desc;
 
-      tmp['charResistances'].push(res);
+      //tmp['charResistances'].push(res);
+      tmp = tmp.update('charResistances', function(list) {
+        return list.push(new Immutable.Map(res))
+      })
     }
 
     // editing res
@@ -91,9 +95,20 @@ var ResistanceSettings = React.createClass({
 
       path += "edit." + this.state.newName;
 
-      res = tmp['charResistances'][this.state.idx];
-      res.name = this.state.newName;
-      res.desc = this.state.newDesc;
+      tmp = tmp.update('charResistances', function(list) {
+        return list.update(this.state.idx, function(item) {
+         var clone = item;
+         
+         clone = clone.set('name', this.state.newName); 
+         clone = clone.set('desc', this.state.newDesc);
+
+         return clone;
+        }.bind(this))
+      }.bind(this))
+
+      //res = tmp['charResistances'][this.state.idx];
+      //res.name = this.state.newName;
+      //res.desc = this.state.newDesc;
     }
 
     this.props.edit({ path : path, character : tmp });
@@ -102,14 +117,18 @@ var ResistanceSettings = React.createClass({
   handleDelete : function() {
     var tmp = this.props.character;
     var path = "charResistances.delete.";
-    var name = tmp['charResistances'][this.state.idx].name;
+    var name = tmp.getIn(['charResistances', this.state.idx, 'name']);
     var res;
 
     // if mistake, stop deleting!
     if (!confirm("Do you really want to get rid of\n '" + name + "'\n forever?")) return;
 
-    res = tmp['charResistances'].splice(this.state.idx, 1);
-    path += res[0].name;
+    //res = tmp['charResistances'].splice(this.state.idx, 1);
+    tmp = tmp.update('charResistances', function(list) {
+      return list.splice(this.state.idx, 1);
+    }.bind(this))
+
+    path += name;
 
     this.props.edit({ path : path, character : tmp });
     this.clearState();
@@ -125,11 +144,11 @@ var ResistanceSettings = React.createClass({
   },
   renderEdit : function() {
     var options = [];
-    this.props.character['charResistances'].forEach(function(res, i) {
+    this.props.character.get('charResistances').forEach(function(res, i) {
       options.push(
-        <option key={i} value={i}>{res.name}</option>
-      );
-    }.bind(this));
+        <option key={i} value={i}>{res.get('name')}</option>
+      )
+    })
 
     return(
       <div>

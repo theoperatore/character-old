@@ -17,12 +17,11 @@ var Features = React.createClass({
     this.refs.settings.toggle(idx);
   },
   render : function() {
-
     var feats = [];
-    this.props.character['charFeatures'].forEach(function(feat, i) {
+    this.props.character.get('charFeatures').forEach(function(feat, i) {
       feats.push(
-        <Panel3d title={feat.name} key={"feat" + i} className="list-header">
-          <p>{feat.desc}</p>
+        <Panel3d title={feat.get('name')} key={"feat" + i} className="list-header">
+          <p>{feat.get('desc')}</p>
         </Panel3d>
       );
     });

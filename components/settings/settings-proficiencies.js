@@ -1,4 +1,5 @@
 var React = require('react');
+var Immutable = require('immutable');
 
 var Input = require('react-bootstrap/lib/Input');
 var ButtonToolbar = require('react-bootstrap/lib/ButtonToolbar');
@@ -50,9 +51,9 @@ var SettingsTraits = React.createClass({
   },
   handleSelect : function(e) {
     var idx = parseInt(e.target.value, 10);
-    var prof = this.props.character['charOtherProficiencies']['proficiencies'][idx];
-    var name = (idx === -1) ? "" : prof.name;
-    var desc = (idx === -1) ? "" : prof.desc;
+    var prof = this.props.character.getIn(['charOtherProficiencies', 'proficiencies']).get(idx);
+    var name = (idx === -1) ? "" : prof.get('name');
+    var desc = (idx === -1) ? "" : prof.get('desc');
     var state = {};
 
     state.idx = idx;
@@ -64,14 +65,17 @@ var SettingsTraits = React.createClass({
   handleDelete : function() {
     var tmp = this.props.character;
     var path = "charOtherProficiencies.proficiencies.delete";
-    var name = tmp['charOtherProficiencies']['proficiencies'][this.state.idx].name;
-    var prof;
+    var name = tmp.getIn(['charOtherProficiencies', 'proficiencies']).get(this.state.idx).get('name');
+    var profs;
 
     // if mistake, stop deleting!
     if (!confirm("Do you really want to get rid of\n '" + name + "'\n forever?")) return;
 
-    prof = tmp['charOtherProficiencies']['proficiencies'].splice(this.state.idx, 1);
-    path += "." + prof.name;
+    //prof = tmp['charOtherProficiencies']['proficiencies'].splice(this.state.idx, 1);
+    //path += "." + prof.name;
+    profs = tmp.getIn(['charOtherProficiencies', 'proficiencies']).splice(this.state.idx, 1);
+    tmp = tmp.setIn(['charOtherProficiencies', 'proficiencies'], profs);
+    path += "." + name;
 
     // save and close
     this.props.edit({ path : path, character : tmp });
@@ -89,7 +93,10 @@ var SettingsTraits = React.createClass({
       data.name = this.state.name;
       data.desc = this.state.desc;
 
-      tmp['charOtherProficiencies']['proficiencies'].push(data);
+      //tmp['charOtherProficiencies']['proficiencies'].push(data);
+      tmp = tmp.updateIn(['charOtherProficiencies', 'proficiencies'], function(list) {
+        return list.push(new Immutable.Map(data));
+      });
       path += ".add." + data.name;
     }
 
@@ -98,11 +105,23 @@ var SettingsTraits = React.createClass({
       if (this.state.idx === -1) return;
 
       // make the changes
-      tmp['charOtherProficiencies']['proficiencies'][this.state.idx].name = this.state.newName;
-      tmp['charOtherProficiencies']['proficiencies'][this.state.idx].desc = this.state.newDesc;
+      //tmp['charOtherProficiencies']['proficiencies'][this.state.idx].name = this.state.newName;
+      //tmp['charOtherProficiencies']['proficiencies'][this.state.idx].desc = this.state.newDesc;
+
+      // make changes using Immutable
+      tmp = tmp.updateIn(['charOtherProficiencies', 'proficiencies'], function(list) {
+        return list.update(this.state.idx, function(item) {
+          var newItem = item;
+
+          newItem = newItem.set('name', this.state.newName);
+          newItem = newItem.set('desc', this.state.newDesc);
+
+          return newItem;
+        }.bind(this));
+      }.bind(this));
 
       // log the changes made
-      path += ".edit." + tmp['charOtherProficiencies']['proficiencies'][this.state.idx].name;
+      path += ".edit." + this.state.newName;
     }
       
     // save and close
@@ -126,9 +145,9 @@ var SettingsTraits = React.createClass({
 
     // populate the select box
     var proficiencies = [];
-    this.props.character['charOtherProficiencies']['proficiencies'].forEach(function(prof, i) {
+    this.props.character.getIn(['charOtherProficiencies', 'proficiencies']).forEach(function(prof, i) {
       proficiencies.push(
-        <option key={i} value={i}>{prof.name}</option>
+        <option key={i} value={i}>{prof.get('name')}</option>
       );
     }); 
 

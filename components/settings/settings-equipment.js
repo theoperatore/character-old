@@ -1,4 +1,5 @@
 var React = require('react');
+var Immutable = require('immutable');
 
 var Input = require('react-bootstrap/lib/Input');
 var ButtonToolbar = require('react-bootstrap/lib/ButtonToolbar');
@@ -58,15 +59,15 @@ var SettingsEquip = React.createClass({
     if (e.target.value === -1) return;
 
     state.moneyIdx = e.target.value;
-    state.money = this.props.character['charEquipment']['money'][state.moneyIdx];
+    state.money = this.props.character.getIn(['charEquipment', 'money', state.moneyIdx]);
 
     this.setState(state);
   },
   handleSelect : function(e) {
     var idx = parseInt(e.target.value, 10);
-    var node = this.props.character['charEquipment']['otherEquipment'][idx];
-    var name = (idx === -1) ? "" : node.name;
-    var desc = (idx === -1) ? "" : node.desc;
+    var node = this.props.character.getIn(['charEquipment', 'otherEquipment', idx]);
+    var name = (idx === -1) ? "" : node.get('name');
+    var desc = (idx === -1) ? "" : node.get('desc');
     var state = {};
 
     state.idx = idx;
@@ -78,14 +79,17 @@ var SettingsEquip = React.createClass({
   handleDelete : function() {
     var tmp = this.props.character;
     var path = "charEquipment.delete.";
-    var name = tmp['charEquipment']['otherEquipment'][this.state.idx].name;
+    var name = tmp.getIn(['charEquipment','otherEquipment',this.state.idx, 'name']);
     var equip;
 
     // if mistake, stop deleting!
     if (!confirm("Do you really want to get rid of\n '" + name + "'\n forever?")) return;
 
-    equip = tmp['charEquipment']['otherEquipment'].splice(this.state.idx, 1);
-    path += equip[0].name;
+    //equip = tmp['charEquipment']['otherEquipment'].splice(this.state.idx, 1);
+    tmp = tmp.updateIn(['charEquipment', 'otherEquipment'], function(list) {
+      return list.splice(this.state.idx, 1);
+    }.bind(this))
+    path += name;
 
     // save
     this.props.edit({ path : path, character : tmp });
@@ -104,7 +108,10 @@ var SettingsEquip = React.createClass({
       data.desc = this.state.desc;
 
       path += "add." + this.state.name;
-      tmp['charEquipment']['otherEquipment'].push(data);
+      //tmp['charEquipment']['otherEquipment'].push(data);
+      tmp = tmp.updateIn(['charEquipment','otherEquipment'], function(list) {
+        return list.push(new Immutable.Map(data))
+      })
     }
 
     // edit
@@ -112,8 +119,14 @@ var SettingsEquip = React.createClass({
       if (this.state.idx === -1) return;
 
       path += "edit." + this.state.newName + ".idx." + this.state.idx; 
-      tmp['charEquipment']['otherEquipment'][this.state.idx].name = this.state.newName;
-      tmp['charEquipment']['otherEquipment'][this.state.idx].desc = this.state.newDesc;
+      tmp = tmp.updateIn(['charEquipment', 'otherEquipment', this.state.idx], function(item) {
+        var clone = item;
+
+        clone = clone.set('name', this.state.newName);
+        clone = clone.set('desc', this.state.newDesc);
+
+        return clone;
+      }.bind(this))
     }
 
     // edit money
@@ -122,8 +135,12 @@ var SettingsEquip = React.createClass({
       if (isNaN(parseInt(this.state.money, 10))) return;
 
       path += "edit.money." + this.state.moneyIdx + "." + this.state.money;
-      tmp['charEquipment']['money'][this.state.moneyIdx] = parseInt(this.state.money, 10);
-
+      //tmp['charEquipment']['money'][this.state.moneyIdx] = parseInt(this.state.money, 10);
+      tmp = tmp.updateIn(['charEquipment','money'], function(money) {
+        var mon = money;
+        mon = mon.set(this.state.moneyIdx, parseInt(this.state.money, 10));
+        return mon;
+      }.bind(this))
     }
 
     this.props.edit({ path : path, character : tmp });
@@ -146,9 +163,9 @@ var SettingsEquip = React.createClass({
 
     // populate the select box
     var equips = [];
-    this.props.character['charEquipment']['otherEquipment'].forEach(function(equip, i) {
+    this.props.character.getIn(['charEquipment', 'otherEquipment']).forEach(function(equip, i) {
       equips.push(
-        <option key={i} value={i}>{equip.name}</option>
+        <option key={i} value={i}>{equip.get('name')}</option>
       );
     }); 
 

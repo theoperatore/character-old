@@ -35,23 +35,25 @@ var Attack = React.createClass({
   handleCharge : function(chargeIdx, e) {
     var tmp = this.props.character;
     var path = "charClassCharges.used.total.";
+    var curr = tmp.getIn(['charClassCharges', chargeIdx, 'used']);
 
     if (e.target.checked) {
-      tmp['charClassCharges'][chargeIdx]['used'] += 1;
-      path += tmp['charClassCharges'][chargeIdx]['used'];
+      //tmp = tmp['charClassCharges'][chargeIdx]['used'] += 1;
+      tmp = tmp.setIn(['charClassCharges', chargeIdx, 'used'], (curr + 1));
+      path += curr + 1;
     }
     else {
-      tmp['charClassCharges'][chargeIdx]['used'] -= 1;
-      path += tmp['charClassCharges'][chargeIdx]['used'];
+      //tmp['charClassCharges'][chargeIdx]['used'] -= 1;
+      tmp = tmp.setIn(['charClassCharges', chargeIdx, 'used'], (curr - 1));
+      path += curr - 1;
     }
     
     this.props.edit({ path : path, character : tmp });
   },
 
   render : function() {
-
-    var charAttacks = this.props.character['charAttacks'];
-    var prof = this.props.character['charProficiencyBonus']['score'];
+    var charAttacks = this.props.character.get('charAttacks');
+    var prof = this.props.character.getIn(['charProficiencyBonus', 'score']);
     var attacks = [];
     var charges = [];
     var bubbles = [];
@@ -59,18 +61,18 @@ var Attack = React.createClass({
     // compile list of attacks
     charAttacks.forEach(function(attack, i) {
       attacks.push(
-        <Panel3d className="list-header" key={i} title={attack.name}>
-            <p>{attack.desc}</p>
+        <Panel3d className="list-header" key={i} title={attack.get('name')}>
+            <p>{attack.get('desc')}</p>
         </Panel3d>
       );
-    }.bind(this));
+    });
 
     // render class charges
-    this.props.character['charClassCharges'].forEach(function(resource, i) {
+    this.props.character.get('charClassCharges').forEach(function(resource, i) {
       var slots = [];
 
-      for (var j = 0; j < resource['charges']; j++) {
-        var checked = j < resource.used;
+      for (var j = 0; j < resource.get('charges'); j++) {
+        var checked = j < resource.get('used');
 
         slots.push(
           <Col key={j} xs={1}><input checked={checked} onChange={this.handleCharge.bind(this, i)} className="chkbox-lg" type="checkbox" /></Col>
@@ -80,7 +82,7 @@ var Attack = React.createClass({
       charges.push(
         <Panel key={i}>
           <div className="slots">
-            <p>{resource.name}</p>
+            <p>{resource.get('display')}</p>
             <Grid fluid>
               <Row>
                 {slots}
@@ -94,9 +96,9 @@ var Attack = React.createClass({
 
     // render attack bonus bubbles -- might have to think of something
     // different than using popovers
-    this.props.preferences.atkBubbles.forEach(function(bubble, i) {
-      var bonus = this.props.character['charAbilities'][bubble.abil]['mod'];
-      bonus += (bubble.prof === true) ? prof : 0;
+    this.props.preferences.get('atkBubbles').forEach(function(bubble, i) {
+      var bonus = this.props.character.getIn(['charAbilities', bubble.get('abil'), 'mod']);
+      bonus += (bubble.get('prof') === true) ? prof : 0;
 
       bubbles.push(
         <OverlayTrigger key={i} ref={"trigger" + i} placement="bottom" trigger="manual" overlay={
@@ -107,18 +109,18 @@ var Attack = React.createClass({
           <Row>
             <Col className="no-padding" xs={5}>
               <div className="bonus-container">
-                <h3 onClick={this.handleConfigToggle.bind(this, "trigger" + i)} className={"bonus text-center" + ((bubble.prof === true) ? " trained" : "")}>{bonus}</h3>
+                <h3 onClick={this.handleConfigToggle.bind(this, "trigger" + i)} className={"bonus text-center" + ((bubble.get('prof') === true) ? " trained" : "")}>{bonus}</h3>
               </div>
             </Col>
             <Col className="no-padding" xs={7}>
-              <p className="bonus-desc">{bubble.desc}</p>
-              <p>{bubble.abil + ((bubble.prof === true) ? " + prof" : "")}</p>
+              <p className="bonus-desc">{bubble.get('desc')}</p>
+              <p>{bubble.get('abil') + ((bubble.get('prof') === true) ? " + prof" : "")}</p>
             </Col>
           </Row>
         </OverlayTrigger>
       );
 
-    }.bind(this));
+    }, this);
 
     // render the component
     return (
@@ -130,7 +132,7 @@ var Attack = React.createClass({
             <OverlayTrigger ref="help" placement="bottom" trigger="manual" overlay={
               <Tooltip>
                 <HelpTooltip close={this.handleHelpToggle}>
-                  <p>{"Class points like 'Ki', 'Rage', or 'Sorcery' can be modified in 'Features' ("} <Glyphicon glyph="flash" /> {")"}</p>
+                  <p>{"Class charges like 'Ki', 'Rage', or 'Sorcery' can be modified in 'Features' ("} <Glyphicon glyph="flash" /> {")"}</p>
                   <p>{"Tap 'Attack Bonus' to configure the ability score it uses and if you have proficiency"}</p>
                 </HelpTooltip>
               </Tooltip>

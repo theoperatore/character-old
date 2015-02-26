@@ -1,14 +1,25 @@
 var React = require('react/addons');
+//var Immutable = require('immutable');
 
 var HatchGroup = React.createClass({
   getInitialState : function() {
-    return ({ hatches : {} });
+    var state = {};
+    
+    state.hatches = {};
+
+    return (state);
   },
+
+  //shouldComponentUpdate : function(nextProps, nextState) {
+  //  return (
+  //    this.state.hatches !== nextState.hatches
+  //  );
+  //},
   open : function(idx) {
     var root = this.refs.root.getDOMNode();
-    var hatches = this.state.hatches;
     var currHeight = root.getBoundingClientRect().height;
     var hatch = document.getElementById(idx);
+    var hatches = this.state.hatches
     var height;
     var node;
 
@@ -41,14 +52,13 @@ var HatchGroup = React.createClass({
     currHeight += height;
     hatches[idx] = true;
     //root.style.height = currHeight + "px";
-
-    this.setState({ hatches : hatches });
+    this.setState({ hatches :  hatches });
   },
   close : function(idx) {
     var root = this.refs.root.getDOMNode();
-    var hatches = this.state.hatches;
     var currHeight = root.getBoundingClientRect().height;
     var child = document.getElementById(idx);
+    var hatches = this.state.hatches;
     var height;
     var node;
 
@@ -81,6 +91,7 @@ var HatchGroup = React.createClass({
 
     currHeight -= height;
     hatches[idx] = false;
+    //hatches = this.state.hatches.set(idx, false);
     //root.style.height = currHeight + "px";
 
     this.setState({ hatches : hatches });

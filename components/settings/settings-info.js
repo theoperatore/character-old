@@ -67,34 +67,39 @@ var SettingsInfo = React.createClass({
     var path = "charInfo.edit.";
 
     if (this.state.cls !== "") {
-      tmp['charInfo']['class'] = this.state.cls;
+      tmp = tmp.setIn(['charInfo', 'class'], this.state.cls);
       path += "class." + this.state.cls;
     }
 
     if (this.state.lvl !== "") {
       if (this.state.lvlerror) return;
-      tmp['charInfo']['level'] = this.state.lvl;
+      tmp = tmp.setIn(['charInfo', 'level'], this.state.lvl);
+      //tmp['charInfo']['level'] = this.state.lvl;
       path += "level." + this.state.lvl;
     }
 
     if (this.state.xp !== "") {
       if (this.state.xperror) return;
-      tmp['charInfo']['xp'] = this.state.xp;
+      tmp = tmp.setIn(['charInfo', 'xp'], this.state.xp);
+      //tmp['charInfo']['xp'] = this.state.xp;
       path += "xp." + this.state.xp;
     }
 
     if (this.state.bg !== "") {
-      tmp['charInfo']['background'] = this.state.bg;
+      tmp = tmp.setIn(['charInfo', 'background'], this.state.bg);
+      //tmp['charInfo']['background'] = this.state.bg;
       path += "background." + this.state.bg;
     }
 
     if (this.state.race !== "") {
-      tmp['charInfo']['race'] = this.state.race;
+      tmp = tmp.setIn(['charInfo', 'race'], this.state.race);
+      //tmp['charInfo']['race'] = this.state.race;
       path += "race." + this.state.race;
     }
 
     if (this.state.align !== "") {
-      tmp['charInfo']['alignment'] = this.state.align;
+      tmp = tmp.setIn(['charInfo', 'alignment'], this.state.align);
+      //tmp['charInfo']['alignment'] = this.state.align;
       path += "alignment." + this.state.align;
     }
 
@@ -110,12 +115,12 @@ var SettingsInfo = React.createClass({
       <div className="settings-tear">
         <h3>{"Edit Character Info"}</h3>
         <p>{"Enter a new value for any Character Info. If a field is left blank and no new values are entered, nothing will be changed."}</p>
-        <Input type="text" onChange={this.handleChange.bind(this, "cls")} label="Class" placeholder={this.props.character['charInfo']['class']} value={this.state.cls} />
-        <Input type="text" onChange={this.handleChange.bind(this, "race")} label="Race" placeholder={this.props.character['charInfo']['race']} value={this.state.race} />
-        <Input type="text" bsStyle={(this.state.lvl === "") ? null : validlvl} onChange={this.handleChange.bind(this, "lvl")} label="Level" placeholder={this.props.character['charInfo']['level']} value={this.state.lvl} />
-        <Input type="text" bsStyle={(this.state.xp ==="") ? null : validxp} onChange={this.handleChange.bind(this, "xp")} label="Xp" placeholder={this.props.character['charInfo']['xp']} value={this.state.xp} />
-        <Input type="text" onChange={this.handleChange.bind(this, "bg")} label="Background" placeholder={this.props.character['charInfo']['background']} value={this.state.bg} />
-        <Input type="text" onChange={this.handleChange.bind(this, "align")} label="Alignment" placeholder={this.props.character['charInfo']['alignment']} value={this.state.align} />
+        <Input type="text" onChange={this.handleChange.bind(this, "cls")} label="Class" placeholder={this.props.character.get('charInfo').get('class')} value={this.state.cls} />
+        <Input type="text" onChange={this.handleChange.bind(this, "race")} label="Race" placeholder={this.props.character.get('charInfo').get('race')} value={this.state.race} />
+        <Input type="text" bsStyle={(this.state.lvl === "") ? null : validlvl} onChange={this.handleChange.bind(this, "lvl")} label="Level" placeholder={this.props.character.get('charInfo').get('level')} value={this.state.lvl} />
+        <Input type="text" bsStyle={(this.state.xp ==="") ? null : validxp} onChange={this.handleChange.bind(this, "xp")} label="Xp" placeholder={this.props.character.get('charInfo').get('xp')} value={this.state.xp} />
+        <Input type="text" onChange={this.handleChange.bind(this, "bg")} label="Background" placeholder={this.props.character.get('charInfo').get('background')} value={this.state.bg} />
+        <Input type="text" onChange={this.handleChange.bind(this, "align")} label="Alignment" placeholder={this.props.character.get('charInfo').get('alignment')} value={this.state.align} />
         <ButtonToolbar>
           <Button bsStyle="danger" onClick={this.toggle}>Close</Button>
           <Button bsStyle="success" onClick={this.handleOk}>Save</Button>

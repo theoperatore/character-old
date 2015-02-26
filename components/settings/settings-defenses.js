@@ -70,32 +70,38 @@ var SettingsDefenses = React.createClass({
     if (this.state.hperror || this.state.acerror || this.state.initerror) return;
 
     if (this.state.hp !== "") {
-      tmp['charHitPoints']['maximum'] = this.state.hp;
+      //tmp['charHitPoints']['maximum'] = this.state.hp;
+      tmp = tmp.setIn(['charHitPoints', 'maximum'], this.state.hp);
       path += "hp." + this.state.hp;
     }
 
     if (this.state.ac !== "") {
-      tmp['charArmorClass']['score'] = this.state.ac;
+      //tmp['charArmorClass']['score'] = this.state.ac;
+      tmp = tmp.setIn(['charArmorClass', 'score'], this.state.ac);
       path += ".ac." + this.state.ac;
     }
 
     if (this.state.init !== "") {
-      tmp['charInitiative']['score'] = this.state.init;
+      //tmp['charInitiative']['score'] = this.state.init;
+      tmp = tmp.setIn(['charInitiative', 'score'], this.state.init);
       path += ".init." + this.state.init;
     }
 
     if (this.state.speed !== "") {
-      tmp['charSpeed']['score'] = this.state.speed;
+      //tmp['charSpeed']['score'] = this.state.speed;
+      tmp = tmp.setIn(['charSpeed', 'score'], this.state.speed);
       path += ".speed." + this.state.speed;
     }
 
     if (this.state.hitdice !== "") {
-      tmp['charHitPoints']['hitDiceTotal'] = this.state.hitdice;
+      //tmp['charHitPoints']['hitDiceTotal'] = this.state.hitdice;
+      tmp = tmp.setIn(['charHitPoints', 'hitDiceTotal'], this.state.hitdice);
       path += ".hitdice." + this.state.hitdice;
     }
 
     this.props.edit({ path : path, character : tmp });
     this.clearState();
+    this.toggle();
   },
   render : function() {
     var validhp = (this.state.hperror) ? "error" : "success";
@@ -106,11 +112,11 @@ var SettingsDefenses = React.createClass({
       <div className="settings-tear">
         <h3>{"Edit Defenses"}</h3>
         <p>{"Edit the values for your character's maximum hit points, hit dice, initiative, speed, and armor class."}</p>
-        <Input type="text" bsStyle={(this.state.hp === "") ? null : validhp} onChange={this.handleChange.bind(this, "hp")} label="Maximum Hit Points" placeholder={this.props.character['charHitPoints']['maximum']} value={this.state.hp} />
-        <Input type="text" bsStyle={(this.state.ac === "") ? null : validac} onChange={this.handleChange.bind(this, "ac")} label="Armor Class" placeholder={this.props.character['charArmorClass']['score']} value={this.state.ac} />
-        <Input type="text" bsStyle={(this.state.init === "") ? null : validinit} onChange={this.handleChange.bind(this, "init")} label="initiative" placeholder={this.props.character['charInitiative']['score']} value={this.state.init} />
-        <Input type="text" onChange={this.handleChange.bind(this, "speed")} label="Speed (ft)" placeholder={this.props.character['charSpeed']['score']} value={this.state.speed} />
-        <Input type="text" onChange={this.handleChange.bind(this, "hitdice")} label="Total Hit Dice" placeholder={this.props.character['charHitPoints']['hitDiceTotal']} value={this.state.hitdice} />
+        <Input type="text" bsStyle={(this.state.hp === "") ? null : validhp} onChange={this.handleChange.bind(this, "hp")} label="Maximum Hit Points" placeholder={this.props.character.getIn(['charHitPoints', 'maximum'])} value={this.state.hp} />
+        <Input type="text" bsStyle={(this.state.ac === "") ? null : validac} onChange={this.handleChange.bind(this, "ac")} label="Armor Class" placeholder={this.props.character.getIn(['charArmorClass', 'score'])} value={this.state.ac} />
+        <Input type="text" bsStyle={(this.state.init === "") ? null : validinit} onChange={this.handleChange.bind(this, "init")} label="initiative" placeholder={this.props.character.getIn(['charInitiative', 'score'])} value={this.state.init} />
+        <Input type="text" onChange={this.handleChange.bind(this, "speed")} label="Speed (ft)" placeholder={this.props.character.getIn(['charSpeed', 'score'])} value={this.state.speed} />
+        <Input type="text" onChange={this.handleChange.bind(this, "hitdice")} label="Total Hit Dice" placeholder={this.props.character.getIn(['charHitPoints', 'hitDiceTotal'])} value={this.state.hitdice} />
         <ButtonToolbar>
           <Button bsStyle="danger" onClick={this.toggle}>Close</Button>
           <Button bsStyle="success" onClick={this.handleOk}>Save</Button>

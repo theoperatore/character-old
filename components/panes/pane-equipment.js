@@ -19,12 +19,11 @@ var Equipment = React.createClass({
     this.refs[cmp].toggle(idx,dir);
   },
   render : function() {
-
     var equips = [];
-    this.props.character['charEquipment']['otherEquipment'].forEach(function(equip, i) {
+    this.props.character.getIn(['charEquipment', 'otherEquipment']).forEach(function(equip, i) {
       equips.push(
-        <Panel3d title={equip.name} key={"equipItem" + i} className="list-header">
-          <p>{equip.desc}</p>
+        <Panel3d title={equip.get('name')} key={"equipItem" + i} className="list-header">
+          <p>{equip.get('desc')}</p>
         </Panel3d>
       );
     }.bind(this));
@@ -48,11 +47,11 @@ var Equipment = React.createClass({
                 <Col xs={2}><p>pp</p></Col>
               </Row>
               <Row>
-                <Col xs={2}><p>{this.props.character['charEquipment']['money']['cp']}</p></Col>
-                <Col xs={2}><p>{this.props.character['charEquipment']['money']['sp']}</p></Col>
-                <Col xs={4}><p>{this.props.character['charEquipment']['money']['ep']}</p></Col>
-                <Col xs={2}><p>{this.props.character['charEquipment']['money']['gp']}</p></Col>
-                <Col xs={2}><p>{this.props.character['charEquipment']['money']['pp']}</p></Col>
+                <Col xs={2}><p>{this.props.character.getIn(['charEquipment', 'money', 'cp'])}</p></Col>
+                <Col xs={2}><p>{this.props.character.getIn(['charEquipment', 'money', 'sp'])}</p></Col>
+                <Col xs={4}><p>{this.props.character.getIn(['charEquipment', 'money', 'ep'])}</p></Col>
+                <Col xs={2}><p>{this.props.character.getIn(['charEquipment', 'money', 'gp'])}</p></Col>
+                <Col xs={2}><p>{this.props.character.getIn(['charEquipment', 'money', 'pp'])}</p></Col>
               </Row>
             </Grid>
           </Panel>

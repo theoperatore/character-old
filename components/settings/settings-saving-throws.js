@@ -10,7 +10,6 @@ var SettingsSavingThrows = React.createClass({
   getInitialState : function() {
     var state = {};
 
-    state.profs = [];
     state['str'] = "";
     state['dex'] = "";
     state['con'] = "";
@@ -24,12 +23,6 @@ var SettingsSavingThrows = React.createClass({
     state.interror = false;
     state.wiserror = false;
     state.chaerror = false;
-
-    Object.keys(this.props.character['charSavingThrows']).forEach(function(key) {
-      if (this.props.character['charSavingThrows'][key].proficient) {
-        state.profs.push(key);
-      }
-    }.bind(this))
 
     return (state);
   },
@@ -76,16 +69,7 @@ var SettingsSavingThrows = React.createClass({
   },
   handleOk : function() {
     var tmp = this.props.character;
-    var path = "charSavingThrows.edit[";
-    var profBonus = tmp['charProficiencyBonus']['score'];
-    var prs = {};
-
-    prs['str'] = false;
-    prs['dex'] = false;
-    prs['con'] = false;
-    prs['int'] = false;
-    prs['wis'] = false;
-    prs['cha'] = false;
+    var path = "charSavingThrows.bonus.";
 
     if (
       this.state.strerror === true ||
@@ -99,48 +83,51 @@ var SettingsSavingThrows = React.createClass({
       return;
     }
 
-    // get map ready
-    this.state.profs.forEach(function(prof) {
-      prs[prof] = true;
-    });
+    // handle adding bonuses to each saving throw that was entered
+    if (this.state['str'] !== "") {
+      tmp = tmp.setIn(['charSavingThrows', 'str', 'bonus'], this.state['str']);
+      path += 'str=' + this.state['str'] + ".";
 
-    path += this.state.profs.toString() + "]";
+    }
 
-    // map prof throws to character and calc new saving throw
-    Object.keys(prs).forEach(function(prof) {
+    if (this.state['dex'] !== "") {
+      tmp = tmp.setIn(['charSavingThrows', 'dex', 'bonus'], this.state['dex']);
+      path += 'dex=' + this.state['dex'] + ".";
+    }
 
-      // save proficient or not
-      tmp['charSavingThrows'][prof]['proficient'] = prs[prof];
+    if (this.state['con'] !== "") {
+      tmp = tmp.setIn(['charSavingThrows', 'con', 'bonus'], this.state['con']);
+      path += 'con=' + this.state['con'] + ".";
+    }
 
-      // save bonus
-      tmp['charSavingThrows'][prof]['bonus'] = 
-        (this.state[prof] === "")
-        ? tmp['charSavingThrows'][prof]['bonus']
-        : this.state[prof];
+    if (this.state['int'] !== "") {
+      tmp = tmp.setIn(['charSavingThrows', 'int', 'bonus'], this.state['int']);
+      path += 'int=' + this.state['int'] + ".";
+    }
 
-      // calculate new score
-      tmp['charSavingThrows'][prof]['score'] = 
-        tmp['charAbilities'][prof]['mod'] +
-        tmp['charSavingThrows'][prof]['bonus'] +
-        ((prs[prof]) ? profBonus : 0);
+    if (this.state['wis'] !== "") {
+      tmp = tmp.setIn(['charSavingThrows', 'wis', 'bonus'], this.state['wis']);
+      path += 'wis=' + this.state['wis'] + ".";
+    }
 
-    }.bind(this))
+    if (this.state['cha'] !== "") {
+      tmp = tmp.setIn(['charSavingThrows', 'cha', 'bonus'], this.state['cha']);
+      path += 'cha=' + this.state['cha'] + ".";
+    }
 
     // save
     this.props.edit({ path : path, character : tmp });
     this.clearState();
     this.toggle();
   },
-  handleProfSelect : function(e) {
-    //console.log(e.target.options);
-    var sel = [];
-    for(var i = 0; i < e.target.options.length; i++) {
-      if (e.target.options[i].selected) {
-        sel.push(e.target.options[i].value);
-      }
-    }
+  handleProfSelect : function(save, e) {
+    var tmp = this.props.character;
+    var path = "charSavingThrows.proficient.";
+    
+    tmp = tmp.setIn(['charSavingThrows', save, 'proficient'], e.target.checked);
+    path += save + "." + e.target.checked;
 
-    this.setState({ profs : sel });
+    this.props.edit({ path : path, character : tmp });
   },
   render : function() {
 
@@ -151,47 +138,44 @@ var SettingsSavingThrows = React.createClass({
     var validwis = (this.state.wiserror) ? "error" : "success";
     var validcha = (this.state.chaerror) ? "error" : "success";
 
-    var prof = [];
-    Object.keys(this.props.character['charSavingThrows']).forEach(function(key) {
-      if (this.props.character['charSavingThrows'][key].proficient) {
-        prof.push(key);
-      }
-    }.bind(this));
+    // build checkbox list
+    var profs = [];
+    this.props.character.get('charSavingThrows').forEach(function(value, key) {
+      var checked = value.get('proficient');
+      profs.push(
+        <Input type="checkbox" key={"st"+key} label={key.toUpperCase()} checked={checked} onChange={this.handleProfSelect.bind(this, key)} />
+      );
+    }, this)
 
     return (
       <div className="settings-tear">
         <h3>{"Edit Saving Throws"}</h3>
         <p>{"Edit the saving throws with which you are proficient and add any modifiers you may also have for that saving throw."}</p>
-        <Input type="select" ref="profSelect" multiple label="Select Proficient Saving Throws" value={(this.state.profs.length === 0) ? prof : this.state.profs} onChange={this.handleProfSelect}>
-          <option value="str">Strength</option>
-          <option value="dex">Dexterity</option>
-          <option value="con">Constitution</option>
-          <option value="int">Intelligence</option>
-          <option value="wis">Wisdom</option>
-          <option value="cha">Charisma</option>
-        </Input>
+        <div className="multiselect-checkboxes">
+          {profs}
+        </div>
         <p>{"Have any other modifiers to saving throws? (Ex: Armor, Class Feature)"}</p>
         <Input>
           <Row>
             <Col xs={4}>
-              <Input type="text" bsStyle={(this.state['str'] === "") ? null : validstr} onChange={this.handleChange.bind(this, 'str')} value={this.state['str']} placeholder={this.props.character['charSavingThrows']['str']['bonus']} label={"Strength"} />
+              <Input type="text" bsStyle={(this.state['str'] === "") ? null : validstr} onChange={this.handleChange.bind(this, 'str')} value={this.state['str']} placeholder={this.props.character.getIn(['charSavingThrows', 'str', 'bonus'])} label={"Strength"} />
             </Col>
             <Col xs={4}>
-              <Input type="text" bsStyle={(this.state['dex'] === "") ? null : validdex} onChange={this.handleChange.bind(this, 'dex')} value={this.state['dex']} placeholder={this.props.character['charSavingThrows']['dex']['bonus']} label={"Dexterity"} />
+              <Input type="text" bsStyle={(this.state['dex'] === "") ? null : validdex} onChange={this.handleChange.bind(this, 'dex')} value={this.state['dex']} placeholder={this.props.character.getIn(['charSavingThrows', 'dex', 'bonus'])} label={"Dexterity"} />
             </Col>
             <Col xs={4}>
-              <Input type="text" bsStyle={(this.state['con'] === "") ? null : validcon} onChange={this.handleChange.bind(this, 'con')} value={this.state['con']} placeholder={this.props.character['charSavingThrows']['con']['bonus']} label={"Constitution"} />
+              <Input type="text" bsStyle={(this.state['con'] === "") ? null : validcon} onChange={this.handleChange.bind(this, 'con')} value={this.state['con']} placeholder={this.props.character.getIn(['charSavingThrows', 'con', 'bonus'])} label={"Constitution"} />
             </Col>
           </Row>
           <Row>
             <Col xs={4}>
-              <Input type="text" bsStyle={(this.state['int'] === "") ? null : validint} onChange={this.handleChange.bind(this, 'int')} value={this.state['int']} placeholder={this.props.character['charSavingThrows']['int']['bonus']} label={"Intelligence"} />
+              <Input type="text" bsStyle={(this.state['int'] === "") ? null : validint} onChange={this.handleChange.bind(this, 'int')} value={this.state['int']} placeholder={this.props.character.getIn(['charSavingThrows', 'int', 'bonus'])} label={"Intelligence"} />
             </Col>
             <Col xs={4}>
-              <Input type="text" bsStyle={(this.state['wis'] === "") ? null : validwis} onChange={this.handleChange.bind(this, 'wis')} value={this.state['wis']} placeholder={this.props.character['charSavingThrows']['wis']['bonus']} label={"Wisdom"} />
+              <Input type="text" bsStyle={(this.state['wis'] === "") ? null : validwis} onChange={this.handleChange.bind(this, 'wis')} value={this.state['wis']} placeholder={this.props.character.getIn(['charSavingThrows', 'wis', 'bonus'])} label={"Wisdom"} />
             </Col>
             <Col xs={4}>
-              <Input type="text" bsStyle={(this.state['cha'] === "") ? null : validcha} onChange={this.handleChange.bind(this, 'cha')} value={this.state['cha']} placeholder={this.props.character['charSavingThrows']['cha']['bonus']} label={"Charisma"} />
+              <Input type="text" bsStyle={(this.state['cha'] === "") ? null : validcha} onChange={this.handleChange.bind(this, 'cha')} value={this.state['cha']} placeholder={this.props.character.getIn(['charSavingThrows', 'cha', 'bonus'])} label={"Charisma"} />
             </Col>
           </Row>
         </Input>
