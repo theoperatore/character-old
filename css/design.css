@@ -32,6 +32,10 @@ input[type='checkbox'] {
   width: 35px;
 }
 
+.charList {
+  margin-top: 15px;
+}
+
 .nav>li>a {
   padding: 10px 13px;
 }
