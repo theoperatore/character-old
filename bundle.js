@@ -70,7 +70,7 @@ var Character = React.createClass({
     state.charKey = "";
 
     // nav state
-    state.activeNav = 0;
+    state.activeNav = 3;
     state.needsName = false;
 
     // new character / dead state
@@ -742,6 +742,7 @@ var ContentArea = React.createClass({
     opts.threshold = 50;
     opts.preventClicks = false;
     opts.preventClicksPropagation = false;
+    opts.initialSlide = 3;
     //opts.keyboardControl = true;
     opts.onSlideChangeStart = this.handleSwiperSelect;
     //opts.onTap = this.handleTap.bind(this, "tap");
@@ -749,8 +750,9 @@ var ContentArea = React.createClass({
     swiper = new Swiper(this.refs['swiper-container'].getDOMNode(), opts);
   },
   componentWillReceiveProps: function (nextProps) {
-    if (nextProps.activeNav === undefined) return;
-    //console.log(nextProps.activeNav, this.props.activeNav, swiper.activeIndex);
+    if (nextProps.activeNav === undefined || swiper === undefined) return;
+    
+    // this is being received twice...must be why there's still a studder?
     swiper.slideTo(nextProps.activeNav);
   },
   shouldComponentUpdate: function (nextProps, nextState) {
@@ -769,13 +771,13 @@ var ContentArea = React.createClass({
             React.createElement(PaneInfo, {character: this.props.character, edit: this.props.edit})
           ), 
           React.createElement("div", {className: "swiper-slide"}, 
+            React.createElement(PaneFeature, {character: this.props.character, edit: this.props.edit})
+          ), 
+          React.createElement("div", {className: "swiper-slide"}, 
             React.createElement(PaneAbility, {character: this.props.character, edit: this.props.edit})
           ), 
           React.createElement("div", {className: "swiper-slide"}, 
             React.createElement(PaneDefense, {character: this.props.character, edit: this.props.edit})
-          ), 
-          React.createElement("div", {className: "swiper-slide"}, 
-            React.createElement(PaneFeature, {character: this.props.character, edit: this.props.edit})
           ), 
           React.createElement("div", {className: "swiper-slide"}, 
             React.createElement(PaneAttack, {
@@ -5376,9 +5378,9 @@ var Title = React.createClass({
         React.createElement("h2", {onClick: this.props.toggleAppSettings}, this.props.character.get('charName')), 
         React.createElement(Nav, {bsStyle: "tabs", activeKey: this.props.activeNav || 0, onSelect: this.handleSelect}, 
           React.createElement(NavItem, {eventKey: 0}, React.createElement(Glyphicon, {glyph: "info-sign"})), 
-          React.createElement(NavItem, {eventKey: 1}, React.createElement("div", {className: "icon-chart"})), 
-          React.createElement(NavItem, {eventKey: 2}, React.createElement("div", {className: "icon-shield"})), 
-          React.createElement(NavItem, {eventKey: 3}, React.createElement("div", {className: "icon-features"})), 
+          React.createElement(NavItem, {eventKey: 1}, React.createElement("div", {className: "icon-features"})), 
+          React.createElement(NavItem, {eventKey: 2}, React.createElement("div", {className: "icon-chart"})), 
+          React.createElement(NavItem, {eventKey: 3}, React.createElement("div", {className: "icon-shield"})), 
           React.createElement(NavItem, {eventKey: 4}, React.createElement("div", {className: "icon-attack"})), 
           React.createElement(NavItem, {eventKey: 5}, React.createElement("div", {className: "icon-repo"})), 
           React.createElement(NavItem, {eventKey: 6}, React.createElement("div", {className: "icon-equipment"}))

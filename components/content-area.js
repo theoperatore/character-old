@@ -38,6 +38,7 @@ var ContentArea = React.createClass({
     opts.threshold = 50;
     opts.preventClicks = false;
     opts.preventClicksPropagation = false;
+    opts.initialSlide = 3;
     //opts.keyboardControl = true;
     opts.onSlideChangeStart = this.handleSwiperSelect;
     //opts.onTap = this.handleTap.bind(this, "tap");
@@ -45,8 +46,9 @@ var ContentArea = React.createClass({
     swiper = new Swiper(this.refs['swiper-container'].getDOMNode(), opts);
   },
   componentWillReceiveProps: function (nextProps) {
-    if (nextProps.activeNav === undefined) return;
-    //console.log(nextProps.activeNav, this.props.activeNav, swiper.activeIndex);
+    if (nextProps.activeNav === undefined || swiper === undefined) return;
+    
+    // this is being received twice...must be why there's still a studder?
     swiper.slideTo(nextProps.activeNav);
   },
   shouldComponentUpdate: function (nextProps, nextState) {
@@ -65,13 +67,13 @@ var ContentArea = React.createClass({
             <PaneInfo character={this.props.character} edit={this.props.edit} />
           </div>
           <div className="swiper-slide">
+            <PaneFeature character={this.props.character} edit={this.props.edit} />
+          </div>
+          <div className="swiper-slide">
             <PaneAbility character={this.props.character} edit={this.props.edit} />
           </div>
           <div className="swiper-slide">
             <PaneDefense character={this.props.character} edit={this.props.edit} />
-          </div>
-          <div className="swiper-slide">
-            <PaneFeature character={this.props.character} edit={this.props.edit} />
           </div>
           <div className="swiper-slide">
             <PaneAttack

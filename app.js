@@ -69,7 +69,7 @@ var Character = React.createClass({
     state.charKey = "";
 
     // nav state
-    state.activeNav = 0;
+    state.activeNav = 3;
     state.needsName = false;
 
     // new character / dead state
