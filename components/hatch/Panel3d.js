@@ -210,16 +210,17 @@ var Panel3d = React.createClass({
   // render the header in a div with a particular class
   // allows the render function to be a little cleaner
   renderHeader : function() {
-    if (this.props.title.props && this.props.title.props.children) {
+    if (this.props.title && this.props.title.props && this.props.title.props.children) {
       return (
-        <div ref="header" className={"panel3d-header " + this.props.className}>
+        <div ref="header" className={"panel3d-header " + (this.props.className ? this.props.className : "")}>
           {this.props.title.props.children[0]}
           {React.addons.cloneWithProps(this.props.title.props.children[1], { onClick : this.toggle })}
         </div>  
       );
     }
+
     return (
-      <div ref="header" className={"panel3d-header " + this.props.className}>
+      <div ref="header" className={"panel3d-header " + (this.props.className ? this.props.className : "") }>
         <span onClick={this.toggle}>{this.props.title || ""}</span>
       </div>
     );

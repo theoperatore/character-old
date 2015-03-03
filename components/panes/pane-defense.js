@@ -35,7 +35,9 @@ var Defense = React.createClass({
     this.refs.settings.toggle(idx);
   },
   toggleHP : function() {
-    this.setState({ hpOpen : ((this.state.hpOpen === 0) ? 1 : 0) });
+    //this.setState({ hpOpen : ((this.state.hpOpen === 0) ? 1 : 0) });
+
+    this.refs['hp-zone'].toggle();
   },
   toggleRest : function() {
     this.refs['rest-popover'].toggle();
@@ -162,7 +164,9 @@ var Defense = React.createClass({
     }
 
     this.props.edit({ path : path, character : data });
-    this.setState({ dmg : "", temp : "", hpOpen : 0 });
+    //this.setState({ dmg : "", temp : "", hpOpen : 0 });
+    this.setState({ dmg : "", temp : "" });
+    this.toggleHP();
   },
   handleHelpToggle : function() {
     this.refs.help.toggle();
@@ -261,17 +265,16 @@ var Defense = React.createClass({
           <SettingsDefenses character={this.props.character} edit={this.props.edit}/>
         </Hatch>
         <div className="hatch-cover">
+        
           <ProgressBar onClick={this.toggleHP}>
             <ProgressBar bsStyle="info" label={temp + " temp"} now={tempPercent} key={1}/>
             <ProgressBar bsStyle={hpStyle} label={curr + " / " + max} now={hpPercent} key={2}/>
           </ProgressBar>
-          
-          <Accordion activeKey={this.state.hpOpen}>
-            <Panel className="no-padding" eventKey={1}>
-              <Input type="text" value={this.state.dmg} placeholder="damage taken / hp healed" onChange={this.handleHPInput.bind(this, "dmg")} buttonBefore={dmg} buttonAfter={heal}/>
-              <Input type="text" value={this.state.temp} placeholder="temporary hps" onChange={this.handleHPInput.bind(this, "temp")} buttonBefore={clear} buttonAfter={tempHeal} />
-            </Panel>
-          </Accordion>
+
+          <Panel3d ref="hp-zone">
+            <Input type="text" value={this.state.dmg} placeholder="damage taken / hp healed" onChange={this.handleHPInput.bind(this, "dmg")} buttonBefore={dmg} buttonAfter={heal}/>
+            <Input type="text" value={this.state.temp} placeholder="temporary hps" onChange={this.handleHPInput.bind(this, "temp")} buttonBefore={clear} buttonAfter={tempHeal} />
+          </Panel3d>
 
           <Panel className="text-center">
             <Grid fluid>

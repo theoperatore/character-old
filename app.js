@@ -537,7 +537,7 @@ var Character = React.createClass({
     return (
       <div>
         <Affix threshold={50}>
-          <Nav bsStyle="tabs" activeKey={this.state.activeNav} onSelect={this.setNav}>
+          <Nav fluid bsStyle="tabs" activeKey={this.state.activeNav} onSelect={this.setNav}>
             <NavItem eventKey={0}><Glyphicon glyph="info-sign" /></NavItem>
             <NavItem eventKey={1}><div className="icon-features" /></NavItem>
             <NavItem eventKey={2}><div className="icon-chart" /></NavItem>

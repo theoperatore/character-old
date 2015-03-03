@@ -36,8 +36,14 @@ input[type='checkbox'] {
   margin-top: 15px;
 }
 
+.title-menu {
+  margin: auto -5px;
+}
+
 .nav>li>a {
-  padding: 10px 13px;
+  padding: 10px 12px;
+  border: 0;
+  margin-right: 0;
 }
 
 .chkbox-lg {

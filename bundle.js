@@ -538,7 +538,7 @@ var Character = React.createClass({
     return (
       React.createElement("div", null, 
         React.createElement(Affix, {threshold: 50}, 
-          React.createElement(Nav, {bsStyle: "tabs", activeKey: this.state.activeNav, onSelect: this.setNav}, 
+          React.createElement(Nav, {fluid: true, bsStyle: "tabs", activeKey: this.state.activeNav, onSelect: this.setNav}, 
             React.createElement(NavItem, {eventKey: 0}, React.createElement(Glyphicon, {glyph: "info-sign"})), 
             React.createElement(NavItem, {eventKey: 1}, React.createElement("div", {className: "icon-features"})), 
             React.createElement(NavItem, {eventKey: 2}, React.createElement("div", {className: "icon-chart"})), 
@@ -1258,16 +1258,17 @@ var Panel3d = React.createClass({displayName: "Panel3d",
   // render the header in a div with a particular class
   // allows the render function to be a little cleaner
   renderHeader : function() {
-    if (this.props.title.props && this.props.title.props.children) {
+    if (this.props.title && this.props.title.props && this.props.title.props.children) {
       return (
-        React.createElement("div", {ref: "header", className: "panel3d-header " + this.props.className}, 
+        React.createElement("div", {ref: "header", className: "panel3d-header " + (this.props.className ? this.props.className : "")}, 
           this.props.title.props.children[0], 
           React.addons.cloneWithProps(this.props.title.props.children[1], { onClick : this.toggle })
         )  
       );
     }
+
     return (
-      React.createElement("div", {ref: "header", className: "panel3d-header " + this.props.className}, 
+      React.createElement("div", {ref: "header", className: "panel3d-header " + (this.props.className ? this.props.className : "") }, 
         React.createElement("span", {onClick: this.toggle}, this.props.title || "")
       )
     );
@@ -1687,7 +1688,9 @@ var Defense = React.createClass({
     this.refs.settings.toggle(idx);
   },
   toggleHP : function() {
-    this.setState({ hpOpen : ((this.state.hpOpen === 0) ? 1 : 0) });
+    //this.setState({ hpOpen : ((this.state.hpOpen === 0) ? 1 : 0) });
+
+    this.refs['hp-zone'].toggle();
   },
   toggleRest : function() {
     this.refs['rest-popover'].toggle();
@@ -1814,7 +1817,9 @@ var Defense = React.createClass({
     }
 
     this.props.edit({ path : path, character : data });
-    this.setState({ dmg : "", temp : "", hpOpen : 0 });
+    //this.setState({ dmg : "", temp : "", hpOpen : 0 });
+    this.setState({ dmg : "", temp : "" });
+    this.toggleHP();
   },
   handleHelpToggle : function() {
     this.refs.help.toggle();
@@ -1913,16 +1918,15 @@ var Defense = React.createClass({
           React.createElement(SettingsDefenses, {character: this.props.character, edit: this.props.edit})
         ), 
         React.createElement("div", {className: "hatch-cover"}, 
+        
           React.createElement(ProgressBar, {onClick: this.toggleHP}, 
             React.createElement(ProgressBar, {bsStyle: "info", label: temp + " temp", now: tempPercent, key: 1}), 
             React.createElement(ProgressBar, {bsStyle: hpStyle, label: curr + " / " + max, now: hpPercent, key: 2})
           ), 
-          
-          React.createElement(Accordion, {activeKey: this.state.hpOpen}, 
-            React.createElement(Panel, {className: "no-padding", eventKey: 1}, 
-              React.createElement(Input, {type: "text", value: this.state.dmg, placeholder: "damage taken / hp healed", onChange: this.handleHPInput.bind(this, "dmg"), buttonBefore: dmg, buttonAfter: heal}), 
-              React.createElement(Input, {type: "text", value: this.state.temp, placeholder: "temporary hps", onChange: this.handleHPInput.bind(this, "temp"), buttonBefore: clear, buttonAfter: tempHeal})
-            )
+
+          React.createElement(Panel3d, {ref: "hp-zone"}, 
+            React.createElement(Input, {type: "text", value: this.state.dmg, placeholder: "damage taken / hp healed", onChange: this.handleHPInput.bind(this, "dmg"), buttonBefore: dmg, buttonAfter: heal}), 
+            React.createElement(Input, {type: "text", value: this.state.temp, placeholder: "temporary hps", onChange: this.handleHPInput.bind(this, "temp"), buttonBefore: clear, buttonAfter: tempHeal})
           ), 
 
           React.createElement(Panel, {className: "text-center"}, 
@@ -5376,7 +5380,7 @@ var Title = React.createClass({
     return (
       React.createElement("div", {className: "container-fluid"}, 
         React.createElement("h2", {onClick: this.props.toggleAppSettings}, this.props.character.get('charName')), 
-        React.createElement(Nav, {bsStyle: "tabs", activeKey: this.props.activeNav || 0, onSelect: this.handleSelect}, 
+        React.createElement(Nav, {className: "title-menu", bsStyle: "tabs", activeKey: this.props.activeNav || 0, onSelect: this.handleSelect}, 
           React.createElement(NavItem, {eventKey: 0}, React.createElement(Glyphicon, {glyph: "info-sign"})), 
           React.createElement(NavItem, {eventKey: 1}, React.createElement("div", {className: "icon-features"})), 
           React.createElement(NavItem, {eventKey: 2}, React.createElement("div", {className: "icon-chart"})), 

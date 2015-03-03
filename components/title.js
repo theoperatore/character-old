@@ -14,7 +14,7 @@ var Title = React.createClass({
     return (
       <div className="container-fluid">
         <h2 onClick={this.props.toggleAppSettings}>{this.props.character.get('charName')}</h2>
-        <Nav bsStyle="tabs" activeKey={this.props.activeNav || 0} onSelect={this.handleSelect}>
+        <Nav className="title-menu" bsStyle="tabs" activeKey={this.props.activeNav || 0} onSelect={this.handleSelect}>
           <NavItem eventKey={0}><Glyphicon glyph="info-sign" /></NavItem>
           <NavItem eventKey={1}><div className="icon-features" /></NavItem>
           <NavItem eventKey={2}><div className="icon-chart" /></NavItem>
