@@ -145,7 +145,7 @@ var SettingsSpells = React.createClass({
 
     //spell = tmp['charSpells'][lvl]['spells'].splice(idx, 1)[0];
     tmp = tmp.updateIn(['charSpells', lvl, 'spells'], function(list) {
-      return list.splice(idx)
+      return list.splice(idx, 1)
     })
     path += name;
 
