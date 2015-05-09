@@ -1,4 +1,5 @@
-var React = require('react');
+var React = require('react/addons');
+var Perf = React.addons.Perf;
 var Page = require('page');
 
 // config? and preferences?
@@ -25,7 +26,14 @@ function render(dir, ctx) {
   switch (dir) {
     case "login": React.render(<Login characterName={ctx.params.charName}/>, document.body); break;
     case "signup": React.render(<Signup characterName={ctx.params.charName} />, document.body); break;
-    case "app": React.render(<App profile={ctx.params.profile} characterId={ctx.params.name} />, document.body); break;
+    case "app": {
+      //Perf.start();
+      React.render(<App profile={ctx.params.profile} characterId={ctx.params.name} />, document.body);
+      //Perf.stop();
+      //Perf.printWasted();
+      //Perf.printInclusive();
+      break;
+    }
     case "any" : React.render(<Any /> , document.body); break;
     default: break;
   }

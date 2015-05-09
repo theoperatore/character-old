@@ -5783,7 +5783,8 @@ module.exports = {
 };
 
 },{}],34:[function(require,module,exports){
-var React = require('react');
+var React = require('react/addons');
+var Perf = React.addons.Perf;
 var Page = require('page');
 
 // config? and preferences?
@@ -5810,13 +5811,20 @@ function render(dir, ctx) {
   switch (dir) {
     case "login": React.render(React.createElement(Login, {characterName: ctx.params.charName}), document.body); break;
     case "signup": React.render(React.createElement(Signup, {characterName: ctx.params.charName}), document.body); break;
-    case "app": React.render(React.createElement(App, {profile: ctx.params.profile, characterId: ctx.params.name}), document.body); break;
+    case "app": {
+      Perf.start();
+      React.render(React.createElement(App, {profile: ctx.params.profile, characterId: ctx.params.name}), document.body);
+      Perf.stop();
+      Perf.printWasted();
+      Perf.printInclusive();
+      break;
+    }
     case "any" : React.render(React.createElement(Any, null) , document.body); break;
     default: break;
   }
 }
 
-},{"./app":1,"./views/any":245,"./views/login":246,"./views/signup":247,"fastclick":37,"page":40,"react":244}],35:[function(require,module,exports){
+},{"./app":1,"./views/any":245,"./views/login":246,"./views/signup":247,"fastclick":37,"page":40,"react/addons":83}],35:[function(require,module,exports){
 /**
  *  Copyright (c) 2014, Facebook, Inc.
  *  All rights reserved.
