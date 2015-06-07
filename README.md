@@ -1,6 +1,15 @@
 Character
 =========
 
+DISCLAIMER
+==========
+
+This project is slowly being deprecated and moved to another project located [here](https://github.com/ClockworkMonocle/character). The code in this repo should be considered out of date and deprecated. If you would like to contribute, head on over the above link and make a pull request! 
+
+This repo will remain open for legacy purposes.
+
+---
+
 The goal of this project is to create a digital character sheet for playing Dungeons and Dragons 5th edition that removes the writing, erasing, and printing of paper character sheets. 
 
 It's decent right now with a beta preview [here](http://anpetersen.me/character/), but still needs some work! It currently uses Firebase as the backend.
